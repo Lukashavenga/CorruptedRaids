@@ -14,7 +14,7 @@ import { text, format } from "../../../src/text/index.js";
  * as its own movement, and two passes rather than three because you felt
  * yourself waiting through the last one.
  *
- * The pop is 520ms across FIVE frames, unevenly divided — see `chest-open` in
+ * The pop is 420ms across FIVE frames, unevenly divided — see `chest-open` in
  * motion.css. Frames at a metronomic rate are the recipe for reading as
  * stop-motion, which is exactly what they did; they now accelerate into the
  * burst and hold there.
@@ -29,7 +29,7 @@ const SHAKE_LOOPS = 2;
 const FRAMES = 6;
 
 const SHAKE_MS = SHAKE_FRAME_MS * FRAMES * SHAKE_LOOPS;
-const OPEN_MS = 520;
+const OPEN_MS = 420;
 /**
  * How far into the pop the item appears.
  *

@@ -117,7 +117,7 @@
 
 /* Timings mirror ChestShelf.tsx — change them together.
    shake: SHAKE_FRAME_MS 72 x 6 frames = 0.43s, SHAKE_LOOPS 2
-   open:  OPEN_MS 520ms over FIVE frames, unevenly — see @keyframes chest-open */
+   open:  OPEN_MS 420ms over FIVE frames, unevenly — see @keyframes chest-open */
 .chest-sprite.is-shaking {
   animation: chest-shake 0.43s steps(6, jump-none) 2;
 }
@@ -139,8 +139,8 @@
 .chest-sprite.is-revealed {
   background-image: url("/art/ui/loot-chest-open.png");
   animation:
-    chest-open 0.52s linear 1 forwards,
-    chest-open-swell 0.52s cubic-bezier(0.18, 0.9, 0.3, 1) 1 forwards;
+    chest-open 0.42s linear 1 forwards,
+    chest-open-swell 0.42s cubic-bezier(0.18, 0.9, 0.3, 1) 1 forwards;
 }
 
 /* THE END VALUE IS -5 FRAMES, NOT -6, AND THE TIMING IS `jump-none`.
@@ -189,11 +189,15 @@
    draining out of the moment at the moment. Stopping on frame five holds the
    full burst under the reveal instead.
 
-     0-21%   frame 1   109ms   lid straining
-     21-40%  frame 2   99ms    it gives
-     40-57%  frame 3   88ms    light escaping   <- accelerating
-     57-71%  frame 4   73ms
-     71-100% frame 5   151ms   full burst, and holds (forwards) */
+   The SPACING is what matters, not the total — the proportions below hold at
+   any duration, so retuning the speed is one number in the `animation`
+   shorthand above and nothing here needs to move.
+
+     0-21%   frame 1   88ms   lid straining
+     21-40%  frame 2   80ms   it gives
+     40-57%  frame 3   71ms   light escaping   <- accelerating
+     57-71%  frame 4   59ms
+     71-100% frame 5  122ms   full burst, and holds (forwards) */
 @keyframes chest-open {
   0%   { background-position: 0 0;                              animation-timing-function: step-end; }
   21%  { background-position: calc(var(--chest-size) * -1) 0;   animation-timing-function: step-end; }
