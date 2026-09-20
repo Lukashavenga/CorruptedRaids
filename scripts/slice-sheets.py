@@ -286,11 +286,60 @@ def write_index() -> None:
     print(f"  index      {total} ids -> web/src/admin/spriteIndex.ts")
 
 
+def warn_about_erases(only: "str | None") -> bool:
+    """Refuse to silently destroy eraser edits.
+
+    Re-slicing regenerates every sprite from the source sheet, which discards
+    every erase made in the admin's Sprite Eraser. That is by design — the
+    pixels are reproducible, which is why an eraser was worth building at all
+    — but it is SILENT, and silent is how 81 edits went missing with nobody
+    able to say when or why.
+
+    `art/sprites/_original/<folder>/<id>.png` is the copy the eraser takes
+    before a sprite's first edit, so its presence is an exact record of which
+    sprites have been erased. If any of them are about to be overwritten, say
+    so and make the caller confirm.
+    """
+    backup_dir = OUT / "_original"
+    if not backup_dir.is_dir():
+        return True
+
+    at_risk = []
+    for f in backup_dir.rglob("*.png"):
+        folder = f.parent.name
+        if only and folder != only:
+            continue
+        live = OUT / folder / f.name
+        if live.exists():
+            at_risk.append(f"{folder}/{f.name}")
+
+    if not at_risk:
+        return True
+
+    print("")
+    print(f"  {len(at_risk)} sprite(s) carry eraser edits that re-slicing will DISCARD:")
+    for name in sorted(at_risk)[:8]:
+        print(f"    {name}")
+    if len(at_risk) > 8:
+        print(f"    ... and {len(at_risk) - 8} more")
+    print("")
+    print("  Re-slicing rebuilds these from the source sheet and the erases are gone.")
+    print("  They are NOT recoverable afterwards: _original holds the PRE-edit copy,")
+    print("  so reverting gives you the un-erased sprite, not your edit.")
+    print("")
+    print("  Pass --force to slice anyway.")
+    print("")
+    return False
+
+
 if __name__ == "__main__":
     only = None
     if "--sheet" in sys.argv:
         only = sys.argv[sys.argv.index("--sheet") + 1]
     contact = "--contact" in sys.argv
+
+    if "--force" not in sys.argv and not warn_about_erases(only):
+        sys.exit(1)
 
     total = 0
     for slot, cfg in SHEETS.items():

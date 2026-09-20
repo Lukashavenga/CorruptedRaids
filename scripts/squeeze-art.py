@@ -40,7 +40,7 @@ useStageScale refuses a fractional scale.
 import sys
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageStat
 
 ROOT = Path(__file__).resolve().parent.parent
 # BOTH copies. The slicers write every sprite to art/ AND to web/public/art/
@@ -132,7 +132,27 @@ def squeeze(path: Path) -> tuple[int, int]:
         # FASTOCTREE, not the default MEDIANCUT: median cut cannot quantize an
         # RGBA image at all in Pillow, and every sprite here has an alpha
         # channel it cannot lose — they are cut-outs standing on a backdrop.
-        out = im.quantize(colors=255, method=Image.FASTOCTREE, dither=Image.NONE)
+        #
+        # THE RESULT IS MEASURED, NOT ASSUMED. Most of this art quantises for
+        # free: a character chest moves by at most 26/255 in any channel and
+        # about 3 on average, for a fifth of the bytes. Some of it does not —
+        # one enemy sprite shifted colour by 132, which is a different-looking
+        # sprite, not a compression artefact. Guessing which is which from a
+        # proxy (how much partial alpha it has, say) gets it wrong in both
+        # directions, so this does the conversion, compares it to the source,
+        # and keeps the original when the error is too large to be invisible.
+        quantised = im.quantize(colors=255, method=Image.FASTOCTREE, dither=Image.NONE)
+        check = quantised.convert("RGBA")
+        colour_diff = ImageChops.difference(im.convert("RGB"), check.convert("RGB"))
+        alpha_diff = ImageChops.difference(im.getchannel("A"), check.getchannel("A"))
+        worst = max(hi for _, hi in colour_diff.getextrema())
+        average = max(ImageStat.Stat(colour_diff).mean)
+        worst_alpha = max(alpha_diff.getextrema())
+
+        # 64 and 8 sit between the two populations measured above with room to
+        # spare on each side, rather than hugging either one.
+        faithful = worst <= 64 and average <= 8 and worst_alpha <= 40
+        out = quantised if faithful else im
 
         if WRITE:
             out.save(path, format="PNG", optimize=True)
@@ -147,12 +167,19 @@ def squeeze(path: Path) -> tuple[int, int]:
 
 
 def main() -> int:
+    # `_original` is skipped OUTRIGHT, not merely left un-resized.
+    #
+    # Those are the copies the Sprite Eraser takes before a sprite's first
+    # edit, and POST /sprite/revert restores from them. Their entire job is to
+    # be a faithful record, so re-encoding them — even by a few levels — means
+    # reverting hands back something that is not what was there. A backup you
+    # have quietly edited is not a backup.
     files = sorted(
         p
         for root in ART_ROOTS
         if root.exists()
         for p in root.rglob("*.png")
-        if "reference" not in p.parts and "New Assets" not in p.parts
+        if "reference" not in p.parts and "New Assets" not in p.parts and "_original" not in p.parts
     )
     if not files:
         sys.exit(f"no PNGs under {' or '.join(str(r) for r in ART_ROOTS)}")
