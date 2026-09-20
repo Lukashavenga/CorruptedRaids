@@ -1,0 +1,87 @@
+{
+  "_comment": "Every balance knob in the game. See src/engine/balance.ts for what each field does and why. RESCALED when Armour was removed and Skill took over mitigation: a level-1 character now opens at 9-14 health rather than 40-70, so every stat-scale number here came down with it (skillCurveK, perPoint, healing). Rewards and prices did not \u2014 they are not on the stat scale. Re-measure with `npm run simulate:progression` after touching any of it. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
+  "combat": {
+    "skillCurveK": 10,
+    "maxMitigation": 0.75,
+    "damageVariance": 0.2,
+    "critMultiplier": 1.8,
+    "minDamage": 1,
+    "maxTicks": 400,
+    "maxTicksPerCombatant": 20
+  },
+  "aggro": {
+    "base": 10,
+    "roleMultiplier": {
+      "tank": 6,
+      "dps": 1,
+      "healer": 0.6
+    },
+    "perDamageDealt": 0.08,
+    "focusBreakChance": 0.22
+  },
+  "healing": {
+    "triggerBelowFraction": 0.7,
+    "base": 2,
+    "perSkillPoint": 0.5
+  },
+  "roles": {
+    "_comment": "What each role DOES beyond its stat block. See src/engine/balance.ts.",
+    "tank": {
+      "mitigationPerSkill": 0.012,
+      "maxSelfMitigation": 0.4,
+      "guardPerSkill": 0.01,
+      "maxGuard": 0.35,
+      "tauntEveryNActions": 3,
+      "tauntTicks": 6,
+      "tauntAggroMultiplier": 4,
+      "aggroPerSkill": 0.03,
+      "maxAggroFromSkill": 1.5
+    },
+    "healer": {
+      "spdPerSkill": 0.15,
+      "maxSpdBonus": 3,
+      "tankHealMultiplier": 1.6,
+      "selfHealMultiplier": 0.4
+    }
+  },
+  "roleRarity": {
+    "scarceBelowShare": 0.2,
+    "crowdedAboveShare": 0.5,
+    "scarceMultiplier": 1.15,
+    "crowdedMultiplier": 0.92
+  },
+  "partyScaling": {
+    "baselinePartySize": 5,
+    "hpPerExtraMember": 0.05,
+    "maxMultiplier": 6,
+    "minMultiplier": 0.4,
+    "atkPerDoubling": 0.65,
+    "_comment": "Enemy ATTACK is SUB-LINEAR in headcount (atkPerDoubling = per DOUBLING of the party, not per head); HP stays linear (hpPerExtraMember). The old per-head atkPerExtraMember is gone, not deprecated - it is what made the top of the ladder unreachable: at 0.24 a party of 25 met 5.8x attack while their own HP had not moved, so Woop Woop read 0-7% at EVERY headcount from 5 to 30 and Ladies of The Knight never won. Measured sweep (7 curves x 3 dungeons x 10 headcounts): 0.65 gives the top of the ladder a real turnout curve without flattening it to a guaranteed win, which 0.45 did. 0.65 per doubling is ~2.9x at forty players; do not read it as a per-head number. Re-measure with `npm run simulate:progression` section 11 after touching any of it."
+  },
+  "progression": {
+    "pointsPerLevel": 2,
+    "perPoint": {
+      "hp": 2,
+      "atk": 1,
+      "skill": 1,
+      "spd": 1
+    }
+  },
+  "economy": {
+    "recycleRate": 0.4,
+    "valueByRarity": {
+      "common": 20,
+      "uncommon": 45,
+      "rare": 110,
+      "epic": 260,
+      "legendary": 600
+    }
+  },
+  "rewards": {
+    "mobDropChance": 0.6,
+    "casualtyXpMultiplier": 0.4,
+    "casualtyLootChance": 0.15,
+    "defeatXpMultiplier": 0.15,
+    "compositionBonusMax": 0.25
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "paired-kunai",
+  "name": "Paired Kunai",
+  "slot": "mainHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 5
+  },
+  "description": "Paired Kunai. Taken, not given.",
+  "tags": [],
+  "sprite": "mh17",
+  "requires": {
+    "atk": 24
+  }
+}

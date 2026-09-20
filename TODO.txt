@@ -1,0 +1,12 @@
+ The Admin Section needs review. The Raids - I can't edit the name or create new raids. I need to also be able to enable and disable raids and dungeons.
+
+The Gear screen, is made redundant by the Placement screen - rename Placement to Gear and let me do everything from there - but improve the screen layout so it's more dynamic and easier to work with.
+
+I should also be able to upload new assets there.
+
+I need to be able to resize the Boss Characters and also select or upload them.
+
+Same with the Dungeons needs to support upload, and resize of character models.
+
+
+Also changes I make to Gear are not storing is this because of switching to Supabase

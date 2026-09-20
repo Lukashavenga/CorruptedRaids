@@ -1,0 +1,15 @@
+{
+  "id": "tidecaller-staff",
+  "name": "Tidecaller Staff",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 6
+  },
+  "description": "Tidecaller Staff. Taken, not given.",
+  "tags": [],
+  "sprite": "mh22",
+  "requires": {
+    "atk": 32
+  }
+}

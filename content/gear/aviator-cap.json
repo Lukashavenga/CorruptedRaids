@@ -1,0 +1,14 @@
+{
+  "id": "aviator-cap",
+  "name": "Aviator Cap",
+  "slot": "head",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Aviator Cap. Taken, not given.",
+  "tags": [],
+  "sprite": "head11",
+  "requires": {}
+}

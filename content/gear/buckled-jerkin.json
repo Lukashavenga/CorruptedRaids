@@ -1,0 +1,17 @@
+{
+  "id": "buckled-jerkin",
+  "name": "Buckled Jerkin",
+  "slot": "top",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Buckled Jerkin. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t2",
+    "female": "female-t2"
+  },
+  "requires": {}
+}

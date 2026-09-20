@@ -1,0 +1,1301 @@
+/* =========================================================================
+   Loadout — what goes inside the panels.
+
+   The character card, the stats, the role plates, the bag, the shop. Sizes
+   here are in `em` and percentages wherever they can be, because the phone
+   layout shrinks the type scale rather than re-stating every rule.
+   ========================================================================= */
+
+/* --- the character card -------------------------------------------------- */
+
+.doll-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doll-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* The sockets ask about the width of THIS PANEL, not of the window. At two
+     columns the card is ~440px wide while the window is still 1000px, so a
+     viewport rule fires far too late and the flanking sockets are clipped off
+     the panel edge — the "icons go out of view" bug. AGENTS.md §8. */
+  container-type: inline-size;
+  container-name: doll;
+}
+
+.doll-head {
+  text-align: center;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--rail-line);
+}
+
+.doll-name {
+  margin: 0;
+  /* 32 = two bitmap cells, so the one big display-font word on this panel is
+     actually sharp. */
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  color: #f2e3ae;
+  text-shadow: var(--edge-hard);
+}
+
+.doll-meta {
+  margin: 3px 0 0;
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--ink-body);
+}
+
+.doll-meta strong {
+  color: var(--rail-lit);
+  font-weight: 500;
+}
+
+/*
+ * The stage: sockets, figure, sockets.
+ *
+ * THE NICHE IS BEHIND THE FIGURE, NOT BEHIND THE WHOLE ROW.
+ *
+ * It was the background of the entire stage, and that had two faults at once.
+ * The painting is 390x434 and the stage is wide and short, so `cover` scaled it
+ * to twice the width and showed the middle third — a skull the size of the
+ * character and a pillar out of nowhere. And the sockets, which are the things
+ * you actually read here, sat on top of torchlight and coins.
+ *
+ * Behind the middle column it is close to its drawn proportions at every
+ * layout, the character stands in it, and the sockets get clean ground either
+ * side. A scrim over the artwork is no longer needed, because nothing is on it.
+ */
+.doll-stage {
+  display: grid;
+  /*
+   * Three sized tracks, centred — not `1fr` in the middle.
+   *
+   * With a flexible middle the two socket columns are pinned to the panel's
+   * outside edges however wide it gets, so at 720px the gear sat a hand's
+   * width away from the character it belongs to. Sizing all three and
+   * centring the group keeps them together at any width.
+   *
+   * The sockets get the larger share: a player spends more time reading and
+   * changing what is in them than looking at the figure.
+   */
+  grid-template-columns: minmax(0, 112px) minmax(0, 300px) minmax(0, 112px);
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 0 0;
+}
+
+.doll-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/*
+ * The niche, sized by the painting rather than by whatever is left over.
+ *
+ * `aspect-ratio` is the whole trick: the alcove is drawn 390x434, and given
+ * that shape to fill, `cover` crops nothing and stretches nothing at any
+ * layout width. Without it the box took the grid's leftover width and the
+ * socket columns' height — a 537x170 letterbox showing the middle of a
+ * portrait painting, which is where the giant skull came from.
+ *
+ * Bottom-anchored, so the floor is the floor whatever height it ends up.
+ */
+.doll-center {
+  /* Explicit, not shrink-wrapped. The rig sizes itself to 100% of this box,
+     so a box that sizes itself to the rig is a circle the layout resolves at
+     zero — which is exactly what happened once: the figure vanished. */
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 390 / 434;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: url("/art/ui/alcove.png") center bottom / cover no-repeat;
+  border: 2px solid #2a2333;
+  border-radius: 3px;
+  box-shadow: inset 0 0 34px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+/* The rig measures this box (CharacterSprite `fluid`), so this is where the
+   figure's size is actually decided — no inline width to fight. */
+.doll-rig {
+  width: 100%;
+  filter: drop-shadow(0 6px 10px rgba(7, 6, 12, 0.8));
+}
+
+/* --- sockets ------------------------------------------------------------- */
+
+.socket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sits directly on the painting, so it gets the real outline rather than a
+   shadow — against the torch flame a shadow alone disappears. */
+.socket-label {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #d8c9a8;
+  white-space: nowrap;
+  text-shadow: var(--edge-hard);
+}
+
+/* The frame is the positioning context for the show/hide dot, so the dot can
+   sit inside the socket's corner rather than hanging off the panel edge —
+   where the right-hand column used to have it clipped. */
+.socket-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 104px;
+}
+
+/*
+ * The socket box IS the drawn cell.
+ *
+ * It used to be CSS approximating one — a gradient fill, a 9px radius, an
+ * inset glow — and that is what read as glassy and futuristic next to pixel
+ * art. `cell.png` is the same cell the artist drew in the four-cell strip, and
+ * `tile-*.png` is that cell with a slot mark already in it, so an empty socket
+ * and a filled one are the same object with different contents.
+ *
+ * `pixelated` is not optional here: the source is 58px and these render up to
+ * ~104px, and smooth upscaling turns a hard-edged drawn frame into a blur that
+ * looks nothing like the sprites inside it.
+ */
+.socket-box,
+.loadout button.socket-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  background: url("/art/ui/cell.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--ink-dim);
+}
+
+/* An empty socket wearing its tile: the tile already contains the cell, so it
+   replaces the background rather than sitting on it. */
+.socket-tile {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  image-rendering: pixelated;
+}
+
+.socket-box .item-icon,
+.socket-box .slot-icon {
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+}
+
+.loadout button.socket-box {
+  cursor: pointer;
+  transition: filter 0.12s ease, transform 0.12s ease;
+}
+
+.loadout button.socket-box:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.25);
+}
+
+/* The socket whose picker is open, lit so it is obvious which list you are
+   looking at when the picker is a panel further down. */
+.loadout button.socket-box.is-picking {
+  filter: brightness(1.35) drop-shadow(0 0 6px rgba(235, 179, 107, 0.7));
+}
+
+/*
+ * Rarity lives in the socket's rim, never on the item art — the Art Bible
+ * rule, and what lets one piece of item art serve every tier.
+ */
+/* The cell is a picture, so it has no border to recolour. The rim is drawn
+   over it instead, inset far enough to sit on the cell's own frame. */
+.socket-box.is-filled::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.loadout .socket-box.rarity-common::after { border-color: rgba(122, 133, 148, 0.5); }
+.loadout .socket-box.rarity-uncommon::after { border-color: var(--rarity-uncommon); }
+.loadout .socket-box.rarity-rare::after { border-color: #4f7fd0; }
+.loadout .socket-box.rarity-epic::after { border-color: var(--rarity-epic); }
+.loadout .socket-box.rarity-legendary::after { border-color: var(--rarity-legendary); }
+
+.loadout .socket-eye {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  background: rgba(7, 6, 12, 0.92);
+  border: 1px solid var(--rail-lit);
+  border-radius: 50%;
+  font-size: 8px;
+  line-height: 1;
+  color: var(--rail-lit);
+  cursor: pointer;
+  /* Held back until asked for. It is a per-item cosmetic toggle, and at full
+     strength a kitted character wears seven gold dots that read as damage
+     markers rather than as controls. */
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+}
+
+.socket:hover .socket-eye,
+.loadout .socket-eye:focus-visible,
+.loadout .socket-eye.is-hidden {
+  opacity: 1;
+}
+
+.loadout .socket-eye.is-hidden {
+  border-color: #4d4a4f;
+  color: #7d7365;
+}
+
+.loadout .socket-eye:hover {
+  background: var(--rail-lit);
+  color: #23180c;
+}
+
+.doll-xp {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.doll-xp .xp-bar {
+  width: 100%;
+}
+
+.doll-xp span {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.appearance-toggle {
+  width: 100%;
+}
+
+/* --- the slot picker ----------------------------------------------------- */
+
+/*
+ * What fits the socket you just clicked.
+ *
+ * Under the stage rather than floating over it: a popover anchored to a socket
+ * has to dodge the panel edge on one side and the character on the other, and
+ * on a phone there is nowhere for it to go that is not on top of the thing it
+ * is describing.
+ */
+.slot-picker {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: #131020;
+  border: 2px solid #3b3a44;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.slot-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.slot-picker-head h3 {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rail-lit);
+  text-shadow: var(--edge-hard);
+}
+
+.slot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  /* About six rows, then it scrolls: a slot with thirty candidates should not
+     push the stats panel off the page. */
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-left: 3px solid #4d4a4f;
+}
+
+/* What is in the slot now, marked as such and always first. */
+.slot-row.is-worn {
+  background: #201a2c;
+}
+
+.loadout .slot-row.rarity-common { border-left-color: rgba(122, 133, 148, 0.6); }
+.loadout .slot-row.rarity-uncommon { border-left-color: var(--rarity-uncommon); }
+.loadout .slot-row.rarity-rare { border-left-color: #4f7fd0; }
+.loadout .slot-row.rarity-epic { border-left-color: var(--rarity-epic); }
+.loadout .slot-row.rarity-legendary { border-left-color: var(--rarity-legendary); }
+
+/* --- appearance ---------------------------------------------------------- */
+
+.body-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.loadout button.body-choice {
+  padding: 8px 6px;
+  background: linear-gradient(180deg, var(--slab-lit), var(--slab-deep));
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 8px;
+  color: var(--ink-body);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.loadout button.body-choice.is-current {
+  border-color: var(--rail-lit);
+  color: var(--ink-bright);
+  opacity: 1;
+}
+
+.tone-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.loadout button.tone {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #4d4a4f;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.loadout button.tone:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.loadout button.tone.is-current {
+  border-color: var(--rail-lit);
+}
+
+/* --- stats --------------------------------------------------------------- */
+
+.points {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.points.has-points {
+  color: var(--rail-lit);
+}
+
+.stat-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 12px;
+  min-width: 0;
+}
+
+/*
+ * One stat per row once the panel is narrow.
+ *
+ * Two-up in a 246px panel leaves each card about 118px, and a card is an icon,
+ * a name, a number and a spend button: the name was squeezed to zero width and
+ * the button ended up sitting on top of the number. A container query, not a
+ * media query — the panel is narrow at two columns and wide at one for the
+ * same window.
+ */
+@container panel (max-width: 340px) {
+  .stat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .role-choices {
+    gap: 6px;
+  }
+
+  .loadout button.role-choice {
+    padding: 12px 4px;
+    font-size: 13px;
+  }
+}
+
+/*
+ * The bag's column count follows the panel too.
+ *
+ * It is drawn in whole rows of eight, so the count and the layout have to
+ * agree — but eight cells in a 260px panel is a 26px cell, which is smaller
+ * than the item drawn in it. Four is the other divisor of sixteen.
+ */
+@container panel (max-width: 420px) {
+  .inv-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat-card-icon {
+  display: flex;
+  flex: none;
+}
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.stat-card-name {
+  font-size: 13px;
+  color: var(--ink-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Barlow, not the bitmap face: see the note in loadout.css. This is the number
+   a player reads most and it was running between the font's cells. */
+.stat-card-value {
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--ink-bright);
+  text-shadow: var(--edge-hard);
+}
+
+.stat-gear {
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.stat-gear.up {
+  color: var(--green);
+}
+
+.stat-gear.down {
+  color: var(--danger);
+}
+
+.stat-card-spent {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--ink-dim);
+}
+
+.stat-add {
+  flex: none;
+  min-width: 46px;
+}
+
+/* --- role ---------------------------------------------------------------- */
+
+.role-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/*
+ * Scoped under .loadout to outrank the generic `.loadout button` rule —
+ * without the extra specificity the gold fill wins and the UNSELECTED roles
+ * end up looking like the chosen one.
+ */
+.loadout button.role-choice {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  color: var(--ink-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/*
+ * Each role in its own colour, taken from the sheet's three plates.
+ *
+ * The unchosen two are the plate's edge colour at a whisper and the chosen one
+ * is the plate itself — so which role you are is legible at a glance rather
+ * than depending on spotting a border one shade different from its neighbours.
+ */
+.loadout button.role-choice.role-is-tank { border-color: rgba(34, 125, 134, 0.45); }
+.loadout button.role-choice.role-is-dps { border-color: rgba(138, 71, 159, 0.45); }
+.loadout button.role-choice.role-is-healer { border-color: rgba(65, 89, 55, 0.55); }
+
+.loadout button.role-choice:hover:not(:disabled) {
+  border-color: var(--rail-lit);
+}
+
+.loadout button.role-choice.is-current {
+  color: var(--ink-bright);
+  opacity: 1;
+  cursor: default;
+}
+
+/*
+ * The chosen role, lit rather than merely outlined.
+ *
+ * The sheet's three role plates were tried here as a nine-slice and are not
+ * used: they are drawn 1.5:1 and a card in this grid is nearly square, so the
+ * plate's corners arrive at their full drawn size on a 106px card and read as
+ * a thick frame around a small middle. The colours below are sampled from
+ * those plates, which is what they are actually good for.
+ */
+.loadout button.role-choice.role-is-tank.is-current {
+  background: linear-gradient(180deg, #1b3a56, var(--tank-fill));
+  border-color: var(--tank-edge);
+  box-shadow:
+    inset 0 0 0 1px rgba(63, 160, 164, 0.35),
+    0 0 16px rgba(34, 125, 134, 0.3);
+}
+
+.loadout button.role-choice.role-is-dps.is-current {
+  background: linear-gradient(180deg, #572464, var(--dps-fill));
+  border-color: var(--dps-edge);
+  box-shadow:
+    inset 0 0 0 1px rgba(195, 94, 212, 0.35),
+    0 0 16px rgba(138, 71, 159, 0.3);
+}
+
+.loadout button.role-choice.role-is-healer.is-current {
+  background: linear-gradient(180deg, #234634, var(--healer-fill));
+  border-color: var(--healer-edge);
+  box-shadow:
+    inset 0 0 0 1px rgba(92, 167, 93, 0.35),
+    0 0 16px rgba(65, 89, 55, 0.4);
+}
+
+/* --- the role guide ------------------------------------------------------ */
+
+/*
+ * The card you are READING is not necessarily the card you ARE.
+ *
+ * Clicking your own role used to do nothing and clicking another switched you
+ * to it before you had read what it does. Now a click opens the explanation
+ * and a separate button commits, so the two states need to look different:
+ * `is-current` is filled with the role's plate colour, `is-reading` gets a
+ * bright rim.
+ */
+.loadout button.role-choice.is-reading {
+  border-color: var(--rail-lit);
+  box-shadow: 0 0 0 1px rgba(235, 179, 107, 0.35);
+}
+
+.role-guide {
+  margin-top: 12px;
+  padding: 11px 12px;
+  background: #131020;
+  border: 2px solid #3b3a44;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.role-guide h3 {
+  margin: 0 0 2px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rail-lit);
+  text-shadow: var(--edge-hard);
+}
+
+/* One line of voice under the heading. Italic and dim: it sets the tone and
+   then gets out of the way of the numbers. */
+.role-flavour {
+  margin: 0 0 9px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+/* The stat table. A narrow label column and a value column, which is what
+   makes it read as a tooltip rather than as a paragraph with a bullet on it —
+   the eye lands on the label, then the number, and can stop after either. */
+.role-stats {
+  margin: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.role-stats > div {
+  display: grid;
+  /* Fixed label column so every value starts on the same line down the panel.
+     `auto` let the widest label set it and the shortest role's table then sat
+     at a different indent from its neighbours' — three tabs that jump. */
+  grid-template-columns: 86px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.role-stats dt {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rail);
+  text-shadow: var(--edge-hard);
+}
+
+.role-stats dd {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink-body);
+}
+
+/* The one caveat per role, after the table — the thing the numbers do not say. */
+.role-note {
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+
+/* The party-composition rule. Under everything and quieter than everything,
+   because it is the same line on all three cards — it is not one of this
+   role's numbers, it is the reason to consider the other two. */
+.role-rarity {
+  margin: 7px 0 0;
+  padding-top: 7px;
+  border-top: 1px solid #2a2836;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+
+.loadout button.role-commit {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* --- the bag ------------------------------------------------------------- */
+
+.bag-count {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+/*
+ * Eight columns, matching the row the grid is drawn in whole multiples of.
+ *
+ * auto-fill was tried and is wrong here: it picks its own column count from
+ * the available width, so a bag drawn as sixteen cells came out as nine and
+ * seven — a full row and a stump. The count and the layout have to agree, and
+ * the count is the one with a reason behind it.
+ */
+.inv-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 7px;
+}
+
+/* The same drawn cell the sockets wear, for the same reason.
+   Both forms listed: a filled cell is a <button>, and a bare class loses to
+   the `.loadout button` gold fill — which is what turned the whole bag tan. */
+.inv-cell,
+.loadout button.inv-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  padding: 0;
+  background: url("/art/ui/cell.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--ink-dim);
+}
+
+.inv-cell .item-icon {
+  width: 66%;
+  height: 66%;
+  object-fit: contain;
+}
+
+.inv-cell.is-empty {
+  opacity: 0.55;
+}
+
+.loadout button.inv-cell {
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.15s ease;
+}
+
+.loadout button.inv-cell:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.loadout button.inv-cell.is-selected {
+  filter: brightness(1.3) drop-shadow(0 0 5px rgba(235, 179, 107, 0.8));
+}
+
+/* Rarity as an inset rim drawn over the cell picture — the cell is art and
+   has no border of its own to recolour. */
+.inv-cell.is-filled::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.loadout .inv-cell.rarity-common::after { border-color: rgba(122, 133, 148, 0.5); }
+.loadout .inv-cell.rarity-uncommon::after { border-color: var(--rarity-uncommon); }
+.loadout .inv-cell.rarity-rare::after { border-color: #4f7fd0; }
+.loadout .inv-cell.rarity-epic::after { border-color: var(--rarity-epic); }
+.loadout .inv-cell.rarity-legendary::after { border-color: var(--rarity-legendary); }
+
+/* --- recycle mode -------------------------------------------------------- */
+
+/*
+ * A bag you are scrapping from should not look like a bag you are reading.
+ * The whole grid takes the warning tint, so there is no way to be in this mode
+ * and not know it.
+ */
+.inv-grid.is-recycling .inv-cell.is-filled {
+  filter: saturate(0.5) brightness(0.8);
+}
+
+.loadout .inv-grid.is-recycling .inv-cell.is-marked {
+  filter: none;
+}
+
+.inv-cell.is-marked::after {
+  border-color: #d0616f;
+}
+
+/* A wash, not a lid: you still have to be able to see WHAT you marked. */
+.inv-tick {
+  position: absolute;
+  inset: 4px;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 2px;
+  background: rgba(138, 26, 40, 0.34);
+  color: #ffd9c8;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: var(--edge-hard);
+  pointer-events: none;
+}
+
+.inv-detail.is-recycle-bar {
+  border-left-color: #b4515f;
+}
+
+/* The detail strip for whichever cell is selected — where equip and recycle
+   live, since a grid cell has no room for them. */
+/*
+ * Pinned to the bottom of the viewport while the bag is on screen.
+ *
+ * As a plain block under the grid this opened BELOW THE FOLD on a phone: you
+ * tapped an item, the thing that lets you equip or scrap it appeared where you
+ * could not see it, and the tap read as doing nothing. Sticky costs nothing
+ * where the panel already fits and fixes the only case where it does not.
+ */
+.inv-detail {
+  position: sticky;
+  bottom: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #4d4a4f;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 6px 18px rgba(0, 0, 0, 0.72);
+}
+
+.inv-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.inv-detail-actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.slot-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-bright);
+}
+
+.slot-mods,
+.bag-sub {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.owned {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--rail-lit);
+  margin-left: 3px;
+}
+
+/* --- consumables inside the bag ------------------------------------------ */
+
+.inv-consumables {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rail-line);
+}
+
+.inv-consumables h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rail-lit);
+}
+
+.inv-consumables ul {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.inv-consumables li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, var(--slab-lit), var(--slab-deep));
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 8px;
+}
+
+/* --- the shop ------------------------------------------------------------ */
+
+.shop-purse {
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--rail-lit);
+}
+
+.sub-heading {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 14px 0 8px;
+}
+
+/*
+ * A row per item: what it is, what it asks of you, what it costs.
+ *
+ * The price is the button because buying is the only thing this list does,
+ * and a separate "buy" control beside a separate price is two things to read
+ * where one will do.
+ */
+.bag {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.bag li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-left: 3px solid #4d4a4f;
+}
+
+.bag-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Equip and Recycle stack so a long "Requires level N" label doesn't shove
+   the recycle payout off the row. */
+.bag-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  flex: none;
+}
+
+/* List rows carry rarity on the left edge only. */
+.loadout .bag li.rarity-common,
+.loadout .inv-detail.rarity-common { border-left-color: #5a6472; }
+.loadout .bag li.rarity-uncommon,
+.loadout .inv-detail.rarity-uncommon { border-left-color: var(--rarity-uncommon); }
+.loadout .bag li.rarity-rare,
+.loadout .inv-detail.rarity-rare { border-left-color: #4f7fd0; }
+.loadout .bag li.rarity-epic,
+.loadout .inv-detail.rarity-epic { border-left-color: var(--rarity-epic); }
+.loadout .bag li.rarity-legendary,
+.loadout .inv-detail.rarity-legendary { border-left-color: var(--rarity-legendary); }
+
+/*
+ * The stock scrolls. All of it, in one box, so gear and consumables move
+ * together — two scroll areas in one panel is two things to discover.
+ *
+ * This was a "View More" that showed seven rows. That is one tap between a
+ * player and the thing they came to the shop for, every single time, and a
+ * scrollbar says "there is more below" just as clearly.
+ */
+.shop-stock {
+  max-height: 62vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Generated item art. `pixelated` keeps the source crisp when it is drawn
+   smaller; without it the outlines go soft and the icons stop matching the
+   sprites they sit beside. */
+.item-icon,
+.slot-icon,
+.stat-icon,
+.tab-glyph {
+  display: block;
+  flex: none;
+  image-rendering: pixelated;
+}
+
+/* --- the standalone screens ------------------------------------------------
+ *
+ * Leaderboard, How to Play and Settings. One column each, framed like a panel
+ * so they belong to the same page as the loadout grid, but not IN that grid —
+ * they replace it rather than sitting beside it.
+ */
+.screen {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 18px 20px 22px;
+  background: #131020;
+  border: 2px solid #3b3a44;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.screen-head {
+  margin-bottom: 16px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #2a2836;
+}
+
+.screen-head h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  color: var(--ink-bright);
+  text-shadow: var(--edge-hard);
+}
+
+.screen-lead {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+.screen-h {
+  margin: 18px 0 7px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rail-lit);
+  text-shadow: var(--edge-hard);
+}
+
+.screen-empty,
+.screen-foot {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+}
+
+.loadout button.screen-action {
+  margin-top: 10px;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, #2a2438, #1b1728);
+  border: 1px solid #4a4358;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+
+.loadout button.screen-action:hover:not(:disabled) {
+  border-color: var(--rail);
+  color: var(--ink-bright);
+}
+
+.loadout button.screen-action.is-danger {
+  border-color: #6b3244;
+  color: #d99;
+}
+
+/* --- leaderboard ---------------------------------------------------------- */
+.board {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.board th {
+  padding: 0 8px 6px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--rail);
+  border-bottom: 1px solid #2a2836;
+}
+
+.board td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #201e2c;
+  color: var(--ink-body);
+}
+
+.board-rank {
+  width: 2.5em;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.board-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.board-corruption {
+  color: var(--rail-lit);
+  font-weight: 600;
+}
+
+.board-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Your own row, so a leaderboard answers "where am I" without a search. */
+.board tr.is-you td {
+  background: rgba(138, 71, 159, 0.16);
+  color: var(--ink-bright);
+}
+
+.board-you {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: var(--rail-lit);
+}
+
+/* --- how to play ---------------------------------------------------------- */
+.how-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 9px;
+}
+
+.how-steps li {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+.how-steps strong {
+  display: block;
+  color: var(--ink-bright);
+}
+
+.how-body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-body);
+}
+
+.how-stats {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.how-stats > div {
+  display: grid;
+  grid-template-columns: 118px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.how-stats dt {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rail);
+}
+
+.how-stats dd {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+
+/* --- settings ------------------------------------------------------------- */
+.settings-label {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-bright);
+}
+
+.settings-hint {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-dim);
+}
+
+.settings-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.loadout button.settings-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 7px;
+  background: #1b1728;
+  border: 1px solid #3b3a44;
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--ink-body);
+  cursor: pointer;
+}
+
+/* Hidden reads as struck out rather than merely dim: dim is what a disabled
+   control looks like, and these are all live. */
+.loadout button.settings-slot.is-hidden {
+  opacity: 0.55;
+  border-color: #2a2836;
+  text-decoration: line-through;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 7px 9px;
+  background: #0e0c17;
+  border: 1px solid #3b3a44;
+  border-radius: 3px;
+  font-family: var(--font-data);
+  font-size: 11.5px;
+  color: var(--ink-dim);
+}
+
+.loadout .settings-row .screen-action {
+  margin-top: 0;
+}

@@ -1,0 +1,15 @@
+{
+  "id": "cleaver-greatsword",
+  "name": "Cleaver Greatsword",
+  "slot": "mainHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "atk": 2
+  },
+  "description": "Cleaver Greatsword. Taken, not given.",
+  "tags": [],
+  "sprite": "mh04",
+  "requires": {
+    "atk": 8
+  }
+}

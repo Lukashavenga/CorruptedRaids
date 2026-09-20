@@ -1,0 +1,17 @@
+{
+  "id": "chainmail-rig",
+  "name": "Chainmail Rig",
+  "slot": "top",
+  "rarity": "rare",
+  "statMods": {
+    "hp": 4,
+    "skill": 2
+  },
+  "description": "Chainmail Rig. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t3",
+    "female": "female-t3"
+  },
+  "requires": {}
+}

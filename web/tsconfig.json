@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  // "../src" is included, not just referenced, because web/ imports shared
+  // rig/text/state config and types directly from there (see the root
+  // README's "The overlay" section, specifically the import-kind
+  // convention — value imports are limited to files with zero Node
+  // runtime deps; engine/state types come in via `import type`, which
+  // Vite/esbuild elide entirely, so nothing Node-only ever reaches the
+  // browser bundle). This also means `tsc --noEmit` here typechecks all
+  // of root src/, not just the files web/ actually imports — a stricter
+  // check than necessary, but it means a Node-only file with a type error
+  // still fails `build:web` loudly instead of silently.
+  "include": ["src", "../src"]
+}

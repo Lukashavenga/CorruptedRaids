@@ -1,0 +1,28 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "corrupted-raids",
+      "runtimeExecutable": "npx.cmd",
+      "runtimeArgs": [
+        "tsx",
+        "--env-file-if-exists=.env",
+        "src/server/index.ts"
+      ],
+      "port": 8787,
+      "env": {
+        "ADMIN_SECRET": "devkey",
+        "ALLOW_DEV_LOGIN": "1"
+      }
+    },
+    {
+      "name": "loadout-dev",
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": [
+        "run",
+        "dev:web"
+      ],
+      "port": 5173
+    }
+  ]
+}

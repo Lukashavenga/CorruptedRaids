@@ -1,0 +1,14 @@
+{
+  "id": "storm-lantern",
+  "name": "Lantern",
+  "slot": "offHand",
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 2
+  },
+  "description": "In brightest day, in blackest night, no evil shall escape Taxes",
+  "tags": [],
+  "sprite": "oh02",
+  "requires": {}
+}

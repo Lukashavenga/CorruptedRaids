@@ -1,0 +1,1376 @@
+/* The sprite placement tool. Deliberately plain: it is a workbench, not a
+   surface anyone but the developer sees, and every pixel of chrome competes
+   with the character being positioned. */
+
+/*
+ * A REAL UI font, not the game's.
+ *
+ * The admin inherited CorruptedPixel, which is a bitmap face that is only
+ * crisp at whole multiples of its 16px cell. Admin chrome runs at 10-13px, so
+ * every label was landing source pixels between destination pixels and turning
+ * to mush — the single largest reason this screen was hard to read. The pixel
+ * font belongs on the overlay, where the type is huge and the aesthetic is the
+ * point; a workbench wants a workbench font.
+ */
+.admin {
+  --ui: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --panel: #161a24;
+  --panel-2: #1b2030;
+  --line: rgba(255, 255, 255, 0.09);
+  --primary: #7c5cff;
+  --primary-soft: rgba(124, 92, 255, 0.16);
+  --good: #4ea96b;
+  --muted: #8d97ad;
+
+  min-height: 100vh;
+  background: #0d1018;
+  color: #e6e9f0;
+  font-family: var(--ui);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.admin button,
+.admin input,
+.admin select,
+.admin textarea {
+  font-family: var(--ui);
+  font-size: 13px;
+}
+
+.admin h1,
+.admin h2,
+.admin h3 {
+  font-family: var(--ui);
+  letter-spacing: 0;
+}
+
+.admin-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--ink-faint, #446374);
+}
+
+.admin-bar h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs, 16px);
+  color: var(--accent, #e2b570);
+}
+
+/* The tool writes a content file over an unauthenticated endpoint. Saying so
+   on screen is cheap and stops it quietly becoming a deployed surface. */
+.admin-warn {
+  color: var(--danger, #bc5960);
+}
+
+.admin-status {
+  margin-left: auto;
+  color: var(--health, #5ca75d);
+}
+
+.admin-body {
+  display: grid;
+  /* Placement controls, the character, then the gear item that art belongs to.
+     The admin surface has no size constraint the way the 450x250 overlay does,
+     so putting all three side by side beats making the user change tabs to
+     adjust one item. */
+  grid-template-columns: 290px minmax(540px, 1fr) 330px;
+  gap: 16px;
+  padding: 16px;
+  align-items: start;
+}
+
+.admin-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.admin-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink-muted, #81afb5);
+}
+
+.admin-panel select,
+.admin-panel input[type="range"] {
+  width: 100%;
+}
+
+.admin-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.admin-coords {
+  font-family: var(--font-data);
+  color: var(--accent, #e2b570);
+}
+
+.admin-hint {
+  margin: 0;
+  color: var(--ink-faint, #446374);
+  line-height: 1.4;
+}
+
+/* Thumbnail picker. Fixed-height cells with the sprite scaled to fit, because
+   the source art ranges from a 175px face mark to a 539px torch and a picker
+   that respected that would be unusable. */
+.admin-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 4px;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/*
+ * A thumbnail cell.
+ *
+ * `grid-template-rows: minmax(0, 1fr)` is doing real work. A grid item's
+ * automatic minimum size is its CONTENT, so an auto row sizes itself to the
+ * sprite's intrinsic height — and these sprites are big (a polearm is 539px
+ * tall). The row grew to fit, the image's own `max-height: 100%` then resolved
+ * against that grown row and constrained nothing, and every weapon spilled
+ * several cells past its own square and over its neighbours' click targets.
+ * minmax(0, …) is what lets the row be smaller than its content.
+ */
+.admin-picker button {
+  height: 64px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  padding: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-picker button.is-active {
+  border-color: var(--accent, #e2b570);
+  background: rgba(226, 181, 112, 0.14);
+}
+
+.admin-picker img {
+  max-width: 100%;
+  max-height: 100%;
+  /* Letterboxed rather than stretched: these are drawings of objects with real
+     proportions, and a squashed sword is harder to recognise than a small one. */
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.admin-stage-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-stage {
+  position: relative;
+  width: 512px;
+  height: 512px;
+  background:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.04) 0% 25%, transparent 0% 50%) 50% / 24px 24px;
+  border: 1px solid var(--ink-faint, #446374);
+  cursor: grab;
+  touch-action: none;
+}
+
+.admin-stage:active {
+  cursor: grabbing;
+}
+
+/* Centre line and baseline, matching CENTRE_X / BASELINE_Y in layers.ts.
+   Almost everything worn is symmetrical about the centre line, so having it
+   drawn is the difference between placing by eye and placing by measurement. */
+.admin-stage.has-guides::before,
+.admin-stage.has-guides::after {
+  content: "";
+  position: absolute;
+  background: rgba(226, 181, 112, 0.35);
+  pointer-events: none;
+  z-index: 500;
+}
+
+.admin-stage.has-guides::before {
+  left: 256px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+
+.admin-stage.has-guides::after {
+  left: 0;
+  top: 470px;
+  width: 100%;
+  height: 1px;
+}
+
+.admin-caption {
+  margin: 0;
+  font-family: var(--font-data);
+  color: var(--ink-muted, #81afb5);
+}
+
+.admin-reset {
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--ink-muted);
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* --- eraser ---------------------------------------------------------------
+   The brush canvas sits exactly over the character stage and only receives
+   pointer events while erasing, so dragging still means "move the sprite" the
+   rest of the time. */
+.admin-erase-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 900;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.admin-mode {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-mode button {
+  flex: 1;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.admin-mode button.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(226, 181, 112, 0.15);
+}
+
+.admin-danger {
+  padding: 5px;
+  background: rgba(188, 89, 96, 0.15);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  color: var(--danger);
+  cursor: pointer;
+}
+
+/* The working canvas, standing in for the sprite while erasing. Positioned
+   with the same centre-anchored transform the renderer uses, so what you brush
+   is exactly where the item sits. */
+.admin-erase-preview {
+  position: absolute;
+  transform-origin: center center;
+  z-index: 850;
+  pointer-events: none;
+}
+
+.admin-erase-preview canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Brush cursor — an outline ring, so it shows the area without hiding it. */
+.admin-brush {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: rgba(226, 181, 112, 0.12);
+  pointer-events: none;
+  z-index: 950;
+}
+
+.admin-revert {
+  padding: 5px;
+  background: transparent;
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+/* Mask regions: drawn over the stage in canvas pixels, which is the same
+   coordinate space the stage itself uses at 1:1. */
+.admin-mask-rect {
+  position: absolute;
+  border: 1px dashed var(--danger);
+  background: rgba(188, 89, 96, 0.22);
+  pointer-events: none;
+  z-index: 700;
+}
+
+/* Hair regions in a different colour to body ones. Both are stored on the same
+   item and only one set is ever on screen, so the tint is what says which layer
+   the rectangle you just dragged is going to cut. */
+.admin-mask-rect.is-hair {
+  border-color: var(--teal);
+  background: rgba(63, 160, 164, 0.24);
+}
+
+.admin-mask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-mask-list button {
+  padding: 3px 6px;
+  text-align: left;
+  font-family: var(--font-data);
+  font-size: 11px;
+  background: rgba(188, 89, 96, 0.14);
+  border: 1px solid var(--danger);
+  border-radius: 3px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* --- tabs ------------------------------------------------------------------ */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-tabs button {
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.admin-tabs button.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(226, 181, 112, 0.14);
+}
+
+/* --- tuning screens --------------------------------------------------------
+   Controls on the left, the measured consequence on the right. The readout is
+   deliberately beside the sliders rather than under them: the whole value of
+   this screen is watching difficulty move as you drag. */
+.tuner {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  padding: 16px;
+  align-items: start;
+}
+
+.tuner-controls,
+.tuner-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tuner-controls label,
+.tuner-readout label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--ink-muted);
+}
+
+.tuner-controls input[type="range"],
+.tuner-readout input[type="range"] {
+  width: 100%;
+}
+
+.tuner-pct {
+  color: var(--accent);
+}
+
+.sub-heading {
+  margin: 6px 0 0;
+  font-size: var(--fs, 16px);
+  color: var(--accent);
+}
+
+.raid-path {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
+.raid-path-boss {
+  color: var(--danger);
+}
+
+/* --- difficulty meter ------------------------------------------------------ */
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.diff-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.diff-rating {
+  font-family: var(--font-display);
+  font-size: var(--fs-big, 32px);
+  color: var(--ink);
+}
+
+/* Bands read left-to-right from safe to lethal, so a glance at the colour is
+   enough to know whether a change went the way you wanted. */
+.rating-trivial { color: var(--steel-pale); }
+.rating-easy { color: var(--health); }
+.rating-fair { color: var(--green-pale); }
+.rating-hard { color: var(--accent); }
+.rating-brutal { color: var(--rose); }
+.rating-punishing { color: var(--danger); }
+
+.diff-win { color: var(--ink-muted); }
+.diff-busy { margin-left: auto; color: var(--ink-faint); }
+
+.diff-bar {
+  position: relative;
+  height: 10px;
+  border: 1px solid var(--outline);
+  border-radius: 3px;
+  background: rgba(7, 12, 29, 0.8);
+  overflow: hidden;
+}
+
+.diff-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--health-deep), var(--health));
+  transition: width 0.25s ease;
+}
+
+.diff-stats {
+  display: flex;
+  gap: 12px;
+  color: var(--ink-muted);
+}
+
+.diff-warn { color: var(--danger); }
+
+.diff-comp {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.diff-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--ink-muted);
+}
+
+/* --- gear editor ----------------------------------------------------------- */
+.tuner-controls input[type="text"],
+.tuner-controls textarea {
+  width: 100%;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--fs, 16px);
+}
+
+.gear-bodies {
+  display: flex;
+  gap: 14px;
+}
+
+.gear-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.gear-preview {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.gear-score {
+  font-family: var(--font-display);
+  font-size: var(--fs, 16px);
+  color: var(--health);
+}
+
+.gear-score.is-off {
+  color: var(--accent);
+}
+
+.gear-stat label {
+  cursor: pointer;
+}
+
+/* The scaling tag is the single most useful thing on this screen: it says
+   whether another point of this stat is worth the same as the last one. */
+.gear-scaling {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.scaling-linear {
+  background: rgba(92, 167, 93, 0.2);
+  color: var(--health);
+}
+
+.scaling-diminishing {
+  background: rgba(226, 181, 112, 0.2);
+  color: var(--accent);
+}
+
+.scaling-share {
+  background: rgba(63, 160, 164, 0.2);
+  color: var(--teal);
+}
+
+.gear-explain {
+  margin: 2px 0 8px;
+  padding: 8px;
+  border-left: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.gear-explain p {
+  margin: 0 0 4px;
+}
+
+.gear-marginal {
+  color: var(--ink);
+}
+
+/* The removed area, drawn solid over the working canvas. Erasing makes pixels
+   transparent, and transparent over a character just shows the body behind it —
+   so without this a careful erase is nearly invisible while you make it. */
+.admin-erase-mask {
+  position: absolute;
+  transform-origin: center center;
+  z-index: 880;
+  pointer-events: none;
+}
+
+.admin-erase-mask canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* --- gear panel beside the placement stage --------------------------------- */
+.admin-gear {
+  min-width: 0;
+  border-left: 1px solid var(--ink-faint);
+  padding-left: 14px;
+}
+
+.gear-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.gear-inspector label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--ink-muted);
+}
+
+.gear-inspector .admin-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.gear-inspector input[type="range"],
+.gear-inspector select,
+.gear-inspector input[type="text"],
+.gear-inspector textarea {
+  width: 100%;
+}
+
+.gear-inspector input[type="text"],
+.gear-inspector textarea {
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ink-faint);
+  border-radius: 3px;
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--fs, 16px);
+}
+
+.gear-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs, 16px);
+  color: var(--accent);
+}
+
+.admin-copy {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-copy button {
+  flex: 1;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.admin-copy button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* --- encounter art pickers ------------------------------------------------- */
+.enemy-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.enemy-picker button {
+  height: 66px;
+  display: grid;
+  /* Same reason as .admin-picker button — see the note there. */
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  padding: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* One cell: the unit itself, with a small "edit" affordance over it. The
+   cell is the positioning context so the badge and the edit button can sit on
+   the thumbnail rather than stealing grid width from it. */
+.enemy-pick {
+  position: relative;
+}
+
+.enemy-pick.is-active button:first-child {
+  border-color: var(--accent);
+  background: rgba(226, 181, 112, 0.16);
+}
+
+.enemy-pick > button:first-child {
+  width: 100%;
+}
+
+/* Cast position. An encounter's copies take its units in turn, so the ORDER is
+   real information, not just a tick. */
+.enemy-pick-order {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  min-width: 13px;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #23180c;
+  font-size: 9px;
+  line-height: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.enemy-pick-edit {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  height: auto !important;
+  padding: 0 3px !important;
+  font-size: 9px;
+  line-height: 13px;
+  opacity: 0;
+  background: var(--danger) !important;
+  color: #fff;
+  border-radius: 3px;
+}
+
+.enemy-pick:hover .enemy-pick-edit,
+.enemy-pick-edit:focus-visible {
+  opacity: 1;
+}
+
+/* --- the pixel editor for one finished sprite --------------------------- */
+.sprite-eraser {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  background: rgba(226, 90, 96, 0.06);
+}
+
+.sprite-eraser-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sprite-eraser-stage {
+  position: relative;
+  align-self: center;
+  cursor: crosshair;
+  touch-action: none;
+  /* A checkerboard, so erased pixels read as absent rather than as black. */
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.06) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.sprite-eraser-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.sprite-eraser-canvas canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.enemy-picker img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* The scene as it will appear on stream: background, enemy, foreground. A
+   sprite that reads well on its own can vanish against a busy backdrop, so the
+   three are shown stacked rather than as separate thumbnails. */
+.scene-preview {
+  position: relative;
+  aspect-ratio: 450 / 250;
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(7, 12, 29, 0.9);
+  display: grid;
+  place-items: center;
+}
+
+.scene-bg,
+.scene-fg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scene-fg {
+  z-index: 3;
+}
+
+.scene-enemy {
+  position: relative;
+  z-index: 2;
+  max-height: 62%;
+  width: auto;
+  align-self: end;
+  margin-bottom: 6%;
+  image-rendering: pixelated;
+  /* Not mirrored — matching the overlay, which draws these sheets as authored.
+     They are already drawn facing left, into the party. */
+}
+
+/* Says plainly that two sprites are one item. Without it the picker looks like
+   it holds duplicates that mysteriously edit each other. */
+.gear-shared {
+  margin: 0;
+  padding: 6px 8px;
+  border-left: 2px solid var(--teal);
+  background: rgba(63, 160, 164, 0.12);
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+.gear-shared strong {
+  color: var(--teal);
+}
+
+/* --- formation editor ---------------------------------------------------- */
+
+.formation-bands {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.formation-bands button {
+  display: grid;
+  gap: 1px;
+  padding: 5px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.formation-bands button.is-active {
+  border-color: var(--accent);
+  background: rgba(226, 181, 112, 0.16);
+}
+
+.formation-bands small {
+  opacity: 0.65;
+  font-size: 9px;
+}
+
+/*
+ * The battlefield. Locked to the overlay's 450x250 so a squad that fits here
+ * fits on stream — laying out against any other shape would be laying out
+ * against a lie.
+ */
+.formation-stage {
+  position: relative;
+  aspect-ratio: 450 / 250;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background-color: #12161f;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+/*
+ * The draggable half. 46.7% is not a round number by accident — it is
+ * SIDE_WIDTH / STAGE_W from stage.ts, the share of the overlay one side of the
+ * arena actually gets. A unit dropped at the right edge here is at the right
+ * edge on stream.
+ */
+.formation-field {
+  position: absolute;
+  right: 1.3%;
+  top: 0;
+  bottom: 0;
+  width: 46.7%;
+  touch-action: none;
+}
+
+/* Where the party will stand. The layout is meaningless without it. */
+.formation-party {
+  position: absolute;
+  left: 1.3%;
+  top: 0;
+  bottom: 0;
+  width: 46.7%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(90deg, rgba(63, 160, 164, 0.22), transparent);
+  border-right: 1px dashed rgba(63, 160, 164, 0.5);
+  pointer-events: none;
+}
+
+.formation-unit {
+  position: absolute;
+  height: 34%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: grab;
+  transform-origin: bottom center;
+}
+
+.formation-unit img {
+  height: 100%;
+  width: auto;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.formation-unit.is-selected {
+  outline: 1px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.formation-unit-role {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+}
+
+.formation-empty {
+  position: absolute;
+  inset: auto 8px 8px 38%;
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.formation-roster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.formation-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.formation-count.is-zero {
+  opacity: 0.35;
+}
+
+.formation-selected {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.formation-selected-art {
+  height: 74px;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+.formation-selected-controls {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+}
+
+.formation-roles,
+.formation-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.formation-roles button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.formation-roles button.is-active {
+  border-color: var(--accent);
+  background: rgba(226, 181, 112, 0.16);
+}
+
+.formation-palette button {
+  height: 56px;
+  width: 56px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  overflow: hidden;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.formation-palette img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* --- three readings, one per layout -------------------------------------- */
+
+.draft-diff {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.draft-diff-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.draft-row {
+  display: grid;
+  grid-template-columns: 84px 1fr 74px 34px;
+  align-items: center;
+  gap: 8px;
+}
+
+.draft-row-band {
+  display: grid;
+  font-size: 11px;
+}
+
+.draft-row-band small {
+  opacity: 0.55;
+  font-size: 9px;
+}
+
+.draft-row-win {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The 45–70% window a fight should land in, drawn on the bar itself so the
+   reading is a position rather than a number to interpret. */
+.diff-bar-target {
+  position: absolute;
+  left: 45%;
+  width: 25%;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid rgba(226, 181, 112, 0.8);
+  border-right: 1px solid rgba(226, 181, 112, 0.8);
+  background: rgba(226, 181, 112, 0.12);
+  pointer-events: none;
+}
+
+/* The difficulty control. Boxed and accented because it is the one thing on
+   this screen that decides whether the fight can be lost. */
+.formation-pressure {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1px solid rgba(226, 181, 112, 0.45);
+  border-radius: 6px;
+  background: rgba(226, 181, 112, 0.07);
+}
+
+.formation-targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.formation-targets button {
+  padding: 3px 8px;
+  background: rgba(226, 181, 112, 0.16);
+  border: 1px solid rgba(226, 181, 112, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.formation-targets button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/*
+ * Readings that are no longer current.
+ *
+ * A measurement is three simulated batches and takes a moment, and during it
+ * the PREVIOUS numbers sit on screen looking authoritative — so dragging a
+ * control and seeing "Trivial 100%" reads as "the control does nothing" when it
+ * actually means "not measured yet". Dimming them is the difference between a
+ * stale number and a wrong one.
+ */
+.draft-diff.is-measuring .draft-row {
+  opacity: 0.4;
+  transition: opacity 0.15s ease-out;
+}
+
+/* The layout currently being edited. Pressure and the palette only touch this
+   band, so it is the row that answers what you just did. */
+.draft-row.is-active {
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border-radius: 4px;
+  background: rgba(226, 181, 112, 0.1);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* --- level tabs: each carries its own verdict --------------------------- */
+
+.formation-band-name {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* The verdict on the tab is the whole point of the redesign: a level and how
+   it plays are one thing, not two lists in different halves of the screen. */
+.formation-band-verdict {
+  margin-top: 2px;
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.formation-band-verdict.is-stale {
+  opacity: 0.35;
+}
+
+.formation-bands button.is-good { border-color: var(--ok, #6bbf74); }
+.formation-bands button.is-easy { border-color: var(--teal, #3fa0a4); }
+.formation-bands button.is-hard { border-color: var(--danger, #e25a60); }
+
+.formation-bands button.is-active {
+  background: rgba(226, 181, 112, 0.2);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* --- the reference table ------------------------------------------------ */
+
+.balance-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.balance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.balance-table th {
+  text-align: left;
+  font-weight: 500;
+  opacity: 0.6;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--outline);
+}
+
+.balance-table td {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.balance-table td:nth-child(2),
+.balance-table td:nth-child(3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding-right: 10px;
+}
+
+
+/* --- dungeon renaming ----------------------------------------------------- */
+
+/*
+ * Two fields per dungeon, weighted towards the one that matters.
+ *
+ * The display name gets the room because it is the thing being decided; the id
+ * is a technical detail that only needs to be legible and occasionally edited,
+ * so it takes a monospaced face and about a third of the width.
+ */
+.dungeon-renamer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  max-width: 860px;
+}
+
+.renamer-note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.renamer-note strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.renamer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.renamer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+.renamer-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.renamer-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.renamer-fields span {
+  color: var(--ink-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.renamer-fields input {
+  min-width: 0;
+  padding: 7px 9px;
+  background: var(--navy);
+  border: 1px solid var(--steel-deep);
+  border-radius: 4px;
+  color: var(--bone);
+  font-family: var(--font-text);
+  font-size: 14px;
+}
+
+.renamer-fields input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.renamer-id {
+  font-family: var(--font-data);
+  font-size: 13px !important;
+  color: var(--steel-pale) !important;
+}
+
+.renamer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 1px;
+}
+
+/* Says the id is about to move a file, at the moment the id is edited rather
+   than after the fact. */
+.renamer-warn {
+  color: var(--gold);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.renamer-status {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .renamer-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .renamer-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .renamer-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* The operator key, in the top bar. A password field because it is one, and
+   because a shoulder-surfer at a stream desk is a real threat model. */
+.admin-key {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted, #8b93a8);
+}
+
+.admin-key input {
+  width: 140px;
+  padding: 3px 6px;
+  background: #0e0c17;
+  border: 1px solid var(--line, #3b3a44);
+  border-radius: 3px;
+  color: var(--ink, #e6e2da);
+  font-family: var(--font-data, monospace);
+  font-size: 11px;
+}
+
+.admin-key input:focus {
+  outline: none;
+  border-color: var(--accent, #e2b570);
+}

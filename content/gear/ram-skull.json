@@ -1,0 +1,15 @@
+{
+  "id": "ram-skull",
+  "name": "Ram Skull",
+  "slot": "head",
+  "rarity": "epic",
+  "requires": {},
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Ram Skull. Taken, not given.",
+  "tags": [],
+  "sprite": "head13",
+  "enabled": false
+}

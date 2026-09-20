@@ -1,0 +1,15 @@
+{
+  "id": "spiked-mace",
+  "name": "Spiked Mace",
+  "slot": "mainHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "atk": 2
+  },
+  "description": "Spiked Mace. Taken, not given.",
+  "tags": [],
+  "sprite": "mh07",
+  "requires": {
+    "atk": 12
+  }
+}

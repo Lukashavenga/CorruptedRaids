@@ -1,0 +1,15 @@
+{
+  "id": "warlock-s-rod",
+  "name": "Warlock's Rod",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 6
+  },
+  "description": "Warlock's Rod. Taken, not given.",
+  "tags": [],
+  "sprite": "mh21",
+  "requires": {
+    "atk": 28
+  }
+}

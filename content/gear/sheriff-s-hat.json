@@ -1,0 +1,14 @@
+{
+  "id": "sheriff-s-hat",
+  "name": "Sheriff's Hat",
+  "slot": "head",
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "skill": 2
+  },
+  "description": "Sheriff's Hat. Taken, not given.",
+  "tags": [],
+  "sprite": "head16"
+}

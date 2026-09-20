@@ -1,0 +1,18 @@
+{
+  // Production build. The base config exists to TYPECHECK everything —
+  // `src` and `scripts` together — which makes the common root the repo root
+  // and emits `dist/src/server/index.js`. The server resolves `content/` and
+  // `overlay/` relative to its own file two levels up, so that extra level
+  // silently points it at `dist/` and nothing loads.
+  //
+  // Emitting from `src` alone puts the entry at `dist/server/index.js`, which
+  // is the same depth the source runs at, so paths resolve identically in the
+  // container and in dev.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "bramble-staff",
+  "name": "Bramble Staff",
+  "slot": "mainHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 6
+  },
+  "description": "Bramble Staff. Taken, not given.",
+  "tags": [],
+  "sprite": "mh20",
+  "requires": {
+    "atk": 28
+  }
+}

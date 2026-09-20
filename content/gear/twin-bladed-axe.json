@@ -1,0 +1,15 @@
+{
+  "id": "twin-bladed-axe",
+  "name": "Twin-Bladed Axe",
+  "slot": "mainHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "atk": 2
+  },
+  "description": "Twin-Bladed Axe. Taken, not given.",
+  "tags": [],
+  "sprite": "mh06",
+  "requires": {
+    "atk": 8
+  }
+}

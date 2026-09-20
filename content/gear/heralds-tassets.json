@@ -1,0 +1,17 @@
+{
+  "id": "heralds-tassets",
+  "name": "Heralds Tassets",
+  "slot": "bottom",
+  "rarity": "legendary",
+  "statMods": {
+    "hp": 4,
+    "skill": 2
+  },
+  "description": "Heralds Tassets. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t5",
+    "female": "female-t5"
+  },
+  "requires": {}
+}

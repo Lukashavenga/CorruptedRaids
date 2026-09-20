@@ -1,0 +1,14 @@
+{
+  "id": "cycling-helmet",
+  "name": "Cycling Helmet",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 3,
+    "skill": 1
+  },
+  "description": "Cycling Helmet. Taken, not given.",
+  "tags": [],
+  "sprite": "head09"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "round-shield",
+  "name": "Round Shield",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 7
+  },
+  "description": "Round Shield. Taken, not given.",
+  "tags": [],
+  "sprite": "mh26",
+  "requires": {
+    "atk": 36
+  }
+}

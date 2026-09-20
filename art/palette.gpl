@@ -1,0 +1,110 @@
+GIMP Palette
+Name: Dungeon Raids - Peasant Frame
+Columns: 5
+#
+122 135 148	World 01
+ 65  78  94	World 02
+ 35  41  54	World 03
+ 11  13  18	World 04
+216 162  74	World 05
+231 238 242	World 06
+231 238 242	Steel 01
+174 188 198	Steel 02
+113 130 143	Steel 03
+ 65  78  94	Steel 04
+ 35  41  54	Steel 05
+220 220 212	Stone 01
+173 174 170	Stone 02
+123 130 136	Stone 03
+ 75  84  95	Stone 04
+ 37  43  56	Stone 05
+157 170 180	Cast Iron 01
+108 122 134	Cast Iron 02
+ 71  83  95	Cast Iron 03
+ 44  52  63	Cast Iron 04
+ 23  28  37	Cast Iron 05
+217 193 147	Leather Wood 01
+176 138  85	Leather Wood 02
+124  91  58	Leather Wood 03
+ 77  58  60	Leather Wood 04
+ 42  36  50	Leather Wood 05
+207 210 171	Cloth 01
+152 163 119	Cloth 02
+100 113  79	Cloth 03
+ 60  70  69	Cloth 04
+ 35  43  52	Cloth 05
+247 230 180	Brass Gold 01
+226 189 106	Brass Gold 02
+179 134  47	Brass Gold 03
+117  81  44	Brass Gold 04
+ 60  43  51	Brass Gold 05
+255 238 221	Skin 01 Porcelain 01
+244 207 174	Skin 01 Porcelain 02
+208 154 118	Skin 01 Porcelain 03
+150  96  76	Skin 01 Porcelain 04
+ 92  48  64	Skin 01 Porcelain 05
+255 230 198	Skin 02 Wheat 01
+238 189 146	Skin 02 Wheat 02
+198 138  95	Skin 02 Wheat 03
+140  82  56	Skin 02 Wheat 04
+ 85  43  54	Skin 02 Wheat 05
+247 215 171	Skin 03 Sand 01
+223 169 116	Skin 03 Sand 02
+181 122  75	Skin 03 Sand 03
+125  72  48	Skin 03 Sand 04
+ 75  38  47	Skin 03 Sand 05
+236 202 155	Skin 04 Olive 01
+203 156 104	Skin 04 Olive 02
+158 111  68	Skin 04 Olive 03
+104  66  45	Skin 04 Olive 04
+ 65  34  44	Skin 04 Olive 05
+222 172 125	Skin 05 Clay 01
+184 126  81	Skin 05 Clay 02
+138  86  54	Skin 05 Clay 03
+ 88  51  38	Skin 05 Clay 04
+ 57  30  40	Skin 05 Clay 05
+198 142  93	Skin 06 Umber 01
+153 100  62	Skin 06 Umber 02
+112  67  42	Skin 06 Umber 03
+ 71  41  33	Skin 06 Umber 04
+ 47  26  36	Skin 06 Umber 05
+167 111  69	Skin 07 Walnut 01
+126  76  47	Skin 07 Walnut 02
+ 88  52  34	Skin 07 Walnut 03
+ 56  32  29	Skin 07 Walnut 04
+ 38  21  32	Skin 07 Walnut 05
+136  86  47	Skin 08 Ebony 01
+ 98  58  36	Skin 08 Ebony 02
+ 67  37  27	Skin 08 Ebony 03
+ 42  23  25	Skin 08 Ebony 04
+ 28  16  28	Skin 08 Ebony 05
+194 160 106	Hair 01
+150 112  63	Hair 02
+ 99  72  47	Hair 03
+ 56  42  36	Hair 04
+255 224 160	Ember 01
+240 140  58	Ember 02
+201  73  29	Ember 03
+125  36  25	Ember 04
+ 54  20  36	Ember 05
+226 244 250	Rime 01
+158 207 230	Rime 02
+ 84 144 189	Rime 03
+ 46  84 134	Rime 04
+ 29  40  70	Rime 05
+221 212 242	Void 01
+155 131 207	Void 02
+101  71 156	Void 03
+ 56  35  93	Void 04
+ 24  18  42	Void 05
+232 245 196	Toxin 01
+168 206  92	Toxin 02
+ 95 154  60	Toxin 03
+ 47  90  65	Toxin 04
+ 24  41  53	Toxin 05
+108 122 134	Rarity 01
+152 163 119	Rarity 02
+ 84 144 189	Rarity 03
+155 131 207	Rarity 04
+216 162  74	Rarity 05
+255 243 224	Eye Highlight 01

@@ -1,0 +1,17 @@
+{
+  "id": "ranger-s-mantle",
+  "name": "Ranger's Mantle",
+  "slot": "top",
+  "rarity": "legendary",
+  "statMods": {
+    "hp": 8,
+    "skill": 2
+  },
+  "description": "Ranger's Mantle. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t5",
+    "female": "female-t5"
+  },
+  "requires": {}
+}

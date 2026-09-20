@@ -1,0 +1,15 @@
+{
+  "id": "fisher-s-trident",
+  "name": "Fisher's Trident",
+  "slot": "mainHand",
+  "rarity": "rare",
+  "statMods": {
+    "atk": 4
+  },
+  "description": "Fisher's Trident. Taken, not given.",
+  "tags": [],
+  "sprite": "mh13",
+  "requires": {
+    "atk": 20
+  }
+}

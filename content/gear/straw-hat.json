@@ -1,0 +1,14 @@
+{
+  "id": "straw-hat",
+  "name": "Straw Hat",
+  "slot": "head",
+  "rarity": "rare",
+  "statMods": {
+    "hp": 6,
+    "skill": 2
+  },
+  "description": "Straw Hat. Taken, not given.",
+  "tags": [],
+  "sprite": "head20",
+  "requires": {}
+}

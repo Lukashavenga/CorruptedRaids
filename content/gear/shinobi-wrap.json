@@ -1,0 +1,14 @@
+{
+  "id": "shinobi-wrap",
+  "name": "Shinobi Wrap",
+  "slot": "head",
+  "rarity": "rare",
+  "statMods": {
+    "hp": 6,
+    "skill": 2
+  },
+  "description": "Shinobi Wrap. Taken, not given.",
+  "tags": [],
+  "sprite": "head21",
+  "requires": {}
+}

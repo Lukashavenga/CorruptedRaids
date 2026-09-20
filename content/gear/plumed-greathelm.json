@@ -1,0 +1,14 @@
+{
+  "id": "plumed-greathelm",
+  "name": "Plumed Greathelm",
+  "slot": "head",
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 6,
+    "skill": 2
+  },
+  "description": "Plumed Greathelm. Taken, not given.",
+  "tags": [],
+  "sprite": "head22"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "bedsheet-wraith",
+  "name": "Bedsheet Wraith",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 1,
+    "skill": 1
+  },
+  "description": "Bedsheet Wraith. Taken, not given.",
+  "tags": [],
+  "sprite": "head03"
+}

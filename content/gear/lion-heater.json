@@ -1,0 +1,15 @@
+{
+  "id": "lion-heater",
+  "name": "Lion Heater",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 7
+  },
+  "description": "Lion Heater. Taken, not given.",
+  "tags": [],
+  "sprite": "mh27",
+  "requires": {
+    "atk": 36
+  }
+}

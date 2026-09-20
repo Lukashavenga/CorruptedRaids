@@ -1,0 +1,15 @@
+{
+  "id": "yew-longbow",
+  "name": "Yew Longbow",
+  "slot": "mainHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 4
+  },
+  "description": "Yew Longbow. Taken, not given.",
+  "tags": [],
+  "sprite": "mh14",
+  "requires": {
+    "atk": 20
+  }
+}

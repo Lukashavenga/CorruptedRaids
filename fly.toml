@@ -1,0 +1,53 @@
+# Fly.io — see DEPLOY.md for why this host and not Vercel or Cloudflare.
+app = "corrupted-raids"
+primary_region = "lhr"   # change to the region nearest the stream
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  DATA_DIR = "/data"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+
+  # NEVER let the machine stop.
+  #
+  # Fly's default is to suspend an idle app and wake it on the next request.
+  # That is wrong for this one twice over: the overlay holds an SSE connection
+  # open for the whole stream, and the run's state machine lives in setTimeout
+  # timers that a suspended machine does not fire — a join window would simply
+  # never close. The EventSub socket in P6 has the same requirement.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "connections"
+    # SSE connections are long-lived, so the default soft limit counts them all
+    # as load and would trigger scaling on an app that must not scale — see the
+    # single-machine note below.
+    hard_limit = 200
+    soft_limit = 150
+
+# ONE machine, and that is a design constraint, not thrift.
+#
+# The run's state — the FSM, its timers, the in-memory roster, the SSE client
+# set — lives in the process. Two machines would be two independent games
+# behind one URL: a viewer's !join could land on the machine that is not
+# running the dungeon, and the overlay would be watching the other one.
+# Horizontal scale needs the state moved out first (Cloudflare Durable Objects
+# is the shape that does this properly — see DEPLOY.md).
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+# The roster and its snapshots when using the file store. Not needed if
+# SUPABASE_URL is set, but harmless — and content edited live in the admin
+# still lands on the container's filesystem either way.
+[mounts]
+  source = "corrupted_data"
+  destination = "/data"

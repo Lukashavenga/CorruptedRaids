@@ -1,0 +1,15 @@
+{
+  "id": "hunting-spear",
+  "name": "Hunting Spear",
+  "slot": "mainHand",
+  "rarity": "rare",
+  "statMods": {
+    "atk": 3
+  },
+  "description": "Hunting Spear. Taken, not given.",
+  "tags": [],
+  "sprite": "mh10",
+  "requires": {
+    "atk": 16
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Pixel RPG Master Palette",
+  "version": "1.0",
+  "colors": {
+    "deep_plum": "#9f3c91",
+    "dark_violet": "#452060",
+    "near_black_purple": "#291546",
+    "void_navy": "#070c1d",
+    "deep_wine": "#3d1430",
+    "wine": "#632240",
+    "muted_magenta": "#913a52",
+    "warm_red": "#bc5960",
+    "gold": "#e2b570",
+    "pale_gold": "#eee98a",
+    "lime": "#b7d974",
+    "moss": "#5da75d",
+    "teal_green": "#39755c",
+    "deep_teal": "#285454",
+    "steel_blue": "#1f394d",
+    "deep_blue": "#191b3f",
+    "blue": "#192d50",
+    "ocean": "#286080",
+    "aqua": "#3fa0a4",
+    "mint": "#86e0ce",
+    "pale_mint": "#e3f5f1",
+    "dusty_blue": "#81afb5",
+    "slate": "#446374",
+    "blue_slate": "#32495f",
+    "dark_blue": "#182e41"
+  },
+  "background": "#ffffff",
+  "outline_preferred": [
+    "#070c1d",
+    "#291546",
+    "#182e41",
+    "#191b3f"
+  ]
+}

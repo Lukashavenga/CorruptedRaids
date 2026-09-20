@@ -1,0 +1,16 @@
+{
+  "id": "grimoire-of-rot",
+  "name": "Grimoire of Rot",
+  "slot": "offHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 1,
+    "skill": 2
+  },
+  "description": "Grimoire of Rot. Taken, not given.",
+  "tags": [],
+  "sprite": "oh04",
+  "requires": {
+    "skill": 8
+  }
+}

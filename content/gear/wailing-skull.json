@@ -1,0 +1,15 @@
+{
+  "id": "wailing-skull",
+  "name": "Stalking Skull",
+  "slot": "offHand",
+  "rarity": "rare",
+  "statMods": {
+    "hp": 4,
+    "atk": 1,
+    "skill": 2
+  },
+  "description": "What was  that?! I swear you're being followed",
+  "tags": [],
+  "sprite": "oh06",
+  "requires": {}
+}

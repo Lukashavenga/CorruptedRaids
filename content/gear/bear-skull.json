@@ -1,0 +1,14 @@
+{
+  "id": "bear-skull",
+  "name": "Bear Skull",
+  "slot": "head",
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Bear Skull. Taken, not given.",
+  "tags": [],
+  "sprite": "head12"
+}

@@ -1,0 +1,3381 @@
+{
+  "kind": "mob",
+  "stats": {
+    "hp": 17,
+    "atk": 3,
+    "spd": 3,
+    "skill": 2,
+    "crit": 0.06
+  },
+  "loot": [
+    {
+      "gearId": "patched-leggings",
+      "weight": 2
+    },
+    {
+      "gearId": "chainmail-rig",
+      "weight": 3
+    },
+    {
+      "gearId": "horned-warhelm",
+      "weight": 2
+    },
+    {
+      "gearId": "spiked-mace",
+      "weight": 3
+    }
+  ],
+  "goldReward": [
+    11,
+    27
+  ],
+  "xpReward": 68,
+  "formations": {
+    "weak": [
+      {
+        "id": "village-watch-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.59,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.76,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "miller-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "hedge-priest-13",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "hedge-priest-14",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      }
+    ],
+    "seasoned": [
+      {
+        "id": "village-watch-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.59,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.76,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "miller-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "hedge-priest-13",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "hedge-priest-14",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "hedge-priest-15",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-01",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "cops-umtfws3531",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-08",
+        "role": "healer",
+        "x": 0.6925133689839572,
+        "y": 0.9580430218760458,
+        "scale": 1.05,
+        "weight": 5.3
+      },
+      {
+        "id": "cops-umtfws6mh2",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-06",
+        "role": "dps",
+        "x": 0.45664113311172133,
+        "y": 0.8295250555268202,
+        "weight": 5.3
+      },
+      {
+        "id": "cops-umtfws93o3",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.10745772510478392,
+        "y": 0.9346761189034594,
+        "weight": 5.3
+      },
+      {
+        "id": "cops-umtfwshga4",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-10",
+        "role": "tank",
+        "x": 0,
+        "y": 0.9814099248486323,
+        "weight": 5.3
+      },
+      {
+        "id": "cops-umtfwsmbu5",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.35489232548056077,
+        "y": 1,
+        "weight": 5.3
+      }
+    ],
+    "elite": [
+      {
+        "id": "village-watch-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.59,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "village-watch-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.76,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "miller-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "miller-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "hedge-priest-13",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.08,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "hedge-priest-14",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.25,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "hedge-priest-15",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-01",
+        "x": 0.42,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "cops-umtfws3531-loads0",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-08",
+        "role": "healer",
+        "x": 0.6925133689839572,
+        "y": 0.9580430218760458,
+        "scale": 1.05,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfws93o3-loads2",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.10745772510478392,
+        "y": 0.9346761189034594,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfwshga4-loads3",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-10",
+        "role": "tank",
+        "x": 0,
+        "y": 0.9814099248486323,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfwv8sd15",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-06",
+        "role": "dps",
+        "x": 0.428891458303223,
+        "y": 0.8996257644445796,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfww2wg17",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-05",
+        "role": "tank",
+        "x": 0.32714265067206244,
+        "y": 0.9911461344205434,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfwwdij18",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-03",
+        "role": "dps",
+        "x": 0.8983234571469866,
+        "y": 0.9911461344205434,
+        "weight": 1.5
+      },
+      {
+        "id": "cops-umtfwwoem19",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-02",
+        "role": "healer",
+        "x": 0.6717011128775835,
+        "y": 0.8431557489274957,
+        "weight": 1.5
+      }
+    ],
+    "brutal": [
+      {
+        "id": "brutal-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.04,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.188,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.337,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.485,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.633,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.782,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "brutal-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.93,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "brutal-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.114,
+        "y": 0.945,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "brutal-8",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.263,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-9",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.411,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-10",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-01",
+        "x": 0.559,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "brutal-11",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-08",
+        "x": 0.708,
+        "y": 0.945,
+        "scale": 1.05
+      },
+      {
+        "id": "brutal-12",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.856,
+        "y": 0.945
+      },
+      {
+        "id": "brutal-13",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-10",
+        "role": "tank",
+        "x": 0.93,
+        "y": 0.945
+      },
+      {
+        "id": "brutal-14",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-06",
+        "role": "dps",
+        "x": 0.04,
+        "y": 0.89
+      },
+      {
+        "id": "brutal-15",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-05",
+        "role": "healer",
+        "x": 0.188,
+        "y": 0.89
+      },
+      {
+        "id": "brutal-16",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-03",
+        "role": "dps",
+        "x": 0.337,
+        "y": 0.89
+      },
+      {
+        "id": "brutal-17",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-02",
+        "role": "tank",
+        "x": 0.485,
+        "y": 0.89
+      },
+      {
+        "id": "brutal-18",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.633,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "brutal-19",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.782,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "brutal-20",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.93,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      }
+    ],
+    "infernal": [
+      {
+        "id": "infernal-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.04,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.151,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.263,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.374,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.485,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.596,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "infernal-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.708,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "infernal-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.819,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "infernal-8",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.93,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-9",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.096,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "infernal-10",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-01",
+        "x": 0.207,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "infernal-11",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-08",
+        "x": 0.318,
+        "y": 0.945,
+        "scale": 1.05,
+        "role": "tank"
+      },
+      {
+        "id": "infernal-12",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.429,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-13",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-10",
+        "role": "tank",
+        "x": 0.541,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-14",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-06",
+        "role": "dps",
+        "x": 0.652,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-15",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-05",
+        "role": "healer",
+        "x": 0.763,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-16",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-03",
+        "role": "dps",
+        "x": 0.874,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-17",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-02",
+        "role": "tank",
+        "x": 0.93,
+        "y": 0.945
+      },
+      {
+        "id": "infernal-18",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.04,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "infernal-19",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.188,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "infernal-20",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.337,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "infernal-21",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.485,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "healer"
+      },
+      {
+        "id": "infernal-22",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.633,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "infernal-23",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.782,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "infernal-24",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.93,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      }
+    ],
+    "apocalyptic": [
+      {
+        "id": "apocalyptic-0",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.04,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "apocalyptic-1",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.151,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "apocalyptic-2",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.263,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "apocalyptic-3",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.374,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "apocalyptic-4",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.485,
+        "y": 1,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38
+      },
+      {
+        "id": "apocalyptic-5",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-01",
+        "x": 0.596,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "apocalyptic-6",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-07",
+        "x": 0.708,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26
+      },
+      {
+        "id": "apocalyptic-7",
+        "name": "Barbie TOWN! Again!",
+        "sprite": "barbies/barbies-03",
+        "x": 0.819,
+        "y": 1,
+        "stats": {
+          "hp": 11,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.04
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "strapped-harness",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          5,
+          13
+        ],
+        "xpReward": 26,
+        "role": "tank"
+      },
+      {
+        "id": "apocalyptic-8",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-10",
+        "x": 0.93,
+        "y": 1,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-9",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-02",
+        "x": 0.096,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "healer"
+      },
+      {
+        "id": "apocalyptic-10",
+        "name": "Holy Shit",
+        "sprite": "monks/monks-01",
+        "x": 0.207,
+        "y": 0.945,
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "skill": 3,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-11",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-08",
+        "x": 0.318,
+        "y": 0.945,
+        "scale": 1.05,
+        "role": "tank"
+      },
+      {
+        "id": "apocalyptic-12",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-09",
+        "role": "dps",
+        "x": 0.429,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-13",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-10",
+        "role": "tank",
+        "x": 0.541,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-14",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-06",
+        "role": "dps",
+        "x": 0.652,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-15",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-05",
+        "role": "healer",
+        "x": 0.763,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-16",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-03",
+        "role": "dps",
+        "x": 0.874,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-17",
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "sprite": "cops/cops-02",
+        "role": "tank",
+        "x": 0.93,
+        "y": 0.945
+      },
+      {
+        "id": "apocalyptic-18",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.04,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-19",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.151,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "apocalyptic-20",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.263,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-21",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.374,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "healer"
+      },
+      {
+        "id": "apocalyptic-22",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.485,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-23",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.596,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "apocalyptic-24",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.708,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-25",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.819,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      },
+      {
+        "id": "apocalyptic-26",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.93,
+        "y": 0.89,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-27",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.263,
+        "y": 0.835,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "healer"
+      },
+      {
+        "id": "apocalyptic-28",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.708,
+        "y": 0.835,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "dps"
+      },
+      {
+        "id": "apocalyptic-29",
+        "name": "Village Watch",
+        "sprite": "barbies/barbies-09",
+        "x": 0.93,
+        "y": 0.835,
+        "stats": {
+          "hp": 13,
+          "atk": 2,
+          "spd": 3,
+          "skill": 1,
+          "crit": 0.05
+        },
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "bedsheet-wraith",
+            "weight": 2
+          },
+          {
+            "gearId": "twin-bladed-axe",
+            "weight": 3
+          }
+        ],
+        "goldReward": [
+          8,
+          20
+        ],
+        "xpReward": 38,
+        "role": "tank"
+      }
+    ]
+  },
+  "id": "barbie",
+  "name": "BARBIEVILLE",
+  "joinWindowMs": 25000,
+  "recommendedLevel": 4,
+  "scalesWithPartySize": true,
+  "background": "barbies",
+  "completionXp": 60,
+  "completionGold": [
+    12,
+    26
+  ],
+  "flavorText": "A market town with a wall it has never needed. Word of the hamlet arrived this morning.",
+  "bandStatScale": {
+    "weak": 0.76,
+    "seasoned": 3.894,
+    "elite": 18.272,
+    "brutal": 13.631,
+    "infernal": 33.603,
+    "apocalyptic": 24.642
+  }
+}

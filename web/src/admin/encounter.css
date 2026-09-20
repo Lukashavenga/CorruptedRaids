@@ -1,0 +1,870 @@
+/* =========================================================================
+   The encounter screen.
+
+   Three columns: left is what the fight is MADE OF, middle is what it LOOKS
+   like, right is what it PLAYS like. Everything is carded, because the flat
+   stack this replaced gave no signal about which control belonged to which
+   question — and a control sitting far from the number it moves is most of why
+   the old screen felt disconnected.
+
+   Its own file rather than more of admin.css: that file is the placement
+   workbench's, and these two screens share nothing but the shell.
+   ========================================================================= */
+
+.enc {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* --- the action bar ----------------------------------------------------- */
+
+.enc-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.enc-crumb {
+  font-weight: 600;
+  color: #cfd5e4;
+}
+
+.enc-crumb::before {
+  content: "\2039";
+  margin-right: 8px;
+  opacity: 0.5;
+}
+
+.enc-picker select {
+  min-width: 280px;
+  padding: 6px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: inherit;
+}
+
+.enc-bar-spacer {
+  flex: 1;
+}
+
+.enc-savestate {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-right: 4px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.enc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--good);
+}
+
+.enc-savestate.is-dirty .enc-dot {
+  background: var(--primary);
+}
+
+.enc-bar button {
+  padding: 7px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.enc-bar button:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.enc-save {
+  background: var(--good) !important;
+  border-color: var(--good) !important;
+  color: #0c1710 !important;
+  font-weight: 600;
+}
+
+.enc-save:disabled {
+  background: var(--panel-2) !important;
+  border-color: var(--line) !important;
+  color: var(--muted) !important;
+  cursor: default;
+}
+
+/* --- the three columns -------------------------------------------------- */
+
+/*
+ * Capped, and centred past the cap.
+ *
+ * Without a maximum the three columns simply grow with the window, and on a
+ * wide monitor the whole screen reads as zoomed out: the same controls at the
+ * same pixel size, marooned in space, with the eye travelling further between
+ * a control and the number it moves. A work surface wants a comfortable
+ * measure, not all the width there is.
+ */
+.enc-body {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr) 300px;
+  gap: 18px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  align-items: start;
+}
+
+.enc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* The side columns are cards; the middle is the work surface. */
+.enc-left,
+.enc-right {
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.enc-h {
+  margin: 18px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.enc-h:first-child {
+  margin-top: 0;
+}
+
+.enc-help {
+  display: inline-grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  margin-left: 5px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 9px;
+  color: var(--muted);
+  cursor: help;
+}
+
+.enc-sub {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.enc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.enc-row strong {
+  font-size: 15px;
+}
+
+.enc-count {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.enc-left label,
+.enc-right label,
+.enc-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.enc-left select,
+.enc-settings select {
+  padding: 6px 9px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: #e6e9f0;
+}
+
+.enc-add {
+  width: 100%;
+  padding: 11px;
+  background: var(--primary);
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.enc-add:hover {
+  filter: brightness(1.08);
+}
+
+.enc-addpanel {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+/* --- the squad list ----------------------------------------------------- */
+
+.enc-squad {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.enc-squad li {
+  display: grid;
+  grid-template-columns: 16px 40px 1fr 22px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  background: var(--panel-2);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.enc-squad li:hover {
+  border-color: var(--line);
+}
+
+.enc-squad li.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.enc-squad-n {
+  font-size: 11px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.enc-squad img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.enc-squad-name {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.enc-squad-name input {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #e6e9f0;
+}
+
+.enc-squad-name input:focus {
+  outline: none;
+  border-bottom: 1px solid var(--primary);
+}
+
+.enc-squad-name small {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* Role colours, so a squad's shape is readable without reading it. */
+.enc-squad-name small.role-tank {
+  color: #6fa8ff;
+}
+
+.enc-squad-name small.role-dps {
+  color: #ff8f6f;
+}
+
+.enc-squad-name small.role-healer {
+  color: #63c88a;
+}
+
+.enc-squad-x {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.enc-squad-x:hover {
+  color: #ff6b72;
+}
+
+.enc-unitedit {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.enc-unitedit .formation-roles button {
+  flex: 1;
+  justify-content: center;
+  padding: 5px 4px;
+  background: #11151f;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.enc-unitedit .formation-roles button.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: #e6e9f0;
+}
+
+.enc-pressure {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.enc-pressure strong {
+  font-size: 18px;
+  color: #e6e9f0;
+}
+
+/* --- middle ------------------------------------------------------------- */
+
+.enc-title input {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 23px;
+  font-weight: 700;
+  color: #f2f4f9;
+}
+
+.enc-title input:focus {
+  outline: none;
+  border-bottom: 1px solid var(--primary);
+}
+
+.enc-title .admin-hint {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.enc-title code {
+  color: #b9c1d4;
+}
+
+/* Levels and views share a row: they answer the same question, which fight am
+   I looking at. Splitting them is what made the old screen read as two
+   unrelated lists of three. */
+.enc-levelrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.enc-levellabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.enc-levels {
+  display: flex;
+  gap: 6px;
+}
+
+.enc-levels button {
+  display: grid;
+  gap: 1px;
+  width: 92px;
+  padding: 10px 6px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.enc-levels button small {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.enc-levels button small.is-stale {
+  opacity: 0.3;
+}
+
+.enc-level-n {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.enc-levels button.is-empty .enc-level-n {
+  color: var(--muted);
+}
+
+.enc-levels button.is-good {
+  border-color: rgba(78, 169, 107, 0.7);
+}
+
+.enc-levels button.is-easy {
+  border-color: rgba(90, 150, 210, 0.6);
+}
+
+.enc-levels button.is-hard {
+  border-color: rgba(255, 107, 114, 0.6);
+}
+
+.enc-levels button.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.enc-levels button.is-active small {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.enc-views {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.enc-views button {
+  padding: 8px 20px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: var(--muted);
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.enc-views button.is-active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.enc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.enc-toolbar button {
+  padding: 8px 15px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.enc-toolbar button.is-active {
+  background: var(--good);
+  border-color: var(--good);
+  color: #0c1710;
+}
+
+.enc-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.enc-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 13px 15px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.enc-settings {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* --- right -------------------------------------------------------------- */
+
+.enc-facts {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 10px;
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.enc-facts dt {
+  color: var(--muted);
+}
+
+.enc-facts dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.enc-verdict {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.enc-verdict strong {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.enc-verdict span {
+  font-size: 12.5px;
+  color: var(--good);
+}
+
+.enc-verdict.is-stale {
+  opacity: 0.4;
+}
+
+.enc-right > button {
+  padding: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.enc-right > button:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.enc-right > button.admin-danger {
+  background: rgba(255, 107, 114, 0.1);
+  border-color: rgba(255, 107, 114, 0.35);
+  color: #ff8f95;
+}
+
+/* --- the field ---------------------------------------------------------- */
+
+.formation-stage {
+  border-radius: 12px;
+  border-color: var(--line);
+}
+
+/* Alignment guides, off by default: the scene is the thing being judged, and
+   a grid over it competes with the art it exists to help you place. */
+.formation-stage.has-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 10% 12.5%;
+}
+
+/* The number on a figure ties the field back to the squad list. */
+.formation-unit-n {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  min-width: 17px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--ui);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* --- raid rooms ------------------------------------------------------------
+ *
+ * The list of places behind a raid's doors. Reads as a list of ROOMS rather
+ * than of weights: a weight is only meaningful against the others, and the
+ * decision an author is making is how often the party finds this place — so
+ * the row shows the resulting percentage and the slider lives in the editor.
+ */
+.raid-addrow {
+  display: flex;
+  gap: 4px;
+}
+
+.raid-addrow .enc-add {
+  flex: 1;
+}
+
+.raid-rooms {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.raid-rooms li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 1px solid var(--panel-border);
+  border-left-width: 3px;
+  border-radius: 3px;
+  background: rgba(24, 46, 65, 0.5);
+  cursor: pointer;
+}
+
+.raid-rooms li.is-selected {
+  border-color: var(--accent);
+  background: rgba(226, 181, 112, 0.12);
+}
+
+/* Kind is carried by the left edge, so the list reads as three groups without
+   needing a column for it. */
+.raid-rooms li.kind-fight {
+  border-left-color: var(--danger);
+}
+
+.raid-rooms li.kind-buff {
+  border-left-color: var(--health);
+}
+
+.raid-rooms li.kind-clear {
+  border-left-color: var(--ink-faint);
+}
+
+/* Weight 0: authored, kept, and unreachable. Dimmed rather than hidden — the
+   whole point of parking a room is being able to find it again. */
+.raid-rooms li.is-parked {
+  opacity: 0.5;
+}
+
+.raid-rooms li.is-boss {
+  border-style: dashed;
+}
+
+.raid-room-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.raid-room-name small {
+  color: var(--ink-faint);
+  font-size: 11px;
+}
+
+.raid-room-odds {
+  font-family: var(--font-data, monospace);
+  color: var(--accent);
+}
+
+.raid-room-title {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--ink);
+  font-family: var(--font-display, inherit);
+  font-size: 20px;
+  padding: 2px 0;
+}
+
+.raid-room-title:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.raid-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.raid-field input[type="text"],
+.raid-field input:not([type]),
+.raid-field select {
+  width: 100%;
+}
+
+.raid-fieldrow {
+  display: flex;
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.raid-fieldrow .raid-field {
+  flex: 1;
+}
+
+.enc-rounds {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* --- the authored path -----------------------------------------------------
+ *
+ * One block per round, three dropdowns each. This replaced a read-only list of
+ * odds: the doors are authored now, so the thing on screen has to be the thing
+ * you edit.
+ */
+.raid-steps {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  counter-reset: none;
+}
+
+.raid-steps > li {
+  padding: 7px 8px 8px;
+  background: rgba(24, 46, 65, 0.5);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+}
+
+.raid-step-head {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 5px;
+}
+
+.raid-step-n {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.raid-step-head button {
+  padding: 1px 6px;
+  background: none;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.raid-step-head button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Direction, then what is down it. The left rule carries the room's kind, so a
+   round reads as its shape — two fights and a shrine — before any of the names
+   are read. */
+.raid-door-pick {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 3px;
+  padding-left: 6px;
+  border-left: 3px solid var(--ink-faint);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.raid-door-pick.kind-fight {
+  border-left-color: var(--danger);
+}
+
+.raid-door-pick.kind-buff {
+  border-left-color: var(--health);
+}
+
+.raid-door-pick select {
+  width: 100%;
+  min-width: 0;
+}
+
+.raid-path-boss {
+  padding: 7px 8px;
+  border: 1px dashed var(--danger);
+  border-radius: 3px;
+  color: var(--danger);
+  font-size: 12px;
+}

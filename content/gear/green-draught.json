@@ -1,0 +1,14 @@
+{
+  "id": "green-draught",
+  "name": "Absinth",
+  "slot": "offHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Green Draught. Taken, not given.",
+  "tags": [],
+  "sprite": "oh03",
+  "requires": {}
+}

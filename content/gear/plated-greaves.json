@@ -1,0 +1,17 @@
+{
+  "id": "plated-greaves",
+  "name": "Plated Greaves",
+  "slot": "bottom",
+  "rarity": "epic",
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Plated Greaves. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t4",
+    "female": "female-t4"
+  },
+  "requires": {}
+}

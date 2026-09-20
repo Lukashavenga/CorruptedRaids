@@ -1,0 +1,14 @@
+{
+  "id": "colander-crown",
+  "name": "Colander Crown",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Colander Crown. Taken, not given.",
+  "tags": [],
+  "sprite": "head14"
+}

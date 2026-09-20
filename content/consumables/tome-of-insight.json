@@ -1,0 +1,8 @@
+{
+  "id": "tome-of-insight",
+  "name": "Tome of Insight",
+  "rarity": "uncommon",
+  "price": 190,
+  "description": "Dense, annotated, and faintly singed at the edges.",
+  "effect": { "type": "grantXp", "amount": 200 }
+}

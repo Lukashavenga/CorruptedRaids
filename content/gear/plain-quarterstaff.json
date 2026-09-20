@@ -1,0 +1,15 @@
+{
+  "id": "plain-quarterstaff",
+  "name": "Plain Quarterstaff",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 7
+  },
+  "description": "Plain Quarterstaff. Taken, not given.",
+  "tags": [],
+  "sprite": "mh25",
+  "requires": {
+    "atk": 36
+  }
+}

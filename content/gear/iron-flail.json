@@ -1,0 +1,15 @@
+{
+  "id": "iron-flail",
+  "name": "Iron Flail",
+  "slot": "mainHand",
+  "rarity": "rare",
+  "statMods": {
+    "atk": 3
+  },
+  "description": "Iron Flail. Taken, not given.",
+  "tags": [],
+  "sprite": "mh09",
+  "requires": {
+    "atk": 12
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "rusted-bucket",
+  "name": "Rusted Bucket",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 1,
+    "skill": 1
+  },
+  "description": "Rusted Bucket. Taken, not given.",
+  "tags": [],
+  "sprite": "head02"
+}

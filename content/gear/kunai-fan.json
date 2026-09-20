@@ -1,0 +1,16 @@
+{
+  "id": "kunai-fan",
+  "name": "Kunai Fan",
+  "slot": "mainHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 5
+  },
+  "description": "Kunai Fan. Taken, not given.",
+  "tags": [],
+  "sprite": "mh18",
+  "enabled": false,
+  "requires": {
+    "atk": 24
+  }
+}

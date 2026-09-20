@@ -1,0 +1,16 @@
+{
+  "id": "parrying-dirk",
+  "name": "Dagger Dagger Dagger",
+  "slot": "offHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 4,
+    "skill": 1
+  },
+  "description": "Good for stabbing bitches in the back",
+  "tags": [],
+  "sprite": "oh10",
+  "requires": {
+    "atk": 16
+  }
+}

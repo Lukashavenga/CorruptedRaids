@@ -1,0 +1,14 @@
+{
+  "id": "gentleman-s-topper",
+  "name": "Gentleman's Topper",
+  "slot": "head",
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 4,
+    "skill": 1
+  },
+  "description": "Gentleman's Topper. Taken, not given.",
+  "tags": [],
+  "sprite": "head15"
+}

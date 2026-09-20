@@ -1,0 +1,14 @@
+{
+  "id": "shark-head",
+  "name": "Shark Head",
+  "slot": "head",
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 7,
+    "skill": 2
+  },
+  "description": "Shark Head. Taken, not given.",
+  "tags": [],
+  "sprite": "head24"
+}

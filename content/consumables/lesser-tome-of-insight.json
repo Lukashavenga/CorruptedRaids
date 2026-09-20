@@ -1,0 +1,8 @@
+{
+  "id": "lesser-tome-of-insight",
+  "name": "Lesser Tome of Insight",
+  "rarity": "common",
+  "price": 70,
+  "description": "A thin volume of someone else's hard-won lessons.",
+  "effect": { "type": "grantXp", "amount": 60 }
+}

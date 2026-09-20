@@ -1,0 +1,15 @@
+{
+  "id": "frost-sceptre",
+  "name": "Frost Sceptre",
+  "slot": "mainHand",
+  "rarity": "epic",
+  "statMods": {
+    "atk": 5
+  },
+  "description": "Frost Sceptre. Taken, not given.",
+  "tags": [],
+  "sprite": "mh19",
+  "requires": {
+    "atk": 28
+  }
+}

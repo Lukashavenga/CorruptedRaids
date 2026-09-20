@@ -1,0 +1,15 @@
+{
+  "id": "emberbrand",
+  "name": "Emberbrand",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 6
+  },
+  "description": "Emberbrand. Taken, not given.",
+  "tags": [],
+  "sprite": "mh23",
+  "requires": {
+    "atk": 32
+  }
+}

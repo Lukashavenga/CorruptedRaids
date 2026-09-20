@@ -1,0 +1,17 @@
+{
+  "id": "knight-s-cuirass",
+  "name": "Knight's Cuirass",
+  "slot": "top",
+  "rarity": "epic",
+  "statMods": {
+    "hp": 5,
+    "skill": 2
+  },
+  "description": "Knight's Cuirass. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t4",
+    "female": "female-t4"
+  },
+  "requires": {}
+}

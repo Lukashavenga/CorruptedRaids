@@ -1,0 +1,14 @@
+{
+  "id": "witch-s-hat",
+  "name": "Witch's Hat",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 1,
+    "skill": 1
+  },
+  "description": "Witch's Hat. Taken, not given.",
+  "tags": [],
+  "sprite": "head04"
+}

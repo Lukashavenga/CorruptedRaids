@@ -1,0 +1,13 @@
+{
+  "id": "iron-shortsword",
+  "name": "Iron Shortsword",
+  "slot": "mainHand",
+  "rarity": "common",
+  "statMods": {
+    "atk": 1
+  },
+  "description": "Iron Shortsword. Taken, not given.",
+  "tags": [],
+  "sprite": "mh02",
+  "requires": {}
+}

@@ -1,0 +1,14 @@
+{
+  "id": "tavern-tankard",
+  "name": "Pint.",
+  "slot": "offHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 4,
+    "skill": 2
+  },
+  "description": "Pints.",
+  "tags": [],
+  "sprite": "oh07",
+  "requires": {}
+}

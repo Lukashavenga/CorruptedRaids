@@ -1,0 +1,14 @@
+{
+  "id": "poacher-s-cap",
+  "name": "Poacher's Cap",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 6,
+    "skill": 2
+  },
+  "description": "Poacher's Cap. Taken, not given.",
+  "tags": [],
+  "sprite": "head23"
+}

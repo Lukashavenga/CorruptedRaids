@@ -1,0 +1,15 @@
+{
+  "id": "woodsman-s-axe",
+  "name": "Woodsman's Axe",
+  "slot": "mainHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "atk": 2
+  },
+  "description": "Woodsman's Axe. Taken, not given.",
+  "tags": [],
+  "sprite": "mh05",
+  "requires": {
+    "atk": 8
+  }
+}

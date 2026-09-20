@@ -1,0 +1,39 @@
+{
+  "name": "dungeon-engine",
+  "version": "0.1.0",
+  "description": "Extensible chat-driven dungeon crawl engine (Tangia Dungeons-style) - standalone core, Twitch integration to follow.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "simulate": "tsx scripts/simulate.ts",
+    "simulate:progression": "tsx scripts/simulate-progression.ts",
+    "serve": "tsx --env-file-if-exists=.env src/server/index.ts",
+    "typecheck": "tsc --noEmit",
+    "dev:web": "npm run dev --prefix web",
+    "build:web": "npm run build --prefix web",
+    "install:web": "npm install --prefix web",
+    "gen:font": "python scripts/build-font.py",
+    "check:text": "python scripts/check-text-fits.py",
+    "slice": "python scripts/slice-sheets.py && python scripts/extract-hands.py && python scripts/slice-encounters.py",
+    "gen:placements": "python scripts/seed-placements.py",
+    "tune:dungeons": "tsx scripts/tune-dungeons.ts",
+    "retier:gear": "tsx scripts/retier-gear.ts",
+    "slice:ui": "python scripts/slice-ui.py \"art/reference/assets Mute.png\"",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --env-file-if-exists=.env dist/server/index.js",
+    "test:store": "tsx --env-file-if-exists=.env scripts/test-supabase-store.ts",
+    "bundle:edge": "tsx scripts/bundle-edge-content.ts",
+    "test:edge": "tsx scripts/test-edge-logic.ts",
+    "check:supabase": "tsx --env-file-if-exists=.env scripts/check-supabase.ts",
+    "deploy:fn": "npm run bundle:edge && supabase functions deploy character"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "supabase": "^2.117.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}

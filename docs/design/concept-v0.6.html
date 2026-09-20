@@ -1,0 +1,791 @@
+<title>Dungeon Raids</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..900&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #edefea;
+    --surface: #e2e6de;
+    --surface-2: #d5dbcd;
+    --line: #c7cebd;
+    --ink: #201c16;
+    --ink-muted: #5b564c;
+    --ink-faint: #8b8577;
+    --ember: #b75f22;
+    --ember-tint: #e7c6a2;
+    --ember-tint-bg: #e9dcc9;
+    --verdigris: #3f7f68;
+    --verdigris-tint-bg: #d7e6dd;
+    --danger: #a23b2e;
+    --danger-tint-bg: #ecd9d1;
+    --shadow: 0 1px 2px rgba(32, 28, 22, 0.06), 0 8px 24px -12px rgba(32, 28, 22, 0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14120f;
+      --surface: #1e1b16;
+      --surface-2: #2a251e;
+      --line: #392f24;
+      --ink: #ede6da;
+      --ink-muted: #b3aa9b;
+      --ink-faint: #7c7568;
+      --ember: #e08a3c;
+      --ember-tint: #7a4f26;
+      --ember-tint-bg: #2e2519;
+      --verdigris: #7bc4a7;
+      --verdigris-tint-bg: #1c2c25;
+      --danger: #e0685a;
+      --danger-tint-bg: #2f1e1a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14120f;
+    --surface: #1e1b16;
+    --surface-2: #2a251e;
+    --line: #392f24;
+    --ink: #ede6da;
+    --ink-muted: #b3aa9b;
+    --ink-faint: #7c7568;
+    --ember: #e08a3c;
+    --ember-tint: #7a4f26;
+    --ember-tint-bg: #2e2519;
+    --verdigris: #7bc4a7;
+    --verdigris-tint-bg: #1c2c25;
+    --danger: #e0685a;
+    --danger-tint-bg: #2f1e1a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Source Sans 3", system-ui, -apple-system, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; text-wrap: balance; margin: 0; }
+
+  h1 { font-weight: 620; font-optical-sizing: auto; }
+  h2 { font-weight: 560; }
+  h3 { font-weight: 560; }
+
+  a { color: var(--ember); }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 32px 120px;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 760px);
+    gap: 64px;
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: minmax(0, 1fr); padding: 32px 20px 80px; gap: 32px; }
+    nav.rail { position: static !important; order: 2; }
+    main { order: 1; }
+  }
+
+  header.masthead {
+    grid-column: 1 / -1;
+    padding-bottom: 36px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--ember);
+    display: inline-block;
+  }
+
+  header.masthead h1 {
+    font-size: clamp(2.1rem, 4vw, 3.1rem);
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    max-width: 60ch;
+  }
+
+  .doc-meta {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+
+  .doc-meta strong { color: var(--ink-muted); font-weight: 600; }
+
+  nav.rail {
+    position: sticky;
+    top: 40px;
+    align-self: start;
+    font-size: 14px;
+  }
+
+  nav.rail .rail-title {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+
+  nav.rail ol {
+    list-style: none;
+    margin: 0 0 26px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  nav.rail a {
+    display: block;
+    padding: 6px 10px;
+    margin-left: -10px;
+    border-radius: 6px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  nav.rail a:hover { background: var(--surface); color: var(--ink); }
+
+  .rail-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+  }
+
+  main { min-width: 0; }
+
+  section { padding: 46px 0; border-bottom: 1px solid var(--line); }
+  section:last-child { border-bottom: none; padding-bottom: 0; }
+
+  section > .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  section h2 { font-size: clamp(1.5rem, 2.6vw, 1.9rem); margin-bottom: 18px; }
+
+  section h3 {
+    font-size: 1.08rem;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 14px; max-width: 68ch; }
+  p:last-child { margin-bottom: 0; }
+
+  ol.loop {
+    counter-reset: step;
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ol.loop li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 16px;
+    align-items: baseline;
+  }
+
+  ol.loop li::before {
+    content: counter(step);
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: var(--ember);
+  }
+
+  ol.loop b { font-weight: 650; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 9px 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .chip.locked { background: var(--verdigris-tint-bg); color: var(--verdigris); }
+  .chip.open { background: var(--danger-tint-bg); color: var(--danger); }
+  .chip::before { content: "●"; font-size: 8px; }
+
+  .decision {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .decision .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .decision .row h4 {
+    font-family: "Fraunces", serif;
+    font-size: 1rem;
+    font-weight: 560;
+    margin: 0;
+  }
+
+  .decision p { color: var(--ink-muted); font-size: 15px; margin: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14.5px;
+  }
+
+  caption {
+    text-align: left;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  td.num, th.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+
+  .rarity {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .rarity::before { content: ""; width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .rarity.common::before { background: var(--ink-faint); }
+  .rarity.uncommon::before { background: var(--verdigris); }
+  .rarity.rare::before { background: #4f7fb0; }
+  .rarity.epic::before { background: #8a5fc2; }
+  .rarity.legendary::before { background: var(--ember); }
+
+  .table-wrap { overflow-x: auto; }
+
+  .callout {
+    border-left: 3px solid var(--danger);
+    background: var(--danger-tint-bg);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+
+  .callout .row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .callout h4 { font-family: "Fraunces", serif; font-size: 1rem; margin: 0; color: var(--danger); }
+  .callout p { color: var(--ink); font-size: 15px; }
+  .callout p.muted { color: var(--ink-muted); font-size: 14px; margin-top: 8px; }
+
+  .hooks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .hook-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--surface);
+  }
+
+  .hook-card .label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 6px;
+  }
+
+  .hook-card p { font-size: 14px; color: var(--ink-muted); margin: 0; }
+
+  ul.open-list { margin: 18px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  ul.open-list li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 12px;
+    font-size: 15px;
+  }
+  ul.open-list li::before { content: "?"; color: var(--danger); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  ul.open-list li b { font-weight: 650; }
+  ul.open-list li span.note { display: block; color: var(--ink-muted); font-size: 13.5px; margin-top: 2px; }
+
+  code, .inline-mono { font-family: "IBM Plex Mono", monospace; font-size: 0.92em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    section { animation: rise 0.5s ease both; }
+    section:nth-of-type(1) { animation-delay: 0.02s; }
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { section { animation: none; } }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div class="eyebrow">Concept &amp; systems doc · v0.6</div>
+    <h1>Dungeon Raids</h1>
+    <p class="subtitle">A Tangia-Dungeons-style viewer game: persistent per-viewer characters explore via random per-user events, band together for shared boss raids, loot gear, and level up — built as a standalone, content-driven engine that Twitch plugs into later.</p>
+    <div class="doc-meta">
+      <span><strong>Status</strong> — living document, decisions locked via in-session Q&amp;A</span>
+      <span><strong>Date</strong> — 27 Aug 2026</span>
+      <span><strong>Pending</strong> — reconciliation against Lukas's source design doc tonight</span>
+    </div>
+  </header>
+
+  <nav class="rail">
+    <div class="rail-title">Contents</div>
+    <ol>
+      <li><a href="#pitch">The pitch</a></li>
+      <li><a href="#loop">Dungeon vs. Raid</a></li>
+      <li><a href="#events">Ambient events</a></li>
+      <li><a href="#character">Character system</a></li>
+      <li><a href="#resolution">Combat resolution</a></li>
+      <li><a href="#combat">Raid &amp; boss combat</a></li>
+      <li><a href="#roles">Roles: Tank / DPS / Healer</a></li>
+      <li><a href="#loadout">Loadout &amp; shop</a></li>
+      <li><a href="#loot">Loot &amp; progression</a></li>
+      <li><a href="#stakes">Death &amp; stakes</a></li>
+      <li><a href="#pvp">PvP</a></li>
+      <li><a href="#economy">Economy</a></li>
+      <li><a href="#persistence">Persistence &amp; identity</a></li>
+      <li><a href="#visuals">Visual direction</a></li>
+      <li><a href="#extensibility">Extensibility contract</a></li>
+      <li><a href="#open">Open questions</a></li>
+      <li><a href="#next">Next steps</a></li>
+    </ol>
+    <div class="rail-legend">
+      <span><span class="chip locked">Locked</span> — decided this session</span>
+      <span><span class="chip open">Open</span> — still needs an answer</span>
+    </div>
+  </nav>
+
+  <main>
+
+    <section id="pitch">
+      <div class="kicker">01 — the pitch</div>
+      <h2>Chat delves a dungeon, then raids a boss</h2>
+      <p>Viewers keep their own character across streams. Two different redeems put that character to work: a cheap, casual <b>Dungeon</b> redeem fires one random text-based event at whoever triggered it — Tangia-style, instant, personal. A pricier <b>Raid</b> redeem opens a timed window for a whole party to join, then throws that party at a shared boss fight, everyone on screen at once.</p>
+      <p>Underneath, it's a data-driven engine: gear, encounters, and (soon) ambient events are JSON content, not code, so the loot table, the boss roster, and the flavor-text pool can all grow without touching the combat logic. Twitch redemptions aren't wired in yet on purpose — everything routes through one command interface a future integration just plugs into.</p>
+    </section>
+
+    <section id="loop">
+      <div class="kicker">02 — dungeon vs. raid</div>
+      <h2>Two redeems, two different shapes</h2>
+      <div class="decision">
+        <div class="row"><h4>Splitting Dungeon from Raid</h4><span class="chip open">Leaning locked</span></div>
+        <p>Lukas: <i>"Boss is a separate redeem, we might split it between Dungeon (more casual cheaper redeem) and Raid (more complicated)."</i> Strong direction, not fully nailed down — captured here as two distinct flows below. Both turn out to share the same join-window/party shape — the difference is what happens once the party locks in, not whether there's a party at all.</p>
+      </div>
+      <h3>Dungeon — casual party, no boss</h3>
+      <ol class="loop">
+        <li><b>Spawn.</b> The cheap Dungeon redeem is triggered.</li>
+        <li><b>Join window opens.</b> Same shape as a Raid's: a fixed countdown, anyone can join, no party cap.</li>
+        <li><b>Window closes, party locks.</b> Everyone who joined is now delving together.</li>
+        <li><b>Rolling events fire per person.</b> Each party member gets their own independent stream of random text popups — a stumble, a kill, a chest — narrated to the group but resolved individually. No shared HP pool, no boss-style combat.</li>
+        <li><b>Survivors and casualties are both rewarded, differently.</b> Whoever's still standing when the dungeon ends gets a random gear item (uncommon or better) plus XP. Whoever died along the way still keeps their XP, just no gear.</li>
+      </ol>
+
+      <div class="decision">
+        <div class="row"><h4>Dungeon screen layout</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: <i>"player characters left, enemy creatures right and in the top it shows basic event text."</i> Confirmed as one shared lineup, not per-viewer instances: <i>"whole party shared line up. hp bars ticking down left and right, some basic fight animations not overly complex."</i> The whole joined party sits on one side, the whole creature roster for that dungeon on the other, everyone's HP bar visibly draining as the fight plays out, with lightweight animations — not the full turn-based combat a Raid boss gets, but a real visualized clash, not just a scrolling log.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Podium spotlight for survivors</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: <i>"who survives gets a podium like focus."</i> When the dust settles, survivors get a dedicated spotlight moment on screen — a clear, celebratory beat rather than just an entry in a log. This is the "gratification" piece from the original brainstorm made concrete.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Difficulty variance</h4><span class="chip locked">Locked — design principle</span></div>
+        <p>Lukas: <i>"there are different difficulty creatures so that a higher geared character can still take a hard hit and die but a low level could survive by just not getting hit."</i> The point is explicit: gear should improve your odds, not guarantee your outcome. A well-built character can still get unlucky against a rough creature; an undergeared one can still get lucky and walk out fine. Keeps every Dungeon watchable regardless of who's currently ahead on gear.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Three Dungeon difficulties to start</h4><span class="chip locked">Locked</span></div>
+        <p>Harder difficulty means harder creatures and better gear on the table — a straightforward risk/reward ladder, three rungs at launch. Difficulty selection presumably happens at redemption time (pick which Dungeon tier to spawn), though that's not confirmed yet.</p>
+      </div>
+      <h3>Raid — timed, shared, high-stakes</h3>
+      <ol class="loop">
+        <li><b>Spawn.</b> The Raid redeem is triggered and announces a boss encounter.</li>
+        <li><b>Join window opens.</b> A fixed countdown starts on spawn. Any viewer can join while it's running — no cap on party size.</li>
+        <li><b>Window closes, party locks.</b> Everyone who joined during the countdown is now in the raid.</li>
+        <li><b>The journey.</b> Before the boss, the party works through a short path of its own — a Slay the Spire–style node or two (fight, treasure, rest, mystery) rather than dropping straight into the boss room. Shape and length still open, see below.</li>
+        <li><b>Shared boss fight resolves.</b> The party and the boss share one HP pool each; see <a href="#combat">Raid &amp; boss combat</a> for how targeting works.</li>
+        <li><b>Rewards.</b> On a win, every participant rolls independently against the loot table and earns XP/gold. On a loss, no loot or XP this time — characters are untouched.</li>
+        <li><b>Characters persist.</b> Levels, gear, and inventory carry into the next dungeon, the next raid, and the next stream.</li>
+      </ol>
+      <div class="decision">
+        <div class="row"><h4>A journey before the boss</h4><span class="chip open">Leaning locked</span></div>
+        <p>Lukas, reacting to the node-path brainstorm: <i>"maybe we keep it for the raid as a bit of a journey to get to the boss."</i> Directionally in, not yet specced — how many nodes, whether chat votes on the path or it's auto-picked, and what a non-boss node actually resolves as are all still open.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Five Raid levels to start</h4><span class="chip locked">Locked</span></div>
+        <p>Five tiers of Raid at launch, presumably scaling boss difficulty and loot quality the way the three Dungeon difficulties do. Whether a party picks the level at spawn, it's gated by average party level, or something else entirely isn't specified yet.</p>
+      </div>
+    </section>
+
+    <section id="events">
+      <div class="kicker">03 — ambient events</div>
+      <h2>What a Dungeon redeem actually looks like</h2>
+      <p>Straight from the source: <i>"much like Tangia, User A stumbles and takes 5 points of damage. User B kills a goblin and earns 10xp, User A finds a chest with a Bread Knife in it."</i> Small ambient beats like these are still one-off, independent rolls with no turn order — a weighted random pick from an event table. The one exception is a creature encounter: the whole party and the whole creature lineup actually fight it out on screen with ticking HP bars (see <a href="#loop">Dungeon vs. Raid</a>), which is closer to real combat than a flavor-text roll, just lighter-weight than a Raid boss fight.</p>
+      <div class="table-wrap">
+      <table>
+        <caption>illustrative event rolls — not the full table, just the shape</caption>
+        <thead><tr><th>Text</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>"You stumble on loose rubble."</td><td>−5 hp</td></tr>
+          <tr><td>"You cut down a lone goblin."</td><td>+10 xp</td></tr>
+          <tr><td>"You crack open a chest and find a Bread Knife."</td><td>+1 gear item</td></tr>
+          <tr><td>"A Bog Troll catches you off guard..."</td><td>survive/die roll vs. the creature's difficulty</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>This is a natural third content type alongside gear and encounters — a pool of small, independently-weighted event definitions (text template + effect type + weight), authored the same way: drop a new JSON file in, nothing else changes. Creature-vs-viewer rolls likely reuse the existing mob-tier <span class="inline-mono">encounters</span> content rather than needing their own schema — same difficulty data, a much lighter resolution than a full Raid fight. See <a href="#extensibility">Extensibility contract</a>.</p>
+    </section>
+
+    <section id="character">
+      <div class="kicker">04 — character system</div>
+      <h2>One character per viewer, always yours</h2>
+      <p>Every viewer who's ever redeemed a Dungeon or joined a Raid has their own character: level, XP, gold, equipped gear, and inventory, tracked by their platform identity. This is the biggest structural shift from the first engine pass, which modeled a single shared "channel hero" — the stat model and content system carry over unchanged, but the state layer now needs one record per viewer instead of one record per channel.</p>
+      <table>
+        <caption>the five stats every character and encounter shares</caption>
+        <thead><tr><th>Stat</th><th>Governs</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">hp</td><td>How much damage a character can take before going down for the raid.</td></tr>
+          <tr><td class="mono">atk</td><td>Base damage dealt per hit, before the target's defense is applied.</td></tr>
+          <tr><td class="mono">def</td><td>Flat mitigation — reduces incoming hits.</td></tr>
+          <tr><td class="mono">spd</td><td>Turn order within a round.</td></tr>
+          <tr><td class="mono">crit</td><td>Chance (0–1) for a hit to land as a critical.</td></tr>
+        </tbody>
+      </table>
+      <p>Identity is stubbed for now: commands already carry a <span class="inline-mono">requestedBy</span> field, so pre-Twitch testing just passes an arbitrary viewer id in its place. When Twitch wiring lands, that field becomes the real Twitch user id — no change to anything downstream of it.</p>
+
+      <h3>Leveling: stat point allocation</h3>
+      <div class="decision">
+        <div class="row"><h4>Player-allocated stats, not automatic growth</h4><span class="chip locked">Locked</span></div>
+        <p>Leveling up grants points the player spends themselves, across four stats: <b>Health</b>, <b>Damage</b>, <b>Armour</b>, and <b>Skill</b>. Gear applies its own modifiers to the same four stats, on top of whatever's been allocated. This replaces the engine's current behavior, which grows every stat automatically by a fixed amount on level-up — that curve goes away in favor of real player choice.</p>
+      </div>
+      <div class="callout">
+        <div class="row"><h4>Reconciling with the engine's existing stat model — clearer now, not finished</h4></div>
+        <p>The engine as built uses five stats — <span class="inline-mono">hp</span>, <span class="inline-mono">atk</span>, <span class="inline-mono">def</span>, <span class="inline-mono">spd</span>, <span class="inline-mono">crit</span>. The <a href="#resolution">combat resolution mechanism</a> below sharpens three of the four player-facing stats considerably: Health is hp, Damage is atk, and Armour is specifically Armor Class in a d20 attack roll — not the flat post-hit mitigation <span class="inline-mono">def</span> currently does. Skill's job is now partly clear too: for a Healer, it's the "healing factor" driving heal frequency/power. Whether Skill does something equally specific for Tank (aggro generation?) or DPS (bonus damage?) isn't said yet. <span class="inline-mono">spd</span> is the one stat left stranded — turn order isn't really a thing anymore under a random-tick resolution model, so it may need a new job (weighting how often you're picked to act, maybe) or it may just not survive. <span class="inline-mono">crit</span> may fold away too if a natural-20 auto-crit gets adopted — see below.</p>
+      </div>
+    </section>
+
+    <section id="resolution">
+      <div class="kicker">05 — combat resolution</div>
+      <h2>One shared mechanism, used at two scales</h2>
+      <p>Lukas worked through how a fight with a lot of units on screen — a whole party against a whole creature lineup, or a whole party against one boss — resolves without needing a slow, strict turn queue. What follows applies to both Dungeon fights and Raid boss fights; they're the same engine, just a different cast.</p>
+
+      <div class="decision">
+        <div class="row"><h4>Resolve in random ticks, not a full turn queue</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: <i>"it needs to kind of all happen somewhat simultaneously to not completely block the flow because of the amount of potential units there is... maybe it's like a random pick to choose whether it attacks or gets attacked."</i> Instead of cycling every single unit through a strict per-round order, each tick randomly picks a side to act, then a living unit from that side, then resolves one exchange. Scheduling complexity doesn't grow with headcount.</p>
+      </div>
+
+      <div class="callout">
+        <div class="row"><h4>Good news: the "blocking" worry is already solved</h4></div>
+        <p>The engine as built resolves an entire fight instantly server-side, then replays the event log with client-side pacing for the overlay (see the engine README). A tick-based random-pick model costs the same to compute whether there are 3 units or 300 — headcount changes how many log lines get paced out on replay, not how long resolution takes. The part that still needed designing was the <i>selection logic</i> inside each tick, which is what the rest of this section pins down.</p>
+      </div>
+
+      <div class="decision">
+        <div class="row"><h4>Attack rolls: d20 vs. Armor Class</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: <i>"apply the logic of the attack... rolling essentially from one to twenty, whether it's a successful attack and how much damage it would do... based on the character's armor class."</i> A standard D&amp;D to-hit roll: the attacker rolls a d20 against the target's Armor Class; a hit lands damage against HP, a miss does nothing. This is what "Armour" is, precisely — Armor Class, not flat post-hit mitigation.</p>
+      </div>
+
+      <div class="decision">
+        <div class="row"><h4>Aggro weights who gets targeted</h4><span class="chip locked">Locked</span></div>
+        <p>A third tracked value alongside HP and the attack roll: aggro, generated mainly by Tank-role characters. Targeting stays random at its core (per the earlier "random, not threat-based" decision) but is now weighted — a Tank with high aggro is more likely to be the one picked, shielding the squishier DPS and Healers behind them. This is exactly the mechanism flagged two rounds ago as "where targeting stops being pure random chance."</p>
+      </div>
+
+      <div class="decision">
+        <div class="row"><h4>Healing fires the same way, but role-prioritized</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: healing "would also fire similar to attacks, but to player characters, prioritizing themselves and then tanks and then DPS." A Healer's heal resolves through the same tick mechanism as an attack, rolling against the party instead of the enemy side — but instead of random or aggro-weighted, its target follows a fixed priority order: the healer first, then Tanks, then DPS.</p>
+      </div>
+
+      <div class="callout">
+        <div class="row"><h4>A natural extension worth considering — not decided</h4></div>
+        <p>D&amp;D folds critical hits into the same d20 roll: a natural 20 is an automatic crit. Adopting that would let the engine's existing <span class="inline-mono">crit</span> stat disappear entirely rather than needing separate reconciliation — worth floating, not something Lukas has confirmed.</p>
+      </div>
+    </section>
+
+    <section id="combat">
+      <div class="kicker">06 — raid &amp; boss combat</div>
+      <h2>How a shared boss fight actually plays out</h2>
+      <p>This section is about the Raid boss specifically — full turn order, hit/miss rolls, phase abilities. Dungeon creature encounters are lighter-weight (see <a href="#loop">Dungeon vs. Raid</a>), and both now run on the shared <a href="#resolution">combat resolution mechanism</a> above.</p>
+
+      <div class="decision">
+        <div class="row"><h4>Party formation</h4><span class="chip locked">Locked</span></div>
+        <p>Open join window, no party-size cap. A fixed countdown starts the moment the raid spawns; anyone who joins before it expires is in.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Shared encounter</h4><span class="chip locked">Locked</span></div>
+        <p>The whole party fights one boss with one HP pool — not parallel solo instances. Reads as a real raid boss, not six separate fights that happen to share a theme.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Turn structure</h4><span class="chip locked">Locked</span></div>
+        <p>Everyone on screen at once, resolved via the random-tick mechanism above rather than a strict per-round initiative order — each tick, a random side and a random living unit from it acts. Every attack, from a party member or the boss, is a d20-vs-Armor-Class roll before damage is considered. The boss simply gets picked to act more often than any single player does.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Boss targeting</h4><span class="chip locked">Locked</span></div>
+        <p>Random at its core, weighted by aggro — a Tank pulls more of the boss's attacks by design, everyone else is otherwise picked at random. See <a href="#resolution">Combat resolution</a> for the mechanism and Roles below for how Tank/DPS/Healer feed into it.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Encounter scaling</h4><span class="chip locked">Locked</span></div>
+        <p>Static — a boss's stats are exactly what its content file defines, regardless of how many viewers joined. See the open tension flagged below.</p>
+      </div>
+
+      <div class="callout">
+        <div class="row"><h4>Tension worth a second look</h4></div>
+        <p><b>Uncapped party size + static boss stats</b> means a big enough crowd can trivialize any fight — a boss balanced for 6 raiders folds instantly against 40. Fine for a small/mid stream; worth revisiting once you have a sense of real party sizes. Cheap levers if it becomes a problem, none of which need to land now: cap how many attackers count each round, taper extra damage past some headcount, or let individual bosses opt into scaling.</p>
+      </div>
+    </section>
+
+    <section id="roles">
+      <div class="kicker">07 — roles: tank / dps / healer</div>
+      <h2>A simplified D&amp;D-and-MMO layer, on top</h2>
+      <div class="decision">
+        <div class="row"><h4>Role specialization</h4><span class="chip open">Directional — design later</span></div>
+        <p>Lukas: <i>"I want to add a simplified version of D&amp;D mechanics and words but also a very simplified version of MMO logic — where users can choose to spec Healer, DPS, or Tank and based on the rarity of their role get more benefits and affect how well the raid goes. We'll figure that out more at length."</i></p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>"Role rarity" resolved: it's population, not a fixed tier</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas clarified it later: role choice happens in the loadout/shop interface (below), and <i>"they will also be able to... choose a rol[e] and will get bonuses or debuffs based how populated the class is."</i> So "rarity of their role" isn't a fixed gear-style tier after all — it's dynamic: whichever role currently has fewer players gets a bonus, an oversaturated one gets a debuff. This is the same trick MMOs like WoW use to keep role queues balanced (bonus rewards for queuing as the underrepresented role, historically Tank or Healer) — a proven pattern, not a novel gamble.</p>
+      </div>
+      <p>The mechanism for that landed this round — see <a href="#resolution">Combat resolution</a>: Tanks generate aggro, which weights (but doesn't override) random targeting, and Healers' heals prioritize themselves, then Tanks, then DPS. What's still undesigned is the numbers underneath — how much aggro a Tank actually generates, how strong a Healer's heal-factor scaling is, and whether DPS gets an equivalent Skill-driven bonus of its own.</p>
+    </section>
+
+    <section id="loadout">
+      <div class="kicker">08 — loadout &amp; shop</div>
+      <h2>Where a viewer actually manages their character</h2>
+      <p>Lukas: <i>"after dungeons in a different interface a player will be able to change their gear and level but also sell their gear and buy different gear or XP tomes. This will also be where they can choose a role."</i> A second surface, distinct from the on-stream overlay — this is a personal screen, not something that makes sense projected on the stream itself.</p>
+      <div class="decision">
+        <div class="row"><h4>What it does</h4><span class="chip locked">Locked</span></div>
+        <p>Four things live here: swap equipped gear, spend level-up stat points (Health/Damage/Armour/Skill), sell unwanted gear for gold, and buy things with that gold — new gear, or XP tomes as a direct XP purchase. Role selection (Tank/DPS/Healer) lives here too, with the population-based bonus/debuff from above applied at the moment of picking.</p>
+      </div>
+      <div class="callout">
+        <div class="row"><h4>This is a second UI surface, not a feature of the overlay</h4></div>
+        <p>Everything built so far is the OBS browser-source overlay — spectator-facing, the same view for everyone watching the stream. A personal loadout/shop screen is fundamentally different: it needs to know <i>which</i> viewer is looking at it and show only their own character. That almost certainly means a separate web page or a Twitch extension panel (viewer-side, not the streamer's overlay), with real per-viewer auth behind it — not just another route on the existing server.</p>
+      </div>
+    </section>
+
+    <section id="loot">
+      <div class="kicker">09 — loot &amp; progression</div>
+      <h2>Gear, rarity, and who gets what</h2>
+      <p>Loot resolution is independent per participant: everyone who was in the raid rolls their own chance against the encounter's loot table on a win. Nobody walks away because someone else got the drop.</p>
+      <h3>Gear slots &amp; rarity ladder <span style="font-weight:400;color:var(--ink-faint);font-size:13px;">— already built, carries over as-is</span></h3>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Slot</th><th>Example (already in the content set)</th><th>Rarity</th><th class="num">Lvl req.</th></tr></thead>
+        <tbody>
+          <tr><td>weapon</td><td>Rusty Shortsword</td><td><span class="rarity common">common</span></td><td class="num">1</td></tr>
+          <tr><td>weapon</td><td>Flameforged Greataxe</td><td><span class="rarity rare">rare</span></td><td class="num">5</td></tr>
+          <tr><td>chest</td><td>Dragonscale Plate</td><td><span class="rarity legendary">legendary</span></td><td class="num">12</td></tr>
+          <tr><td>trinket</td><td>Lucky Rabbit's Foot</td><td><span class="rarity uncommon">uncommon</span></td><td class="num">3</td></tr>
+          <tr><td>head</td><td>Horned Helm of the Vanguard</td><td><span class="rarity epic">epic</span></td><td class="num">8</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <h3>Encounter anatomy — "The Ember Warden"</h3>
+      <p>The one boss built so far already demonstrates phase behavior: it enrages under 50% HP (double-damage roar), regenerates every four rounds, and shields itself under 20% HP. All three are content, not code — a new boss with different phase triggers is another JSON file, not a new system.</p>
+      <p class="note" style="color:var(--ink-muted);font-size:14px;">Dungeon rewards now have their own floor: survivors get uncommon-or-better gear specifically, not the full common-through-legendary spread a Raid roll uses. Worth deciding later whether that's a hard floor or Dungeons simply skew toward better odds at higher rarities.</p>
+    </section>
+
+    <section id="stakes">
+      <div class="kicker">10 — death &amp; stakes</div>
+      <h2>Losing costs you a shot, not your character</h2>
+      <div class="decision">
+        <div class="row"><h4>Raid: no permadeath</h4><span class="chip locked">Locked</span></div>
+        <p>No permadeath, no debuff, no cooldown penalty. A defeated party simply earns no loot or XP for that raid — level, gear, and inventory are untouched. Lowest-friction option: nobody's afraid to join.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>Dungeon: dying still pays out XP</h4><span class="chip locked">Locked</span></div>
+        <p>Same spirit, different shape: a character can "die" to a creature encounter mid-Dungeon, but it's still not permadeath — it just means no gear from this run. XP is kept either way, survive or not. Dying costs you the bonus, not your progress.</p>
+      </div>
+    </section>
+
+    <section id="pvp">
+      <div class="kicker">11 — pvp</div>
+      <h2>Not in this version</h2>
+      <div class="decision">
+        <div class="row"><h4>Viewer-vs-viewer duels</h4><span class="chip locked">Locked — deferred</span></div>
+        <p>Tangia's "Dungeon Duel" (fight other raiders for fame and infamy) is explicitly out of scope for v1. PvE only until the core raid loop is solid. Nothing in the stat model blocks adding it later, but matchmaking, balance, and stakes for a duel haven't been designed at all yet.</p>
+      </div>
+    </section>
+
+    <section id="economy">
+      <div class="kicker">12 — economy</div>
+      <h2>Free for now, monetization hooks reserved</h2>
+      <div class="decision">
+        <div class="row"><h4>Twitch redemptions: v1 costs</h4><span class="chip locked">Locked</span></div>
+        <p>Nothing costs channel points or bits yet. Every action is free or simply cooldown-gated. The command layer doesn't care where a command came from, so a cost check is a thin layer to add later without touching combat, loot, or the content system.</p>
+      </div>
+      <div class="decision">
+        <div class="row"><h4>In-game gold economy: real, and separate</h4><span class="chip locked">Locked</span></div>
+        <p>Different from the above — the <a href="#loadout">loadout/shop screen</a> gives the gold characters already earn from raids and dungeons somewhere to go: sell unwanted gear, buy new gear, buy XP tomes. This is an in-game currency loop, not a real-money one — it doesn't touch the "nothing costs points/bits yet" decision above at all.</p>
+      </div>
+      <p>Once real-money pricing does land, Dungeon vs. Raid already gives it a natural shape: Dungeon stays the cheap, frequent redeem; Raid is the pricier, higher-stakes one.</p>
+      <div class="hooks">
+        <div class="hook-card"><div class="label">Spawn a raid</div><p>Natural first paid redemption — mirrors how Tangia's own raid works.</p></div>
+        <div class="hook-card"><div class="label">Trigger a dungeon</div><p>Cheaper, higher-frequency redemption — the casual counterpart to spawning a raid.</p></div>
+        <div class="hook-card"><div class="label">Revive</div><p>Undo a loss mid-window, if that ever becomes a rule.</p></div>
+        <div class="hook-card"><div class="label">Loot reroll</div><p>Pay to reroll a bad drop from the independent roll.</p></div>
+        <div class="hook-card"><div class="label">Guaranteed rarity</div><p>Pay up for a floor on drop quality.</p></div>
+        <div class="hook-card"><div class="label">Cosmetic-only buys</div><p>Once avatar layering exists — skins with zero stat impact.</p></div>
+      </div>
+    </section>
+
+    <section id="persistence">
+      <div class="kicker">13 — persistence &amp; identity</div>
+      <h2>Characters outlive the stream</h2>
+      <div class="decision">
+        <div class="row"><h4>Cross-stream persistence</h4><span class="chip locked">Locked</span></div>
+        <p>A viewer's level, gear, inventory, gold, and (eventually) chosen role carry over between streams — this is what makes a leaderboard meaningful and matches the per-viewer-character direction. Needs a small local datastore (SQLite or a JSON store is plenty) keyed by viewer id, sitting where the engine currently holds one hero in memory. Still fully standalone — no cloud service required for this.</p>
+      </div>
+    </section>
+
+    <section id="visuals">
+      <div class="kicker">14 — visual direction</div>
+      <h2>Mechanics first, art later — by design</h2>
+      <div class="decision">
+        <div class="row"><h4>Sequencing</h4><span class="chip locked">Locked</span></div>
+        <p>Lukas: <i>"the art we'll do a bit later — we're just getting the mechanics down first."</i> The full-layered-avatar direction from the last pass still stands as the eventual target, it's just explicitly not now. The overlay stays at placeholder HP-bars-and-text while the Dungeon/Raid/roles systems above get built and proven out.</p>
+      </div>
+    </section>
+
+    <section id="extensibility">
+      <div class="kicker">15 — extensibility contract</div>
+      <h2>What "easy to add new gear and encounters" means in practice</h2>
+      <p>This was the base requirement going in, and it still holds: a new sword, a new boss, or a new ambient event is a JSON file dropped into a content folder, validated at load time, nothing else touched. Three content types now share that contract:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Content type</th><th>Drives</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">content/gear/*.json</td><td>Weapons, armor, trinkets — stats now, a visual layer reference later.</td><td>Built</td></tr>
+          <tr><td class="mono">content/encounters/*.json</td><td>Raid bosses, and now Dungeon creatures too — stats, phase abilities, loot table.</td><td>Built</td></tr>
+          <tr><td class="mono">content/events/*.json</td><td>Dungeon ambient events — text template, effect, weight.</td><td>New, not yet built</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Roles (Tank/DPS/Healer) will likely become a fourth small content type once designed — but that's speculative until the system itself is real. One schema gap worth flagging now: <b>XP tomes</b> are a consumable, not an equippable item — the gear schema assumes a slot (weapon, head, chest...), and a tome doesn't have one. Either gear gains an optional "consumable" category, or tomes get their own small content type.</p>
+    </section>
+
+    <section id="open">
+      <div class="kicker">16 — open questions</div>
+      <h2>Still needs an answer</h2>
+      <ul class="open-list">
+        <li><b>Dungeon/Raid split — final or still "might"?</b><span class="note">Strong direction, but Lukas flagged it as tentative. Worth confirming before it's built as two separate redemption paths.</span></li>
+        <li><b>Join window length(s).</b><span class="note">Both Dungeon and Raid now open a fixed-countdown join window — is it the same length for both, or does the cheaper Dungeon get a shorter one?</span></li>
+        <li><b>Does Skill do anything for Tank or DPS?</b><span class="note">Confirmed as a Healer's "healing factor" this round. Whether it also governs, say, a Tank's aggro generation or a DPS's bonus damage, or stays Healer-specific, isn't said.</span></li>
+        <li><b>Role system numbers.</b><span class="note">The mechanism is now fully specified (aggro weights targeting, heals prioritize self &gt; tank &gt; DPS, population-based role bonuses) — what's left is tuning: how much aggro, how strong a heal, how big the population bonus/debuff.</span></li>
+        <li><b>Natural-20 crits.</b><span class="note">Floated as a clean way to retire the separate <span class="inline-mono">crit</span> stat — not confirmed.</span></li>
+        <li><b>spd's fate.</b><span class="note">Turn order isn't really a concept anymore under random-tick resolution — spd needs a new job (maybe weighting how often a unit gets picked to act) or it doesn't survive the transition.</span></li>
+        <li><b>Party-size vs. static scaling.</b><span class="note">Flagged above — not blocking, but worth a real decision once you've seen real party sizes.</span></li>
+        <li><b>The ambient event table.</b><span class="note">A few examples exist, including creature encounters; the full pool of possible Dungeon events and their weights still needs authoring.</span></li>
+        <li><b>Exact tick count / fight length.</b><span class="note">Ticks resolve one exchange at a time — how many ticks a Dungeon fight or Raid boss fight runs for (fixed count vs. until one side is wiped) isn't specified.</span></li>
+        <li><b>The raid journey's shape.</b><span class="note">Node count, whether chat votes the path or it's auto-picked, and what a non-boss node resolves as are all open.</span></li>
+        <li><b>How Dungeon/Raid tier is chosen.</b><span class="note">Three Dungeon difficulties and five Raid levels are locked in as a count — whether a viewer picks the tier at redemption, it's gated by character level, or something else decides it isn't.</span></li>
+        <li><b>Loadout/shop hosting.</b><span class="note">Confirmed as a second UI surface — still need to decide whether it's a standalone web page, a Twitch extension panel, or something else, and how a viewer authenticates into their own character.</span></li>
+        <li><b>Shop &amp; tome pricing.</b><span class="note">Sell values, buy prices, and what an XP tome actually costs in gold all need real numbers.</span></li>
+        <li><b>Numbers that live in the design doc.</b><span class="note">XP curve, drop odds, stat growth per level, and (eventually) real currency costs all pend tonight's reconciliation.</span></li>
+      </ul>
+    </section>
+
+    <section id="next">
+      <div class="kicker">17 — next steps</div>
+      <h2>Where this goes from here</h2>
+      <p>Reconcile this against the design doc once it's in — most of "open questions" above will likely get settled by decisions already made there. After that, the engine gets re-architected around what's locked in this doc: single shared hero becomes a per-viewer roster; a new lightweight ambient-event system handles Dungeon redeems (now with real creature encounters and a visual gauntlet, not just flavor text); the combat resolver moves from a per-round initiative loop to random-tick resolution shared by both Dungeon and Raid, with d20-vs-Armor-Class attack rolls, aggro-weighted targeting, and role-prioritized healing; stat growth becomes player-allocated instead of automatic; a second, viewer-authenticated interface gets built for loadout and shop; and an in-memory hero becomes a persisted one. The content system and extensibility contract don't change shape — gear, encounters, and now events all stay data, not code.</p>
+    </section>
+
+    <footer>
+      <span>Dungeon Raids — concept doc v0.6</span>
+      <span>Generated from a Claude planning session · not final until reconciled with the source doc</span>
+    </footer>
+
+  </main>
+</div>

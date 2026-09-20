@@ -1,0 +1,14 @@
+{
+  "id": "miner-s-lamp-helm",
+  "name": "Miner's Lamp Helm",
+  "slot": "head",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 3,
+    "skill": 1
+  },
+  "description": "Miner's Lamp Helm. Taken, not given.",
+  "tags": [],
+  "sprite": "head10",
+  "requires": {}
+}

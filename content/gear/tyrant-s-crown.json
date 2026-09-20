@@ -1,0 +1,14 @@
+{
+  "id": "tyrant-s-crown",
+  "name": "Tyrant's Crown",
+  "slot": "head",
+  "rarity": "rare",
+  "statMods": {
+    "hp": 5,
+    "skill": 2
+  },
+  "description": "Tyrant's Crown. Taken, not given.",
+  "tags": [],
+  "sprite": "head17",
+  "requires": {}
+}

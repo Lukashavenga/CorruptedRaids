@@ -1,0 +1,903 @@
+/* =========================================================================
+   Loadout — the page, its chrome and its type. (AGENTS.md §2.6)
+
+   This file dresses the shell: the ground, the top bar, the nav, the panel
+   frame, buttons, chips. What goes INSIDE a panel is loadout-panels.css; how
+   the three layouts arrange them is loadout-responsive.css.
+
+   Three files that each answer one question, and are read in that order. The
+   previous split was by when a rule was written rather than by what it did,
+   so the same selector was set three times in three files and the comments
+   recorded which override had most recently won. Anything below that has to
+   beat something above it is a bug in this file, not a layering trick.
+
+   COLOUR
+   ------
+   The tokens are SAMPLED from art/ui/*.png, not chosen: the chrome is a fixed
+   image, so a surface painted from the game's cool overlay palette sat inside
+   a warm bronze frame and read as blue glass in a brass mount. Everything here
+   is a value taken out of the art the frame is cut from, which is the only way
+   the two cannot drift.
+   ========================================================================= */
+
+/*
+ * Both selectors, not just `.loadout`.
+ *
+ * The phone's tab bar is a SIBLING of the page rather than a child of it — it
+ * is fixed to the viewport, and nesting a fixed element inside a transformed
+ * or filtered ancestor is how a "fixed" bar ends up scrolling with the page.
+ * Tokens declared only on `.loadout` therefore did not reach it, and every
+ * colour in the bar silently fell back to whatever it inherited.
+ *
+ * `.loadout` keeps its own copy because the loading and error states render
+ * the page WITHOUT the shell around it.
+ */
+.loadout-shell,
+.loadout {
+  /* Sampled from panel-frame.png: the stone the frame encloses. */
+  --slab: #1c2134;
+  --slab-lit: #262c42;
+  --slab-deep: #141828;
+
+  /* The rails, and the two golds the sheet uses on them. */
+  --rail: #8a6a3c;
+  --rail-lit: #ebb36b;
+  --rail-line: rgba(226, 181, 112, 0.22);
+
+  /* The ground the panels sit on — alcove.png's own wall, darkened. */
+  --ground: #0e0b16;
+
+  /*
+   * TYPE: the bitmap face is a HEADLINE face here, nothing else.
+   *
+   * `CorruptedPixel` is cut on a 16px cell and is only crisp at whole multiples
+   * of it. theme.css puts it first in all three stacks, which is right for the
+   * overlay — that surface is all 16px and 32px — and wrong for this one, where
+   * a +8 button, a 20g price and an XP readout all run at 11-13px and every
+   * glyph lands between pixels. It was legible on a 27" monitor and mush on a
+   * phone.
+   *
+   * So the tokens are RE-POINTED locally rather than each call site being
+   * hunted down: `--font-data` becomes a real monospace, `--font-text` a real
+   * sans. `--font-display` keeps the bitmap and is used in exactly three
+   * places, all of them at a whole multiple of the cell.
+   */
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+  --font-text: "Barlow", "Segoe UI", system-ui, sans-serif;
+
+  /* Type. Warm, because everything around it is. */
+  --ink-bright: #f5eddf;
+  --ink-body: #c6bcac;
+  --ink-dim: #9a8f7e;
+
+  /*
+   * Two ways of putting an edge on text.
+   *
+   * Pixel art is drawn with a hard outline on everything, and type set on top
+   * of it without one reads as a caption pasted over a picture — the game's
+   * own lettering has a black keyline. `edge` is the general case, a shadow
+   * that lifts small copy off a busy surface; `edge-hard` is a real outline
+   * for the handful of labels that sit ON the artwork, where a shadow alone
+   * loses against a torch flame.
+   */
+  --edge: 0 1px 0 rgba(0, 0, 0, 0.85), 0 0 4px rgba(0, 0, 0, 0.55);
+  --edge-hard:
+    1px 1px 0 #0a0710, -1px 1px 0 #0a0710, 1px -1px 0 #0a0710, -1px -1px 0 #0a0710,
+    0 2px 3px rgba(0, 0, 0, 0.9);
+
+  /* The three role plates, sampled from role-*.png. */
+  --tank-fill: #142a41;
+  --tank-edge: #227d86;
+  --dps-fill: #411b4c;
+  --dps-edge: #8a479f;
+  --healer-fill: #183432;
+  --healer-edge: #415937;
+}
+
+/* --- the ground --------------------------------------------------------- */
+
+/*
+ * The page tile is the dungeon stone from the sheet, mirrored into something
+ * that repeats (see `seamless` in scripts/slice-ui.py) and then almost
+ * entirely covered by the tint over it. What survives is tooth: enough that a
+ * large dark area is a surface rather than an absence, not enough to compete
+ * with anything drawn on it.
+ */
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(66, 40, 84, 0.35), transparent 70%),
+    linear-gradient(rgba(14, 11, 22, 0.93), rgba(9, 7, 15, 0.97)),
+    url("/art/ui/backdrop.png") repeat;
+  background-size: auto, auto, 228px 306px;
+  color: var(--ink-body);
+}
+
+.loadout {
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 18px 20px 40px;
+  color: var(--ink-body);
+}
+
+.loadout.is-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 70vh;
+  color: var(--ink-dim);
+}
+
+.loadout.is-centered.error {
+  color: var(--danger);
+  font-family: var(--font-data);
+  font-size: 13px;
+}
+
+/* --- type --------------------------------------------------------------- */
+
+/*
+ * A readable face for anything that is not a heading.
+ *
+ * The display font is a 16px bitmap: it is only crisp at whole multiples of
+ * that cell, and this page runs body copy at 11-13px, where every glyph lands
+ * between pixels and turns to mush. Headings, the logo and big numbers keep
+ * it — that is where it earns its keep and where the size suits it.
+ */
+.loadout,
+.loadout button,
+.loadout input,
+.loadout select,
+.loadout p,
+.loadout span,
+.loadout li {
+  font-family: "Barlow", "Segoe UI", system-ui, sans-serif;
+  text-shadow: var(--edge);
+}
+
+/*
+ * The three places the bitmap face earns its keep, all on the 16px cell.
+ *
+ * `.stat-card-value` is deliberately NOT here any more. A stat's number is the
+ * most-read thing on the page and it ran at 26px — between cells, so every
+ * digit was soft. Barlow at 600 is sharp at any size and a number is not where
+ * you want personality.
+ */
+.loadout h2,
+.doll-name,
+.brand-logo {
+  font-family: var(--font-display);
+}
+
+/* Kept in the DOM as the page's accessible heading — the logo is decorative
+   and carries no text for a screen reader. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- the top bar -------------------------------------------------------- */
+
+/*
+ * Logo, nav, where you are, what you have — left to right, in the order the
+ * mock puts them and in the order they are asked for: identity, then
+ * navigation, then state, then currency.
+ *
+ * A grid rather than flex with `justify-content: space-between`, because the
+ * status block in the middle has to stay centred on the PAGE and not on
+ * whatever space the two ends happened to leave it.
+ */
+.topbar {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px 22px;
+  padding: 6px 0 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--rail-line);
+}
+
+.brand-logo {
+  display: block;
+  width: 196px;
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.loadout button.nav-item {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.loadout button.nav-item.is-current {
+  background: linear-gradient(180deg, rgba(138, 71, 159, 0.32), rgba(65, 27, 76, 0.5));
+  border-color: rgba(195, 94, 212, 0.45);
+  color: var(--ink-bright);
+  cursor: default;
+}
+
+/*
+ * Bestiary is in the mock and is not built.
+ *
+ * Drawn because the bar is a large part of what makes this page look like the
+ * mock, and dimmed-and-inert because the alternative is a control that looks
+ * live and does nothing. A player finds out by hovering, not by clicking and
+ * waiting. Everything else in the bar now goes somewhere.
+ */
+.loadout button.nav-item.is-locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.head-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.head-level {
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--ink-bright);
+  white-space: nowrap;
+  text-shadow: var(--edge-hard);
+}
+
+.head-status .xp-bar {
+  width: min(240px, 100%);
+  /* Slimmer than the one on the character card: up here it is a status line
+     among others, not the thing being looked at. */
+  height: 18px;
+  border-width: 6px;
+}
+
+.head-xp {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+/* The two numbers a player checks constantly. Corruption first, deliberately:
+   it decides which fight they are sent to; gold only decides what they buy. */
+.head-purse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.purse-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  background: linear-gradient(180deg, var(--slab-lit), var(--slab-deep));
+  border: 1px solid var(--rail-line);
+  border-radius: 999px;
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--ink-bright);
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.chip-mark {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex: none;
+}
+
+.purse-chip.is-corruption {
+  border-color: rgba(195, 94, 212, 0.45);
+  color: #efd9a0;
+}
+
+.purse-chip.is-gold {
+  color: var(--rail-lit);
+}
+
+/* --- the nav drawer ----------------------------------------------------- */
+
+/*
+ * One nav, two presentations: the bar above at desktop width, this drawer
+ * below it. The links are rendered once and placed twice, so a fourth
+ * destination is one edit rather than two that will eventually disagree.
+ *
+ * Hidden by default and revealed by the responsive file, not the other way
+ * round — a drawer that has to be switched OFF is a drawer that flashes open
+ * on every desktop load before its media query is applied.
+ */
+.menu-toggle,
+.nav-drawer,
+.nav-scrim {
+  display: none;
+}
+
+.loadout button.menu-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: linear-gradient(180deg, var(--slab-lit), var(--slab-deep));
+  border: 1px solid var(--rail-line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Three rules drawn with one element and its two shadows, so there is no
+   markup inside the button for a screen reader to read out as content. */
+.menu-toggle > span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--rail-lit);
+  box-shadow:
+    0 -6px 0 var(--rail-lit),
+    0 6px 0 var(--rail-lit);
+}
+
+.nav-drawer {
+  position: fixed;
+  z-index: 30;
+  inset: 0 auto 0 0;
+  width: min(272px, 82vw);
+  padding: 74px 12px 20px;
+  background: linear-gradient(180deg, #171326, #0d0a14);
+  border-right: 1px solid var(--rail-line);
+  box-shadow: 6px 0 26px rgba(0, 0, 0, 0.6);
+  transform: translateX(-102%);
+  transition: transform 0.22s ease;
+}
+
+.nav-drawer .site-nav {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.nav-drawer .nav-item {
+  text-align: left;
+}
+
+.menu-open .nav-drawer {
+  transform: none;
+}
+
+/* `.loadout button` would otherwise paint this gold — the scrim is a button
+   so a tap anywhere outside the drawer closes it. */
+.loadout button.nav-scrim {
+  position: fixed;
+  z-index: 29;
+  inset: 0;
+  padding: 0;
+  background: rgba(6, 4, 10, 0.6);
+  border: 0;
+  cursor: default;
+}
+
+.menu-open .nav-scrim {
+  display: block;
+}
+
+/* The mocked-identity notice is styled as a warning on purpose — it should
+   keep looking temporary until real auth replaces it. */
+.identity {
+  margin: 0 0 14px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--rail-lit);
+  border: 1px dashed rgba(195, 94, 212, 0.4);
+  border-radius: 6px;
+  padding: 5px 9px;
+}
+
+/* --- panels ------------------------------------------------------------- */
+
+/*
+ * The drawn frame, as a nine-slice.
+ *
+ * `border-image` keeps the four corner brackets at their drawn size while the
+ * rails between them stretch, so one 519x188 source dresses a panel of any
+ * shape without the ornament distorting.
+ *
+ * Slice 34, render 17. The slice is measured: the rail sits about 5px in from
+ * the edge, but the corner bracket runs ~31px along the diagonal, so the cut
+ * has to clear the CORNER — slicing at the rail shears every bracket in half
+ * and stretches the halves down the sides. Rendering at half the slice scales
+ * the whole frame down rather than re-cutting the source for one call site,
+ * and 17px of bronze is what the mock has.
+ *
+ * `fill` keeps the frame's own cracked-stone interior, which is why this rule
+ * paints no background of its own.
+ */
+.panel {
+  position: relative;
+  min-width: 0;
+  background: none;
+  border: 17px solid transparent;
+  border-image: url("/art/ui/panel-frame.png") 34 fill stretch;
+  /* The border IS the inset — the art carries its own margin — so a padding
+     as well would push content into the middle of nowhere. */
+  padding: 2px 6px 8px;
+  /* Everything inside asks how wide THIS PANEL is, not how wide the window
+     is — the same reason the character card does (AGENTS.md §8). A stats
+     panel is narrow at two columns and wide at one, at the same window
+     width. */
+  container-type: inline-size;
+  container-name: panel;
+}
+
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+  flex-wrap: wrap;
+  margin-bottom: 11px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg, var(--rail-line), transparent) 1;
+}
+
+.panel-head h2 {
+  margin: 0;
+  /* 16, not 18: a whole multiple of the bitmap cell, which is the difference
+     between a crisp heading and a slightly smeared one. */
+  font-size: 16px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rail-lit);
+  text-shadow: var(--edge-hard);
+}
+
+/* The count and whatever tool the panel keeps in its top-right corner. */
+.panel-head-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/*
+ * A square button that is only a mark.
+ *
+ * Flat, hard-edged and bronze, because it sits beside drawn art: a gradient
+ * pill next to a pixel-art helmet is the thing that makes a UI look like it
+ * came from a different game.
+ */
+.loadout button.icon-button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: #171220;
+  border: 2px solid #4d4a4f;
+  border-radius: 3px;
+  color: var(--rail);
+  box-shadow: none;
+}
+
+.loadout button.icon-button:hover:not(:disabled) {
+  color: var(--rail-lit);
+  border-color: var(--rail);
+  filter: none;
+}
+
+/*
+ * The bag's scrap control: a picture of gold, and the word.
+ *
+ * It was three arrows in a loop — the kerbside-recycling symbol, which says
+ * nothing about turning junk into coins — and it was icon-only, so the only
+ * way to find out what it did was to press it. The sheet already draws a pile
+ * of gold; the label removes the guesswork entirely.
+ */
+.loadout button.scrap-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px 5px 7px;
+  background: #171220;
+  border: 2px solid #4d4a4f;
+  border-radius: 3px;
+  color: var(--ink-body);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.scrap-mark {
+  width: 22px;
+  height: 16px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex: none;
+}
+
+.loadout button.scrap-button:hover:not(:disabled) {
+  border-color: var(--rail);
+  color: var(--ink-bright);
+  filter: none;
+}
+
+.loadout button.scrap-button.is-on {
+  background: #3a1620;
+  border-color: #b4515f;
+  color: #ffc9a0;
+}
+
+.loadout button.icon-button.is-on {
+  background: #3a1620;
+  border-color: #b4515f;
+  color: #ffc9a0;
+}
+
+.panel-head > :last-child {
+  min-width: 0;
+}
+
+.panel-foot {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rail-line);
+}
+
+.hint {
+  margin: 11px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+
+.hint strong {
+  color: var(--ink-body);
+  font-weight: 600;
+}
+
+/* --- bars --------------------------------------------------------------- */
+
+/*
+ * The XP bar wears the drawn capsule track — bronze caps, dark channel — with
+ * the fill as the only part CSS paints, because the fill is the only part that
+ * has to change.
+ */
+/*
+ * The drawn capsule track — bronze caps, dark channel — with the fill as the
+ * only part CSS paints, because the fill is the only part that changes.
+ *
+ * border-box, and the height stated as the OUTSIDE of the bar. It was
+ * content-box, on the reasoning that the border is art rather than spacing,
+ * and that is true but it made `width: 100%` mean "100% plus sixteen pixels of
+ * cap" — a full-width bar in the header then pushed the whole page two pixels
+ * wider than the window and put a horizontal scrollbar under everything.
+ */
+.xp-bar {
+  position: relative;
+  height: 24px;
+  padding: 0;
+  border: 8px solid transparent;
+  border-image: url("/art/ui/bar-frame.png") 14 fill stretch;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #7fd6d0, #2b8f97);
+  transition: width 0.35s ease;
+}
+
+/* --- surfaces inside a panel -------------------------------------------- */
+
+/*
+ * A frame inside a frame is noise — the panel's ornament has already said
+ * where things begin — so the cards only need to read as raised slabs of the
+ * same stone.
+ */
+/*
+ * Raised stone, not glass.
+ *
+ * These carried a top-to-bottom gradient, an 8px radius and an inset white
+ * hairline — the three things that together read as a lit sheet of perspex,
+ * which is exactly wrong next to hand-drawn pixel art. What replaces them is
+ * what the sheet itself does: a flat fill, a hard dark keyline, a 3px corner.
+ */
+.loadout .stat-card,
+.loadout button.role-choice,
+.loadout .bag li,
+.loadout .slot-row,
+.loadout .inv-detail {
+  background: var(--slab);
+  border: 2px solid #3b3a44;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+/* --- buttons ------------------------------------------------------------ */
+
+.loadout button {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--outline);
+  background: var(--rail-lit);
+  border: 1px solid var(--rail-lit);
+  border-radius: 6px;
+  padding: 7px 13px;
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.loadout button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.loadout button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.loadout button.small {
+  font-size: 11px;
+  padding: 4px 9px;
+}
+
+.loadout button.ghost {
+  background: transparent;
+  color: var(--ink-body);
+  border-color: var(--rail-line);
+}
+
+.loadout button.ghost:hover:not(:disabled) {
+  color: var(--ink-bright);
+  border-color: var(--rail);
+}
+
+/*
+ * Struck metal: lit top edge, dark base, warm rim.
+ *
+ * The shop prices and the +N stat buttons are the two controls a player
+ * touches most, so they are the two worth making feel like objects.
+ */
+.loadout button.stat-add,
+.loadout .bag button:not(.ghost),
+.loadout button.appearance-toggle {
+  background: linear-gradient(180deg, rgba(235, 179, 107, 0.34), rgba(122, 60, 30, 0.42));
+  border: 1px solid rgba(235, 179, 107, 0.7);
+  border-radius: 6px;
+  color: #f2dcb0;
+  font-family: var(--font-data);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.loadout button.stat-add:hover:not(:disabled),
+.loadout .bag button:not(.ghost):hover:not(:disabled),
+.loadout button.appearance-toggle:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(235, 179, 107, 0.48), rgba(122, 60, 30, 0.5));
+  border-color: var(--rail-lit);
+}
+
+.loadout button.stat-add:disabled,
+.loadout .bag button:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+/* --- the phone's section tabs ------------------------------------------- */
+
+/*
+ * Hidden until the responsive file asks for it, for the same reason as the
+ * drawer: a bar that has to be switched off flashes on every desktop load.
+ */
+.section-tabs {
+  display: none;
+}
+
+/* --- toast -------------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 40;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 16px;
+  background: #171326;
+  border: 1px solid var(--rail-line);
+  border-radius: 20px;
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--ink-body);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+/* --- a scrollbar that belongs to this game ------------------------------ */
+
+/*
+ * The shop's stock scrolls by default now — no "View More" — so the scrollbar
+ * is part of the design rather than a fallback, and the platform's grey slab
+ * reads as a browser control sitting on top of the art. Bronze rail, dark
+ * channel, square ends, like everything else drawn here. Firefox gets the
+ * two-colour form; everything else the full one.
+ *
+ * `.slot-list` gets it too: the socket picker scrolls for the same reason.
+ */
+.loadout .shop-stock,
+.loadout .slot-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rail) rgba(0, 0, 0, 0.5);
+}
+
+.loadout .shop-stock::-webkit-scrollbar,
+.loadout .slot-list::-webkit-scrollbar {
+  width: 12px;
+}
+
+.loadout .shop-stock::-webkit-scrollbar-track,
+.loadout .slot-list::-webkit-scrollbar-track {
+  background: #0b0812;
+  border: 2px solid #2a2333;
+  border-radius: 2px;
+}
+
+.loadout .shop-stock::-webkit-scrollbar-thumb,
+.loadout .slot-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #b98a49, #7a4c22);
+  border: 2px solid #221a12;
+  border-radius: 2px;
+}
+
+.loadout .shop-stock::-webkit-scrollbar-thumb:hover,
+.loadout .slot-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, var(--rail-lit), #9c5f2a);
+}
+
+/* --- signed out ------------------------------------------------------------
+ *
+ * The screen that did not exist until identity became real. Centred and short:
+ * there is exactly one thing to do here.
+ */
+.signin {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 26px 24px 28px;
+  text-align: center;
+  background: #131020;
+  border: 2px solid #3b3a44;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.signin-logo {
+  width: 190px;
+  max-width: 70%;
+  image-rendering: pixelated;
+}
+
+.signin h1 {
+  margin: 10px 0 6px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--ink-bright);
+  text-shadow: var(--edge-hard);
+}
+
+.signin-lead {
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+/* Twitch purple, which is the one place on this page a colour comes from
+   outside the palette — a sign-in button that does not look like the service
+   it signs you into is a button people hesitate over. */
+.loadout button.signin-twitch {
+  display: block;
+  padding: 11px 16px;
+  background: #9146ff;
+  border: 1px solid #a970ff;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  width: 100%;
+  cursor: pointer;
+}
+
+.loadout button.signin-twitch:hover {
+  background: #a970ff;
+}
+
+.signin-note {
+  margin: 12px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-dim);
+}
+
+.signin-error {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #d99;
+}
+
+.signin-dev {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed #3b3a44;
+}
+
+.signin-dev h2 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rail);
+}
+
+.signin-dev input {
+  width: 100%;
+  margin: 10px 0 8px;
+  padding: 8px 10px;
+  background: #0e0c17;
+  border: 1px solid #3b3a44;
+  border-radius: 3px;
+  color: var(--ink-body);
+  font-family: var(--font-data);
+  font-size: 12px;
+}
+
+/* The identity line, now that it can be acted on. */
+.identity-out {
+  margin-left: 8px;
+  font-size: 11px;
+  text-decoration: underline;
+}
+
+/* The run lock. One line across the page, because while it is set EVERY
+   control is refused — telling someone once is kinder than thirty identical
+   failures. */
+.in-run-notice {
+  margin: 0 0 10px;
+  padding: 7px 12px;
+  background: rgba(226, 181, 112, 0.12);
+  border: 1px solid var(--rail);
+  border-radius: 3px;
+  font-size: 12.5px;
+  color: var(--ink-bright);
+}

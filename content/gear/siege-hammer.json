@@ -1,0 +1,15 @@
+{
+  "id": "siege-hammer",
+  "name": "Siege Hammer",
+  "slot": "mainHand",
+  "rarity": "uncommon",
+  "statMods": {
+    "atk": 2
+  },
+  "description": "Siege Hammer. Taken, not given.",
+  "tags": [],
+  "sprite": "mh08",
+  "requires": {
+    "atk": 12
+  }
+}

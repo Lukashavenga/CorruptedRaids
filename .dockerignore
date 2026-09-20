@@ -1,0 +1,16 @@
+# Everything the image does not need. `art/` alone is 124MB of source sheets
+# and pre-erase originals — inputs to the slicers, never read at runtime.
+art/
+node_modules/
+web/node_modules/
+dist/
+.git/
+.claude/
+
+# Player data is a VOLUME. Baking it in would restore a stale roster on every
+# deploy, silently rolling everyone back to whenever the image was built.
+data/
+
+*.log
+.env
+.env.*

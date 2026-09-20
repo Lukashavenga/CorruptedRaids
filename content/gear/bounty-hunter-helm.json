@@ -1,0 +1,14 @@
+{
+  "id": "bounty-hunter-helm",
+  "name": "Bounty Hunter Helm",
+  "slot": "head",
+  "rarity": "epic",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Bounty Hunter Helm. Taken, not given.",
+  "tags": [],
+  "sprite": "head07"
+}

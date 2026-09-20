@@ -1,0 +1,14 @@
+{
+  "id": "stormtrooper-helm",
+  "name": "Stormtrooper Helm",
+  "slot": "head",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 3,
+    "skill": 1
+  },
+  "description": "Stormtrooper Helm. Taken, not given.",
+  "tags": [],
+  "sprite": "head08",
+  "requires": {}
+}

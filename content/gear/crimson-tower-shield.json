@@ -1,0 +1,15 @@
+{
+  "id": "crimson-tower-shield",
+  "name": "Crimson Tower Shield",
+  "slot": "mainHand",
+  "rarity": "legendary",
+  "statMods": {
+    "atk": 8
+  },
+  "description": "Crimson Tower Shield. Taken, not given.",
+  "tags": [],
+  "sprite": "mh28",
+  "requires": {
+    "atk": 40
+  }
+}

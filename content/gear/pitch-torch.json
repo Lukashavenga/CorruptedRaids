@@ -1,0 +1,15 @@
+{
+  "id": "pitch-torch",
+  "name": "Torch",
+  "slot": "offHand",
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "atk": 1,
+    "skill": 2
+  },
+  "description": "Where we're going - we can't see",
+  "tags": [],
+  "sprite": "oh01",
+  "requires": {}
+}

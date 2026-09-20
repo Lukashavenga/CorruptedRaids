@@ -1,0 +1,14 @@
+{
+  "id": "party-hat",
+  "name": "Party Hat",
+  "slot": "head",
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "skill": 2
+  },
+  "description": "Party Hat. Taken, not given.",
+  "tags": [],
+  "sprite": "head18"
+}

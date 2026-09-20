@@ -1,0 +1,1624 @@
+/* Dungeon Raids overlay theme.
+ *
+ * COLOUR RULE: every value in the palette block below is a literal entry
+ * from art/reference/pallete.png — the 25-colour palette AGENTS.md §2.9
+ * records as authoritative, superseding the older art/palette.gpl ramps.
+ * The semantic tokens beneath it are all aliases onto those. If a new
+ * element needs a colour, alias an existing entry; don't invent one, or the
+ * UI drifts away from the art it frames.
+ *
+ * The palette PNG's rendered swatches are darker than their printed hex
+ * labels (it has been resaved lossily) — the LABELS are the truth, and these
+ * are transcribed from them, not sampled from the image.
+ *
+ * We lean on the dark end deliberately: the overlay renders as a transparent
+ * OBS browser source over stream footage, not a page on a light background.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Bevan&family=Barlow:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap");
+
+:root {
+  /* ---- Palette: the 25 entries of art/reference/pallete.png ----------- */
+
+  /* Violets into black — the brand hues; the logo is violet over gold. */
+  --violet: #913c91;
+  --violet-deep: #452060;
+  --violet-darker: #291546;
+  --void: #070c1d;
+  --plum: #3d1430;
+
+  /* Wine into gold — warm accents, danger, currency. */
+  --wine: #632240;
+  --rose-deep: #913a52;
+  --rose: #bc5960;
+  --gold: #e2b570;
+  --gold-pale: #ece98a;
+
+  /* Greens into slate — health and restoration. */
+  --green-pale: #b7d974;
+  --green: #5ca75d;
+  --green-deep: #39755c;
+  --teal-deep: #285454;
+  --slate-blue: #1f394d;
+
+  /* Navies into mint — cool tones, panels, the Tank read. */
+  --navy-deepest: #191b3f;
+  --navy: #192d50;
+  --blue: #28508d;
+  --teal: #3fa0a4;
+  --mint: #69e0ce;
+
+  /* Bone into slate — every text value. */
+  --bone: #e3f5f1;
+  --steel-pale: #81afb5;
+  --steel: #446374;
+  --steel-deep: #32495f;
+  --steel-darkest: #182e41;
+
+  /* ---- Semantic tokens: aliases onto the palette above ---------------- */
+
+  --ink: var(--bone);
+  --ink-muted: var(--steel-pale);
+  --ink-faint: var(--steel);
+  --outline: var(--void);
+
+  --accent: var(--gold);
+  --accent-deep: var(--rose-deep);
+  --accent-dark: var(--wine);
+  --accent-bg: var(--plum);
+  /* Brand violet, for logo-adjacent moments rather than general chrome. */
+  --brand: var(--violet);
+
+  --health: var(--green);
+  --health-bright: var(--green-pale);
+  --health-deep: var(--green-deep);
+
+  --danger: var(--rose);
+  --danger-bright: var(--rose);
+  --danger-bg: var(--plum);
+
+  /* Panels sit on the darkest navy, not pure black, so they read as part of
+     the same world as the sprites. */
+  --panel-bg: rgba(24, 46, 65, 0.82);
+  --panel-border: var(--steel-deep);
+  /* Ground-contact ellipse, engine-drawn and never baked into a sprite. */
+  --ground-shadow: rgba(25, 27, 63, 0.42);
+
+  /* Rarity — a conventional dull -> green -> blue -> violet -> gold ramp,
+     built entirely from palette entries. */
+  --rarity-common: #446374;
+  --rarity-uncommon: #5ca75d;
+  --rarity-rare: #28508d;
+  --rarity-epic: #913c91;
+  --rarity-legendary: #e2b570;
+
+  /* Type — the project's own bitmap face, built from art/reference/fonts.png
+     by scripts/build-font.py. One family for all three roles: at 450x250 there
+     is no room for typographic hierarchy by typeface, so hierarchy comes from
+     size and colour instead. The web-safe stacks stay as a fallback for the
+     handful of characters the sheet has no glyph for. */
+  --font-display: "CorruptedPixel", "Bevan", "Segoe UI", system-ui, sans-serif;
+  --font-text: "CorruptedPixel", "Barlow", "Segoe UI", system-ui, sans-serif;
+  --font-data: "CorruptedPixel", "IBM Plex Mono", ui-monospace, monospace;
+
+  /* The bitmap font is cut on a 16px cell and is only pixel-exact at whole
+     multiples of it. These are the only two sizes the overlay may use. */
+  --fs: 16px;
+  --fs-big: 32px;
+
+  /*
+   * How tall one figure is, all in: role badge 32 + gap 2 + art 88.
+   *
+   * Declared because the placed-formation clamp in App.tsx needs it: a slot is
+   * anchored by its feet, so it has to know how tall the thing standing in it
+   * is before it can keep its head inside the arena.
+   */
+  --figure-h: 122px;
+  /* A boss, drawn larger on purpose. The taller stage is what lets it be the
+     150px the art was cut at — at 250 it never fitted the arena and stood
+     with its head out of the top. */
+  --figure-h-boss: 150px;
+}
+
+@font-face {
+  font-family: "CorruptedPixel";
+  src: url("/fonts/corrupted.ttf") format("truetype");
+  font-display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: var(--font-text);
+  color: var(--ink);
+}
+
+/* Root layout — see App.tsx and stage.ts.
+ *
+ * A FIXED 450x250 surface, not a responsive one: this ships as an OBS browser
+ * source at a size the streamer sets once. The frame centres it and App scales
+ * it by a whole number (1 in OBS), so the design can be reasoned about in exact
+ * pixels.
+ *
+ * Stacking order top to bottom matches how the fight should read on stream:
+ * headline, then the rolling combat text, then the two facing ranks.
+ */
+.stage-frame {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stage {
+  padding: 6px;
+  display: grid;
+  /* banner / action text / roster / arena / pooled enemy bar.
+     The two health readouts bracket the fight — the party's above it, the
+     enemy's below — with the narration at the top where the eye starts.
+     The arena is the only 1fr row, so the characters absorb whatever the
+     fixed rows leave, which keeps them as large as possible. */
+  grid-template-rows: auto auto auto 1fr auto;
+  /* ONE column, and explicitly a shrinkable one.
+     The implicit `auto` column this used to get was sized to the widest item's
+     max-content, so any band with a nowrap line in it could push the column —
+     and with it the arena and every other row — wider than the 450px stage.
+     `minmax(0, 1fr)` pins the column to the stage and lets a child with
+     `overflow: hidden` ellipsise instead of shoving. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  overflow: hidden;
+  /* Every row is claimed by name below. Auto-placement is not safe here:
+     three of the five children are conditional, so when one is missing the
+     rest slide UP a row and inherit sizing that was written for something
+     else. The join window is where that bit — with no party there is no
+     roster, so the pooled enemy bar landed in the arena's 1fr row and took
+     116 of the stage's 238px for a 20px bar, leaving the arena 42px to draw
+     88px characters in. */
+  /* Scaled from the top-left INSIDE .stage-scaler, which reserves the scaled
+     size in layout — see the comment there. Scaling about the centre would put
+     half the stage outside its own wrapper. */
+  transform-origin: top left;
+}
+
+/* Each stage row, pinned. See the note in .stage.
+ *
+ * The COLUMN is pinned too, and that is not redundant. The stage has one
+ * column, but auto-placement refuses to put two items in the same cell: it
+ * invents an implicit second column instead. The moment the room-reveal card
+ * shared row 4 with the arena, the arena was shunted into a column of its own
+ * — width 0, 45px past the right edge of the stage, with the enemy line-up
+ * collapsed inside it. Everything on the stage is a full-width band, so
+ * everything says so. */
+.stage > .state-banner { grid-row: 1; }
+.stage > .combat-log { grid-row: 2; }
+.stage > .roster,
+.stage > .room-reveal { grid-row: 3; }
+/* The doors replace the arena rather than sitting beside it, so they take the
+   same row — the choice is the thing to look at, and it gets the same space
+   the fight would have had. */
+.stage > .arena,
+.stage > .raid { grid-row: 4; }
+.stage > .enemy-health { grid-row: 5; }
+/* The disconnected notice is alone on the stage and owns all of it. */
+.stage > .connecting { grid-row: 1 / -1; }
+.stage > * { grid-column: 1; }
+
+/* Reserves the stage's on-screen size so nothing after it is laid out
+   underneath. */
+.stage-scaler {
+  position: relative;
+  flex: none;
+}
+
+.connecting {
+  font-family: var(--font-text);
+  color: var(--ink-muted);
+  font-size: var(--fs);
+  align-self: center;
+  justify-self: center;
+}
+
+/* The arena: two facing line-ups, party left, enemies right, both standing
+   on a common ground line with the combat log running above them.
+   `align-items: end` is what makes the figures share a floor regardless of
+   how tall each one's art is. */
+.arena {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* min-height:0 on a grid row is what actually lets this shrink; without it
+     the row takes its content size and the figures overflow the stage floor. */
+  min-height: 0;
+  /* Centre gutter so the two ranks read as facing each other across a gap
+     rather than as one continuous row. Narrow, because at this width every
+     pixel spent on the gutter comes out of a figure. */
+  gap: 18px;
+  align-items: end;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  min-width: 0;
+  min-height: 0;
+  /* Full height, with the contents held at the bottom by justify-content.
+     `align-items: end` on the arena shrink-wrapped this to its content, which
+     is fine for a rank standing on the floor but leaves a PLACED squad with no
+     height to be placed within: every `top: 55%` resolved against 0 and the
+     whole formation stacked onto the floor line in a single flat row. */
+  height: 100%;
+}
+
+/* Figures overlap via a negative margin rather than sitting in a row: the
+   party has no size cap, so 25 people have to occupy roughly the same width
+   as 5. `--overlap` is computed per line-up in lineup.ts and set inline. */
+.lineup {
+  display: flex;
+  align-items: flex-end;
+  min-height: 0;
+  --overlap: 0px;
+  --bar-w: 62px;
+  --name-w: 100px;
+}
+
+/* Packed tight: the per-figure HP number and level badge stop being legible
+   at this width and just add noise, so only the bar itself survives. */
+.lineup.is-dense .hp-float-label,
+.lineup.is-dense .figure-level {
+  display: none;
+}
+
+.lineup > .figure + .figure {
+  margin-left: var(--overlap);
+}
+
+/* "+N" chip for whoever didn't fit. */
+.lineup-overflow {
+  align-self: center;
+  margin: 0 4px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(7, 12, 29, 0.8);
+  border: 1px solid var(--ink-faint);
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.side-party .lineup {
+  justify-content: flex-start;
+}
+
+/* Enemies pack toward the centre line so both sides face each other. */
+.side-enemy .lineup {
+  justify-content: flex-end;
+}
+
+.side-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.side-enemy .side-title {
+  text-align: right;
+  color: var(--danger);
+  opacity: 0.8;
+}
+
+.side-empty {
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  color: var(--ink-faint);
+  font-style: italic;
+  margin: 0;
+  align-self: center;
+}
+
+/* A single standing combatant: name plate, floating HP bar, then the art.
+   Fixed-width columns are load-bearing — without them long names bleed into
+   the neighbouring figure instead of ellipsing inside their own slot. */
+.figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  /* Must equal FIGURE_WIDTH in lineup.ts — the overlap maths is computed
+     against this number, and if they disagree figures clip their neighbours
+     before the overlap logic gets a say. */
+  flex: 0 0 100px;
+  width: 100px;
+  min-width: 0;
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
+}
+
+.figure-plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+
+.figure-name {
+  font-family: var(--font-display);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--bone);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  min-width: 0;
+  /* Wraps to at most two lines rather than truncating — enemy names like
+     "Bog Goblin Raider 2" don't fit one line at this column width, and an
+     ellipsis loses the instance number that tells two mobs apart. */
+  /* One line and ellipsised, not two: a second line of names costs ~18px of
+     a 250px stage, which is most of a figure's head. */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Level badges are cut from the fight screen entirely. At 450x250 the
+   smallest legible text is the 16px font cell, and twenty-five of those over
+   the art is a wall of numbers nobody reads mid-fight. Levels live on the
+   loadout screen, where there is room for them. */
+.figure-level {
+  display: none;
+}
+
+/* The role badge above each party member's head — one cell of the sprite
+   sheet in art/Roles.png, see RoleIcon.tsx / roleArt.ts. The art carries its
+   own colour, so there is no tinting here; a downed figure's badge greys out
+   with the rest of the figure via the .is-down filter below. */
+.figure-role {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.role-icon {
+  display: block;
+  flex: none;
+  filter: drop-shadow(0 1px 2px rgba(7, 12, 29, 0.9));
+}
+
+/* Party composition strip — see RoleRoster.tsx. Sits beside the party
+   heading so the join window can show "no tank yet" and a fight can show a
+   role that's been wiped. */
+.side-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-roster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-roster-entry {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.role-roster-count {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+/* A missing role is the one thing on the strip that should pull the eye —
+   it's an instruction to chat, not just a readout. */
+.role-roster-entry.is-missing {
+  animation: role-missing-pulse 1.6s ease-in-out infinite;
+}
+
+.role-roster-entry.is-missing .role-roster-count {
+  color: var(--rose);
+}
+
+.role-roster-entry.is-dead .role-roster-count {
+  color: var(--ink-faint);
+}
+
+/* Never below 0.8. At 0.55 all three chips vanish together for half of every
+   cycle — before anyone joins EVERY role is missing, so the "pull the eye"
+   animation was blinking the entire strip out against the backdrop instead of
+   picking one thing out of it. */
+@keyframes role-missing-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Small floating HP bar above each figure. */
+.hp-float {
+  position: relative;
+  width: var(--bar-w, 62px);
+  height: 7px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--outline);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.hp-float-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--health-deep), var(--health));
+  transition: width 0.4s ease;
+}
+
+.hp-enemy .hp-float-fill {
+  background: linear-gradient(90deg, var(--wine), var(--danger));
+}
+
+.hp-float-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-data);
+  font-size: var(--fs);
+  color: var(--bone);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+}
+
+/* The art box is clamped so a figure can never push the rank past the stage
+   floor. The stage is a fixed 250px and the rows above it (banner, roster,
+   pooled bar) are all taller in some states than others, so the figures have to
+   survive the WORST case — mid-fight, with the combat line showing — rather
+   than the roomiest one. */
+.figure-art {
+  position: relative;
+  max-height: 88px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  filter: drop-shadow(0 3px 4px rgba(7, 12, 29, 0.6));
+}
+
+/* Ground contact: a flat ellipse under the figure, 35% alpha world-03,
+   exactly as the Art Bible specifies (drawn by the engine, never baked
+   into the sprite). It's what stops the line-up floating on the stream. */
+.figure-art::before {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 62%;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ground-shadow);
+  z-index: -1;
+}
+
+/* A composited character — base body plus gear layers, stacked (see
+   CharacterSprite.tsx). Positioned so the absolutely-placed layers stack
+   inside it. */
+.char-sprite {
+  position: relative;
+  flex: none;
+  filter: drop-shadow(0 3px 4px rgba(7, 12, 29, 0.6));
+}
+
+/* Motion.
+ *
+ * These replace the retired rig's per-limb rotation: whole-sprite transforms
+ * that work on any artwork regardless of how it was drawn, and cost no extra
+ * frames. At the ~64px a figure renders at on the overlay, per-limb
+ * articulation was never legible anyway — a lunge and a recoil read; a bent
+ * elbow does not.
+ *
+ * The party faces right and enemies face left, so `attack` lunges toward the
+ * centre line per side rather than in one fixed direction.
+ */
+.motion-attack {
+  animation: motion-attack 0.36s ease-out;
+}
+
+.figure-enemy .motion-attack {
+  animation-name: motion-attack-left;
+}
+
+.motion-hit {
+  animation: motion-hit 0.3s ease-out;
+}
+
+.motion-victory {
+  animation: motion-victory 0.9s ease-in-out infinite;
+}
+
+/* Not an animation — a downed figure holds this until the fight ends. */
+.motion-defeated {
+  transform: rotate(14deg) translateY(6px);
+  transition: transform 0.35s ease-out;
+}
+
+@keyframes motion-attack {
+  0% { transform: translateX(0); }
+  35% { transform: translateX(12px) scaleX(1.04); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes motion-attack-left {
+  0% { transform: translateX(0); }
+  35% { transform: translateX(-12px) scaleX(1.04); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes motion-hit {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-5px) rotate(-4deg); }
+  60% { transform: translateX(3px) rotate(2deg); }
+}
+
+@keyframes motion-victory {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* One cell of an enemy sprite sheet — see web/src/enemyArt.ts. Sizing comes
+   from the inline style so the cell maths lives in one place; `pixelated`
+   keeps the pixel art crisp instead of smoothing it when scaled off its
+   native 64px. The sheet's goblins face left, which already points them at
+   the party on the left, so no flip is needed. */
+.enemy-sprite {
+  display: block;
+  max-width: 100%;
+}
+
+/* Enemy art is authored at 64px; drawn at 84 it stays inside the 88px figure
+   column, so a line-up can't spill past its half of the arena. */
+
+.figure.is-down {
+  opacity: 0.32;
+  filter: grayscale(0.85);
+}
+
+/* Bars — see Bar.tsx. Fill color per variant; label centered over the fill. */
+.bar {
+  position: relative;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--outline);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.bar-xp {
+  height: 7px;
+  margin-top: 5px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--health-deep), var(--health));
+  transition: width 0.5s ease;
+}
+
+.bar-enemy .bar-fill {
+  background: linear-gradient(90deg, var(--wine), var(--danger));
+}
+
+.bar-xp .bar-fill {
+  background: linear-gradient(90deg, var(--wine), var(--gold));
+}
+
+.bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--bone);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+/* Combat log — see CombatLog.tsx and useCombatPlayback.ts (paced replay
+   pushes lines here as the fight plays out). Newest line at the top.
+   Sits ABOVE the two combatant columns, centered, so it reads as narration
+   over the fight rather than a side panel. */
+/* Rolling combat text: exactly three lines, oldest at top. The block is a
+   fixed height so the arena below it never shifts as lines arrive — a stage
+   this small cannot afford the figures jumping a few pixels every tick. */
+.combat-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  /* Reserved only while there is something to say. A fixed 60px block during
+     the join window is a quarter of the stage held empty; :empty hands it back
+     to the arena, and because the height is fixed WHILE lines are showing, the
+     figures still never shift as the feed rolls. */
+  height: 68px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1px;
+}
+
+.combat-log:empty {
+  height: 0;
+}
+
+.combat-log li {
+  font-family: var(--font-text);
+  /* 32px, not 16. The font is only crisp at whole multiples of its 16px cell,
+     so these are the only two options — and at 16px the capitals are just 11px
+     tall, which is not enough on a stream that viewers watch at a fraction of
+     full size. Doubling cost the verbs (see en.ts) and one of the three lines. */
+  font-size: var(--fs-big);
+  line-height: 34px;
+  color: var(--ink);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Read against sprites and a transparent OBS background alike. The panel
+     backgrounds and left borders the old log used cost more vertical space
+     than they bought legibility at this size. */
+  text-shadow: 1px 1px 0 var(--void), -1px 1px 0 var(--void), 1px -1px 0 var(--void), -1px -1px 0 var(--void);
+  animation: log-in 0.14s ease-out;
+}
+
+.combat-log li.heal {
+  border-left-color: var(--health);
+  color: var(--health);
+}
+
+.combat-log li.down {
+  border-left-color: var(--danger);
+  font-weight: 600;
+}
+
+.combat-log li.outcome {
+  border-left-color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.combat-log li.crit {
+  border-left-color: var(--gold);
+  color: var(--gold-pale);
+  font-weight: 600;
+}
+
+.combat-log li.loot {
+  border-left-color: var(--health);
+}
+
+.combat-log li.levelup {
+  border-left-color: var(--teal);
+  font-weight: 600;
+}
+
+.combat-log li.defeat {
+  border-left-color: var(--danger);
+  font-weight: 600;
+}
+
+/* Slide only — no fade.
+ *
+ * This used to animate opacity 0 -> 1. During a fight, lines arrive faster
+ * than the animation completes, so the NEWEST line — the one a viewer is
+ * actually trying to read — was permanently caught part-way through the fade
+ * and rendered dim. Moving it into place is enough to show it is new; making
+ * it faint fought the legibility the 32px size was bought for. */
+@keyframes log-in {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Pulse feedback on hit/crit/heal — driven by useCombatPlayback's per-
+   combatant `pulses` map, applied as a class on the CombatantFigure root,
+   so the whole standing figure reacts to a hit, not just its bar. */
+.figure.pulse-shake {
+  animation: pulse-shake 0.3s ease;
+}
+
+.figure.pulse-flash .figure-art {
+  filter: brightness(2.2) drop-shadow(0 0 8px var(--gold-pale));
+}
+
+.figure.pulse-heal .figure-art {
+  filter: drop-shadow(0 0 10px var(--health));
+}
+
+
+
+@keyframes pulse-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+/* The logo, shown on the overlay only while idle. `pixelated` keeps its
+   pixel edges hard at any scale. */
+.idle-logo {
+  display: block;
+  margin: 0 auto 6px;
+  width: 320px;
+  max-width: 70%;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 6px rgba(7, 12, 29, 0.9));
+}
+
+/* State banner — see StateBanner.tsx, driven by src/state/dungeonStates.config.ts. */
+/* One line, not two: title and sub sit side by side so the banner costs a
+   single row of the 250px budget. */
+.state-banner {
+  font-family: var(--font-display);
+  font-size: var(--fs-big);
+  line-height: 34px;
+  color: var(--ink-muted);
+  text-align: center;
+  display: flex;
+  /* Title and countdown stack: at 32px they no longer fit side by side, and
+     the countdown is the one thing small enough to stay at 16px. */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-shadow: 1px 1px 0 var(--void), -1px 1px 0 var(--void), 1px -1px 0 var(--void), -1px -1px 0 var(--void);
+}
+
+/* The outcome is the one moment worth spending double height on. */
+
+
+.state-banner.state-gathering {
+  color: var(--health);
+}
+
+.state-banner.state-combat {
+  color: var(--accent);
+}
+
+.state-banner.state-results {
+  color: var(--bone);
+}
+
+.banner-sub {
+  font-family: var(--font-data);
+  font-size: var(--fs);
+  color: var(--ink-muted);
+}
+
+.state-banner.state-results .banner-sub {
+  display: none;
+}
+
+/* Sim controls — the streamer-facing testing strip (SimControls.tsx).
+   Not part of the spectator overlay; hidden with ?sim=0. */
+.sim-controls {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px dashed var(--ink-faint);
+  border-radius: 8px;
+  background: rgba(7, 12, 29, 0.55);
+}
+
+.sim-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sim-title {
+  font-family: var(--font-data);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-right: 4px;
+}
+
+.sim-controls button {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dark);
+  border-radius: 6px;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.sim-controls button:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.sim-controls button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--outline);
+}
+
+.sim-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.sim-hint {
+  margin-top: 6px;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+
+/* --- idle life -------------------------------------------------------------
+ *
+ * The honest answer to "can the arms animate": not on their own. The arms are
+ * painted into the base body, so moving one means either new art per frame or
+ * a jointed rig — and the rig is exactly what was retired here, because gear
+ * had nowhere to put its pixels once a limb became a bone.
+ *
+ * What CAN move independently is anything that is already its own layer. A
+ * held weapon swinging gently about its grip, against a body breathing on a
+ * slower cycle, reads as an arm shifting — the eye infers the limb from the
+ * thing it is holding. It costs no art, works with every item, and cannot
+ * desynchronise from gear the way animated arms under a static sleeve would.
+ *
+ * Deliberately slow and small: at overlay size a figure is 100px tall, so a
+ * couple of degrees is a couple of pixels. Anything more reads as twitching.
+ */
+.char-layer-body {
+  animation: idle-breathe 3.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.char-layer-mainHand {
+  animation: idle-hold 2.6s ease-in-out infinite;
+}
+
+.char-layer-offHand {
+  /* Offset so the two hands never swing in lockstep, which reads as a puppet. */
+  animation: idle-hold 3.1s ease-in-out infinite -0.8s;
+}
+
+@keyframes idle-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.012); }
+}
+
+@keyframes idle-hold {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+
+/* Each figure starts its cycle at a different point, so a party of 25 breathes
+   as a crowd rather than as one organism. */
+.figure:nth-child(3n + 1) .char-layer-body { animation-delay: -1.1s; }
+.figure:nth-child(3n + 2) .char-layer-body { animation-delay: -2.3s; }
+.figure:nth-child(4n + 1) .char-layer-mainHand { animation-delay: -0.9s; }
+.figure:nth-child(4n + 3) .char-layer-mainHand { animation-delay: -1.7s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .char-layer-body,
+  .char-layer-mainHand,
+  .char-layer-offHand {
+    animation: none;
+  }
+}
+
+/* --- legibility: outline + drop shadow -------------------------------------
+ *
+ * The bitmap font has no anti-aliasing and only two usable sizes, so it lives
+ * or dies on separation from what is behind it. Two effects, doing different
+ * jobs:
+ *
+ *   - a hard 1px OUTLINE in the darkest palette colour, drawn on all eight
+ *     neighbours. Four (the old version) leaves the diagonals bare, and a
+ *     diagonal is exactly where a glyph's corner meets a bright sprite pixel.
+ *   - a soft DROP SHADOW offset down-right, which lifts the whole block off
+ *     busy art the way a real drop shadow does. The outline alone still
+ *     disappears against mid-tone armour.
+ *
+ * Applied as a class rather than to every rule so it can be put on new text
+ * without re-deriving the stack.
+ */
+.text-legible,
+.combat-log li,
+.state-banner,
+.figure-name,
+.hp-float-label,
+/* Both of these are only ever read against the backdrop at FULL brightness —
+   they belong to the join window, which is the one beat that does not dim the
+   scene. 10px rose on a lantern-lit courtyard is not text. */
+.side-empty,
+.role-roster-count,
+.room-holds,
+.room-line,
+.lineup-overflow {
+  text-shadow:
+    1px 0 0 var(--void),
+    -1px 0 0 var(--void),
+    0 1px 0 var(--void),
+    0 -1px 0 var(--void),
+    1px 1px 0 var(--void),
+    -1px 1px 0 var(--void),
+    1px -1px 0 var(--void),
+    -1px -1px 0 var(--void),
+    2px 3px 4px rgba(7, 12, 29, 0.9);
+}
+
+/* --- loadout: show/hide a piece of gear ------------------------------------
+   Cosmetic only — the item stays equipped and its stats still count. */
+.socket-eye {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid var(--ink-faint);
+  border-radius: 50%;
+  background: rgba(7, 12, 29, 0.85);
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.loadout .socket-eye.is-hidden {
+  color: var(--ink-faint);
+  border-style: dashed;
+}
+
+.socket {
+  position: relative;
+}
+
+/* --- loadout: hair picker --------------------------------------------------
+   Forty drawings, so a scrolling grid of thumbnails rather than a row. */
+.hair-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.loadout .hair-choice {
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.loadout .hair-choice.is-current {
+  border-color: var(--accent);
+  background: rgba(226, 181, 112, 0.16);
+}
+
+.hair-choice img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+/* --- party roster ----------------------------------------------------------
+ *
+ * The "find yourself" grid. Six columns of names, each filled by that
+ * character's health. Capped at three rows in PartyRoster.tsx, because this
+ * sits above the fight on a 250px stage and everything it takes comes out of
+ * the characters.
+ */
+/* The party's names, standing beside the fight.
+ *
+ * `align-content: start` matters: the column is as tall as the arena and the
+ * list is usually shorter, so without it the rows would space themselves out
+ * down the whole side instead of stacking at the top where they are read. */
+.roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--roster-cols, 2), minmax(0, 1fr));
+  align-content: start;
+  /* Pinned to the top of the arena row, not centred in it. Centred, a list
+     taller than its row bleeds equally out of both ends — and the end it
+     bleeds out of upwards is the combat log. */
+  align-self: start;
+  gap: 2px;
+  min-width: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.roster-chip {
+  position: relative;
+  overflow: hidden;
+  height: 17px;
+  border: 1px solid rgba(7, 12, 29, 0.9);
+  border-radius: 2px;
+  background: rgba(7, 12, 29, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Health as the chip's fill. Anchored left so it drains the way a bar does,
+   and transitioned so a hit reads as a movement rather than a jump. */
+.roster-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, var(--health-deep), var(--health));
+  opacity: 0.55;
+  transition: width 0.45s ease;
+}
+
+.roster-name {
+  position: relative;
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 16px;
+  color: var(--bone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 3px;
+  max-width: 100%;
+}
+
+.roster-chip.is-down {
+  border-color: var(--danger);
+}
+
+.roster-chip.is-down .roster-fill {
+  display: none;
+}
+
+.roster-chip.is-down .roster-name {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.roster-more .roster-name {
+  color: var(--ink-muted);
+}
+
+/* --- pooled enemy health ---------------------------------------------------
+ *
+ * One bar for the whole enemy side. Five per-enemy bars at this size are five
+ * things too small to read, and none of them answers "are we winning".
+ */
+.enemy-health-bar {
+  position: relative;
+  height: 20px;
+  border: 1px solid var(--outline);
+  border-radius: 3px;
+  background: rgba(7, 12, 29, 0.8);
+  overflow: hidden;
+}
+
+.enemy-health-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, var(--wine), var(--danger));
+  transition: width 0.45s ease;
+}
+
+/* Unit boundaries, so the bar still shows the shape of the fight — a boss
+   draining slowly reads differently from four militia dropping in turn. */
+.enemy-health-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(7, 12, 29, 0.85);
+}
+
+.enemy-health-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--bone);
+  text-shadow:
+    1px 0 0 var(--void), -1px 0 0 var(--void), 0 1px 0 var(--void), 0 -1px 0 var(--void),
+    1px 1px 0 var(--void), -1px 1px 0 var(--void), 1px -1px 0 var(--void), -1px -1px 0 var(--void);
+}
+
+/* The combat text moved beneath the figures, so it no longer needs to reserve
+   height above them — one line, and it collapses when silent. */
+.combat-log {
+  height: 36px;
+}
+
+.combat-log:empty {
+  height: 0;
+}
+
+/* --- raid: the revealed room ------------------------------------------------
+ *
+ * One line under the headline while a door stands open on a room, in the row
+ * the party roster normally holds. It was a card floating over the arena,
+ * which looked better and was wrong: the arena is 117px tall and a figure is
+ * 108 of them, so the card covered the heads of the bodies the reveal exists
+ * to show. Borrowing an empty row costs the figures nothing.
+ */
+.room-reveal {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  z-index: 2;
+  /* Clear of the headline above it. The banner is 32px in a 34px row and its
+     drop shadow blurs 4px past that, so at the grid's 3px gap this line was
+     read through the descenders of the room's own name. */
+  margin-top: 4px;
+  /* The room is being ANNOUNCED. A line that fades in reads as a caption; one
+     that drops in reads as a door opening. */
+  animation: room-reveal-in 240ms ease-out both;
+}
+
+@keyframes room-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* What is in there, in two or three words. Coloured by kind so the answer
+   lands before the words are read — the whole value of a reveal is being
+   instant. */
+.room-holds {
+  flex: none;
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.room-reveal.kind-fight .room-holds {
+  color: var(--danger);
+}
+
+.room-reveal.kind-buff .room-holds {
+  color: var(--health);
+}
+
+.room-line {
+  min-width: 0;
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The last room. Nobody chose it and everybody knew it was coming. */
+.room-reveal.is-boss .room-holds,
+.room-reveal.is-boss .room-line {
+  color: var(--danger);
+}
+
+/* --- raid: the door choice -------------------------------------------------
+ *
+ * Replaces the arena while a choice is live. Three doors and a boon strip is
+ * all that fits at 450x250, and it is all the decision needs.
+ */
+.raid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.raid-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--ink-muted);
+}
+
+.raid-round {
+  color: var(--accent);
+}
+
+/* The boons carried so far. Four rounds of accumulation is the only thing that
+   makes a raid different from four dungeons, so it has to be visible. */
+.raid-buffs {
+  display: flex;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.raid-buff {
+  padding: 0 4px;
+  background: rgba(92, 167, 93, 0.22);
+  border: 1px solid var(--health-deep);
+  border-radius: 2px;
+  color: var(--health);
+  white-space: nowrap;
+}
+
+.raid-doors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.raid-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 2px solid var(--ink-faint);
+  border-radius: 4px;
+  background: rgba(7, 12, 29, 0.72);
+}
+
+.raid-door-face {
+  font-family: var(--font-display);
+  font-size: var(--fs-big);
+  line-height: 34px;
+  color: var(--ink-muted);
+}
+
+.raid-door-label {
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--ink);
+}
+
+/* Opened doors colour by what was behind them: green for a boon, red for an
+   ambush, neutral for an empty corridor. */
+.raid-door.is-open {
+  border-color: var(--ink-muted);
+}
+
+.raid-door.kind-buff {
+  border-color: var(--health);
+  background: rgba(92, 167, 93, 0.2);
+}
+
+.raid-door.kind-buff .raid-door-face {
+  color: var(--health);
+}
+
+.raid-door.kind-fight {
+  border-color: var(--danger);
+  background: rgba(188, 89, 96, 0.2);
+}
+
+.raid-door.kind-fight .raid-door-face {
+  color: var(--danger);
+}
+
+.raid-prompt {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-text);
+  font-size: var(--fs);
+  line-height: 18px;
+  color: var(--ink-faint);
+}
+
+/* A raid boss is one enemy against a whole party. It gets a wider column and a
+   taller art box so the bigger sprite is not clipped by the rank's clamp. */
+.figure.is-boss {
+  flex: 0 0 150px;
+  width: 150px;
+}
+
+.figure.is-boss .figure-art {
+  max-height: var(--figure-h-boss);
+}
+
+/* A finished enemy sprite, drawn as authored.
+
+   NOT mirrored. The encounter sheets are hand-drawn facing LEFT — which is
+   already the direction an enemy on the right of the stage needs to look. This
+   rule used to flip them on the assumption that they faced right like the
+   party's art does, which turned the whole enemy line around to stare off the
+   stage. Only the layered player-style art (CharacterSprite) faces right and
+   needs facing="left". */
+.enemy-art {
+  display: block;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+/* --- the scene -------------------------------------------------------------
+ *
+ * Backgrounds are 16:9 and the stage is 450x320 (1.41), so `cover` fills it by
+ * matching the HEIGHT and cropping roughly 21% off the width — see STAGE_H in
+ * stage.ts for why the stage stopped matching the art. It sits behind every other row via a negative
+ * z-index rather than by document order, because the stage is a grid and the
+ * backdrop is not one of its rows.
+ */
+.stage-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  /* Dimmed by default: this is the state the fight is read against, and full
+     strength art behind 88px characters makes both unreadable. */
+  filter: brightness(0.34) saturate(0.7);
+  transition: filter 0.6s ease;
+}
+
+/* A scrim over the backdrop, heaviest where the figures stand.
+ *
+ * Uniform dimming was not enough on its own: these scenes have their most
+ * detailed, highest-contrast content along the floor — flagstones, lanterns,
+ * shrubs — which is exactly the band the characters occupy. Darkening that band
+ * further separates the two without flattening the sky, which is the part worth
+ * keeping visible. */
+.stage-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(7, 12, 29, 0.15) 0%,
+    rgba(7, 12, 29, 0.35) 45%,
+    rgba(7, 12, 29, 0.72) 100%
+  );
+  transition: opacity 0.6s ease;
+}
+
+/* While the party gathers there is nothing to read yet, so the scene gets to
+   be the picture: full brightness and no scrim. */
+.stage-backdrop.is-full {
+  filter: brightness(1) saturate(1);
+}
+
+.stage-backdrop.is-full::after {
+  opacity: 0;
+}
+
+/* The stage is the positioning context for the backdrop, and has to stack
+   above it. */
+.stage {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Framing drawn in front of the characters while the party gathers. Removed
+   entirely once the fight starts — at 88px the figures cannot afford anything
+   on top of them.
+ *
+ * Above the arena but BELOW the text: scenery may cover a character, because
+ * that is what framing does, but it must never cover a name or a health bar.
+ * At z-index 5 it sat over the pooled enemy bar and the roster, which is
+ * information the audience needs. */
+.stage-foreground {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The readable layer sits above any foreground art. */
+.state-banner,
+.roster,
+.room-reveal,
+.combat-log,
+.enemy-health {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- sim working backdrop ---------------------------------------------------
+ *
+ * Applied to the BODY, never to the stage. The stage has to stay genuinely
+ * transparent or the preview stops being a preview — what OBS composites is
+ * exactly what is rendered here, and painting the stage would hide any place
+ * the overlay accidentally relies on a background being there.
+ *
+ * Only ever set while the sim controls are on screen (they set and clear the
+ * attribute), so an OBS source loaded with ?sim=0 is untouched.
+ */
+body[data-sim-backdrop="dark"] {
+  background: #14161f;
+}
+
+/* Checkerboard: shows exactly which pixels are actually transparent, which a
+   flat colour cannot. */
+body[data-sim-backdrop="checker"] {
+  background-color: #22252f;
+  background-image:
+    linear-gradient(45deg, #171a22 25%, transparent 25%),
+    linear-gradient(-45deg, #171a22 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #171a22 75%),
+    linear-gradient(-45deg, transparent 75%, #171a22 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+}
+
+/* What OBS actually gets. */
+body[data-sim-backdrop="clear"] {
+  background: transparent;
+}
+
+.sim-controls select {
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--fs, 16px);
+  max-width: 220px;
+}
+
+/*
+ * An enemy line that was laid out by hand rather than packed automatically.
+ *
+ * The rank becomes a field: each figure sits at the fraction of the stage it
+ * was placed at, standing on its own y, and later rows draw in front. The
+ * overlap variables the auto line-up sets are simply unused here.
+ */
+.lineup.is-placed {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lineup.is-placed .placed-slot {
+  position: absolute;
+  transform-origin: bottom center;
+}
+
+/* --- floating damage ------------------------------------------------------
+   The numbers that rise off a body as it is hit or healed.
+
+   WHY THESE EXIST. The stage is 450px read from across a room, and the combat
+   log is ONE line (see VISIBLE_LINES) that is already being replaced by the
+   time anybody finishes the last one. A number printed on the body it belongs
+   to is the only damage feedback that survives at that size — it is the
+   difference between a fight that is happening and a fight being reported.
+
+   The container is zero-height and centred over the figure's head so adding a
+   number never reflows the rank underneath it. Numbers are absolutely
+   positioned inside it for the same reason: two hits landing together must
+   not push each other sideways mid-flight. */
+.figure-floats {
+  position: relative;
+  height: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.combat-float {
+  position: absolute;
+  top: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs);
+  line-height: 1;
+  white-space: nowrap;
+  /* A hard shadow rather than a blur: the display face is a bitmap font and a
+     soft shadow puts grey half-pixels around glyph edges that are supposed to
+     be one colour. */
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.85);
+  animation: combat-float 0.9s ease-out forwards;
+}
+
+.combat-float.is-damage { color: var(--bone); }
+/* Crits get the accent and a size bump. Both, because on a 450px stage read
+   from a sofa a colour change alone is not a read. */
+.combat-float.is-crit {
+  color: var(--accent);
+  font-size: var(--fs-big);
+}
+.combat-float.is-heal { color: var(--health); }
+
+/* Rises and fades. The slight sideways drift stops two simultaneous numbers
+   from overlapping into an unreadable smear. */
+/* STARTS FULLY OPAQUE. A damage number should pop, not fade in — at this size
+   a fade-in is 150ms of nothing where the information should be.
+   It is also the robust choice: an animation that has not started, or one the
+   browser has frozen because the page is not painting, holds its 0% frame.
+   OBS pauses a hidden browser source and so does a background tab, so a
+   number whose first frame is invisible is a number that can simply fail to
+   appear. Caught exactly that way while testing. */
+@keyframes combat-float {
+  0%   { opacity: 1; transform: translate(0, 2px) scale(1.15); }
+  22%  { opacity: 1; transform: translate(0, -4px) scale(1); }
+  38%  { transform: translate(-2px, -10px) scale(1); }
+  100% { opacity: 0; transform: translate(2px, -30px) scale(0.95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Still shown — the number IS the information — but it holds still and
+     fades instead of flying. */
+  .combat-float {
+    animation: combat-float-still 0.9s ease-out forwards;
+  }
+  @keyframes combat-float-still {
+    0%, 70% { opacity: 1; transform: translate(0, -10px); }
+    100%    { opacity: 0; transform: translate(0, -10px); }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "horned-warhelm",
+  "name": "Horned Warhelm",
+  "slot": "head",
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "skill": 2
+  },
+  "description": "Horned Warhelm. Taken, not given.",
+  "tags": [],
+  "sprite": "head05"
+}

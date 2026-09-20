@@ -1,0 +1,17 @@
+{
+  "id": "sashed-trousers",
+  "name": "Sashed Trousers",
+  "slot": "bottom",
+  "rarity": "uncommon",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Sashed Trousers. Taken, not given.",
+  "tags": [],
+  "spriteByBody": {
+    "male": "male-t2",
+    "female": "female-t2"
+  },
+  "requires": {}
+}

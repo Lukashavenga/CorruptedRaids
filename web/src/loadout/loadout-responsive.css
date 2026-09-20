@@ -1,0 +1,398 @@
+/* =========================================================================
+   Loadout — the three layouts.
+
+   One markup tree, arranged three ways. Read top to bottom as the window
+   narrows; nothing below re-states a rule from loadout.css or
+   loadout-panels.css that is not actually changing.
+
+     desktop   >= 1340px   three columns, nav in the bar
+     laptop    >= 1024px   two columns, nav in a drawer
+     stacked   <  1024px   one column, one panel at a time
+
+   The breakpoints are where the CONTENT breaks, not round numbers. 1340 is
+   what a 520px character card, a build column and a 320px shop cost side by
+   side. 1024 is where the SECOND column stops being usable: the character card
+   needs 470px of the window, and what is left over below that is a stats panel
+   too narrow to fit a stat's name beside its number and a bag whose cells come
+   out at 26px. Stacking is not a phone concession — it is the point at which
+   two columns are worse than one.
+   ========================================================================= */
+
+/* --- desktop ------------------------------------------------------------- */
+
+/*
+ * Who you are | how you're built | what you can buy.
+ *
+ * 520 on the left is not arbitrary: 17px of frame each side, two 112px socket
+ * columns and ~240px of character between them is what this arrangement costs,
+ * so that is what it is given. The sockets got the extra: a player spends more
+ * time reading and changing what is in them than looking at the figure, and at
+ * 58px a helmet was a smudge.
+ */
+.loadout-grid {
+  display: grid;
+  grid-template-columns: minmax(440px, 520px) minmax(0, 1.05fr) minmax(320px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/*
+ * The shop's own scroll box is `.shop-stock` (loadout-panels.css) — it caps
+ * the stock at 62vh so the three columns end at roughly the same height
+ * whatever is in the catalogue. Nothing extra is needed here.
+ */
+
+/* --- laptop -------------------------------------------------------------- */
+
+@media (max-width: 1339px) {
+  /* The bar has no room for four nav items, a status block and two chips, so
+     the nav moves into the drawer and the toggle takes its place. */
+  .topbar {
+    grid-template-columns: auto auto 1fr auto;
+  }
+
+  .topbar > .site-nav {
+    display: none;
+  }
+
+  .loadout button.menu-toggle,
+  .nav-drawer {
+    display: block;
+  }
+
+  .loadout-grid {
+    grid-template-columns: minmax(440px, 500px) minmax(0, 1fr);
+  }
+
+  /*
+   * The shop spans rather than landing in row two, column one.
+   *
+   * CSS grid puts a third child on the next row, so without this the shop sat
+   * underneath the character card at half the page width, looking like a
+   * mistake. Spanning it and turning its list horizontal fills a wide short
+   * strip instead of squeezing a tall thin one.
+   */
+  .loadout-grid > .side-drawer {
+    grid-column: 1 / -1;
+  }
+
+  /* A wide short strip, filled, rather than a tall thin one squeezed. */
+  .side-drawer .bag {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 8px;
+  }
+
+  .shop-stock {
+    max-height: 46vh;
+  }
+}
+
+/* --- phone --------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .loadout {
+    padding: 12px 10px 104px;
+  }
+
+  /* One column, but a generous one — this layout now runs up to 1023px, and a
+     900px-wide panel holding a 340px card looks abandoned. */
+  .loadout-grid > .col,
+  .loadout-grid > .panel {
+    max-width: 760px;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* 17px of bronze each side is a tenth of a phone. The frame stays, drawn
+     smaller — border-image scales the art to whatever width it is given. */
+  .loadout .panel {
+    border-width: 12px;
+  }
+
+  .topbar {
+    grid-template-columns: auto 1fr auto;
+    gap: 8px 12px;
+    padding-bottom: 10px;
+  }
+
+  .brand-logo {
+    width: 132px;
+  }
+
+  /* The status line drops below the row it cannot fit on, full width, rather
+     than squeezing the logo and the chips to nothing between it. */
+  .head-status {
+    grid-column: 1 / -1;
+    order: 3;
+    align-items: stretch;
+  }
+
+  .head-level {
+    text-align: center;
+  }
+
+  .head-status .xp-bar {
+    width: 100%;
+  }
+
+  .head-purse {
+    justify-self: end;
+  }
+
+  .purse-chip {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .loadout-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  /*
+   * `display: contents` dissolves the two column wrappers so the panels
+   * themselves become the grid's children.
+   *
+   * That is what lets the tab bar show one panel at a time: the three panels
+   * inside the build column are otherwise a single grid item, and hiding one
+   * of them would still leave the column occupying its row.
+   */
+  .loadout-grid > .col {
+    display: contents;
+  }
+
+  /*
+   * One panel at a time, chosen by the tab bar.
+   *
+   * The character card is not one of the tabs — it is who you are, and having
+   * to leave it to look at your stats is the thing the tab bar is supposed to
+   * fix, not cause. Everything else is hidden and the active section shown.
+   */
+  .loadout-grid [data-section] {
+    display: none;
+  }
+
+  .loadout-grid [data-section="character"],
+  .section-stats [data-section="stats"],
+  .section-role [data-section="role"],
+  .section-inventory [data-section="inventory"],
+  .section-shop [data-section="shop"] {
+    display: block;
+  }
+
+  .loadout-grid [data-section="character"] {
+    display: flex;
+  }
+
+  /* Nothing is competing for height any more, so the shop is as long as it is
+     and the page scrolls — a scrolling list inside a scrolling page is two
+     scrollbars fighting over one flick. */
+  .side-drawer .bag {
+    display: flex;
+  }
+
+  .shop-stock {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  /*
+   * The character card's own proportions are NOT set here.
+   *
+   * They belong to the container query at the foot of this file, because the
+   * card is 720px wide in this stacked layout on a tablet and 350px wide on a
+   * phone — the same media query, two completely different problems. See
+   * AGENTS.md §8: container queries for panel-internal layout.
+   */
+
+  /* Clear of the tab bar, not just of the panel edge. */
+  .inv-detail {
+    bottom: 84px;
+  }
+
+  .slot-list {
+    max-height: 260px;
+  }
+
+  .doll-name {
+    font-size: 21px;
+  }
+
+  .panel-head h2 {
+    font-size: 15px;
+  }
+
+  .stat-card-value {
+    font-size: 22px;
+  }
+
+  /* The bag's column count is NOT set here — it follows the panel's width, in
+     loadout-panels.css. This layout runs from 1023px down to 320px, and the
+     panel is 720px wide at the top of that range: four columns made 170px
+     cells with a 30px sword in the middle of each. */
+
+  .inv-detail-actions {
+    flex: 1 0 100%;
+  }
+
+  .loadout .inv-detail-actions button {
+    flex: 1;
+  }
+
+  /* --- the tab bar ------------------------------------------------------ */
+
+  /*
+   * Fixed to the bottom, where a thumb is. `env(safe-area-inset-bottom)`
+   * keeps it clear of the iPhone home indicator, which otherwise sits on top
+   * of the Shop tab.
+   */
+  .section-tabs {
+    position: fixed;
+    z-index: 25;
+    inset: auto 0 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: #120e1c;
+    border-top: 2px solid var(--rail);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.6);
+  }
+
+  /* `.section-tabs` is a sibling of `.loadout`, not a child, so this bar gets
+     none of that block's button or font rules and has to state its own.
+     Sized for a thumb: 56px of target, a mark you can identify at a glance and
+     a label you can read without leaning in. */
+  .section-tabs button.tab {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 5px;
+    min-height: 56px;
+    padding: 8px 2px;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--ink-dim);
+    font-family: "Barlow", "Segoe UI", system-ui, sans-serif;
+    text-shadow: var(--edge);
+    cursor: pointer;
+  }
+
+  .section-tabs button.tab.is-current {
+    background: #3a1a45;
+    border-color: #8a479f;
+    color: var(--ink-bright);
+  }
+
+  .tab-glyph {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  .section-tabs button.tab:not(.is-current) .tab-glyph {
+    opacity: 0.55;
+  }
+
+  .toast {
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* --- the character card's own width ------------------------------------- */
+
+/*
+ * Kept LAST on purpose.
+ *
+ * A container query carries no extra specificity, so a plain `.doll-stage`
+ * rule further up would override it and the sockets would never wrap — the
+ * query would match and lose. Order is the only thing separating them.
+ *
+ * The question it asks is the only one that matters: does THIS PANEL have
+ * room for three columns? A viewport rule cannot know, because the panel is
+ * ~400px wide while the window is still 1000px.
+ *
+ * 400 is measured against what the three columns now cost: 112 + 112 of
+ * socket plus a figure that stops being a figure much below 170. Under that
+ * the sockets go beneath the character instead of squeezing it to nothing.
+ */
+/*
+ * The sockets stay big as long as they can; the figure gives up the room
+ * first. They are the controls — the thing a thumb has to hit and the thing
+ * you came to read — and 48px of drawn helmet is a smudge.
+ */
+@container doll (max-width: 560px) {
+  .doll-stage {
+    grid-template-columns: minmax(0, 92px) minmax(0, 210px) minmax(0, 92px);
+    gap: 10px;
+  }
+
+  .doll-col {
+    gap: 8px;
+  }
+
+  .socket-frame {
+    max-width: 86px;
+  }
+}
+
+@container doll (max-width: 400px) {
+  .doll-stage {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  /*
+   * Stacked, the socket rows sit under the painting rather than beside it.
+   * They get their own dark ground so a label is read against something flat.
+   */
+  .doll-col {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px;
+    border-radius: 3px;
+    background: rgba(10, 8, 16, 0.72);
+  }
+
+  .socket {
+    width: auto;
+  }
+
+  .socket-frame {
+    width: 72px;
+    max-width: 72px;
+  }
+
+  /* The figure first, then everything worn on it — the stacked order reads as
+     a caption under a picture rather than as two lists around a gap. */
+  .doll-center {
+    max-width: 220px;
+    order: 1;
+  }
+
+  .doll-left {
+    order: 2;
+  }
+
+  .doll-right {
+    order: 3;
+  }
+}

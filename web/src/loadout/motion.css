@@ -1,0 +1,522 @@
+/* =============================================================================
+   Motion for the loadout.
+   =============================================================================
+
+   HOUSE RULES, because a pixel game gets this wrong in a specific way.
+
+   1. NO EASING ON SPRITE ANIMATION. The chest is a twelve-frame sheet and it
+      advances with `steps()`. An eased sprite animation lands between frames
+      and shows two of them blended, which on pixel art is not "smooth", it is
+      a mistake.
+
+   2. SHORT. Every UI transition here is 90-220ms. This screen is used on a
+      phone between runs, and anything slower turns a five-tap gear change into
+      a wait.
+
+   3. TRANSFORM AND OPACITY ONLY, for anything that repeats. They are the two
+      properties that do not force layout, and the bag can have forty tiles in
+      it on a mid-range Android.
+
+   4. EVERY ANIMATION IS OPTIONAL. The whole file is disabled under
+      `prefers-reduced-motion` at the bottom — including the chest, which falls
+      back to opening instantly rather than not opening at all. A reveal that
+      cannot be reached without motion is a feature somebody cannot use.
+   ========================================================================== */
+
+/* --- the chest shelf ----------------------------------------------------- */
+
+.chest-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.chest-shelf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chest-shelf-head h3 {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chest-count {
+  font-size: 0.72rem;
+  opacity: 0.66;
+  font-variant-numeric: tabular-nums;
+}
+
+.chest-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chest-row .chest-open-all,
+.chest-shelf .chest-open-all {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+}
+
+.chest-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* `.chest-row .chest`, not `.chest`: the app styles buttons as
+   `.loadout button`, which is (0,1,1) and beats a bare class. A lone `.chest`
+   rule lost the background and the chest sat on a tan button face. */
+.chest-row .chest {
+  --chest-size: 96px;
+  width: var(--chest-size);
+  height: var(--chest-size);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: block;
+  /* The idle chest breathes very slightly, so a shelf of them reads as
+     something waiting rather than as a row of icons. */
+  animation: chest-idle 2.6s ease-in-out infinite;
+}
+
+.chest-row .chest:disabled { cursor: default; }
+
+@keyframes chest-idle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-2px) scale(1.015); }
+}
+
+/* --- the sprite ----------------------------------------------------------- */
+
+/* Shared by the shelf tile and the modal; only --chest-size differs. */
+.chest-sprite {
+  display: block;
+  width: var(--chest-size);
+  height: var(--chest-size);
+  background-image: url("/art/ui/loot-chest-shake.png");
+  background-repeat: no-repeat;
+  /* Six frames wide, one tall, so the background is 6x the drawn size and
+     steps() walks it one frame at a time. */
+  background-size: calc(var(--chest-size) * 6) var(--chest-size);
+  background-position: 0 0;
+  image-rendering: pixelated;
+}
+
+/* Timings mirror ChestShelf.tsx — change them together.
+   shake: SHAKE_FRAME_MS 85 x 6 frames = 0.51s, SHAKE_LOOPS 2
+   open:  OPEN_MS 660ms, unevenly divided — see @keyframes chest-open */
+.chest-sprite.is-shaking {
+  animation: chest-shake 0.51s steps(6, jump-none) 2;
+}
+
+/* THE POP IS NOT EVENLY TIMED, AND THAT IS THE WHOLE FIX.
+   ------------------------------------------------------
+   Six frames advanced at a metronomic rate is the recipe for reading as stop
+   motion — which is exactly what it did. You see six photographs because
+   nothing tells the eye they belong to one movement.
+
+   Real motion accelerates. The lid strains (two long frames), then the light
+   lets go (three quick ones), then it settles and holds. Same six drawings,
+   and the difference is entirely in the spacing.
+
+   Two animations on one element: the frames step, and `chest-open-swell`
+   scales CONTINUOUSLY underneath them. Something moving smoothly through the
+   whole beat is what binds the stills together. */
+.chest-sprite.is-opening,
+.chest-sprite.is-revealed {
+  background-image: url("/art/ui/loot-chest-open.png");
+  animation:
+    chest-open 0.66s linear 1 forwards,
+    chest-open-swell 0.66s cubic-bezier(0.18, 0.9, 0.3, 1) 1 forwards;
+}
+
+/* THE END VALUE IS -5 FRAMES, NOT -6, AND THE TIMING IS `jump-none`.
+   -----------------------------------------------------------------
+   The obvious spelling — `steps(6)` running to -6 frames — is wrong, and
+   wrong only on the last frame. `steps(6)` is `jump-end`: it emits six values
+   across 0/6..5/6 of the range and then, at the very end of the duration,
+   jumps to the `to` value itself. For the shake that flashes an empty frame
+   at each loop boundary; for the pop, which holds its end state with
+   `forwards`, it parks background-position one whole frame past the strip and
+   the opened chest renders BLANK. Measured in the browser, not reasoned about.
+
+   `jump-none` emits six values inclusive of both ends, so a range of 0 to -5
+   frames gives exactly frames 1 through 6 and holds the last one. */
+@keyframes chest-shake {
+  from { background-position: 0 0; }
+  to   { background-position: calc(var(--chest-size) * -5) 0; }
+}
+
+/* Paired stops hold a frame then jump to the next with no interpolation —
+   steps() cannot express uneven frame lengths, and this can.
+     0-20%   frame 1   132ms   lid straining
+     20-38%  frame 2   119ms   it gives
+     38-52%  frame 3    92ms   light escaping   <- burst accelerates
+     52-64%  frame 4    79ms
+     64-78%  frame 5    92ms
+     78-100% frame 6   145ms   settles, and holds (forwards) */
+@keyframes chest-open {
+  0%,   20%  { background-position: 0 0; }
+  20%,  38%  { background-position: calc(var(--chest-size) * -1) 0; }
+  38%,  52%  { background-position: calc(var(--chest-size) * -2) 0; }
+  52%,  64%  { background-position: calc(var(--chest-size) * -3) 0; }
+  64%,  78%  { background-position: calc(var(--chest-size) * -4) 0; }
+  78%, 100%  { background-position: calc(var(--chest-size) * -5) 0; }
+}
+
+/* The continuous half. A small kick as the lid goes, easing back — the eye
+   reads this as one motion and stops counting frames. */
+@keyframes chest-open-swell {
+  0%   { transform: scale(1)     translateY(0); }
+  38%  { transform: scale(1.055) translateY(-5px); }
+  62%  { transform: scale(0.992) translateY(1px); }
+  100% { transform: scale(1)     translateY(0); }
+}
+
+/* --- the bloom ------------------------------------------------------------
+
+   Light, animated smoothly, behind the stepped sprite. This is the other half
+   of the stop-motion fix: the sprite can only ever jump between six drawings,
+   so the continuity has to come from something that is not the sprite. */
+.chest-bloom {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--chest-size, 320px);
+  height: var(--chest-size, 320px);
+  transform: translate(-50%, -50%) scale(0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 226, 150, 0.55) 0%,
+    rgba(240, 178, 74, 0.28) 38%,
+    rgba(240, 178, 74, 0) 70%
+  );
+}
+
+/* Nothing while it rattles — the chest is still shut, so there is no light to
+   leak. The bloom IS the moment it gives way. */
+.chest-bloom.is-opening,
+.chest-bloom.is-revealed {
+  animation: chest-bloom 0.9s cubic-bezier(0.16, 0.8, 0.3, 1) 1 forwards;
+}
+
+@keyframes chest-bloom {
+  0%   { opacity: 0;    transform: translate(-50%, -50%) scale(0.2); }
+  34%  { opacity: 0.95; transform: translate(-50%, -50%) scale(1.15); }
+  100% { opacity: 0.22; transform: translate(-50%, -50%) scale(1.75); }
+}
+
+/* --- the modal ------------------------------------------------------------ */
+
+/* Opening takes over the viewport.
+   The first version animated the 96px tile where it sat, and on a phone the
+   whole sequence could play off screen while the reader was looking at their
+   stats. This is the one moment on the page where nothing else matters. */
+.chest-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  /* AN INVERTED VIGNETTE: darkest behind the chest, clearing toward the
+     edges. The usual instinct is the opposite — a bright glow at the centre —
+     but the chest already IS the light source once it opens, and a bright
+     backdrop behind a burst of gold flattens it. Putting the darkest point
+     under the chest gives that burst the most contrast to work against, and
+     letting the edges clear keeps the page visible enough that the modal
+     reads as something laid OVER the loadout rather than a new screen. */
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 45%,
+    rgba(3, 2, 6, 0.95) 0%,
+    rgba(5, 3, 10, 0.9) 35%,
+    rgba(12, 8, 20, 0.62) 72%,
+    rgba(16, 11, 26, 0.38) 100%
+  );
+
+  /* The glass. Blur alone reads as smeared rather than frosted, so it is
+     paired with a slight desaturation — real frosted glass loses colour as
+     well as detail, and without that the blurred page bleeds its purples
+     through and fights the gold. */
+  -webkit-backdrop-filter: blur(14px) saturate(0.72);
+  backdrop-filter: blur(14px) saturate(0.72);
+
+  /* Fades the BACKDROP, not the contents: `opacity` on the whole modal would
+     take the chest with it, and a chest that fades in has already wasted the
+     first frames of its shake. */
+  animation: modal-in 0.18s ease-out both;
+}
+
+/* The chest and the reveal share one box and one centre — the item lands ON
+   the chest rather than under it, which is what makes the burst read as the
+   thing that produced it. */
+.chest-modal-inner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+/* THE SIZE MUST BE A WHOLE NUMBER OF PIXELS.
+   ------------------------------------------
+   This was `min(320px, 68vw)`, and on a 420px-wide phone that resolves to
+   285.6px. `background-size` is then 6 x 285.6 = 1713.6px, so every frame
+   boundary inside the strip lands on a fractional pixel and the neighbouring
+   frame bleeds in by a sliver. Stepping through six of those in half a second
+   does not read as a chest rocking — it reads as a strip of chests rolling
+   sideways, which is exactly what it looked like.
+
+   Fixed px at every breakpoint, so 6x it is always an integer. 288 is 1.5x
+   the 192px source frame, which also keeps `pixelated` upscaling on clean
+   half-pixel doubling rather than an arbitrary ratio. */
+.chest-modal .chest-sprite {
+  --chest-size: 288px;
+}
+
+@media (max-width: 420px) {
+  .chest-modal .chest-sprite { --chest-size: 240px; }
+}
+
+@media (max-width: 340px) {
+  .chest-modal .chest-sprite { --chest-size: 192px; }
+}
+
+@keyframes modal-in {
+  from { -webkit-backdrop-filter: blur(0) saturate(1); backdrop-filter: blur(0) saturate(1); opacity: 0.4; }
+  to   { -webkit-backdrop-filter: blur(14px) saturate(0.72); backdrop-filter: blur(14px) saturate(0.72); opacity: 1; }
+}
+
+/* OVER the chest, centred on it.
+   Absolutely positioned out of the grid flow so the chest does not shift
+   upward when the card appears — the sprite must stay exactly where it burst.
+   Sits low in the chest's box, over the body rather than the open lid, so the
+   light and sparks above it are left uncovered. */
+.chest-reveal-item {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 22px;
+  min-width: max-content;
+  border-radius: 6px;
+  /* Its own pane of glass, so the name stays readable against whichever frame
+     of the burst is behind it. */
+  background: rgba(6, 4, 12, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+  animation: reveal-rise 0.4s cubic-bezier(0.22, 1.4, 0.4, 1) both;
+}
+
+.chest-reveal-item strong {
+  font-size: 1.1rem;
+  text-wrap: balance;
+}
+
+/* The name takes the item's rarity colour.
+   The `.rarity-*` classes already exist but only ever set `border-color`, on
+   sockets and inventory cells — nothing in the sheet colours TEXT by rarity,
+   so the reveal's name was rendering plain white whatever dropped. Same
+   tokens, so a legendary here and a legendary in the bag are the same gold.
+
+   `rare` and `epic` are lightened from the token rather than used raw: #28508d
+   and #913c91 are tuned as borders against a lit panel and are close to
+   unreadable as small text on the near-black backdrop this sits on. The
+   others carry enough luminance already. */
+.chest-reveal-item .rarity-common    { color: #9aa8b4; }
+.chest-reveal-item .rarity-uncommon  { color: var(--rarity-uncommon); }
+.chest-reveal-item .rarity-rare      { color: #6f9ee0; }
+.chest-reveal-item .rarity-epic      { color: #c87cc8; }
+.chest-reveal-item .rarity-legendary { color: var(--rarity-legendary); }
+
+/* Legendary earns a glow; nothing else does. If every rarity shimmered the
+   shimmer would stop meaning anything. */
+.chest-reveal-item .rarity-legendary {
+  text-shadow: 0 0 14px rgba(226, 181, 112, 0.55);
+}
+
+.chest-reveal-rarity,
+.chest-reveal-from,
+.chest-dismiss {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.chest-dismiss {
+  margin-top: 6px;
+  opacity: 0.45;
+}
+
+/* Present from the first frame, so it is an offer rather than a discovery.
+   Quiet enough not to compete with the thing it is offering to skip. */
+.chest-skip {
+  position: absolute;
+  left: 50%;
+  bottom: -46px;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+/* A bulk open lists what came out. Names at the single-item size would not
+   fit ten of them on a phone. */
+.chest-reveal-item.is-many {
+  max-height: min(56vh, 420px);
+  overflow-y: auto;
+}
+
+.chest-haul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.chest-haul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.86rem;
+}
+
+/* Keeps the -50% X in every frame: a bare translateY here would drop the
+   centring the moment the animation took over the transform property, and the
+   card would jump to the right by half its width. */
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translate(-50%, 16px) scale(0.86); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* --- general loadout feedback --------------------------------------------- */
+
+/* Every button on the screen answers a press. `:active` rather than a JS
+   class, so it fires on the exact frame the finger lands rather than after a
+   React round trip — which on a mid-range phone is the difference between
+   feeling responsive and feeling broken. */
+.loadout button:not(:disabled):active,
+.loadout .socket:not(:disabled):active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.loadout button,
+.loadout .socket {
+  transition: transform 0.09s ease-out, filter 0.12s ease-out;
+}
+
+/* A command that changed something. Added for one beat by the app, then
+   removed — see `flash()` in LoadoutApp. */
+.just-changed {
+  animation: commit-pulse 0.34s ease-out;
+}
+
+@keyframes commit-pulse {
+  0%   { transform: scale(1); filter: brightness(1); }
+  38%  { transform: scale(1.06); filter: brightness(1.45); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* A command that refused. Deliberately a different SHAPE from the pulse, not
+   just a different colour — a shake and a swell read apart at a glance and in
+   peripheral vision, where a red tint and a green tint do not. */
+.just-refused {
+  animation: refuse-shake 0.3s ease-in-out;
+}
+
+@keyframes refuse-shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  45%      { transform: translateX(3px); }
+  70%      { transform: translateX(-2px); }
+}
+
+/* Points arriving. Sits on the unspent-points chip. */
+.points-fresh {
+  animation: points-arrive 0.8s ease-out;
+}
+
+@keyframes points-arrive {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.22); }
+  55%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Panel changes on the phone tab bar. A short slide carries which direction
+   you moved in, which four identical fades do not. */
+.panel-enter {
+  animation: panel-in 0.2s ease-out both;
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Screen-reader-only text, used by the chest button. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- the opt-out ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .chest-row .chest,
+  .chest-sprite,
+  .chest-bloom,
+  .chest-modal,
+  .chest-reveal-item,
+  .just-changed,
+  .just-refused,
+  .points-fresh,
+  .panel-enter {
+    animation: none !important;
+  }
+
+  /* The chest still has to OPEN, or the reveal is unreachable. It jumps
+     straight to the last frame of the pop instead of playing through it. */
+  .chest-sprite.is-opening,
+  .chest-sprite.is-revealed {
+    background-image: url("/art/ui/loot-chest-open.png");
+    background-position: calc(var(--chest-size) * -5) 0;
+  }
+
+  .loadout button,
+  .loadout .socket {
+    transition: none;
+  }
+}

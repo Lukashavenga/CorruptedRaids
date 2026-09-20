@@ -1,0 +1,15 @@
+{
+  "id": "gilded-lance",
+  "name": "Gilded Lance",
+  "slot": "mainHand",
+  "rarity": "rare",
+  "statMods": {
+    "atk": 3
+  },
+  "description": "Gilded Lance. Taken, not given.",
+  "tags": [],
+  "sprite": "mh11",
+  "requires": {
+    "atk": 16
+  }
+}

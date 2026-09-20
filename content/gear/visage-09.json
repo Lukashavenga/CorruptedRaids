@@ -1,0 +1,13 @@
+{
+  "id": "visage-09",
+  "name": "Visage 09",
+  "slot": "face",
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "skill": 1
+  },
+  "description": "Visage 09. Taken, not given.",
+  "tags": [],
+  "sprite": "face09"
+}
