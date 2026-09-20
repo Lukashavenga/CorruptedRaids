@@ -236,10 +236,16 @@ drop roll, which is the wrong loop to sit in when what you are testing is a
 1.6-second animation:
 
 ```bash
-npm run chests -- twitch:61018650        # 5, one of each rarity
-npm run chests -- twitch:61018650 3      # 3
-npm run chests -- twitch:61018650 1 pitch-torch
+npm.cmd run chests -- twitch:61018650        # 5, one of each rarity
+npm.cmd run chests -- twitch:61018650 3      # 3
+npm.cmd run chests -- twitch:61018650 1 pitch-torch
 ```
+
+**`npm.cmd`, not `npm`, in PowerShell.** Windows ships `npm` as an unsigned
+`npm.ps1`, and the default execution policy refuses to run it
+("cannot be loaded... is not digitally signed"). `npm.cmd` is the batch
+shim and is not subject to that policy. Same for `npx.cmd`. This is why the
+verification block in README.md spells them that way too.
 
 The viewer id is what `GET /character?viewer=...` answers to — sign in to the
 loadout once and it is `twitch:<your numeric id>`.

@@ -168,13 +168,29 @@
      52-64%  frame 4    79ms
      64-78%  frame 5    92ms
      78-100% frame 6   145ms   settles, and holds (forwards) */
+/* `step-end` ON EVERY KEYFRAME, and it is load-bearing.
+   ----------------------------------------------------
+   The obvious spelling of "hold a frame, then jump" is paired stops —
+   `0%, 20% {A}` then `20%, 38% {B}`. It does not work, and it fails in a way
+   that looks like a completely different bug. The 20% keyframe gets declared
+   TWICE and the later rule wins, so the browser has A at 0% and B at 20% and
+   does what it always does between two keyframes: interpolates. Smoothly.
+   Across every boundary. The result is background-position sweeping
+   continuously from 0 to -5 frames, which on screen is not a chest opening —
+   it is a strip of chests rolling right to left.
+
+   `animation-timing-function` declared INSIDE a keyframe sets the easing for
+   the segment that STARTS there. `step-end` means "hold this value for the
+   whole segment, then jump", which is the frame-holding steps() gives you but
+   with arbitrary, uneven timing — which is the entire point here. */
 @keyframes chest-open {
-  0%,   20%  { background-position: 0 0; }
-  20%,  38%  { background-position: calc(var(--chest-size) * -1) 0; }
-  38%,  52%  { background-position: calc(var(--chest-size) * -2) 0; }
-  52%,  64%  { background-position: calc(var(--chest-size) * -3) 0; }
-  64%,  78%  { background-position: calc(var(--chest-size) * -4) 0; }
-  78%, 100%  { background-position: calc(var(--chest-size) * -5) 0; }
+  0%   { background-position: 0 0;                              animation-timing-function: step-end; }
+  20%  { background-position: calc(var(--chest-size) * -1) 0;   animation-timing-function: step-end; }
+  38%  { background-position: calc(var(--chest-size) * -2) 0;   animation-timing-function: step-end; }
+  52%  { background-position: calc(var(--chest-size) * -3) 0;   animation-timing-function: step-end; }
+  64%  { background-position: calc(var(--chest-size) * -4) 0;   animation-timing-function: step-end; }
+  78%  { background-position: calc(var(--chest-size) * -5) 0;   animation-timing-function: step-end; }
+  100% { background-position: calc(var(--chest-size) * -5) 0; }
 }
 
 /* The continuous half. A small kick as the lid goes, easing back — the eye
@@ -312,7 +328,10 @@
 .chest-reveal-item {
   position: absolute;
   left: 50%;
-  top: 62%;
+  /* Over the chest's BODY, not below its feet. At 62% the card cleared the
+     sprite entirely and read as a caption; 46% overlaps the lower half while
+     still leaving the open lid, the light and the sparks uncovered. */
+  top: 46%;
   transform: translate(-50%, 0);
   display: flex;
   flex-direction: column;
