@@ -10,27 +10,33 @@ import { text, format } from "../../../src/text/index.js";
  *
  * The shake is the ANTICIPATION. At the original 60ms a frame it read as a
  * buzz rather than as a chest straining to open — the six frames blurred into
- * one wobbling shape. 85ms is about the floor where each rock still registers
+ * one wobbling shape. 72ms is about the floor where each rock still registers
  * as its own movement, and two passes rather than three because you felt
  * yourself waiting through the last one.
  *
- * The pop is 660ms but NOT evenly divided — see `chest-open` in motion.css.
- * Six frames at a metronomic rate is the recipe for reading as stop-motion,
- * which is exactly what it did; the frames now accelerate through the burst.
+ * The pop is 520ms across FIVE frames, unevenly divided — see `chest-open` in
+ * motion.css. Frames at a metronomic rate are the recipe for reading as
+ * stop-motion, which is exactly what they did; they now accelerate into the
+ * burst and hold there.
+ *
+ * FIVE, not six: the sheet's last frame is the chest settling back down to a
+ * calm glow, which lands as the energy draining out of the moment right when
+ * the item is being named. Ending on frame five — the full burst — keeps the
+ * peak under the reveal.
  */
-const SHAKE_FRAME_MS = 85;
+const SHAKE_FRAME_MS = 72;
 const SHAKE_LOOPS = 2;
 const FRAMES = 6;
 
 const SHAKE_MS = SHAKE_FRAME_MS * FRAMES * SHAKE_LOOPS;
-const OPEN_MS = 660;
+const OPEN_MS = 520;
 /**
  * How far into the pop the item appears.
  *
- * 0.62 rather than the midpoint: the accelerated timing puts the burst around
- * here, and the name should land ON the burst rather than after it has faded.
+ * 0.70: the accelerated timing reaches the final burst frame at 71%, and the
+ * name should land ON that rather than after it.
  */
-const REVEAL_AT = 0.62;
+const REVEAL_AT = 0.70;
 
 type Phase = "idle" | "shaking" | "opening" | "revealed";
 

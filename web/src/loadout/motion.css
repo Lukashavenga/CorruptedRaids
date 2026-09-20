@@ -116,10 +116,10 @@
 }
 
 /* Timings mirror ChestShelf.tsx — change them together.
-   shake: SHAKE_FRAME_MS 85 x 6 frames = 0.51s, SHAKE_LOOPS 2
-   open:  OPEN_MS 660ms, unevenly divided — see @keyframes chest-open */
+   shake: SHAKE_FRAME_MS 72 x 6 frames = 0.43s, SHAKE_LOOPS 2
+   open:  OPEN_MS 520ms over FIVE frames, unevenly — see @keyframes chest-open */
 .chest-sprite.is-shaking {
-  animation: chest-shake 0.51s steps(6, jump-none) 2;
+  animation: chest-shake 0.43s steps(6, jump-none) 2;
 }
 
 /* THE POP IS NOT EVENLY TIMED, AND THAT IS THE WHOLE FIX.
@@ -139,8 +139,8 @@
 .chest-sprite.is-revealed {
   background-image: url("/art/ui/loot-chest-open.png");
   animation:
-    chest-open 0.66s linear 1 forwards,
-    chest-open-swell 0.66s cubic-bezier(0.18, 0.9, 0.3, 1) 1 forwards;
+    chest-open 0.52s linear 1 forwards,
+    chest-open-swell 0.52s cubic-bezier(0.18, 0.9, 0.3, 1) 1 forwards;
 }
 
 /* THE END VALUE IS -5 FRAMES, NOT -6, AND THE TIMING IS `jump-none`.
@@ -176,21 +176,31 @@
    TWICE and the later rule wins, so the browser has A at 0% and B at 20% and
    does what it always does between two keyframes: interpolates. Smoothly.
    Across every boundary. The result is background-position sweeping
-   continuously from 0 to -5 frames, which on screen is not a chest opening —
-   it is a strip of chests rolling right to left.
+   continuously from 0 to the end of the strip, which on screen is not a chest
+   opening — it is a strip of chests rolling right to left.
 
    `animation-timing-function` declared INSIDE a keyframe sets the easing for
    the segment that STARTS there. `step-end` means "hold this value for the
    whole segment, then jump", which is the frame-holding steps() gives you but
-   with arbitrary, uneven timing — which is the entire point here. */
+   with arbitrary, uneven timing — which is the entire point here.
+
+   FIVE FRAMES, NOT SIX. The strip's last frame is the chest settling back to
+   a calm glow, and it landed exactly as the item was being named — the energy
+   draining out of the moment at the moment. Stopping on frame five holds the
+   full burst under the reveal instead.
+
+     0-21%   frame 1   109ms   lid straining
+     21-40%  frame 2   99ms    it gives
+     40-57%  frame 3   88ms    light escaping   <- accelerating
+     57-71%  frame 4   73ms
+     71-100% frame 5   151ms   full burst, and holds (forwards) */
 @keyframes chest-open {
   0%   { background-position: 0 0;                              animation-timing-function: step-end; }
-  20%  { background-position: calc(var(--chest-size) * -1) 0;   animation-timing-function: step-end; }
-  38%  { background-position: calc(var(--chest-size) * -2) 0;   animation-timing-function: step-end; }
-  52%  { background-position: calc(var(--chest-size) * -3) 0;   animation-timing-function: step-end; }
-  64%  { background-position: calc(var(--chest-size) * -4) 0;   animation-timing-function: step-end; }
-  78%  { background-position: calc(var(--chest-size) * -5) 0;   animation-timing-function: step-end; }
-  100% { background-position: calc(var(--chest-size) * -5) 0; }
+  21%  { background-position: calc(var(--chest-size) * -1) 0;   animation-timing-function: step-end; }
+  40%  { background-position: calc(var(--chest-size) * -2) 0;   animation-timing-function: step-end; }
+  57%  { background-position: calc(var(--chest-size) * -3) 0;   animation-timing-function: step-end; }
+  71%  { background-position: calc(var(--chest-size) * -4) 0;   animation-timing-function: step-end; }
+  100% { background-position: calc(var(--chest-size) * -4) 0; }
 }
 
 /* The continuous half. A small kick as the lid goes, easing back — the eye
@@ -531,7 +541,7 @@
   .chest-sprite.is-opening,
   .chest-sprite.is-revealed {
     background-image: url("/art/ui/loot-chest-open.png");
-    background-position: calc(var(--chest-size) * -5) 0;
+    background-position: calc(var(--chest-size) * -4) 0;
   }
 
   .loadout button,
