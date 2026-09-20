@@ -228,6 +228,28 @@ check carefully.
 `npm run test:store` is the heavier follow-up: it round-trips a real
 character through Supabase.
 
+### 5c. Testing the chest reveal
+
+Loot from a run arrives as a SEALED CHEST the player opens on their own
+screen. Waiting for one the honest way means winning a run and passing a 60%
+drop roll, which is the wrong loop to sit in when what you are testing is a
+1.6-second animation:
+
+```bash
+npm run chests -- twitch:61018650        # 5, one of each rarity
+npm run chests -- twitch:61018650 3      # 3
+npm run chests -- twitch:61018650 1 pitch-torch
+```
+
+The viewer id is what `GET /character?viewer=...` answers to — sign in to the
+loadout once and it is `twitch:<your numeric id>`.
+
+It needs the server running, and it goes through the operator-only
+`grant_chest` command rather than writing the roster row directly. That is not
+fussiness: the server holds the roster in memory and writes behind, so a
+direct database edit races it and whichever side writes second wins — chests
+added that way disappear on the next save.
+
 ### 6. OBS
 
 Add a Browser Source pointing at:
