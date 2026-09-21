@@ -34,16 +34,42 @@ export function usePlacements(): {
 
   const reload = useCallback(() => {
     const at = Date.now();
-    fetch("/placements")
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((data) => {
-        if (at < savedAt.current) return;
-        setPlacements(data ?? {});
-      })
-      .catch(() => {
-        if (at < savedAt.current) return;
-        setPlacements({});
-      });
+
+    /**
+     * TWO SOURCES, and the order is the point.
+     *
+     * `/placements` is the game server's live copy — the file the admin screen
+     * writes back to, so a rectangle you just dragged shows up on the overlay
+     * without a rebuild. That endpoint only exists on localhost:8787.
+     *
+     * The hosted loadout is a static site with no game server behind it, so
+     * there the request 404s. It used to stop there and fall back to `{}`,
+     * which is a VALID placement file meaning "nothing positioned yet" — so
+     * there was no error, no warning, just every piece of gear drawn at
+     * DEFAULT_PLACEMENT, stacked at the origin, on every character on the
+     * hosted site. scripts/publish-web.ts ships the file as a static asset for
+     * exactly this case.
+     *
+     * Server first: locally the bundled copy is a build-time snapshot and the
+     * server's is current, so preferring the snapshot would silently mask the
+     * edit you just made.
+     */
+    const load = async (): Promise<PlacementFile> => {
+      for (const url of ["/placements", "/placements.json"]) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) return (await res.json()) as PlacementFile;
+        } catch {
+          /* unreachable is the same as absent here; try the next source */
+        }
+      }
+      return {};
+    };
+
+    void load().then((data) => {
+      if (at < savedAt.current) return;
+      setPlacements(data ?? {});
+    });
   }, []);
 
   useEffect(reload, [reload]);

@@ -76,6 +76,27 @@ if (existsSync(assets)) {
   }
 }
 
+// content/placements.json, as a static asset.
+//
+// Every surface that draws a character reads this — it is where each gear
+// sprite sits on the body — and web/src/hooks/usePlacements.ts fetches it from
+// the GAME SERVER at `/placements`, which is the copy the admin screen edits.
+// A static site has no game server, so that request 404s here, and the hook's
+// fallback is an empty placement file: a legal value meaning "nothing
+// positioned yet". The result is not an error, it is every item drawn at
+// DEFAULT_PLACEMENT, stacked at the origin, silently, on every character.
+//
+// So it ships. Copied at publish time rather than into `web/public/` at build
+// time because it belongs to the published tree specifically: locally the
+// server's live copy is the one that should win, and a stale snapshot sitting
+// in `web/public/` would be one more thing to remember to regenerate.
+const PLACEMENTS = join(ROOT, "content", "placements.json");
+if (!existsSync(PLACEMENTS)) {
+  console.error("content/placements.json is missing — characters would publish unpositioned.");
+  process.exit(1);
+}
+cpSync(PLACEMENTS, join(OUT, "placements.json"));
+
 // `/` was the overlay, which is no longer here. Send it to the loadout instead
 // of leaving the bare domain on a 404 — that is the URL people will type.
 //
@@ -85,4 +106,5 @@ writeFileSync(join(OUT, "_redirects"), "/  /loadout  302\n");
 
 console.log(`Publishing ${OUT}`);
 for (const name of dropped) console.log(`  dropped  ${name}`);
-console.log(`  added    _redirects  (/ -> /loadout)`);
+console.log("  added    placements.json");
+console.log("  added    _redirects  (/ -> /loadout)");
