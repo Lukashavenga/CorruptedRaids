@@ -2,10 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "corrupted-raids",
   "compatibility_date": "2026-09-18",
-  "observability": {
-    "enabled": true
-  },
-  "assets": {
-    "directory": "overlay"
-  }
+
+  // Cloudflare PAGES, not a Workers assets deployment.
+  //
+  // `wrangler pages project create` now delegates to Workers unless --force is
+  // passed, and this project deliberately took the --force path: a Workers
+  // custom domain requires the zone to sit on Cloudflare nameservers, and
+  // coster.im's nameservers must stay at Vercel because calorie.coster.im and
+  // fit.coster.im are live there. Classic Pages accepts an external CNAME,
+  // which is what lets loadout.coster.im work without moving the zone.
+  //
+  // --force was needed ONCE, to create the project. Do not pass it again.
+  "pages_build_output_dir": "overlay"
 }

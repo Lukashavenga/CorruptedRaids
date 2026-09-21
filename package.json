@@ -27,7 +27,7 @@
     "check:supabase": "tsx --env-file-if-exists=.env scripts/check-supabase.ts",
     "deploy:fn": "npm run bundle:edge && supabase functions deploy character",
     "chests": "tsx --env-file-if-exists=.env scripts/grant-chests.ts",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler pages deploy",
     "preview": "wrangler dev"
   },
   "dependencies": {

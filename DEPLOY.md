@@ -137,48 +137,62 @@ The Vite app in `web/` builds all three pages (overlay, loadout, admin) into
 one output directory, `overlay/`, because it's one project with three entry
 points (`web/vite.config.ts`).
 
-**Cloudflare Pages is now Cloudflare Workers.** `wrangler pages project create`
-still exists but creates a WORKER serving static assets, and says so as it
-runs. That is not a detail you can ignore, because it changes two things that
-the rest of this file depends on — see both warnings below. The old Pages
-product is still reachable with `--force`; this repo does not use it.
-
-Deploying is direct upload from this machine, not a Git integration:
+Deploying is a direct upload from this machine, not a Git integration:
 
 ```bash
 npm.cmd run bundle:edge; npm.cmd run build:web   # produces overlay/
-npx.cmd wrangler deploy                          # or: npm.cmd run deploy
+npm.cmd run deploy                               # wrangler pages deploy
 ```
 
-`wrangler.jsonc` at the repo root is what `pages project create` wrote, and
-`assets.directory` in it is what makes `overlay/` the served site. First run
-needs `npx.cmd wrangler login` once.
+First run needs `npx.cmd wrangler login` once. `wrangler.jsonc` at the repo
+root names the project and points `pages_build_output_dir` at `overlay/`.
 
-There are no build-time environment variables to configure in a dashboard.
-Vite INLINES `web/.env` at build time, so the keys come from this machine and
-the deployed bundle already carries them. (That is safe for exactly the reason
-step 5 gives: a publishable key is meant to be public and RLS is what protects
-the data. Never build with the secret key present.)
+There are no build-time environment variables to set in a dashboard. Vite
+INLINES `web/.env` at build time, so the deployed bundle already carries the
+keys. That is safe for the reason step 5 gives — a publishable key is meant to
+be public and RLS is what protects the data. Never build with the secret key
+present.
 
-**WARNING 1 — `.html` is stripped.** Workers static assets serve
-`/loadout.html` as a 307 to `/loadout`, and `/loadout` is the canonical URL.
-This is load-bearing: `signInWithOAuth` sends `redirectTo:
-window.location.origin + window.location.pathname` (web/src/loadout/
-identity.ts), so the value Supabase must allow is `/loadout`, NOT
-`/loadout.html`. An allowlist written the old way fails at sign-in only, after
-Twitch, which is an unpleasant place to discover it.
+**This is CLASSIC Pages, on purpose.** `wrangler pages project create` now
+delegates to Cloudflare Workers unless `--force` is passed, and this project
+passed it. The reason is the custom domain, below. `--force` was needed once,
+to create the project; every command since runs against Pages directly and
+must not repeat it.
 
-**WARNING 2 — a custom domain needs the zone on Cloudflare.** Workers custom
-domains require an active Cloudflare zone, and Cloudflare's docs are explicit
-that you cannot put one on a hostname with an existing CNAME or on a zone you
-do not own. So "leave the nameservers where they are and just add a CNAME"
-does NOT work here, unlike classic Pages. The domain's nameservers have to
-move to Cloudflare first.
+**WARNING — `.html` is stripped.** Both Pages and Workers serve `/loadout.html`
+as a redirect to `/loadout`, and `/loadout` is canonical. This is load-bearing:
+`signInWithOAuth` sends `redirectTo: window.location.origin +
+window.location.pathname` (`web/src/loadout/identity.ts`), so the value
+Supabase must allow is `/loadout`. Use a wildcard (`https://<domain>/**`) in
+the allowlist and the question does not arise. An allowlist written the old way
+fails at sign-in only, AFTER Twitch, which is an unpleasant place to find out.
 
-The deployment's own hostname (`<project>.<subdomain>.workers.dev`) works
-immediately and is a perfectly good loadout URL; its TLS certificate takes a
-few minutes to issue the first time, during which the handshake fails rather
-than 404s.
+#### The custom domain, and why the nameservers stay where they are
+
+`loadout.coster.im` is a CNAME to `corrupted-raids.pages.dev`, added at
+**Vercel**, which is where `coster.im` is registered and where its DNS lives:
+
+| Name | Type | Value |
+|---|---|---|
+| `loadout` | CNAME | `corrupted-raids.pages.dev` |
+
+Then Pages → Custom domains → Set up a domain → **My DNS provider**, which
+verifies that record and issues the certificate.
+
+THE NAMESERVERS MUST NOT MOVE TO CLOUDFLARE. `coster.im` is not a spare
+domain — `calorie.coster.im` and `fit.coster.im` are live Vercel projects on
+it, served by a wildcard record. Moving the zone would route them through
+Cloudflare's proxy to Vercel origins by IP, which Vercel does not expect and
+which breaks TLS and routing in ways that are tedious to unpick.
+
+That constraint is the whole reason this is classic Pages. A Workers custom
+domain REQUIRES an active Cloudflare zone — the docs are explicit that you
+cannot put one on a hostname with an existing CNAME or on a zone you do not
+control — whereas classic Pages accepts an external CNAME from another
+provider. Workers is the better product in general and the wrong one here.
+
+If the domain ever does move to Cloudflare, that constraint disappears and the
+project can be rebuilt on Workers; until then, do not "modernise" this.
 
 ### 5. Point the local server at Supabase
 
