@@ -895,6 +895,21 @@ export interface Character {
    */
   chests?: SealedChest[];
   appearance: CharacterAppearance;
+  /**
+   * Whether the player has ever chosen how they look.
+   *
+   * A character is created with an appearance already set: Roster.ensure
+   * cycles body and skin by join order so a party reads as distinct people
+   * rather than a row of clones. That is a sensible DEFAULT, and it is
+   * indistinguishable from a deliberate choice - which is the problem. Without
+   * this flag there is no way to tell someone who picked their look from
+   * someone who was handed one, so a creation screen would either never show
+   * or show every time.
+   *
+   * Absent means "not yet", so every character that existed before this was
+   * added is offered the screen once. That is correct: none of them chose.
+   */
+  appearanceChosen?: boolean;
 }
 
 export type Side = "party" | "enemy";

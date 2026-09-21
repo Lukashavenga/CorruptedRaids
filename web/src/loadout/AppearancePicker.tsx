@@ -1,8 +1,16 @@
 import { SKIN_TONES } from "../../../src/engine/character.js";
 import { BODY_TYPES, type BodyType } from "../../../src/engine/types.js";
 import { text } from "../../../src/text/index.js";
-import { SPRITE_INDEX } from "../admin/spriteIndex.js";
 import { spriteUrl } from "../sprites.js";
+import {
+  HAIR_COLOURS,
+  HAIR_STYLES,
+  hairColourName,
+  hairId,
+  hairSwatch,
+  parseHair,
+  styleInColour,
+} from "./hair.js";
 
 export interface AppearancePickerProps {
   bodyType: BodyType;
@@ -38,7 +46,10 @@ export function AppearancePicker({
   onPickHair,
   busy,
 }: AppearancePickerProps): JSX.Element {
-  const hairIds = SPRITE_INDEX.hair ?? [];
+  // The saved value is one id; the controls below are two axes.
+  const parts = parseHair(hair);
+  const hairStyle = parts?.style ?? null;
+  const hairColour = parts?.colour ?? null;
   return (
     <section className="panel">
       <header className="panel-head">
@@ -79,6 +90,31 @@ export function AppearancePicker({
       </div>
 
       <h3 className="sub-heading">{text.loadout.hairHeading}</h3>
+
+      {/* TWO AXES, TWO CONTROLS.
+          This was one grid of forty, which is ten styles drawn four times: the
+          player was choosing style and colour at once out of a wall where most
+          cells differed from a neighbour only in shade. Splitting it means ten
+          things to look at and four to tint them with.
+
+          The styles render in the CURRENTLY CHOSEN colour, so picking a colour
+          repaints the whole row and the two controls visibly belong together. */}
+      <div className="hair-colours">
+        {HAIR_COLOURS.map((colour) => (
+          <button
+            key={colour}
+            type="button"
+            className={`hair-colour ${colour === hairColour ? "is-current" : ""}`}
+            style={{ background: hairSwatch(colour) }}
+            disabled={busy}
+            onClick={() => onPickHair(hairId(hairStyle ?? HAIR_STYLES[0]!, colour))}
+            title={hairColourName(colour)}
+            aria-label={hairColourName(colour)}
+            aria-pressed={colour === hairColour}
+          />
+        ))}
+      </div>
+
       <div className="hair-choices">
         {/* Bald first: the bodies are drawn bald, so it is a real option and
             not just the absence of a choice. */}
@@ -91,20 +127,23 @@ export function AppearancePicker({
         >
           {text.loadout.hairNone}
         </button>
-        {hairIds.map((id: string) => (
-          <button
-            key={id}
-            type="button"
-            className={`hair-choice is-art ${id === hair ? "is-current" : ""}`}
-            disabled={busy}
-            onClick={() => onPickHair(id)}
-            title={id}
-            aria-label={id}
-            aria-pressed={id === hair}
-          >
-            <img src={spriteUrl("hair", id)} alt="" />
-          </button>
-        ))}
+        {HAIR_STYLES.map((style) => {
+          const shown = styleInColour(style, hairColour);
+          return (
+            <button
+              key={style}
+              type="button"
+              className={`hair-choice is-art ${style === hairStyle ? "is-current" : ""}`}
+              disabled={busy}
+              onClick={() => onPickHair(shown)}
+              title={style}
+              aria-label={style}
+              aria-pressed={style === hairStyle}
+            >
+              <img src={spriteUrl("hair", shown)} alt="" />
+            </button>
+          );
+        })}
       </div>
     </section>
   );

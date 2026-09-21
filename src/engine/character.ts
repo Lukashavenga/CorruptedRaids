@@ -240,6 +240,11 @@ export function setRole(character: Character, role: Role): MutationResult {
 
 export function setAppearance(character: Character, appearance: CharacterAppearance): MutationResult {
   character.appearance = appearance;
+  // Saving a look IS the act of choosing one, so this is the only place the
+  // flag is set. It is deliberately not set anywhere else: a character that
+  // has never been through the picker must keep reading as unchosen no matter
+  // what else happens to it.
+  character.appearanceChosen = true;
   return { ok: true };
 }
 

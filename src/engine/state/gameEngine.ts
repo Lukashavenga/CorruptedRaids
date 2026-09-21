@@ -133,6 +133,8 @@ export interface CharacterView {
   /** Effective stats, gear included — what combat uses. */
   stats: Stats;
   appearance: CharacterAppearance;
+  /** False until the player has been through the appearance picker once. */
+  appearanceChosen: boolean;
   equipment: Partial<Record<GearSlot, { instanceId: string; gearId: string } | null>>;
   inventory: { instanceId: string; gearId: string; recycleValue: number }[];
   /**
@@ -862,6 +864,7 @@ export class GameEngine extends EventEmitter {
       baseStats: baseStatsFor(character, this.content.balance),
       stats: deriveCharacterStats(character, this.content),
       appearance: character.appearance,
+      appearanceChosen: character.appearanceChosen === true,
       equipment,
       inventory: character.inventory.map((i) => ({
         instanceId: i.instanceId,

@@ -25,7 +25,7 @@
     "bundle:edge": "tsx scripts/bundle-edge-content.ts",
     "test:edge": "tsx scripts/test-edge-logic.ts",
     "check:supabase": "tsx --env-file-if-exists=.env scripts/check-supabase.ts",
-    "deploy:fn": "npm run bundle:edge && supabase functions deploy character",
+    "deploy:fn": "npm run bundle:edge && tsx --env-file-if-exists=.env scripts/deploy-function.ts",
     "chests": "tsx --env-file-if-exists=.env scripts/grant-chests.ts",
     "deploy": "npm run publish:web && wrangler pages deploy",
     "preview": "wrangler dev",

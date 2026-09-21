@@ -14,6 +14,7 @@ import { useHiddenSlots } from "./useHiddenSlots.js";
 import { InventoryGrid } from "./InventoryGrid.js";
 import { ChestShelf } from "./ChestShelf.js";
 import { BugReport } from "./BugReport.js";
+import { CharacterCreation } from "./CharacterCreation.js";
 import { BUILD_LABEL } from "../build.js";
 import { haptic } from "./haptics.js";
 import { ShopPanel } from "./ShopPanel.js";
@@ -168,6 +169,27 @@ export function LoadoutApp(): JSX.Element {
 
   if (loading) return <main className="loadout is-centered">{text.loadout.loading}</main>;
   if (error) return <main className="loadout is-centered error">{error}</main>;
+
+  /*
+   * Never chosen a look? Choose one before anything else.
+   *
+   * Roster.ensure hands every new character a body and skin by join order, so
+   * one always LOOKS decided even when nobody decided it. appearanceChosen is
+   * what tells those apart, and it flips the first time an appearance is
+   * saved, so this screen shows exactly once. The picker in the panels below
+   * stays for every change after that.
+   */
+  if (character && !character.appearanceChosen) {
+    return (
+      <CharacterCreation
+        initial={character.appearance}
+        name={character.name}
+        busy={busy}
+        failure={lastOk ? null : message}
+        onConfirm={(appearance) => run({ type: "set_appearance", requestedBy: viewer.id, appearance })}
+      />
+    );
+  }
 
   if (!character) {
     return (
