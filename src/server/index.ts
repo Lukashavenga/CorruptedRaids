@@ -639,6 +639,14 @@ const server = createServer((req, res) => {
    * the tuning screen thinks about content.
    */
   if (req.method === "GET" && url.pathname === "/difficulty") {
+    // GATED, despite being a GET.
+    //
+    // It is a read in the HTTP sense and a SIMULATION in every sense that
+    // costs anything: it expands a fight and resolves it up to 400 times to
+    // answer. Gating the POST twin and leaving this open would close what
+    // AGENTS.md section 3 claims while leaving the identical work reachable by
+    // changing one verb.
+    if (denyNonAdmin(req, res)) return;
     try {
       const q = url.searchParams;
       const num = (key: string, fallback: number) => {
@@ -710,6 +718,10 @@ const server = createServer((req, res) => {
    * the draft itself, so the meter answers for what is on screen.
    */
   if (req.method === "POST" && url.pathname === "/difficulty") {
+    // The draft is arbitrary: `samples` is clamped to 400 but the FORMATION in
+    // the body is not, and expanding a fight with ten thousand bodies in it is
+    // unbounded work on the machine running the stream.
+    if (denyNonAdmin(req, res)) return;
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
@@ -742,81 +754,6 @@ const server = createServer((req, res) => {
         const enemyRating = enemies.reduce((sum, e) => sum + ratePoints(e.stats, content.balance), 0);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ...report, enemyCount: enemies.length, enemyRating }));
-      } catch (err) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
-      }
-    });
-    return;
-  }
-
-  /**
-   * Solve for the pressure that makes a layout land on a target win rate.
-   *
-   * The question every tuning session actually asks is "make this a hard
-   * fight", and the honest answer is a number nobody can guess: on one measured
-   * squad the usable window ran from 93% win at weight 2 to 0% at weight 4, and
-   * that window moves with the squad, the party size and the roles in it. A
-   * person dragging a slider finds only the two ends.
-   *
-   * Binary search works because win rate falls monotonically as the enemy side
-   * acts more often — the one relationship in this system that is reliably
-   * monotonic, which is exactly why weight is the dial and hit points are not.
-   */
-  if (req.method === "POST" && url.pathname === "/difficulty/solve") {
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      try {
-        const { fight, composition, level, target, gear } = JSON.parse(body || "{}");
-        if (!fight || typeof fight !== "object") throw new Error("expected a fight draft");
-        const comp = {
-          tanks: Number(composition?.tanks ?? 1),
-          dps: Number(composition?.dps ?? 4),
-          healers: Number(composition?.healers ?? 1),
-        };
-        const want = Math.min(0.95, Math.max(0.05, Number(target) || 0.6));
-        const draft = fight as FightDefinition;
-        const solveAssumption = gear === "none" || gear === "best" ? gear : "typical";
-        const solveStrength = referencePartyStrength(comp, Number(level) || 5, content, solveAssumption);
-
-        const winAt = (weight: number) => {
-          const squad = expandFight(draft, "draft", "draft", solveStrength, content.balance.bandStatScale).map((e) => ({ ...e, initiativeWeight: weight }));
-          if (squad.length === 0) throw new Error("this layout has no units yet");
-          return estimateDifficulty(squad, content, {
-            composition: comp,
-            level: Number(level) || 5,
-            gear: gear === "none" || gear === "best" ? gear : "typical",
-            samples: 80,
-          }).winRate;
-        };
-
-        // Bracket first. If even the lightest touch already loses, or the
-        // heaviest still wins, say so rather than returning a bound dressed up
-        // as an answer — that is a squad problem, not a pressure one.
-        let lo = 0.5;
-        let hi = 24;
-        const atLo = winAt(lo);
-        const atHi = winAt(hi);
-        let weight: number;
-        let note: string | null = null;
-        if (atLo <= want) {
-          weight = lo;
-          note = `Already ${Math.round(atLo * 100)}% win at the lowest pressure - this squad is too strong for the target. Remove units or soften their stats.`;
-        } else if (atHi >= want) {
-          weight = hi;
-          note = `Still ${Math.round(atHi * 100)}% win at maximum pressure - this squad is too weak. Add units.`;
-        } else {
-          for (let i = 0; i < 9; i += 1) {
-            const mid = (lo + hi) / 2;
-            if (winAt(mid) > want) lo = mid;
-            else hi = mid;
-          }
-          weight = Math.round(((lo + hi) / 2) * 10) / 10;
-        }
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ weight, winRate: winAt(weight), note }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, message: (err as Error).message }));

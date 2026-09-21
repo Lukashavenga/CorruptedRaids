@@ -229,8 +229,10 @@ variables matter to a deployment:
     DATA_DIR         where the roster is kept. Point it at a volume.
     ADMIN_SECRET     the operator's key. EVERY write on this server needs it:
                      all /content/*, /sprite*, /placements, /admin/roster/*,
-                     and every show-running GameCommand. Unset means those
-                     refuse to run rather than run open.
+                     and every show-running GameCommand - plus /difficulty on
+                     both verbs, which writes nothing but simulates a fight
+                     hundreds of times to answer. Unset means those refuse to
+                     run rather than run open.
     SESSION_SECRET   signs viewer sessions. Falls back to ADMIN_SECRET, then to
                      a per-boot random value (which signs everyone out on
                      restart, deliberately annoying).
@@ -317,9 +319,10 @@ in a `.ts` file is a bug report waiting to happen.
 
 `src/server/index.ts`, no framework, port 8787. Routes:
 
-    GET  /state /character /placements /difficulty /ratings /content /events
+    GET  /state /character /placements /ratings /content /events
+    GET  /difficulty                                    (admin)
     POST /command /placements /sprite /sprite/revert
-    POST /difficulty /difficulty/solve
+    POST /difficulty
     POST /content/write /content/delete /content/rename
 
 `GET /events` is the overlay's stream. `POST /difficulty` exists because the
@@ -327,14 +330,26 @@ admin panel needs to measure the **draft** a streamer is editing, not the saved
 file - measuring what is on disk while someone drags a unit around reports the
 difficulty of a fight nobody is looking at.
 
-> **Security - resolved, 2026-09.** Every `POST` above is authenticated, and
-> the split is structural rather than a check per route: `src/server/auth.ts`
-> holds ADMIN_SECRET behind a timing-safe compare, and `OPERATOR_COMMANDS` is
-> a list of what is FORBIDDEN to viewers, so a command added later defaults to
-> needing the operator. `requestedBy` is overwritten from the signed session
-> cookie and never read from the body. Verified by probe: `/content/write`,
-> `/content/delete`, `/placements` and every show-running command answer 401
-> without the header.
+> **Security.** Every `POST` above is authenticated, and so is
+> `GET /difficulty`. The split is structural rather than a check per route:
+> `src/server/auth.ts` holds ADMIN_SECRET behind a timing-safe compare, and
+> `OPERATOR_COMMANDS` is a list of what is FORBIDDEN to viewers, so a command
+> added later defaults to needing the operator. `requestedBy` is overwritten
+> from the signed session cookie and never read from the body.
+>
+> `GET /difficulty` is gated despite being a GET: it is a read in the HTTP
+> sense and a simulation in every sense that costs anything, resolving a fight
+> up to 400 times to answer. Gating only its POST twin would have closed the
+> claim in this paragraph while leaving the identical work one verb away.
+>
+> **This paragraph used to be wrong, which is worth recording.** It claimed
+> every POST was authenticated and listed `/difficulty` and `/difficulty/solve`
+> among them; neither had a gate. It also said "verified by probe" while naming
+> only the three routes that were actually probed. The lesson is not about
+> those endpoints: a security claim that lists what was checked is useful, and
+> one that generalises from a sample to "every" is how a gap survives being
+> written down. Current state, probed 2026-09-21: `/difficulty` answers 401
+> without the header on both verbs, 200 with it, 401 with a wrong one.
 >
 > Chat reaches the game through `POST /chat` (`src/server/chat.ts`) behind
 > CHAT_SECRET, which parses a line into one of a fixed, tiny set - a
@@ -770,8 +785,6 @@ and each was solved in isolation - a run of individually-fair fights compounds
 into an unwinnable night, and it shipped broken content **twice**. The merge
 removes most of the sting for dungeons, which are now one fight, but a RAID
 still runs four door fights and a boss and the solver still cannot see that.
-
-**Auth on the admin write endpoints.** See §3.
 
 **~~The loadout's nav goes three places that do not exist.~~ Done.** Settings
 and How to Play were built; Bestiary was the last dimmed entry and now reads a

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { adminFetch } from "../adminKey.js";
 
 export interface DifficultyReport {
   winRate: number;
@@ -51,7 +52,7 @@ export function DifficultyMeter({
     // Debounced: a slider drag fires a change per pixel, and each reading is a
     // few hundred simulated fights on the server.
     const t = setTimeout(() => {
-      fetch(url)
+      adminFetch(url)
         .then((r) => r.json())
         .then((data) => {
           if (cancelled) return;

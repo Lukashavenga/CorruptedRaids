@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FightDefinition, PartyBand } from "../../../src/engine/types.js";
 import { PARTY_BANDS } from "../../../src/engine/types.js";
 import { BAND_SAMPLE_PARTY } from "../../../src/engine/squad.js";
+import { adminFetch } from "../adminKey.js";
 
 export interface Reading {
   winRate: number;
@@ -71,7 +72,7 @@ export function useDraftDifficulty(draft: FightDefinition | null) {
             // Corruption and gear — because a level is defined by party rating,
             // and rating is exactly those things.
             const sample = BAND_SAMPLE_PARTY[band];
-            const res = await fetch("/difficulty", {
+            const res = await adminFetch("/difficulty", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
