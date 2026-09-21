@@ -64,8 +64,11 @@ from inside this repo — they all need an account you own.
    callback URL you need for the next step even before you've filled anything
    in.
 4. **Authentication → URL Configuration → Redirect URLs**: add the loadout's
-   own URL (the Cloudflare Pages domain from step 4) once you have it. This is
+   own URL (the deployment domain from step 4) once you have it. This is
    where `signInWithOAuth`'s `redirectTo` is allowed to send someone back to.
+   Wildcards are allowed and are the sane thing to use here — `https://<your
+   domain>/**` covers `/loadout` without you having to remember that the
+   served path has no `.html` on it (step 4, warning 1).
 
 ### 2. Twitch developer app
 
@@ -111,13 +114,13 @@ stay on (the default); the function trusts the Twitch id in the token
 specifically because the platform already verified it.
 
 You don't have that domain yet at this point — step 4 creates it. Either come
-back here after step 4, or do step 4 first (Cloudflare Pages hands you a
-`*.pages.dev` domain as soon as the project is created, before the build even
-has to succeed). Once you know it:
+back here after step 4, or do step 4 first (the `workers.dev` hostname exists
+as soon as the first deploy lands). It is an ALLOWLIST, so list every origin
+the loadout is ever served from rather than swapping one for another:
 
 ```bash
-supabase secrets set LOADOUT_ORIGIN=https://<your-pages-domain>
-supabase functions deploy character
+npx.cmd supabase secrets set --project-ref <ref>   LOADOUT_ORIGIN=https://<your-domain>,https://<project>.<sub>.workers.dev,http://localhost:5173,http://localhost:8787
+npm.cmd run deploy:fn
 ```
 
 Until that's set correctly, every call the loadout makes is CORS-blocked.
@@ -132,37 +135,50 @@ server reads live — so re-running it is what keeps the three from disagreeing.
 
 The Vite app in `web/` builds all three pages (overlay, loadout, admin) into
 one output directory, `overlay/`, because it's one project with three entry
-points (`web/vite.config.ts`). Point Cloudflare Pages at this repo:
+points (`web/vite.config.ts`).
 
-| Setting | Value |
-|---|---|
-| Build command | `npm install && npm run install:web && npm run bundle:edge && npm run build:web` |
-| Build output directory | `overlay` |
-| Root directory | repo root |
+**Cloudflare Pages is now Cloudflare Workers.** `wrangler pages project create`
+still exists but creates a WORKER serving static assets, and says so as it
+runs. That is not a detail you can ignore, because it changes two things that
+the rest of this file depends on — see both warnings below. The old Pages
+product is still reachable with `--force`; this repo does not use it.
 
-Build-time environment variables (Pages project settings, not secrets — a
-publishable key is meant to be public, RLS is what actually protects the data):
+Deploying is direct upload from this machine, not a Git integration:
 
-    VITE_SUPABASE_URL              https://<your-project-ref>.supabase.co
-    VITE_SUPABASE_PUBLISHABLE_KEY  sb_publishable_… — never the secret key
+```bash
+npm.cmd run bundle:edge; npm.cmd run build:web   # produces overlay/
+npx.cmd wrangler deploy                          # or: npm.cmd run deploy
+```
 
-Supabase is retiring the `anon` / `service_role` JWTs by the end of 2026 in
-favour of `sb_publishable_…` / `sb_secret_…`. Both still work; a legacy `anon`
-JWT goes in the same variable. It was called `VITE_SUPABASE_ANON_KEY` before
-that rename and the old name is still read as a fallback, so an existing Pages
-deployment keeps working.
+`wrangler.jsonc` at the repo root is what `pages project create` wrote, and
+`assets.directory` in it is what makes `overlay/` the served site. First run
+needs `npx.cmd wrangler login` once.
 
-The loadout's URL is `https://<your-pages-domain>/loadout.html` — deploying
-`overlay/` also publishes `index.html` (the OBS overlay) and `admin.html` at
-that same domain, since all three share one build. That's harmless: both are
-static shells that only do anything when talking to `localhost:8787`, which
-the public internet cannot reach — but it means the loadout is not at the bare
-domain root, it's at `/loadout.html`.
+There are no build-time environment variables to configure in a dashboard.
+Vite INLINES `web/.env` at build time, so the keys come from this machine and
+the deployed bundle already carries them. (That is safe for exactly the reason
+step 5 gives: a publishable key is meant to be public and RLS is what protects
+the data. Never build with the secret key present.)
 
-Now go back and, if you haven't yet, use that domain for the two things that
-needed it: Supabase's redirect URL allowlist (step 1.4), and the function's
-`LOADOUT_ORIGIN` secret (step 3). Sign-in fails without the first; every call
-the loadout makes is CORS-blocked without the second.
+**WARNING 1 — `.html` is stripped.** Workers static assets serve
+`/loadout.html` as a 307 to `/loadout`, and `/loadout` is the canonical URL.
+This is load-bearing: `signInWithOAuth` sends `redirectTo:
+window.location.origin + window.location.pathname` (web/src/loadout/
+identity.ts), so the value Supabase must allow is `/loadout`, NOT
+`/loadout.html`. An allowlist written the old way fails at sign-in only, after
+Twitch, which is an unpleasant place to discover it.
+
+**WARNING 2 — a custom domain needs the zone on Cloudflare.** Workers custom
+domains require an active Cloudflare zone, and Cloudflare's docs are explicit
+that you cannot put one on a hostname with an existing CNAME or on a zone you
+do not own. So "leave the nameservers where they are and just add a CNAME"
+does NOT work here, unlike classic Pages. The domain's nameservers have to
+move to Cloudflare first.
+
+The deployment's own hostname (`<project>.<subdomain>.workers.dev`) works
+immediately and is a perfectly good loadout URL; its TLS certificate takes a
+few minutes to issue the first time, during which the handshake fails rather
+than 404s.
 
 ### 5. Point the local server at Supabase
 
@@ -193,7 +209,7 @@ npm run dev:web
 Vite INLINES these at build time, so changing either one needs a restart of
 `dev:web` or a fresh `build:web`. Nothing re-reads them at runtime.
 
-**You do not need Cloudflare Pages to test the loadout.** `dev:web` serves it
+**You do not need a hosted deployment to test the loadout.** `dev:web` serves it
 at `http://localhost:5173/loadout.html`, and that is a perfectly good origin
 for both of the places step 1 and step 3 asked for a domain:
 

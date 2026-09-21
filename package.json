@@ -26,7 +26,9 @@
     "test:edge": "tsx scripts/test-edge-logic.ts",
     "check:supabase": "tsx --env-file-if-exists=.env scripts/check-supabase.ts",
     "deploy:fn": "npm run bundle:edge && supabase functions deploy character",
-    "chests": "tsx --env-file-if-exists=.env scripts/grant-chests.ts"
+    "chests": "tsx --env-file-if-exists=.env scripts/grant-chests.ts",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
     "zod": "^3.23.8"
@@ -35,6 +37,7 @@
     "@types/node": "^20.14.0",
     "supabase": "^2.117.0",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "wrangler": "^4.135.0"
   }
 }

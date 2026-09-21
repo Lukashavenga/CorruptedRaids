@@ -31,3 +31,9 @@ data/
 # regenerate rather than hand-edit.
 supabase/functions/character/_engine.js
 supabase/functions/character/_content.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
