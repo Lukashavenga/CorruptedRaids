@@ -112,7 +112,7 @@ erases were lost to it once.
 ## Verification
 
 ```bash
-npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd run build:web && npm.cmd run check:text && npm.cmd run simulate
+npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd run build:web && npm.cmd run check:text && npm.cmd run check:hosted && npm.cmd run simulate
 ```
 
 On Windows use `npm.cmd` / `npx.cmd`.
@@ -158,3 +158,4 @@ what you are testing is a 1.6 second animation.
 | `check:supabase` | walks the hosted setup and stops at the first broken thing |
 | `test:edge` / `test:store` | engine-in-the-function, and a real Supabase round trip |
 | `chests` | grant test chests to a viewer |
+| `check:hosted` | refuses a loadout fetch the hosted site cannot answer |

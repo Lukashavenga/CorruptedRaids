@@ -29,7 +29,8 @@
     "chests": "tsx --env-file-if-exists=.env scripts/grant-chests.ts",
     "deploy": "npm run publish:web && wrangler pages deploy",
     "preview": "wrangler dev",
-    "publish:web": "tsx scripts/publish-web.ts"
+    "publish:web": "tsx scripts/publish-web.ts && npm run check:hosted",
+    "check:hosted": "tsx scripts/check-hosted.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"
