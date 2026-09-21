@@ -1564,3 +1564,98 @@
   font-size: 12px;
   color: #ff8f8f;
 }
+
+/* --- bestiary ------------------------------------------------------------- */
+
+.bestiary-count {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.bestiary-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px 0 14px;
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 7px 10px;
+}
+
+.bestiary-place + .bestiary-place {
+  margin-top: 18px;
+}
+
+.bestiary-room {
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+
+/* auto-fill, so this is one column on a phone and as many as fit on a desktop
+   without a breakpoint deciding how many that is. */
+.bestiary-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.bestiary-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+/* Fixed box with the sprite contained rather than sized to it: these drawings
+   are all different heights, and a row of cards that each match their own art
+   reads as a broken grid. */
+.bestiary-art {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+}
+
+.bestiary-art img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}
+
+.bestiary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bestiary-name {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bestiary-stats {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+.bestiary-rare {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--accent);
+  opacity: 0.85;
+}

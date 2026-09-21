@@ -15,6 +15,7 @@ import { InventoryGrid } from "./InventoryGrid.js";
 import { ChestShelf } from "./ChestShelf.js";
 import { BugReport } from "./BugReport.js";
 import { CharacterCreation } from "./CharacterCreation.js";
+import { BestiaryScreen } from "./BestiaryScreen.js";
 import { BUILD_LABEL } from "../build.js";
 import { haptic } from "./haptics.js";
 import { ShopPanel } from "./ShopPanel.js";
@@ -64,7 +65,7 @@ const NAV = [
   { id: "loadout", ready: true },
   { id: "leaderboard", ready: true },
   { id: "howToPlay", ready: true },
-  { id: "bestiary", ready: false },
+  { id: "bestiary", ready: true },
   { id: "settings", ready: true },
 ] as const;
 
@@ -319,6 +320,7 @@ export function LoadoutApp(): JSX.Element {
 
         {page === "leaderboard" && <LeaderboardScreen viewerName={character.name} />}
         {page === "howToPlay" && <HowToPlayScreen balance={catalog.balance} />}
+        {page === "bestiary" && <BestiaryScreen catalog={catalog} />}
         {page === "settings" && (
           <SettingsScreen
             viewerId={viewer.id}

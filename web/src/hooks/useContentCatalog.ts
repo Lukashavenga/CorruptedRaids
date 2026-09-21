@@ -9,6 +9,26 @@ import type {
 } from "../../../src/engine/types.js";
 import { DEFAULT_BALANCE, type BalanceConfig } from "../../../src/engine/balance.js";
 
+/** One body in the bestiary index. Stats are its own, before any scaling. */
+export interface BestiaryBody {
+  sprite: string;
+  name: string;
+  hp: number;
+  atk: number;
+  role?: string;
+  /** No `weak` formation fields it, so only larger parties meet it. */
+  rare?: boolean;
+}
+
+/** A dungeon, or one room of a raid. */
+export interface BestiaryPlace {
+  id: string;
+  name: string;
+  /** Set for a raid room; absent for a dungeon. */
+  room?: string;
+  bodies: BestiaryBody[];
+}
+
 export interface ContentCatalog {
   gearById: Map<string, GearDefinition>;
   /** Everything openable, so the sim controls can offer a choice rather than a constant. */
@@ -29,6 +49,22 @@ export interface ContentCatalog {
   /** Stocked ids with server-resolved prices — join against the maps above for details. */
   shop: ShopView;
   /**
+   * Every body a player can meet, and where, prebuilt by
+   * scripts/bundle-edge-content.ts.
+   *
+   * A trimmed index rather than the dungeons above, because the hosted loadout
+   * does not get those: `/content` is the game server's answer and the hosted
+   * page has no game server, so `dungeons` and `raids` are empty there. The
+   * bestiary screen would have rendered "0 known" to every real player while
+   * looking perfect against localhost - the same shape as the placements and
+   * shop bugs before it.
+   *
+   * See the bundler for why it is trimmed rather than whole: 372KB of dungeon
+   * definitions to draw a list of portraits, and their loot tables carry exact
+   * drop weights nobody asked to publish.
+   */
+  bestiary: BestiaryPlace[];
+  /**
    * The live tuning numbers.
    *
    * Here so the game can EXPLAIN itself in its own current terms. The role
@@ -47,6 +83,7 @@ const EMPTY: ContentCatalog = {
   fightsById: new Map(),
   consumablesById: new Map(),
   shop: { gear: [], consumables: [] },
+  bestiary: [],
   // The in-code defaults until /content answers, so nothing renders "undefined
   // per point" for the half-second before it does.
   balance: DEFAULT_BALANCE,
@@ -104,6 +141,7 @@ export function useContentCatalog(source = "/content"): ContentCatalog {
       .then(
         (data: {
           gear: GearDefinition[];
+          bestiary?: BestiaryPlace[];
           dungeons?: DungeonDefinition[];
           raids?: RaidDefinition[];
           consumables?: ConsumableDefinition[];
@@ -118,6 +156,7 @@ export function useContentCatalog(source = "/content"): ContentCatalog {
           fightsById: buildFightIndex(data.dungeons ?? [], data.raids ?? []),
           consumablesById: new Map((data.consumables ?? []).map((c) => [c.id, c])),
           shop: data.shop ?? { gear: [], consumables: [] },
+          bestiary: data.bestiary ?? [],
           balance: data.balance ?? DEFAULT_BALANCE,
         });
         },

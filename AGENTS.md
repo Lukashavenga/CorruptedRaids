@@ -773,12 +773,18 @@ still runs four door fights and a boss and the solver still cannot see that.
 
 **Auth on the admin write endpoints.** See §3.
 
-**The loadout's nav goes three places that do not exist.** Bestiary, Encounters
-and Settings are in the mock and are drawn in the top bar, dimmed and inert,
-because the bar is a large part of what makes the page look like the mock. They
-are the only controls on the page that cannot do anything. Either build them or
-take them out - leaving them indefinitely teaches players that dimmed things
-are decoration.
+**~~The loadout's nav goes three places that do not exist.~~ Done.** Settings
+and How to Play were built; Bestiary was the last dimmed entry and now reads a
+prebuilt index of every body a player can meet, grouped by dungeon and by raid
+room.
+
+That index is built by `scripts/bundle-edge-content.ts` rather than walked out
+of `catalog.dungeons` in the browser, and the reason is worth keeping: those
+arrays come from `GET /content`, which the hosted loadout has no server to ask,
+so the browser version renders perfectly on localhost and "0 known" for every
+real player. It is trimmed rather than whole for two more reasons - 372KB of
+dungeon definitions to draw a list of portraits, and their loot tables carry
+exact drop weights that nobody asked to publish.
 
 **The bag has a recycle MODE, not a multi-select.** Marking twenty pieces of
 junk and scrapping them in one action is the bag's second mode, behind the
