@@ -257,7 +257,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
                 {/*
                   "Plain" is a real choice, not an absence. A body with no role
                   gets no role scaling, no skill floor and no threat multiplier
-                  — measurably weaker — and every counted body in the game was
+                  - measurably weaker - and every counted body in the game was
                   one before fights owned their own units. Making it selectable
                   is what lets an author see that, and change it deliberately.
                 */}
@@ -356,7 +356,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
           </div>
 
           {/* Levels. Each carries its own verdict, because a level and how it
-              plays are one thing — separating them is what made the old screen
+              plays are one thing - separating them is what made the old screen
               feel like two unrelated lists. */}
           <div className="enc-levelrow">
             <span className="enc-levellabel">Level</span>
@@ -371,7 +371,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
                   type="button"
                   className={`${b === band ? "is-active" : ""} ${tone} ${n === 0 ? "is-empty" : ""}`}
                   onClick={() => setBand(b)}
-                  title={`Party rating ${bandRange(b)} — ${n} units`}
+                  title={`Party rating ${bandRange(b)} - ${n} units`}
                 >
                   <span className="enc-level-n">{i + 1}</span>
                   <small>{bandRange(b)}</small>
@@ -444,7 +444,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
           {view === "settings" && (
             <div className="enc-settings">
               <p className="admin-hint">
-                One stat block for the whole squad — a unit&apos;s role bends it. Worth knowing:
+                One stat block for the whole squad - a unit&apos;s role bends it. Worth knowing:
                 hp, armour, spd, skill and crit change how LONG a fight runs far more than who
                 wins it. Squad size, roles and pressure decide the outcome.
               </p>
@@ -567,7 +567,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
               if (!body.ok && body.references?.length) {
                 const where = body.references.map((r: { file: string }) => r.file).join(", ");
                 if (!window.confirm(`Still used by ${where}. Remove it from those too?`)) {
-                  return setStatus("Delete cancelled — nothing changed.");
+                  return setStatus("Delete cancelled - nothing changed.");
                 }
                 body = await attempt(true);
               }

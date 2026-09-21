@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
  *
  * WHAT IT IS FOR
  * --------------
- * The gathering banner is `NAME — LEVEL n`, and the name is content. At ten
+ * The gathering banner is `NAME - LEVEL n`, and the name is content. At ten
  * characters ("Marketgate") that fits the 438px stage with room to spare; at
  * thirty-eight ("Woop Woop - Dats the Sound of Da Police") it renders about
  * 608px and the stage clips it at BOTH ends — the audience saw

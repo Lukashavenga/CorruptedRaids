@@ -402,8 +402,8 @@ export function AdminApp(): JSX.Element {
             </button>
           ))}
         </nav>
-        {/* The operator key. Every write on this screen carries it now — see
-            adminKey.ts — so this is where it gets entered, once per tab. */}
+        {/* The operator key. Every write on this screen carries it now - see
+            adminKey.ts - so this is where it gets entered, once per tab. */}
         <label className="admin-key">
           <span>Admin key</span>
           <input
@@ -540,7 +540,7 @@ export function AdminApp(): JSX.Element {
           </div>
           {clipboard && (
             <p className="admin-hint">
-              Holding {clipboard.from} — x {clipboard.placement.x}, y {clipboard.placement.y},{" "}
+              Holding {clipboard.from} - x {clipboard.placement.x}, y {clipboard.placement.y},{" "}
               {clipboard.placement.scale.toFixed(2)}x
               {clipboard.placement.rotation ? `, ${Math.round(clipboard.placement.rotation)}°` : ""}
             </p>
@@ -583,7 +583,7 @@ export function AdminApp(): JSX.Element {
               {slot === "head" && (
                 <>
                   {/* Which of the two kinds of head item this is. Derived from
-                      the art either way — this only says WHICH derivation. */}
+                      the art either way - this only says WHICH derivation. */}
                   <div className="admin-mode">
                     {(
                       [
@@ -604,9 +604,9 @@ export function AdminApp(): JSX.Element {
                   </div>
                   <p className="admin-hint">
                     {(current.hairCoverage ?? "hide") === "hide"
-                      ? "Hair is removed entirely. The safe answer for a closed helm — a hairstyle that survives one tends to read as a blob stuck to the head."
+                      ? "Hair is removed entirely. The safe answer for a closed helm - a hairstyle that survives one tends to read as a blob stuck to the head."
                       : (current.hairCoverage ?? "hide") === "skull"
-                        ? "Only hair falling below this sprite's box shows — a hood or open helm with a ponytail out the back. Check it against a long style AND a short one."
+                        ? "Only hair falling below this sprite's box shows - a hood or open helm with a ponytail out the back. Check it against a long style AND a short one."
                         : "Hair is hidden only where this sprite is actually drawn, so it surrounds it. For a circlet, headband or perched hat."}
                   </p>
                 </>
@@ -722,14 +722,14 @@ export function AdminApp(): JSX.Element {
               <p className="admin-hint">
                 {maskTarget === "hair" ? (
                   <>
-                    Extra removal only — the helm already cuts hair to its own outline. Use
+                    Extra removal only - the helm already cuts hair to its own outline. Use
                     this when a tight helm should also flatten a big hairstyle rather than let
                     it billow round the rim. One rectangle has to serve all forty styles, so
                     keep it small: a box tuned against a crop erases a ponytail.
                   </>
                 ) : (
                   <>
-                    Drag a rectangle over the body to hide it while this item is worn —
+                    Drag a rectangle over the body to hide it while this item is worn -
                     so a boot becomes the foot. Stored per item and per body.
                   </>
                 )}
@@ -790,7 +790,7 @@ export function AdminApp(): JSX.Element {
                 Revert this sprite
               </button>
               <p className="admin-hint">
-                Overwrites art/sprites. Undo with <code>npm run slice</code> — the source
+                Overwrites art/sprites. Undo with <code>npm run slice</code> - the source
                 sheets are never touched.
               </p>
             </>
@@ -886,7 +886,7 @@ export function AdminApp(): JSX.Element {
               />
             )}
 
-            {/* Brush cursor. Sized in STAGE px — brush is in sprite px, so it
+            {/* Brush cursor. Sized in STAGE px - brush is in sprite px, so it
                 is multiplied by the placement scale and the stage zoom, or the
                 ring would not match the pixels the stroke actually removes. */}
             {eraser.erasing && cursor && (
@@ -920,7 +920,7 @@ export function AdminApp(): JSX.Element {
 
           </div>
           <p className="admin-caption">
-            {slot} / {spriteId} / {bodyType} — 1:1 at {CANVAS}px
+            {slot} / {spriteId} / {bodyType} - 1:1 at {CANVAS}px
           </p>
         </main>
 

@@ -89,7 +89,7 @@ export function DifficultyMeter({
     <div className="diff">
       <div className="diff-head">
         <span className={`diff-rating rating-${(report?.rating ?? "").toLowerCase()}`}>
-          {error ? "—" : (report?.rating ?? "…")}
+          {error ? "-" : (report?.rating ?? "…")}
         </span>
         <span className="diff-win">
           {report && !error ? `${Math.round(report.winRate * 100)}% win` : error ?? ""}

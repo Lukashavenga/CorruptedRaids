@@ -72,7 +72,7 @@ export type ChatCheck = { ok: true } | { ok: false; status: number; message: str
 export function checkChatBot(req: IncomingMessage): ChatCheck {
   const expected = process.env.CHAT_SECRET ?? "";
   if (!expected) {
-    return { ok: false, status: 503, message: "CHAT_SECRET is not set — chat commands are refused" };
+    return { ok: false, status: 503, message: "CHAT_SECRET is not set - chat commands are refused" };
   }
   const given = req.headers["x-chat-secret"];
   const value = Array.isArray(given) ? given[0] : given;

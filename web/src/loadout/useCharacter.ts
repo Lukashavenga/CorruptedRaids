@@ -96,7 +96,7 @@ export function useCharacter() {
       return body as Record<string, unknown>;
     }
     if (status === 401) {
-      setState((s) => ({ ...s, error: "Signed out — sign in again to make changes." }));
+      setState((s) => ({ ...s, error: "Signed out - sign in again to make changes." }));
       return body as Record<string, unknown>;
     }
 

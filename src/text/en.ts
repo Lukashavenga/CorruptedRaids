@@ -16,7 +16,7 @@ export const en = {
   app: {
     title: "Corrupted",
     connecting: "Connecting...",
-    disconnected: "Disconnected — retrying...",
+    disconnected: "Disconnected - retrying...",
   },
 
   character: {
@@ -58,7 +58,7 @@ export const en = {
   },
 
   dungeon: {
-    opened: "{name} — the doors are open!",
+    opened: "{name} - the doors are open!",
     joined: "{name} joined the party.",
     simJoined: "{count} viewers joined.",
     cleared: "{name} has fallen!",
@@ -225,18 +225,18 @@ export const en = {
       twitch: "Sign in with Twitch",
       unavailable: "Twitch sign-in is not available right now.",
       cancelled: "Sign-in was cancelled.",
-      unconfigured: "This build has no Supabase project set — see DEPLOY.md.",
+      unconfigured: "This build has no Supabase project set - see DEPLOY.md.",
     },
     /* Shown across the screen while a run is live: every edit is refused
        until it ends, so saying so once beats a failure per button. */
-    inRunNotice: "You are in a run — changes are locked until it ends.",
+    inRunNotice: "You are in a run - changes are locked until it ends.",
 
     statsHeading: "Stats",
     // format() is deliberately not a plural-aware i18n library (see
     // format.ts), so a singular variant is its own key rather than a rule.
     pointsAvailable: "{count} points to spend",
     pointAvailableOne: "1 point to spend",
-    noPoints: "No points to spend — level up to earn more.",
+    noPoints: "No points to spend - level up to earn more.",
     pointsSpent: "Point spent.",
     spentTotal: "{count} spent",
     spentTotalOne: "1 spent",
@@ -303,10 +303,10 @@ export const en = {
         wants: "Damage + Speed",
         flavour: "Skill is not for you.",
         damage: "straight into every hit",
-        speed: "how often you act — multiplies your damage",
+        speed: "how often you act - multiplies your damage",
         /* At skill == skillCurveK the curve is exactly half, whatever K is
            tuned to. So this stays true without hardcoding a sample. */
-        skill: "cuts damage taken — {k} points halves it. Not your buy.",
+        skill: "cuts damage taken - {k} points halves it. Not your buy.",
         note: "",
       },
       everyone: {
@@ -332,7 +332,7 @@ export const en = {
 
     gearHeading: "Equipment",
     inventoryHeading: "Inventory",
-    inventoryEmpty: "Nothing in the bags yet — clear a dungeon to find gear.",
+    inventoryEmpty: "Nothing in the bags yet - clear a dungeon to find gear.",
     bagCount: "{count} carried",
 
     /* The page shell. The nav names the surfaces a viewer can reach; the
@@ -352,7 +352,7 @@ export const en = {
     /* The standings. Ranked by Corruption — see GET /leaderboard. */
     leaderboard: {
       title: "Standings",
-      subtitle: "Ranked by Corruption — level, spent points and worn gear as one number.",
+      subtitle: "Ranked by Corruption - level, spent points and worn gear as one number.",
       rank: "#",
       name: "Name",
       role: "Role",
@@ -386,11 +386,11 @@ export const en = {
         },
         fight: {
           title: "Fight",
-          body: "The fight resolves itself. Nobody takes a turn by hand — your stats, your role and your gear do the work.",
+          body: "The fight resolves itself. Nobody takes a turn by hand - your stats, your role and your gear do the work.",
         },
         loot: {
           title: "Take what is left",
-          body: "Win and you take XP, gold and gear. Lose and you still take {defeatShare}% of the XP — a bad night is still a night.",
+          body: "Win and you take XP, gold and gear. Lose and you still take {defeatShare}% of the XP - a bad night is still a night.",
         },
       },
       raids: {
@@ -401,16 +401,16 @@ export const en = {
         title: "Your four stats",
         hp: "How much you can take.",
         atk: "How hard you hit.",
-        skill: "Cuts damage taken — {k} points halves it. Tanks get more, and it drives their threat and their party guard. Healers heal for more and act more often.",
+        skill: "Cuts damage taken - {k} points halves it. Tanks get more, and it drives their threat and their party guard. Healers heal for more and act more often.",
         spd: "How often you act. Turns are drawn from everyone at once, weighted by Speed.",
       },
       roles: {
         title: "Pick a role",
-        body: "Every role wants exactly two stats, so there is no build that is simply correct. Whichever role is scarce is worth +{scarceBonus}% to its main stat — under {scarceBelow}% of the party and you are being paid to fill the gap.",
+        body: "Every role wants exactly two stats, so there is no build that is simply correct. Whichever role is scarce is worth +{scarceBonus}% to its main stat - under {scarceBelow}% of the party and you are being paid to fill the gap.",
       },
       gear: {
         title: "Gear",
-        body: "Gear moves Health, Damage, Skill and Speed, and some of it moves one down to move another up. Scrap what you will not wear — it pays out, and the bags are not endless.",
+        body: "Gear moves Health, Damage, Skill and Speed, and some of it moves one down to move another up. Scrap what you will not wear - it pays out, and the bags are not endless.",
       },
       commands: {
         title: "Chat commands",
@@ -498,7 +498,7 @@ export const en = {
     use: "Use",
     used: "Used.",
     usedXp: "+{xp} XP.",
-    usedXpLevelled: "+{xp} XP — level {level}!",
+    usedXpLevelled: "+{xp} XP - level {level}!",
     usedGold: "+{gold}g.",
     owned: "×{count}",
     cannotAfford: "Not enough gold",
@@ -540,7 +540,7 @@ export const en = {
     joinCrowd: "Join 25",
     startDungeon: "Start Dungeon",
     reset: "Reset",
-    hint: "Testing harness — the real path is Twitch redeems dispatching the same commands.",
+    hint: "Testing harness - the real path is Twitch redeems dispatching the same commands.",
   },
 
   errors: {

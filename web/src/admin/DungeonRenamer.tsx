@@ -90,7 +90,7 @@ export function DungeonRenamer({
   return (
     <div className="dungeon-renamer">
       <p className="renamer-note">
-        <strong>Name</strong> is what players see on stream — change it freely.{" "}
+        <strong>Name</strong> is what players see on stream - change it freely.{" "}
         <strong>Id</strong> is internal; it keys the file and the registry, and a
         few scripts still name dungeons by it.
       </p>

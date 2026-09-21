@@ -231,7 +231,7 @@ export function LoadoutApp(): JSX.Element {
 
           {nav}
 
-          {/* Level, role and corruption as one line with the bar under it —
+          {/* Level, role and corruption as one line with the bar under it -
               the mock's arrangement, and the one that reads: the sentence says
               where you are, the bar says how far to the next step. */}
           <div className="head-status">
@@ -250,7 +250,7 @@ export function LoadoutApp(): JSX.Element {
           <div className="head-purse">
             <span
               className="purse-chip is-corruption"
-              title="Gear, spent points and role as one number — this is what decides which fight you get."
+              title="Gear, spent points and role as one number - this is what decides which fight you get."
             >
               {/* Corruption's own mark, not a stat's. It is a derived power
                   score, and borrowing the Skill shield made the header read as
@@ -386,7 +386,7 @@ export function LoadoutApp(): JSX.Element {
           </div>
 
           {/* Just the shop. It shared this column with a "Pockets" panel behind
-              a tab switch, which asked a player to keep two bags in their head —
+              a tab switch, which asked a player to keep two bags in their head -
               consumables now sit in the Inventory, where what you are carrying
               belongs. */}
           <div className="col side-drawer">
@@ -403,7 +403,7 @@ export function LoadoutApp(): JSX.Element {
 
         {/* The toast animates by WHAT HAPPENED, not just by appearing: a
             commit swells, a refusal shakes. Two different shapes read apart in
-            peripheral vision where two colours do not — and on this screen the
+            peripheral vision where two colours do not - and on this screen the
             message is often the only confirmation, because haptics do nothing
             on iOS (see haptics.ts). `key` restarts the animation when the same
             message arrives twice. */}

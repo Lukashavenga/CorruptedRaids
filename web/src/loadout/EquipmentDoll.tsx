@@ -148,7 +148,7 @@ export function EquipmentDoll({
             disabled={busy}
             onClick={() => setPicking(picking === slot ? null : slot)}
             aria-expanded={picking === slot}
-            title={def ? def.name : `${label} — ${text.gear.empty}`}
+            title={def ? def.name : `${label} - ${text.gear.empty}`}
             aria-label={def ? `${label}: ${def.name}` : `${label}: ${text.gear.empty}`}
           >
             {def ? (
@@ -191,7 +191,7 @@ export function EquipmentDoll({
 
   return (
     <div className="doll-panel">
-      {/* Who this is, above the figure — the mock's arrangement, and the right
+      {/* Who this is, above the figure - the mock's arrangement, and the right
           one: you read the name, then look at the character it belongs to. */}
       <header className="doll-head">
         <h2 className="doll-name">{character.name}</h2>
@@ -205,7 +205,7 @@ export function EquipmentDoll({
 
       {/* The niche is the stage, not a band under it.
           It was a strip below the figure, which left the character standing on
-          a picture of a floor with nothing above it — the torch lit no one and
+          a picture of a floor with nothing above it - the torch lit no one and
           the wall was somewhere else. As the stage's own background the figure
           is IN the alcove: the torch is beside it, the gold at its feet. */}
       <div className="doll-stage">

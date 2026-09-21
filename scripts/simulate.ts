@@ -283,9 +283,19 @@ Party strength: a naked ten scores ${entry}; every band's sample party lands in 
 for (const entry of content.shopView().gear) {
   const value = content.gearValue(entry.id);
   const back = content.recycleValue(entry.id);
+  // `<=`, not `<`.
+  //
+  // What prints gold is a recycle paying MORE than the item costs; that is the
+  // invariant, and it is the one asserted here. Paying exactly the price is
+  // break-even, and during alpha it is deliberate: economy.recycleRate is 1 so
+  // testers can try gear without being taxed for it (see balance.ts).
+  //
+  // This assertion used to demand strictly less, which conflated "no free
+  // gold" with "gear choices must cost something". The second is a balance
+  // opinion and belongs in the rate, not in a guard that fails the build.
   assert.ok(
-    back < value,
-    `recycling "${entry.id}" pays ${back}g but it costs ${value}g — buying and recycling would print gold`,
+    back <= value,
+    `recycling "${entry.id}" pays ${back}g but it only costs ${value}g, which prints gold`,
   );
 }
 for (const entry of content.shopView().consumables) {

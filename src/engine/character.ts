@@ -44,6 +44,12 @@ export interface CreateCharacterOptions {
   name: string;
   role: Role;
   appearance?: CharacterAppearance;
+  /**
+   * Gold to start with. Defaults to 0 so a caller with no balance to hand —
+   * the difficulty reference characters, for one — is unaffected; the real
+   * game passes `economy.startingGold`.
+   */
+  gold?: number;
 }
 
 /**
@@ -51,13 +57,13 @@ export interface CreateCharacterOptions {
  * the same value that arrives as `requestedBy` on a command, which is the
  * seam a real Twitch layer plugs into (AGENTS.md §2.2).
  */
-export function createCharacter({ id, name, role, appearance }: CreateCharacterOptions): Character {
+export function createCharacter({ id, name, role, appearance, gold = 0 }: CreateCharacterOptions): Character {
   return {
     id,
     name,
     level: 1,
     xp: 0,
-    gold: 0,
+    gold,
     role,
     allocated: emptyAllocation(),
     unspentPoints: 0,
@@ -261,7 +267,7 @@ export function recycleGear(character: Character, instanceId: string, content: C
 export function buyGear(character: Character, gearId: string, content: ContentRegistry): MutationResult & { cost?: number } {
   if (!content.shop.gear.includes(gearId)) return { ok: false, reason: "The shop doesn't stock that" };
   const cost = content.gearValue(gearId);
-  if (character.gold < cost) return { ok: false, reason: `Costs ${cost}g — you have ${character.gold}g` };
+  if (character.gold < cost) return { ok: false, reason: `Costs ${cost}g - you have ${character.gold}g` };
   character.gold -= cost;
   grantGear(character, gearId);
   return { ok: true, cost };
@@ -274,7 +280,7 @@ export function buyConsumable(
 ): MutationResult & { cost?: number } {
   if (!content.shop.consumables.includes(consumableId)) return { ok: false, reason: "The shop doesn't stock that" };
   const def = content.getConsumable(consumableId);
-  if (character.gold < def.price) return { ok: false, reason: `Costs ${def.price}g — you have ${character.gold}g` };
+  if (character.gold < def.price) return { ok: false, reason: `Costs ${def.price}g - you have ${character.gold}g` };
   character.gold -= def.price;
   character.consumables[consumableId] = (character.consumables[consumableId] ?? 0) + 1;
   return { ok: true, cost: def.price };

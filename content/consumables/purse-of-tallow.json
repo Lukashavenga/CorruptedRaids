@@ -3,6 +3,9 @@
   "name": "Purse of Tallow",
   "rarity": "common",
   "price": 90,
-  "description": "Smells awful. Rattles promisingly. Worth less than it costs — find one, don't buy one.",
-  "effect": { "type": "grantGold", "amount": 40 }
+  "description": "Smells awful. Rattles promisingly. Worth less than it costs - find one, don't buy one.",
+  "effect": {
+    "type": "grantGold",
+    "amount": 40
+  }
 }

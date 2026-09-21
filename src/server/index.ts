@@ -616,7 +616,7 @@ const server = createServer((req, res) => {
           throw new Error("bad folder or id");
         }
         const backup = join(BACKUP_SPRITES, folder, `${id}.png`);
-        if (!existsSync(backup)) throw new Error("no backup — this sprite has never been erased");
+        if (!existsSync(backup)) throw new Error("no backup - this sprite has never been erased");
         for (const dir of [join(ROOT, "art", "sprites", folder), join(PUBLIC_SPRITES, folder)]) {
           copyFileSync(backup, join(dir, `${id}.png`));
         }
@@ -677,7 +677,7 @@ const server = createServer((req, res) => {
         }
       }
 
-      if (enemies.length === 0) throw new Error("nothing to measure — pass dungeonId or raidId");
+      if (enemies.length === 0) throw new Error("nothing to measure - pass dungeonId or raidId");
 
       const report = estimateDifficulty(enemies, content, {
         composition: {
@@ -802,10 +802,10 @@ const server = createServer((req, res) => {
         let note: string | null = null;
         if (atLo <= want) {
           weight = lo;
-          note = `Already ${Math.round(atLo * 100)}% win at the lowest pressure — this squad is too strong for the target. Remove units or soften their stats.`;
+          note = `Already ${Math.round(atLo * 100)}% win at the lowest pressure - this squad is too strong for the target. Remove units or soften their stats.`;
         } else if (atHi >= want) {
           weight = hi;
-          note = `Still ${Math.round(atHi * 100)}% win at maximum pressure — this squad is too weak. Add units.`;
+          note = `Still ${Math.round(atHi * 100)}% win at maximum pressure - this squad is too weak. Add units.`;
         } else {
           for (let i = 0; i < 9; i += 1) {
             const mid = (lo + hi) / 2;
@@ -1318,7 +1318,7 @@ async function boot(): Promise<void> {
     engine.roster.hydrate(stored);
     console.log(
       `Roster: ${stored.length} character(s) from ${storeName}` +
-        (dropped > 0 ? ` (${dropped} item(s) dropped — gear no longer in content)` : ""),
+        (dropped > 0 ? ` (${dropped} item(s) dropped - gear no longer in content)` : ""),
     );
 
     // PROVE THE STORE IS WRITABLE, NOW, BY WRITING TO IT.
@@ -1342,12 +1342,12 @@ async function boot(): Promise<void> {
     // unwritable one means everything from here is lost the moment the process
     // ends, and nobody finds out until it has.
     if (/EACCES|EPERM|EROFS|ENOSPC/.test(message)) {
-      console.error("[roster] FATAL: cannot write to the store — nothing would be saved.");
+      console.error("[roster] FATAL: cannot write to the store - nothing would be saved.");
       console.error(`[roster] ${message}`);
       console.error("[roster] In a container, the volume at DATA_DIR must be writable by uid 1000.");
       process.exit(1);
     }
-    console.error(`[roster] could not load — starting with an empty roster: ${message}`);
+    console.error(`[roster] could not load - starting with an empty roster: ${message}`);
   }
 
   server.listen(PORT, () => {

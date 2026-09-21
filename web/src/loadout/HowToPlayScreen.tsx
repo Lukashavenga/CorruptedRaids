@@ -62,7 +62,7 @@ export function HowToPlayScreen({ balance }: { balance: BalanceConfig }): JSX.El
         <div>
           <dt>{text.stat.skill}</dt>
           {/* At skill == skillCurveK the mitigation curve is exactly half,
-              whatever K is tuned to — so this sentence survives a retune. */}
+              whatever K is tuned to - so this sentence survives a retune. */}
           <dd>{format(stats.skill, { k: String(balance.combat.skillCurveK) })}</dd>
         </div>
         <div>

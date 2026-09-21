@@ -102,7 +102,7 @@ export interface DungeonRunView {
   /**
    * The level this party will actually meet, 1-based.
    *
-   * Shown to viewers as "THE POORS — LEVEL 2" while they gather, because the
+   * Shown to viewers as "THE POORS - LEVEL 2" while they gather, because the
    * fight they get is decided by who turned up and how well equipped they are,
    * and a run that silently scales is a run nobody can feel themselves earning.
    */
@@ -284,6 +284,7 @@ export class GameEngine extends EventEmitter {
           command.requestedBy,
           command.displayName ?? command.requestedBy,
           command.role ?? "dps",
+          this.content.balance.economy.startingGold,
         );
         this.partyIds.push(character.id);
         return { ok: true, message: format(text.dungeon.joined, { name: character.name }) };
@@ -300,7 +301,12 @@ export class GameEngine extends EventEmitter {
           // fought a previous run has their own gear on and re-rolling it every
           // time they rejoin would wipe what the last fight awarded them.
           const isNew = !this.roster.has(viewer.id);
-          const character = this.roster.ensure(viewer.id, viewer.name, viewer.role);
+          const character = this.roster.ensure(
+            viewer.id,
+            viewer.name,
+            viewer.role,
+            this.content.balance.economy.startingGold,
+          );
           if (isNew && command.dress) {
             dressSimViewer(character, this.content, this.rng, kitForIndex(this.roster.size - 1));
           }
@@ -539,6 +545,7 @@ export class GameEngine extends EventEmitter {
           command.requestedBy,
           command.displayName ?? command.requestedBy,
           command.role ?? "dps",
+          this.content.balance.economy.startingGold,
         );
         return { ok: true, message: format(text.loadout.characterCreated, { name: created.name }) };
       }
@@ -814,7 +821,7 @@ export class GameEngine extends EventEmitter {
     };
   }
 
-  /** XP needed for a character's next level — surfaced for the overlay's XP bar. */
+  /** XP needed for a character's next level - surfaced for the overlay's XP bar. */
   xpToNext(character: Character): number {
     return xpToNextLevel(character.level);
   }

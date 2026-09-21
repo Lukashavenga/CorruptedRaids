@@ -11,7 +11,7 @@ export interface RaidDoorsProps {
 
 /** Glyphs, not words: three doors have to read at a glance on a 450px stage. */
 const FACE: Record<DoorKind, string> = {
-  clear: "—",
+  clear: "-",
   buff: "✦",
   fight: "⚔",
 };
@@ -39,7 +39,7 @@ export function RaidDoors({ round, rounds, doors, buffs, bossPending }: RaidDoor
             : format(text.raid.roundLabel, { round, rounds })}
         </span>
         {buffs.length > 0 && (
-          <span className="raid-buffs" title={buffs.map((b) => `${b.name} — ${b.description}`).join("\n")}>
+          <span className="raid-buffs" title={buffs.map((b) => `${b.name} - ${b.description}`).join("\n")}>
             {buffs.map((b) => (
               <span key={b.id} className="raid-buff">
                 {b.name}

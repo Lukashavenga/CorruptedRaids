@@ -66,7 +66,7 @@ export function GearInspector({
   }, [selected]);
 
   if (slot === "hair") {
-    return <p className="admin-hint">Hair is appearance, not gear — nothing to configure.</p>;
+    return <p className="admin-hint">Hair is appearance, not gear - nothing to configure.</p>;
   }
   if (!draft) {
     return <p className="admin-hint">No gear item uses this sprite yet.</p>;
@@ -142,7 +142,7 @@ export function GearInspector({
 
       {whichCut && (
         <p className="gear-shared">
-          Viewing the <strong>{whichCut}</strong> cut. This is ONE item with two drawings — name,
+          Viewing the <strong>{whichCut}</strong> cut. This is ONE item with two drawings - name,
           stats, rarity and body types are shared between them, and editing either changes both.
           Only the <em>placement</em> is per-cut.
         </p>
@@ -151,7 +151,7 @@ export function GearInspector({
       {orphanedCuts.length > 0 && (
         <p className="admin-warn">
           There is {orphanedCuts.join(" and ")} art for this item, but {orphanedCuts.join(" and ")} characters
-          cannot equip it — that drawing will never appear in game.
+          cannot equip it - that drawing will never appear in game.
         </p>
       )}
 
@@ -198,7 +198,7 @@ export function GearInspector({
           "how committed must a wearer be" rather than a number to type. */}
       <h3 className="sub-heading">Requires</h3>
       <p className="admin-hint">
-        Points the wearer must have SPENT. Gear cannot lift you into more gear — only your own
+        Points the wearer must have SPENT. Gear cannot lift you into more gear - only your own
         allocation counts. At 2 points a level, 40 here is a level-20 specialist or a level-40
         generalist.
       </p>

@@ -73,7 +73,7 @@ function optionalPartialStats(obj: any, key: string, file: string): Partial<Stat
   const out: Partial<Stats> = {};
   for (const k of Object.keys(raw)) {
     if (k === "def") {
-      fail(file, `"${key}.def" was renamed to "armour" when flat mitigation was replaced by the armour curve — update this file`);
+      fail(file, `"${key}.def" was renamed to "armour" when flat mitigation was replaced by the armour curve - update this file`);
     }
     if (!STAT_KEYS.includes(k as any)) {
       fail(file, `"${key}.${k}" is not a recognized stat (expected one of ${STAT_KEYS.join(", ")})`);
@@ -122,7 +122,7 @@ export function validateGearDefinition(raw: unknown, file: string): GearDefiniti
     if (!GEAR_STAT_KEYS.includes(key as any)) {
       fail(
         file,
-        `"statMods.${key}" is not a gear stat — gear may only grant ${GEAR_STAT_KEYS.join(", ")}. ` +
+        `"statMods.${key}" is not a gear stat - gear may only grant ${GEAR_STAT_KEYS.join(", ")}. ` +
           `Speed and crit are engine stats (role baselines and encounters), not item rolls.`,
       );
     }
@@ -187,7 +187,7 @@ function validateAbilityTrigger(raw: any, file: string, abilityId: string): Abil
   }
   if (raw.type === "cooldown") {
     if (raw.everyNRounds !== undefined) {
-      fail(file, `ability "${abilityId}".trigger.everyNRounds was renamed to "everyNActions" (cooldowns now count the unit's own actions, not global rounds) — update this file`);
+      fail(file, `ability "${abilityId}".trigger.everyNRounds was renamed to "everyNActions" (cooldowns now count the unit's own actions, not global rounds) - update this file`);
     }
     if (!isNumber(raw.everyNActions) || raw.everyNActions < 1) {
       fail(file, `ability "${abilityId}".trigger.everyNActions must be an integer >= 1`);
@@ -211,7 +211,7 @@ function validateAbilityEffect(raw: any, file: string, abilityId: string): Abili
     if (!STAT_KEYS.includes(raw.stat)) fail(file, `ability "${abilityId}".effect.stat must be one of ${STAT_KEYS.join(", ")}`);
     if (!isNumber(raw.amount)) fail(file, `ability "${abilityId}".effect.amount must be a number`);
     if (raw.durationRounds !== undefined) {
-      fail(file, `ability "${abilityId}".effect.durationRounds was renamed to "durationActions" — update this file`);
+      fail(file, `ability "${abilityId}".effect.durationRounds was renamed to "durationActions" - update this file`);
     }
     if (!isNumber(raw.durationActions) || raw.durationActions < 1) {
       fail(file, `ability "${abilityId}".effect.durationActions must be an integer >= 1`);
@@ -371,7 +371,7 @@ export function validateRaidDefinition(raw: unknown, file: string): RaidDefiniti
   const buffIds: string[] = obj.buffs.map((b: any) => b.id);
 
   if (!Array.isArray(obj.rooms) || obj.rooms.length === 0) {
-    fail(file, `"rooms" must be a non-empty array — a raid with no rooms has nothing behind its doors`);
+    fail(file, `"rooms" must be a non-empty array - a raid with no rooms has nothing behind its doors`);
   }
 
   const seen = new Set<string>();
@@ -415,7 +415,7 @@ export function validateRaidDefinition(raw: unknown, file: string): RaidDefiniti
   // — a typo here is a live raid walking into nothing four rounds in, and this
   // is the last place it can be caught cheaply.
   if (!Array.isArray(obj.path) || obj.path.length === 0) {
-    fail(file, `"path" must be a non-empty array — a raid with no path has no rounds`);
+    fail(file, `"path" must be a non-empty array - a raid with no path has no rounds`);
   }
   const known = new Set(rooms.map((r) => r.id));
   const path = obj.path.map((raw: any, i: number) => {
@@ -501,7 +501,7 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
   const formations: Formations = {};
   for (const [band, units] of Object.entries(obj.formations as Record<string, unknown>)) {
     if (!PARTY_BANDS.includes(band as never)) {
-      fail(file, `${what}: "formations" has unknown band "${band}" — expected ${PARTY_BANDS.join(", ")}`);
+      fail(file, `${what}: "formations" has unknown band "${band}" - expected ${PARTY_BANDS.join(", ")}`);
     }
     if (!Array.isArray(units)) fail(file, `${what}: "formations.${band}" must be an array of units`);
     for (const u of units as Record<string, any>[]) {
@@ -513,10 +513,10 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
       // counted body used to be. Kept expressible so the merge could preserve
       // every fight's difficulty exactly.
       if (u.role !== undefined && !ROLES.includes(u.role as never)) {
-        fail(file, `${what}: unit "${String(u.id)}" has role "${String(u.role)}" — expected ${ROLES.join(", ")}`);
+        fail(file, `${what}: unit "${String(u.id)}" has role "${String(u.role)}" - expected ${ROLES.join(", ")}`);
       }
       if (u.kind !== undefined && u.kind !== "mob" && u.kind !== "boss") {
-        fail(file, `${what}: unit "${String(u.id)}" has kind "${String(u.kind)}" — expected mob or boss`);
+        fail(file, `${what}: unit "${String(u.id)}" has kind "${String(u.kind)}" - expected mob or boss`);
       }
       if (u.name !== undefined && typeof u.name !== "string") {
         fail(file, `${what}: unit "${String(u.id)}" has a non-string name`);
@@ -550,7 +550,7 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
     bandStatScale = {};
     for (const [band, value] of Object.entries(obj.bandStatScale as Record<string, unknown>)) {
       if (!(PARTY_BANDS as readonly string[]).includes(band)) {
-        fail(file, `${what}: "bandStatScale" has unknown band "${band}" — expected ${PARTY_BANDS.join(", ")}`);
+        fail(file, `${what}: "bandStatScale" has unknown band "${band}" - expected ${PARTY_BANDS.join(", ")}`);
       }
       if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
         fail(file, `${what}: "bandStatScale.${band}" must be a positive number`);

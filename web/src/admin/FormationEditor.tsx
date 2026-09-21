@@ -8,7 +8,7 @@ import { RoleIcon } from "../components/RoleIcon.js";
 /**
  * Levels are numbered, not named.
  *
- * The player sees "POORS — LEVEL 2" when the fight loads, so the admin should
+ * The player sees "POORS - LEVEL 2" when the fight loads, so the admin should
  * say the same word. Names like "Fresh meat" read well in a tooltip and are
  * useless the moment there are five of them; a number extends without anyone
  * having to invent an adjective for tier four.
@@ -86,7 +86,7 @@ export function FormationField({
       style={background ? { backgroundImage: `url(${backgroundUrl(background)})` } : undefined}
     >
       {/* Where the party will stand. Drawn as a marker rather than as
-          characters because who joins is not known until the night — but a
+          characters because who joins is not known until the night - but a
           layout made without it is made blind, since "which side faces the
           party" is the whole question when placing a frontliner. */}
       <span className="formation-party" aria-hidden="true">
@@ -128,7 +128,7 @@ export function FormationField({
               dragging.current = u.id;
               onSelect(u.id);
             }}
-            title={`${u.name ?? u.sprite} — drag to move`}
+            title={`${u.name ?? u.sprite} - drag to move`}
           >
             <img src={enemySpriteUrl(u.sprite)} alt="" draggable={false} />
             <span className="formation-unit-n">{i + 1}</span>

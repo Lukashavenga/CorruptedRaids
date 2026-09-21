@@ -110,7 +110,7 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
         }}
         onPointerLeave={() => setCursor(null)}
       >
-        {/* The working canvas, then the removed area painted solid over it —
+        {/* The working canvas, then the removed area painted solid over it -
             rubbing pixels out against a checkerboard is otherwise almost
             invisible while you are doing it. */}
         <div className="sprite-eraser-canvas" style={{ transform: `scale(${zoom})` }} ref={mount(eraser.surface)} />
@@ -154,7 +154,7 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
         className="admin-revert"
         onClick={async () => {
           const ok = await eraser.revert(folder, id);
-          setStatus(ok ? `Reverted ${id}.` : "No backup — this sprite has never been edited.");
+          setStatus(ok ? `Reverted ${id}.` : "No backup - this sprite has never been edited.");
           if (ok) {
             bumpSpriteVersion();
             onChanged?.();
@@ -165,7 +165,7 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
         Revert to the sliced original
       </button>
       <p className="admin-hint">
-        Overwrites art/sprites. <code>npm run slice</code> restores everything — the source sheets
+        Overwrites art/sprites. <code>npm run slice</code> restores everything - the source sheets
         are never touched.
       </p>
     </div>

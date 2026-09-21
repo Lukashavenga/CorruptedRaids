@@ -330,7 +330,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                 {/* How many doors lead here. "0" is the useful one: a room
                     nothing points at is work the party will never see. */}
                 <span className="raid-room-odds" title="Doors on the path leading here">
-                  {doorsTo(r.id) === 0 ? "—" : `x${doorsTo(r.id)}`}
+                  {doorsTo(r.id) === 0 ? "-" : `x${doorsTo(r.id)}`}
                 </span>
                 <button
                   type="button"
@@ -357,7 +357,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               </li>
             ))}
             {draft.rooms.length === 0 && (
-              <li className="admin-warn">No rooms — every door would open onto nothing.</li>
+              <li className="admin-warn">No rooms - every door would open onto nothing.</li>
             )}
             {/* The boss sits at the end of the list because that is where the
                 party meets it. It is never drawn, so it shows no odds. */}
@@ -389,7 +389,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
         <main className="enc-col enc-main">
           {!room && (
             <p className="admin-hint">
-              Pick a room to edit it, or add one. Each room is a place with a name and a line — that
+              Pick a room to edit it, or add one. Each room is a place with a name and a line - that
               is what the overlay reveals when a door opens onto it.
             </p>
           )}
@@ -496,14 +496,14 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               {!room.fight && (
                 <p className="admin-hint">
                   {room.kind === "buff"
-                    ? "A boon room hands out a buff and moves on — there is nothing to lay out."
+                    ? "A boon room hands out a buff and moves on - there is nothing to lay out."
                     : "An empty room is a free passage. Nothing to lay out."}
                 </p>
               )}
 
               {room.fight && (
                 <>
-                  {/* Levels, each carrying its own verdict — the same grammar
+                  {/* Levels, each carrying its own verdict - the same grammar
                       as the Dungeons tab, because it is the same question. */}
                   <div className="enc-levelrow">
                     <span className="enc-levellabel">Level</span>
@@ -529,7 +529,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                             <span className="enc-level-n">{i + 1}</span>
                             <small>{BAND_SAMPLE_PARTY[b].size}p</small>
                             <small className={difficulty.busy ? "is-stale" : ""}>
-                              {r ? `${Math.round(r.winRate * 100)}%` : "—"}
+                              {r ? `${Math.round(r.winRate * 100)}%` : "-"}
                             </small>
                           </button>
                         );
@@ -556,7 +556,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                   />
                   <p className="enc-tip">
                     Drag units to reposition. This is the layout the reveal shows and the fight
-                    uses — they are the same bodies.
+                    uses - they are the same bodies.
                   </p>
                 </>
               )}
@@ -631,7 +631,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               {selectedUnit && units.some((u) => u.id === selectedUnit) && (
                 <div className="enc-unitedit">
                   <div className="formation-roles">
-                    {/* "Plain" is a real choice, not an absence — a body with
+                    {/* "Plain" is a real choice, not an absence - a body with
                         no role gets no role scaling, no skill floor and no
                         threat multiplier, and is measurably weaker. */}
                     <button
@@ -674,7 +674,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
             <>
               <h2 className="enc-h">Boss reading</h2>
               {/* The boss is measured through the saved content, multipliers
-                  included — they are what make it a boss, and the draft meter
+                  included - they are what make it a boss, and the draft meter
                   above measures the fight without them. */}
               <DifficultyMeter query={`raidId=${draft.id}`} composition={comp} onComposition={setComp} />
             </>

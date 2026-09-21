@@ -138,7 +138,7 @@ export function CombatantFigure({
         </div>
       )}
 
-      {/* Role badge floats above the head and survives dense mode — at a
+      {/* Role badge floats above the head and survives dense mode - at a
           glance it's the formation read (shields front, plus signs back),
           which matters more than any individual name. */}
       {role && (
@@ -157,7 +157,7 @@ export function CombatantFigure({
 
       {/* No per-figure health bar. Party health is the roster grid's chip
           fill and enemy health is the pooled bar, so a third copy above each
-          figure was the same information a third time — and it was the copy
+          figure was the same information a third time - and it was the copy
           nobody could read, being ~60px wide behind overlapping sprites. What
           it cost in height the characters now get. */}
 
@@ -200,7 +200,7 @@ export function CombatantFigure({
           />
         ) : null}
         {/* Level sits as a corner badge on the art rather than on the name
-            line — at this column width a name plus a level tag collide. */}
+            line - at this column width a name plus a level tag collide. */}
         {level !== undefined && <span className="figure-level">{format(text.character.levelLabel, { level })}</span>}
       </div>
     </div>

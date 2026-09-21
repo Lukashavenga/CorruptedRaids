@@ -17,6 +17,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ContentRegistry } from "../src/engine/content/loader.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CONTENT = join(ROOT, "content");
@@ -37,11 +38,31 @@ const bundle = {
 
 writeFileSync(OUT, `${JSON.stringify(bundle)}
 `);
-// The same bundle, shipped with the loadout build. One source of content for
-// both halves: the screen that renders an item and the function that validates
-// equipping it read identical definitions, so they cannot disagree about what
-// a piece of gear does.
-writeFileSync(join(ROOT, "web", "public", "loadout-content.json"), `${JSON.stringify(bundle)}
+
+/*
+ * The loadout gets the SAME bundle with one difference: the shop arrives with
+ * prices already resolved.
+ *
+ * content/shop.json is a list of ids. The engine wants exactly that — it
+ * validates the ids and prices them itself — but the loadout screen wants a
+ * ShopView, `{ id, price }[]`, because it has no engine to ask. Against the
+ * local game server it gets one: GET /content answers with `shopView()`.
+ *
+ * Shipping the raw list to the hosted loadout is what made a fully stocked
+ * shop render as "Nothing in stock": every entry's `.id` was undefined, so
+ * every lookup missed and every row was filtered out. Silent, because an empty
+ * shop is a legal shop.
+ *
+ * The prices come from the loader rather than being recomputed here. The rule
+ * is "the item's own value, else its rarity's default, and disabled items drop
+ * out" — writing that a second time in this script is how the shop the player
+ * sees and the function that takes their gold start disagreeing.
+ */
+const resolver = new ContentRegistry();
+resolver.loadObjects(bundle);
+const forLoadout = { ...bundle, shop: resolver.shopView() };
+
+writeFileSync(join(ROOT, "web", "public", "loadout-content.json"), `${JSON.stringify(forLoadout)}
 `);
 const kb = Math.round(JSON.stringify(bundle).length / 1024);
 console.log(`content: ${bundle.gear.length} gear, ${bundle.consumables.length} consumables -> ${kb}KB`);

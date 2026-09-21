@@ -75,7 +75,7 @@ export function App(): JSX.Element {
 
         A CSS transform scales what you see but not the box the page reserves,
         so the stage still occupied 450x250 in flow while rendering at twice
-        that — and anything after it, the sim controls included, was laid out
+        that - and anything after it, the sim controls included, was laid out
         underneath the visible figures. The wrapper carries the real dimensions
         and the stage scales from its top-left corner inside it.
       */}
@@ -313,8 +313,8 @@ export function App(): JSX.Element {
 
   return frame(
     <>
-      {/* The scene. Shown at full strength while the party gathers — that is
-          the "here is where you are going" beat — and dimmed once the fight
+      {/* The scene. Shown at full strength while the party gathers - that is
+          the "here is where you are going" beat - and dimmed once the fight
           starts, so the characters read against it rather than competing with
           it. */}
       {backgroundId && snapshot.state !== "idle" && (
@@ -348,7 +348,7 @@ export function App(): JSX.Element {
           over the next run's join window. */}
       <CombatLog lines={showFight ? playback.logLines : []} />
 
-      {/* The doors replace the arena while a choice is live — during a raid's
+      {/* The doors replace the arena while a choice is live - during a raid's
           choosing beat there is nothing to fight yet, and the decision is the
           thing to look at. Gated on `choosing`, which is already false once a
           room is being revealed: the doors and the arena share a grid cell, so
@@ -364,7 +364,7 @@ export function App(): JSX.Element {
         />
       )}
 
-      {/* What the room holds, in the roster's row — the banner above has
+      {/* What the room holds, in the roster's row - the banner above has
           already named it and its occupants are standing below. */}
       {revealed && (
         <RoomReveal
@@ -426,7 +426,7 @@ export function App(): JSX.Element {
                 ["--name-w" as string]: `${enemyLayout.nameWidth}px`,
               }}
             >
-              {/* A placed squad renders in full — the person who laid it out
+              {/* A placed squad renders in full - the person who laid it out
                   could see the stage while doing it, so the overflow cap that
                   protects an auto-packed rank would only throw away their
                   decisions. */}
@@ -510,11 +510,11 @@ export function App(): JSX.Element {
         />
       )}
 
-      {/* The enemy's pooled health closes the stage, under the feet — the two
+      {/* The enemy's pooled health closes the stage, under the feet - the two
           sides' health now bracket the fight rather than stacking above it. */}
-      {/* A raid has no dungeon, so the pooled bar takes the raid's name —
+      {/* A raid has no dungeon, so the pooled bar takes the raid's name -
           without this it read as a nameless bar through the whole boss fight. */}
-      {/* While a room is open the bar belongs to the ROOM — it is counting what
+      {/* While a room is open the bar belongs to the ROOM - it is counting what
           is standing in that room, so naming the raid instead was naming the
           wrong place. */}
       {showArena && (

@@ -234,7 +234,7 @@ export function CharacterSprite({
         })}
 
         {/* The fist, put back on top of whatever it is holding. Only drawn
-            when there IS something to hold — over a bare hand it would be an
+            when there IS something to hold - over a bare hand it would be an
             invisible duplicate of pixels already there. */}
         {layers.mainHand && !hidden.has("mainHand") && (
           <HandLayer bodyType={bodyType} skinTone={skinTone} onError={drop} />

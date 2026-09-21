@@ -389,7 +389,7 @@ export function runCombat(
     events.push({ type: "tick", n: tick });
 
     // A taunt is measured in ticks, so it decays on the clock rather than on
-    // the tank's own actions — otherwise a slow tank's taunt would outlast a
+    // the tank's own actions - otherwise a slow tank's taunt would outlast a
     // fast one's for the same nominal duration.
     for (const rt of partyRt) if (rt.tauntTicks > 0) rt.tauntTicks -= 1;
 

@@ -272,7 +272,14 @@ export class ContentRegistry {
     return def.value ?? this.balance.economy.valueByRarity[def.rarity];
   }
 
-  /** What recycling a gear item pays out. Always less than its value — see balance.economy. */
+  /**
+   * What recycling a gear item pays out: its value times `economy.recycleRate`.
+   *
+   * That rate is 1 during alpha, so this currently returns full value — see
+   * the reasoning on recycleRate in balance.ts. It used to be documented here
+   * as "always less than its value", which stopped being true the moment the
+   * rate changed; the rate is the statement, not the prose.
+   */
   recycleValue(id: string): number {
     return Math.max(1, Math.floor(this.gearValue(id) * this.balance.economy.recycleRate));
   }

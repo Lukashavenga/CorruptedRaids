@@ -63,8 +63,8 @@ export function RolePicker({ current, onPick, busy, balance }: RolePickerProps):
       </div>
 
       {/* What the role you are reading about actually does, in the game's own
-          current numbers. This was a one-line blurb at the foot of the page —
-          "Tanks draw attacks" — which is true, unfalsifiable and no use to
+          current numbers. This was a one-line blurb at the foot of the page -
+          "Tanks draw attacks" - which is true, unfalsifiable and no use to
           anyone deciding where to put a point. */}
       <RoleGuide role={reading} balance={balance} />
 

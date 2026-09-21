@@ -95,15 +95,15 @@ function isRecord(v: unknown): v is Record<string, unknown> {
  */
 export function parseRoster(raw: unknown, onWarn: (message: string) => void): Character[] {
   if (!isRecord(raw)) {
-    onWarn("roster file is not an object — starting empty");
+    onWarn("roster file is not an object - starting empty");
     return [];
   }
   if (raw.version !== ROSTER_FILE_VERSION) {
-    onWarn(`roster file is version ${String(raw.version)}, expected ${ROSTER_FILE_VERSION} — starting empty`);
+    onWarn(`roster file is version ${String(raw.version)}, expected ${ROSTER_FILE_VERSION} - starting empty`);
     return [];
   }
   if (!Array.isArray(raw.characters)) {
-    onWarn("roster file has no characters array — starting empty");
+    onWarn("roster file has no characters array - starting empty");
     return [];
   }
 
@@ -113,7 +113,7 @@ export function parseRoster(raw: unknown, onWarn: (message: string) => void): Ch
     const c = asCharacter(entry, i, onWarn);
     if (!c) continue;
     if (seen.has(c.id)) {
-      onWarn(`duplicate character id "${c.id}" — keeping the first`);
+      onWarn(`duplicate character id "${c.id}" - keeping the first`);
       continue;
     }
     seen.add(c.id);
@@ -124,12 +124,12 @@ export function parseRoster(raw: unknown, onWarn: (message: string) => void): Ch
 
 function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): Character | null {
   if (!isRecord(raw)) {
-    onWarn(`character[${index}] is not an object — dropped`);
+    onWarn(`character[${index}] is not an object - dropped`);
     return null;
   }
   const id = raw.id;
   if (typeof id !== "string" || id === "") {
-    onWarn(`character[${index}] has no id — dropped`);
+    onWarn(`character[${index}] has no id - dropped`);
     return null;
   }
 

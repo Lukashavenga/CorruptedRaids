@@ -22,7 +22,7 @@ export interface StateBannerProps {
    *
    * Shown while gathering because the fight scales to whoever turns up, and a
    * run that silently got harder is one nobody can feel themselves earning.
-   * "THE POORS — LEVEL 2" tells the chat what their kit just bought them.
+   * "THE POORS - LEVEL 2" tells the chat what their kit just bought them.
    */
   encounterLevel?: number | null;
 }
@@ -57,7 +57,7 @@ export function StateBanner({
   switch (state) {
     case "gathering":
       line = format(text.state.gathering.banner, {
-        name: encounterLevel ? `${name} — LEVEL ${encounterLevel}` : name,
+        name: encounterLevel ? `${name} - LEVEL ${encounterLevel}` : name,
       });
       break;
     case "combat":
@@ -97,7 +97,7 @@ export function StateBanner({
   return (
     <div className={`state-banner state-${state}`}>
       {/* Idle is the only state with nothing happening, so it's where the
-          brand mark earns its space — every other state needs the headline. */}
+          brand mark earns its space - every other state needs the headline. */}
       {state === "idle" && <img className="idle-logo" src={LOGO_SRC} alt="" />}
       <span className="banner-line" style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize + 2}px` }}>
         {line}

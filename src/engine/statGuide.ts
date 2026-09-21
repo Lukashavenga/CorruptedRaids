@@ -61,7 +61,7 @@ export function explainStat(
     case "atk":
       return {
         what: "Damage per action, before the target's Skill reduces it.",
-        marginal: `+${amount} attack is +${amount} damage every time this character acts — the most directly powerful stat in the game.`,
+        marginal: `+${amount} attack is +${amount} damage every time this character acts - the most directly powerful stat in the game.`,
         matters: "DPS above all. On a tank it is close to wasted; tanks are meant to be low damage.",
         scaling: "linear",
       };
@@ -91,7 +91,7 @@ export function explainStat(
           `HEALER: +${heal.toFixed(0)} per heal and +${Math.min(healer.maxSpdBonus, hasteRaw).toFixed(1)} speed, so more heals AND bigger ones. ` +
           `DPS: nothing.`,
         matters:
-          "Tanks and healers only. Skill on a DPS item is a dead stat — worth knowing before pricing one by its numbers.",
+          "Tanks and healers only. Skill on a DPS item is a dead stat - worth knowing before pricing one by its numbers.",
         scaling: "linear",
       };
     }
@@ -100,7 +100,7 @@ export function explainStat(
       const extra = amount * (balance.combat.critMultiplier - 1);
       return {
         what: `Chance to deal ${balance.combat.critMultiplier}x damage.`,
-        marginal: `+${pct(amount)} crit is about +${pct(extra)} average damage — a crit adds ${pct(balance.combat.critMultiplier - 1)} on top, and it only lands ${pct(amount)} of the time.`,
+        marginal: `+${pct(amount)} crit is about +${pct(extra)} average damage - a crit adds ${pct(balance.combat.critMultiplier - 1)} on top, and it only lands ${pct(amount)} of the time.`,
         matters: "DPS. It multiplies attack, so it is worth more on a character that already hits hard.",
         scaling: "linear",
       };

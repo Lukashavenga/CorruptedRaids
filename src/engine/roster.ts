@@ -52,14 +52,26 @@ const STARTER_KIT = [
 export class Roster {
   private characters = new Map<string, Character>();
 
-  /** Returns the existing character for `viewerId`, or creates one. */
-  ensure(viewerId: string, name: string, role: Role): Character {
+  /**
+   * Returns the existing character for `viewerId`, or creates one.
+   *
+   * `startingGold` is passed in rather than read from balance here, because
+   * this class deliberately knows nothing about content — it is the one place
+   * characters are created, and giving it a content dependency would put a
+   * loader behind every join. The caller has the balance; it can spend one
+   * argument.
+   *
+   * It applies ONLY on creation. An existing character keeps whatever they
+   * have, or every rejoin would be a top-up.
+   */
+  ensure(viewerId: string, name: string, role: Role, startingGold = 0): Character {
     const existing = this.characters.get(viewerId);
     if (existing) return existing;
     const character = createCharacter({
       id: viewerId,
       name,
       role,
+      gold: startingGold,
       // Cycle both axes by join order so a party reads as distinct people.
       // Players pick their own on the loadout screen.
       appearance: {

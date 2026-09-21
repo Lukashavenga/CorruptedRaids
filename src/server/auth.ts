@@ -121,7 +121,7 @@ const SESSION_SECRET =
   process.env.SESSION_SECRET ?? process.env.ADMIN_SECRET ?? randomBytes(32).toString("hex");
 
 if (!process.env.SESSION_SECRET && !process.env.ADMIN_SECRET) {
-  console.warn("[auth] No SESSION_SECRET or ADMIN_SECRET — sessions will not survive a restart.");
+  console.warn("[auth] No SESSION_SECRET or ADMIN_SECRET - sessions will not survive a restart.");
 }
 
 function sign(payload: string): string {

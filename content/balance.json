@@ -68,14 +68,15 @@
     }
   },
   "economy": {
-    "recycleRate": 0.4,
+    "recycleRate": 1,
     "valueByRarity": {
       "common": 20,
       "uncommon": 45,
       "rare": 110,
       "epic": 260,
       "legendary": 600
-    }
+    },
+    "startingGold": 60
   },
   "rewards": {
     "mobDropChance": 0.6,

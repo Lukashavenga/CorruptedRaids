@@ -179,7 +179,7 @@ export function BalancePanel({
         </tbody>
       </table>
       <p className="admin-hint">
-        Rating is the AVERAGE member, adjusted for composition — so turnout does not change which
+        Rating is the AVERAGE member, adjusted for composition - so turnout does not change which
         level a group meets, only how much of it they face. Gear moves it further than anything
         else you can set on an enemy.
       </p>

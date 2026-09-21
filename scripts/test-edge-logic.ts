@@ -68,6 +68,15 @@ result = engine.dispatch({ type: "allocate_points", requestedBy: VIEWER, stat: "
 assert.equal(result.ok, false, "spending points you do not have must be refused");
 console.log(`overspend refused: "${result.message}"`);
 
+// Explicitly penniless, rather than assuming a fresh character is.
+//
+// This used to rely on characters starting on 0 gold, which stopped being true
+// when economy.startingGold was introduced so that a new player arrives with
+// something to spend. The thing under test is that the engine refuses a
+// purchase you cannot afford, so the test now SETS the state it is testing
+// instead of inheriting it from a balance number that is free to change.
+me.gold = 0;
+engine = seed(me);
 result = engine.dispatch({ type: "buy_gear", requestedBy: VIEWER, gearId: edge.shopView().gear[0]!.id });
 assert.equal(result.ok, false, "buying with no gold must be refused");
 console.log(`broke purchase refused: "${result.message}"`);

@@ -174,7 +174,7 @@ export function GearTuner({ gear, onSaved, setStatus }: GearTunerProps): JSX.Ele
 
         <h3 className="sub-heading">Requires</h3>
         <p className="admin-hint">
-          Points the wearer must have SPENT. Gear cannot lift you into more gear — only your own
+          Points the wearer must have SPENT. Gear cannot lift you into more gear - only your own
           allocation counts. At 2 points a level, 40 here is a level-20 specialist.
         </p>
         {ALLOCATABLE_STATS.map((stat) => {
@@ -217,13 +217,13 @@ export function GearTuner({ gear, onSaved, setStatus }: GearTunerProps): JSX.Ele
             </div>
             {offBand && (
               <p className="admin-warn">
-                This item is {offBand}-powered for its rarity. Rough guide only — real value depends on who wears it.
+                This item is {offBand}-powered for its rarity. Rough guide only - real value depends on who wears it.
               </p>
             )}
           </div>
         </div>
 
-        <h3 className="sub-heading">Stats — click one to see what it is worth</h3>
+        <h3 className="sub-heading">Stats - click one to see what it is worth</h3>
         {GEAR_STAT_KEYS.map((key) => {
           const value = draft.statMods[key] ?? 0;
           const info = explainStat(key, value || RANGE[key].step * 10, DEFAULT_BALANCE);

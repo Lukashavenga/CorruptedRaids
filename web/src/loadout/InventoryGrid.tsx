@@ -116,7 +116,7 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
 
             This was three arrows in a loop, which is the universal symbol for
             "recycling" in the sense of kerbside bins and says nothing about
-            what the button does here — turn junk into coins. The sheet already
+            what the button does here - turn junk into coins. The sheet already
             draws a pile of gold, and a label removes the guesswork entirely: an
             icon-only control in a corner is a thing you have to click to find
             out about.
@@ -225,7 +225,7 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
               {locked ? lockReason : text.gear.equip}
             </button>
             {/* The payout is on the button because recycling destroys the
-                item — the number is the warning. */}
+                item - the number is the warning. */}
             <button
               type="button"
               className="ghost small"
@@ -245,7 +245,7 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
           They used to be a separate "Pockets" panel, which asked a player to
           keep two bags in their head and to guess which one a thing was in.
           They stack by id rather than existing as individual instances, so
-          they get their own strip rather than cells in the grid — but they are
+          they get their own strip rather than cells in the grid - but they are
           in the one place you look for what you are carrying. */}
       {character.consumables.length > 0 && (
         <div className="inv-consumables">

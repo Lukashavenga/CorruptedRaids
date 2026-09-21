@@ -266,13 +266,34 @@ export interface BalanceConfig {
    */
   economy: {
     /**
-     * Fraction of an item's value returned when recycling it. Below 1 on
-     * purpose: if recycling paid full price, buying and re-selling would be
-     * a no-op and gear decisions would carry no weight.
+     * Fraction of an item's value returned when recycling it.
+     *
+     * 1 DURING ALPHA — a full refund, deliberately. This was 0.4, and the
+     * argument for a fraction is real: at full price, buying and re-selling is
+     * a no-op, so a gear decision costs nothing and carries no weight.
+     *
+     * That is the right tension for a live game and the wrong one for testing.
+     * A tester who loses 60% every time they try an item stops trying items,
+     * and trying items is the entire thing being tested. Put it back under 1
+     * when the loop is being balanced rather than exercised.
+     *
+     * It does not open a gold loop: the shop sells at `gearValue` and recycling
+     * pays `gearValue * rate`, so at 1 the round trip is exactly break-even.
+     * (The loop to watch for is the one named in content/shop.json: a
+     * grantGold consumable priced below its own payout.)
      */
     recycleRate: number;
     /** Default gold value per rarity, used when a gear item doesn't set its own `value`. */
     valueByRarity: Record<Rarity, number>;
+    /**
+     * Gold a character is created with.
+     *
+     * Enough for two or three of the cheapest items, which is the point: a new
+     * player arrives with something to spend and a reason to open the shop,
+     * rather than an empty purse and a wall of prices they cannot reach. The
+     * shop's commons are 20 each, so this buys three of them.
+     */
+    startingGold: number;
   };
 
   rewards: {
@@ -386,8 +407,9 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     perPoint: { hp: 2, atk: 1, skill: 1, spd: 1 },
   },
   economy: {
-    recycleRate: 0.4,
+    recycleRate: 1,
     valueByRarity: { common: 20, uncommon: 45, rare: 110, epic: 260, legendary: 600 },
+    startingGold: 60,
   },
   rewards: {
     mobDropChance: 0.6,
