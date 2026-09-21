@@ -114,8 +114,8 @@ stay on (the default); the function trusts the Twitch id in the token
 specifically because the platform already verified it.
 
 You don't have that domain yet at this point — step 4 creates it. Either come
-back here after step 4, or do step 4 first (the `workers.dev` hostname exists
-as soon as the first deploy lands). It is an ALLOWLIST, so list every origin
+back here after step 4, or do step 4 first (`corrupted-raids.pages.dev`
+exists as soon as the first deploy lands). It is an ALLOWLIST, so list every origin
 the loadout is ever served from rather than swapping one for another:
 
 ```bash
@@ -167,14 +167,35 @@ Supabase must allow is `/loadout`. Use a wildcard (`https://<domain>/**`) in
 the allowlist and the question does not arise. An allowlist written the old way
 fails at sign-in only, AFTER Twitch, which is an unpleasant place to find out.
 
+#### Only the loadout is published
+
+`npm run deploy` runs `scripts/publish-web.ts` first. It copies `overlay/` to
+`.publish/`, DROPS `admin.html` and `index.html` along with their entry chunks,
+and writes a `_redirects` sending `/` to `/loadout`. The build is untouched —
+the local server still serves all three pages at localhost:8787, which is where
+the overlay and the admin panel belong.
+
+The admin panel used to go up with the rest. Nothing could be DONE with it —
+every write carries `X-Admin-Secret` and the server refuses without it — but it
+served the operator's console to anyone who guessed `/admin`, and published the
+bundle naming every endpoint that console can reach. The script's header has
+the longer argument.
+
+Note for when this comes up again: Cloudflare caches Pages HTML with
+`s-maxage=604800`. Removing a page from the origin does NOT remove it from the
+edge for up to a WEEK, and there is no purge for a custom domain on a zone you
+do not control. Moving to a new hostname is what made the old copy unreachable.
+If it happens again and the hostname cannot change, the only levers are a new
+deployment and waiting — so do not read "fixed at origin" as "fixed".
+
 #### The custom domain, and why the nameservers stay where they are
 
-`loadout.coster.im` is a CNAME to `corrupted-raids.pages.dev`, added at
+`corrupted.coster.im` is a CNAME to `corrupted-raids.pages.dev`, added at
 **Vercel**, which is where `coster.im` is registered and where its DNS lives:
 
 | Name | Type | Value |
 |---|---|---|
-| `loadout` | CNAME | `corrupted-raids.pages.dev` |
+| `corrupted` | CNAME | `corrupted-raids.pages.dev` |
 
 Then Pages → Custom domains → Set up a domain → **My DNS provider**, which
 verifies that record and issues the certificate.

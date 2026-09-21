@@ -13,5 +13,5 @@
   // which is what lets loadout.coster.im work without moving the zone.
   //
   // --force was needed ONCE, to create the project. Do not pass it again.
-  "pages_build_output_dir": "overlay"
+  "pages_build_output_dir": ".publish"
 }

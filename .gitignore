@@ -37,3 +37,6 @@ supabase/functions/character/_content.json
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# Filtered copy of overlay/ that actually gets uploaded (scripts/publish-web.ts).
+.publish/
