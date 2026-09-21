@@ -1,4 +1,4 @@
-# AGENTS.md — Corrupted Raids
+# AGENTS.md - Corrupted Raids
 
 Written for whoever (or whatever) picks this up next. It is deliberately about
 **why**, not **what**: the file tree is discoverable, the reasoning behind it is
@@ -18,7 +18,7 @@ Three surfaces, three separate bundles:
 
 | Page | Who sees it | What it is |
 |---|---|---|
-| `index.html` | the stream | the OBS overlay — the fight, playing out |
+| `index.html` | the stream | the OBS overlay - the fight, playing out |
 | `loadout.html` | one viewer | their character: stats, gear, shop |
 | `admin.html` | the streamer | dungeon authoring and balancing |
 
@@ -30,7 +30,7 @@ both would compromise both.
 
 A dungeon is **one shared fight**. Everybody who joined is in it together, at
 the same time, against one encounter. It is not a party of five, and it is not
-a sequence of rooms — those were both considered and dropped.
+a sequence of rooms - those were both considered and dropped.
 
 This matters more than it sounds. It is why headcount has to be handled
 carefully (§5), why aggro needs a failure mode (§4), and why the difficulty
@@ -47,11 +47,11 @@ needs to change, change it deliberately and update this file.
 
 **2. Difficulty is levels only. Tiers are retired.** There is no
 `DungeonTier`, no `tier` field on a dungeon, no normal/heroic/mythic axis. A
-dungeon is *a place*. How hard the night is comes from **who turned up** —
+dungeon is *a place*. How hard the night is comes from **who turned up** -
 their combined power picks one of six levels, and that level's encounter is
 what they fight. One axis, measured, legible.
 
-The six levels, shown to players as `POORS — LEVEL 2`:
+The six levels, shown to players as `POORS - LEVEL 2`:
 
     weak · seasoned · elite · brutal · infernal · apocalyptic
 
@@ -59,7 +59,7 @@ The six levels, shown to players as `POORS — LEVEL 2`:
 
 - **Corruption** = the derived power score. Attributes plus gear, computed. It
   is what the game reads to decide which fight you get. Never stored, always
-  derived — a stored copy is a copy that drifts.
+  derived - a stored copy is a copy that drifts.
 - **Level** = what you earn by playing. It grants **2 attribute points** and
   nothing else. It is a progress bar, not a gate.
 - **Gear gates on attributes, not level.** `GearDefinition.requires` is a
@@ -69,7 +69,7 @@ The six levels, shown to players as `POORS — LEVEL 2`:
 
 ### 4. A dungeon IS a fight. There is no encounter.
 
-`content/encounters/` is gone. A dungeon file now declares its own bodies —
+`content/encounters/` is gone. A dungeon file now declares its own bodies -
 `stats`, `loot`, `goldReward`, `xpReward` as the base every unit is built from,
 plus `formations` per band saying who stands where. A unit that differs from
 the base overrides it (`stats`, `loot`, `xpReward`, `kind`, `abilities`).
@@ -78,20 +78,20 @@ The two used to be separate and the boundary had stopped meaning anything.
 Both answered "how many enemies": if an encounter had a formation the dungeon's
 `count` was **silently ignored**, and if it did not, `count` won. And an
 archetype was SHARED, so authoring a squad for `cops` set the difficulty of
-every place cops appear — which is measurably why the ladder was out of order
+every place cops appear - which is measurably why the ladder was out of order
 (Saint's Rest, sixteen roleless bodies, was easier than Marketgate's sixteen
 including a role-scaled cop squad, despite carrying more HP).
 
-Raids own their fights the same way, inside ROOMS — see §2.5.
+Raids own their fights the same way, inside ROOMS - see §2.5.
 
-`EnemyDefinition` is what a fight expands INTO — one resolved body, runtime
+`EnemyDefinition` is what a fight expands INTO - one resolved body, runtime
 only, never loaded from disk. `expandFight` builds them, folding the base
 block, the unit's overrides and its role scaling together. It was called
 `EncounterDefinition` when an encounter was a file; the file is gone and the
 name followed the shape.
 
 **`role` on a unit is optional, and that is load-bearing.** A body without one
-gets no role scaling, no skill floor and threat multiplier 1 — genuinely
+gets no role scaling, no skill floor and threat multiplier 1 - genuinely
 weaker. Every counted body in the game was one, so the migration kept them
 roleless and every fight measured identically before and after. The admin
 shows them as "Plain". Assigning roles makes fights harder; do it deliberately
@@ -99,14 +99,14 @@ and re-measure.
 
 ### 5. A raid door opens onto a ROOM, and the room is revealed before it is entered.
 
-`doorTable` and `fightPool` are gone. A raid declares `rooms: RaidRoom[]` — each
+`doorTable` and `fightPool` are gone. A raid declares `rooms: RaidRoom[]` - each
 a place with an `id`, a `name`, a one-line `description`, a `kind`
 (fight/buff/clear), an optional `background`, and the `fight` or `buffId` it
 holds. `boss` is one more room, with two multipliers: it is never chosen, it is
 arrived at.
 
 **THE PATH IS AUTHORED.** `path: RaidStep[]` names what is behind Left, Ahead
-and Right for every round, and the number of rounds IS that list's length —
+and Right for every round, and the number of rounds IS that list's length -
 there is no separate count to keep in step with it. Rooms carried a `weight`
 and doors were rolled from it; that is gone. The trade was made deliberately
 and it is real: two runs of a raid are now identical, and the variety that
@@ -117,13 +117,13 @@ What did NOT change is the audience's side. `RaidView` still withholds a
 door's `kind` until it is opened, so a chat vote is exactly as blind as it was.
 The person authoring the raid is simply no longer guessing too.
 
-A room nothing points at is never seen. The loader warns rather than failing —
-parking a room mid-edit is normal — and the admin marks it, because the old
+A room nothing points at is never seen. The loader warns rather than failing -
+parking a room mid-edit is normal - and the admin marks it, because the old
 model made this visible as a zero weight and this one hides it completely.
 
 The old model could say "fights are 50% likely" but not WHICH fight, and a
 fight had no name, no line and no scene. So there was nothing to add in the
-admin and nothing to reveal on the overlay — a fight door went from three
+admin and nothing to reveal on the overlay - a fight door went from three
 closed doors straight to a resolved combat, and the one moment the choice paid
 off was the one moment there was nothing to look at. Per-kind odds are still
 expressible: they are the sum of that kind's room weights, and the migration
@@ -132,7 +132,7 @@ reproduced the shipped table exactly.
 **Opening a door and fighting what is behind it are two beats.** `choose_path`
 only opens the door and sets `run.pendingRoomId`; the reveal plays; then
 `enter_room` runs the fight. `reveal` carries both the pre-fight look and the
-boon/corridor beat, and the TIMER'S EVENT tells them apart — a fight room
+boon/corridor beat, and the TIMER'S EVENT tells them apart - a fight room
 enters `reveal` with `timerEventOverride: "roomEntered"`, everything else keeps
 `revealElapsed`. That is what `timerEventOverride` is for, and it is why this
 did not need a sixth state duplicating the whole hold.
@@ -141,16 +141,16 @@ Two ordering rules, both bugs found the hard way:
 
 - **The round advances when the beat ENDS, not when the door opens.**
   `advanceRound` clears the revealed room and, on the last round, replaces it
-  with the boss — so advancing eagerly left a boon or corridor with nothing to
+  with the boss - so advancing eagerly left a boon or corridor with nothing to
   reveal by the time the overlay drew a frame.
 - **A survived door fight stays in `combat` while its replay plays.** It used
   to leave for `reveal` the instant the resolver returned, and the overlay only
-  draws the arena in `combat` and `results` — so door fights were never shown
+  draws the arena in `combat` and `results` - so door fights were never shown
   at all. `fightPlaying` is a self-transition that re-arms the hold once the
   replay length is known.
 
 The admin's Raids tab edits both halves: the rooms, and the path that strings
-them together. A room the path still points at cannot simply be deleted — the
+them together. A room the path still points at cannot simply be deleted - the
 doors that led there are repointed, because dropping the step would silently
 change how long the raid is.
 
@@ -165,7 +165,7 @@ one, so no stat is simply correct for everybody and no role's build is a single
 slider.
 
 **Armour is gone. Skill carries mitigation for every role.** Two stats both
-meaning "take less damage" was one too many — armour was the number everyone
+meaning "take less damage" was one too many - armour was the number everyone
 understood and Skill was the number that did the interesting things, so the
 interesting one was the one nobody spent on. `mitigationFraction` now reads
 `skill`, and Tanks keep an extra layer on top of it (self-mitigation, and a
@@ -173,7 +173,7 @@ guard that covers the whole party). DPS take close to full damage, and that is
 the price of their trade.
 
 **Speed is allocatable and may sit on gear**, which it could not before. The
-old reason was measured and still true — speed IS initiative, so +1 speed beat
+old reason was measured and still true - speed IS initiative, so +1 speed beat
 +8 armour while looking like the smallest number on the item. What changed is
 that `statMods` may go NEGATIVE: a greatsword that gives Attack and costs Speed
 prices itself, where a speed-only bonus could not. `clampStats` floors the
@@ -184,14 +184,14 @@ without a character arriving at the resolver already dead.
 40-70. There is nowhere to go from 70 that feels like anything, and +2 health is
 a real decision at 9 and noise at 45. Enemy stat blocks, gear mods, `skillCurveK`
 and the healing constants were all scaled to match, and `BAND_THRESHOLDS` was
-re-measured against it. If you move `ROLE_BASE_STATS`, move those too — then
+re-measured against it. If you move `ROLE_BASE_STATS`, move those too - then
 run `npm run simulate:progression`.
 
 ### The progression budget it is tuned to
 
 Players run 5–20 dungeons/day, 5 days/week. Level 300 should take about **a
 year** at that rate. That fixes the XP curve at `40 + 10 × level` (linear, in
-`src/engine/stats.ts`) — roughly 2,920 runs to 300.
+`src/engine/stats.ts`) - roughly 2,920 runs to 300.
 
 Linear, not quadratic, and not by accident: a quadratic curve across 300 levels
 puts the last levels months apart, which is tolerable in a game you play alone
@@ -204,13 +204,13 @@ and poisonous in one where the whole chat is watching the same bar.
 ### The command seam
 
 Every mutation goes through one discriminated union: `GameCommand` in
-`src/engine/commands/types.ts` (~25 variants — `join_dungeon`, `equip_gear`,
+`src/engine/commands/types.ts` (~25 variants - `join_dungeon`, `equip_gear`,
 `allocate_points`, `respec`, `buy_gear`, …).
 
 Nothing mutates state except by dispatching one of these. This is the seam
 Twitch plugs into later: chat commands, channel-point redeems and the admin
 panel all become the same union, and the engine cannot tell them apart. **If
-you add a way to change state, add a command — do not reach into the engine.**
+you add a way to change state, add a command - do not reach into the engine.**
 
 ### Content is data
 
@@ -223,7 +223,7 @@ you add a way to change state, add a command — do not reach into the engine.**
 
 Player data is NOT content and does not live here. The roster and its
 snapshots are written to `DATA_DIR` (default `./data`, gitignored) through
-`RosterStore` — a file today, Supabase when this is hosted. Two environment
+`RosterStore` - a file today, Supabase when this is hosted. Two environment
 variables matter to a deployment:
 
     DATA_DIR         where the roster is kept. Point it at a volume.
@@ -237,7 +237,7 @@ variables matter to a deployment:
     ALLOWED_ORIGINS  comma-separated. Empty means same-origin only, which is
                      the normal deployment.
     ALLOW_DEV_LOGIN  "1" lets POST /session mint a session for any claimed id.
-                     DEV ONLY — it is currently the ONLY way to mint a viewer
+                     DEV ONLY - it is currently the ONLY way to mint a viewer
                      session on this server at all (see below). Leave unset
                      unless you are testing a viewer-scoped command by hand.
     PUBLIC_ORIGIN    only matters under the Fly/Docker fallback (DEPLOY.md),
@@ -245,7 +245,7 @@ variables matter to a deployment:
                      Secure. Does nothing while this server runs locally.
 
 Deployment lives in `DEPLOY.md` and `fly.toml`. The short version: Vercel and
-Supabase Edge cannot host this at all (serverless — no timers between requests,
+Supabase Edge cannot host this at all (serverless - no timers between requests,
 no held-open SSE, no disk), Cloudflare Durable Objects could and would be a
 rewrite, so a container host runs the process and Supabase holds the data.
 `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` switch `RosterStore` from the file to
@@ -259,25 +259,25 @@ instance is a second game behind the same URL.
 systems, on purpose.** They used to be one: this server ran its own Twitch
 OAuth (`src/server/twitch.ts`, `/auth/twitch`, `/auth/twitch/callback`) and
 `GET /session` was how the loadout learned who it was, back when this server
-served `loadout.html` to the internet. It does not any more — the loadout is
+served `loadout.html` to the internet. It does not any more - the loadout is
 hosted separately (DEPLOY.md) and authenticates straight against Supabase
 Auth's own Twitch provider, from the browser, and never calls this server at
 all (`web/src/loadout/identity.ts` says as much). Nothing under `web/` fetches
 `/session` or `/auth/twitch*`, so that OAuth flow had no caller left and was
 deleted along with `twitch.ts`.
 
-What is left on this server is just the session PRIMITIVE — `issueSession` /
-`readSession` / a signed `cr_session` cookie — kept as the seam for `POST
+What is left on this server is just the session PRIMITIVE - `issueSession` /
+`readSession` / a signed `cr_session` cookie - kept as the seam for `POST
 /command` to tell a viewer-scoped command from an operator one. The only way
 to mint one today is the dev-only `POST /session` behind `ALLOW_DEV_LOGIN`;
 whatever eventually authenticates real viewer commands against this server
 (P5, Streamer.bot) mints a session the same way rather than reinventing it.
-Characters are keyed `twitch:<numeric id>` on both sides regardless — the
+Characters are keyed `twitch:<numeric id>` on both sides regardless - the
 namespace is shared even though nothing else about identity is.
 
 **Two principals, and `requestedBy` is not one of them.** An OPERATOR holds
 ADMIN_SECRET and may run the show; a VIEWER may act only on their own
-character, and which character that is comes from a signed session cookie —
+character, and which character that is comes from a signed session cookie -
 the server overwrites whatever `requestedBy` the body claimed. Before this, any
 caller could respec or strip anyone. See src/server/auth.ts; the privileged
 command list is `OPERATOR_COMMANDS` and it is a list of what is FORBIDDEN to
@@ -291,7 +291,7 @@ async to put a network round-trip in a combat tick.
 
 Validation happens **at load**, so a malformed file fails loudly at boot rather
 than mid-fight in front of an audience. When you add a field, add it to the
-schema in the same commit — an unvalidated field is one that silently becomes
+schema in the same commit - an unvalidated field is one that silently becomes
 `undefined` in production.
 
 `content/balance.json` is the single home for tuning constants. A magic number
@@ -301,7 +301,7 @@ in a `.ts` file is a bug report waiting to happen.
 
     src/engine/       combat, content, balance, party strength, state
     src/state/        the dungeon state machine
-    src/text/         all player-facing copy (en.ts) — nothing is inlined
+    src/text/         all player-facing copy (en.ts) - nothing is inlined
     src/server/       one dependency-free Node http server (816 lines)
     web/              React + Vite, three entry points, builds to overlay/
     content/          the JSON above
@@ -309,7 +309,7 @@ in a `.ts` file is a bug report waiting to happen.
     art/              source art; art/ui is the sliced chrome
     docs/design/      concept-v0.6.html (original brief, partly superseded),
                       plus the art-generation guide, the palette design system
-                      and its JSON export — see §11 for the full layout.
+                      and its JSON export - see §11 for the full layout.
 
 `overlay/` is **build output**. Do not edit it; `npm run build:web` empties it.
 
@@ -324,10 +324,10 @@ in a `.ts` file is a bug report waiting to happen.
 
 `GET /events` is the overlay's stream. `POST /difficulty` exists because the
 admin panel needs to measure the **draft** a streamer is editing, not the saved
-file — measuring what is on disk while someone drags a unit around reports the
+file - measuring what is on disk while someone drags a unit around reports the
 difficulty of a fight nobody is looking at.
 
-> **Security — resolved, 2026-09.** Every `POST` above is authenticated, and
+> **Security - resolved, 2026-09.** Every `POST` above is authenticated, and
 > the split is structural rather than a check per route: `src/server/auth.ts`
 > holds ADMIN_SECRET behind a timing-safe compare, and `OPERATOR_COMMANDS` is
 > a list of what is FORBIDDEN to viewers, so a command added later defaults to
@@ -337,7 +337,7 @@ difficulty of a fight nobody is looking at.
 > without the header.
 >
 > Chat reaches the game through `POST /chat` (`src/server/chat.ts`) behind
-> CHAT_SECRET, which parses a line into one of a fixed, tiny set — a
+> CHAT_SECRET, which parses a line into one of a fixed, tiny set - a
 > compromised bot can impersonate a viewer but cannot reach `grant_gear`.
 
 ---
@@ -349,13 +349,13 @@ weighted by `spd × initiativeWeight`. Not side-alternating rounds. With 30
 players against 6 enemies, alternating turns would hand the small side half the
 actions in the fight; drawing from one pool gives numbers their honest weight.
 
-**Roles** — Tank / DPS / Healer, and enemies have them too. `roleMitigation` is
+**Roles** - Tank / DPS / Healer, and enemies have them too. `roleMitigation` is
 not party-only, so an armoured enemy frontliner behaves like an armoured player
 frontliner. One rule, both sides.
 
 **Aggro is not foolproof, on purpose.** Tanks pull with Skill
 (`aggroPerSkill: 0.03`, capped at `maxAggroFromSkill: 1.5`), but every attack
-rolls `focusBreakChance: 0.22` first — a 22% chance the attacker ignores threat
+rolls `focusBreakChance: 0.22` first - a 22% chance the attacker ignores threat
 entirely and picks at random:
 
 ```ts
@@ -387,7 +387,7 @@ Why: a total means one geared veteran drags twenty newcomers into a fight
 scaled for the veteran, and they all die. An average means the fight matches
 *the room*, and a strong player carries rather than condemns.
 
-Headcount is then folded back in **logarithmically**, because it does matter —
+Headcount is then folded back in **logarithmically**, because it does matter -
 just not linearly:
 
 ```ts
@@ -399,7 +399,7 @@ export function crowdFactor(n) {
 }
 ```
 
-**Why the floor:** the curve was unclamped and went NEGATIVE below the pivot —
+**Why the floor:** the curve was unclamped and went NEGATIVE below the pivot -
 measured, a party of one scored -0.83 and a party of three 0.04, so
 `effectiveRating` clamped both to zero and any group under about four was rated
 as though it owned nothing at all. Three fully-kitted regulars met the same
@@ -408,7 +408,7 @@ layout as three naked newcomers.
 **Why logarithmic and not linear:** Lanchester's square law. Combat strength
 scales with the *square* of headcount, because a bigger side both deals more
 damage and loses its damage more slowly. Priced linearly, 30 players are not
-3× a party of 10 — they are closer to 9×, and every fight above ~15 joins
+3× a party of 10 - they are closer to 9×, and every fight above ~15 joins
 becomes free. The log curve turns the headcount ratio into a slope instead of
 a cliff.
 
@@ -427,7 +427,7 @@ export function ratePoints(stats: Stats, balance: BalanceConfig): number {
 }
 ```
 
-Mitigation is priced by **what it gains you** — `hp / (1 - mitigation)` — not by
+Mitigation is priced by **what it gains you** - `hp / (1 - mitigation)` - not by
 the raw stat. 10 Skill added to 5 is transformative; added to 200 it is noise,
 and a linear price tag cannot express that.
 
@@ -435,7 +435,7 @@ and a linear price tag cannot express that.
 survivable while nobody could raise it and became nonsense the moment players
 could spend points on it: a level-200 DPS scored sixty-eight times a baseline
 character's offence and the band thresholds exploded with it. Combat does not
-work that way — initiative draws from the whole pool, so a unit's share is
+work that way - initiative draws from the whole pool, so a unit's share is
 `spd / (spd + everyone else)`. `ratePoints` uses `2s/(s+base)`, which tends to 2
 rather than to infinity: being fast is worth at most twice as many turns.
 
@@ -450,7 +450,7 @@ output. The floor stops an all-DPS mob from being rated at zero.
 
 ### Thresholds
 
-    ENTRY_RATING = 165          // 10 naked players at Corruption 1 — the floor
+    ENTRY_RATING = 165          // 10 naked players at Corruption 1 - the floor
     BAND_THRESHOLDS = { weak: 0, seasoned: 400, elite: 1200,
                         brutal: 2000, infernal: 3400, apocalyptic: 6000 }
 
@@ -470,14 +470,14 @@ Specifically:
 - The meter once reported *"3× hedge-priest = Trivial, 100%"* while the real
   Marketgate fight measured **13%, Brutal**.
 - **Most stat sliders cannot change a fight's outcome.** HP and mitigation
-  buy *time*, not victory — against a party that out-damages you, more HP is a
+  buy *time*, not victory - against a party that out-damages you, more HP is a
   longer loss. Only the numbers that move the damage race move the result.
 - **Gear moves difficulty more than any enemy stat.** The same encounter is
   0% naked and 57% in typical gear. Tuning an enemy's attack by 10% is noise
   next to what the room walked in wearing.
 
 This is why the admin panel measures, why sliders were removed from fight
-authoring (they were theatre — the streamer moved them and nothing happened),
+authoring (they were theatre - the streamer moved them and nothing happened),
 and why drag-to-place unit composition replaced them. Composition is the lever
 that actually works.
 
@@ -486,10 +486,10 @@ over any formula, including the ones in this file.
 
 ### Two simulators, two questions
 
-`npm run simulate` asks **is the engine correct** — aggro pulls, healers heal, a
+`npm run simulate` asks **is the engine correct** - aggro pulls, healers heal, a
 bigger party is not a free win. It asserts, and it fails the build.
 
-`npm run simulate:progression` asks **is playing it any good** — how long until
+`npm run simulate:progression` asks **is playing it any good** - how long until
 the bar moves, how often something drops, whether it is ever anything but grey,
 whether a bigger chat does better or worse. It asserts nothing and fails
 nothing, deliberately: every number it prints is a design decision, and a test
@@ -504,7 +504,7 @@ made the game worse to play rather than merely different.
 ## 7. Art pipeline
 
 There is no live generator. Assets are sliced from sheets the artist supplies.
-(The PixelLab generator scripts were removed — they produced work nobody used.)
+(The PixelLab generator scripts were removed - they produced work nobody used.)
 
     npm run slice      sheets → gear / hands / encounter sprites
     npm run slice:ui   art/reference/assets Mute.png → art/ui/*.png
@@ -514,7 +514,7 @@ There is no live generator. Assets are sliced from sheets the artist supplies.
 pieces are all different sizes, so the slicer traces connected shapes and
 identifies them **by shape** (the frame is widest, the alcove tallest, the
 brackets are the four near-identical small ones). A redrawn sheet therefore
-slices itself — there is no coordinate table to keep in step.
+slices itself - there is no coordinate table to keep in step.
 
 Two traps already hit:
 
@@ -527,14 +527,14 @@ Two traps already hit:
   finds nothing at all.
 
 **Sprites face LEFT.** All five groups are drawn that way. Do not add
-`transform: scaleX(-1)` to enemy art — that assumption was in both the overlay
+`transform: scaleX(-1)` to enemy art - that assumption was in both the overlay
 and the admin panel, and it had every enemy fighting the back wall.
 
 ### Turning new art into gear
 
 `scripts/generate-gear-content.py` turns sliced sprites into gear definitions.
 It is **additive**: it skips any item whose file already exists and reports how
-many it kept. That guard is not decoration — the script began life as a
+many it kept. That guard is not decoration - the script began life as a
 bootstrap that wiped `content/gear/` on every run, and one regeneration
 silently overwrote ten hand-tuned items. Delete a file if you want it rebuilt.
 
@@ -547,8 +547,8 @@ to put on.
 
 The sheet is **`art/reference/assets Mute.png`**, and it has to be that file.
 
-A flattened export of the same sheet — one with the transparency checkerboard
-painted into it — can be keyed back to alpha, and the result is subtly wrong in
+A flattened export of the same sheet - one with the transparency checkerboard
+painted into it - can be keyed back to alpha, and the result is subtly wrong in
 a way that only shows on a dark page: every antialiased edge pixel is the
 artwork blended with **white**, so each icon ships with a pale halo. That was
 shipped once and the hearts and swords had visible white rims. There is no
@@ -558,12 +558,12 @@ Nine-sliced through CSS `border-image`. The slice widths are measured:
 
 - **Panel frame, slice 34**, rendered at `border-width: 17px`. The rail sits
   ~5px in from the edge, but the corner bracket runs ~31px along the diagonal,
-  so the cut has to clear the CORNER — slicing at the rail shears every bracket
+  so the cut has to clear the CORNER - slicing at the rail shears every bracket
   in half and stretches the halves down the sides. Rendering at half the slice
   scales the frame down rather than re-cutting the source for one call site.
 - **Bar frame, slice 14**, rendered at `border-width: 8px`, `box-sizing:
   border-box` and a stated OUTSIDE height. It was content-box on the reasoning
-  that the border is art rather than spacing — true, and it made `width: 100%`
+  that the border is art rather than spacing - true, and it made `width: 100%`
   mean "100% plus sixteen pixels of cap", which pushed the page two pixels
   wider than the window and put a scrollbar under everything.
 
@@ -571,18 +571,18 @@ Nine-sliced through CSS `border-image`. The slice widths are measured:
 `cell.png` is one empty socket cut out of the sheet's four-cell strip;
 `tile-*.png` is that same cell with a slot mark already in it. So an empty
 socket IS the tile, a filled one is `cell.png` with the item drawn on top, and
-the two cannot drift apart. `image-rendering: pixelated` is not optional — the
+the two cannot drift apart. `image-rendering: pixelated` is not optional - the
 source is 58px and these render up to 104px.
 
 Lifting the mark off its tile was tried and removed. The key was written
 against an earlier sheet whose marks were all bronze; this one draws the
 main-hand sword with a steel blade, so a warmth key kept the gold crossguard
-and threw the blade away — the slot showed a pickaxe.
+and threw the blade away - the slot showed a pickaxe.
 
 **The slicer names pieces by ANCHOR, not by shape.** The old sheet held four
 pieces and each was a different shape, so "which blob is widest / tallest /
 squarest" named them. This one holds sixty-odd across nine families, and inside
-a family they are deliberately identical — nine 67px socket tiles, three
+a family they are deliberately identical - nine 67px socket tiles, three
 149x100 role plates. Shape cannot tell a helmet tile from a boot tile.
 
 So `ANCHORS` in `scripts/slice-ui.py` records one point inside each piece. The
@@ -591,7 +591,7 @@ at its true edges; only a piece that MOVES needs its anchor nudged, and a moved
 piece fails loudly (the anchor lands on empty sheet) rather than silently
 swapping two glyphs. The socket tiles go further: two of them touch and trace
 as one blob, so each COLUMN is anchored and its tiles are cut by dividing the
-column's own height by how many are drawn there — their spacing is never
+column's own height by how many are drawn there - their spacing is never
 written down either.
 
 **Two pieces are edited on the way out**, because what the artist drew is a
@@ -599,7 +599,7 @@ picture of a state rather than a container:
 
 - `bar-frame` is drawn part-full. Stretched through a nine-slice that one value
   became the whole channel, so a character with no XP rendered with a full bar
-  — the art overriding the data. `emptied()` repaints the interior from an
+  - the art overriding the data. `emptied()` repaints the interior from an
   empty column of the same track.
 - `alcove` is drawn framed, and it is used inside a panel that already has a
   frame. The slicer insets 18px past its 13px rail.
@@ -611,7 +611,7 @@ dark one every tile width. Mirroring makes every join meet its own reflection.
 **The niche goes behind the FIGURE, not behind the whole row.** It is drawn
 390x434 and `.doll-center` carries that as an `aspect-ratio`, so `cover` crops
 nothing and stretches nothing at any width. Without it the box took the grid's
-leftover width and the socket columns' height — a 537x170 letterbox showing the
+leftover width and the socket columns' height - a 537x170 letterbox showing the
 middle of a portrait painting, which is where the giant skull came from. It
 also means the sockets sit on clean ground instead of on torchlight.
 
@@ -628,7 +628,7 @@ Breakpoints, and why they are where they are:
 
 1024 is not a phone concession. The character card needs 470px of the window,
 and what is left below that is a stats panel too narrow to fit a stat's name
-beside its number and a bag whose cells come out at 26px — two columns are
+beside its number and a bag whose cells come out at 26px - two columns are
 simply worse than one there.
 
 Anything **inside** a panel is a container query, not a media query, because a
@@ -637,7 +637,7 @@ stats grid, the bag's column count and the character card's own proportions all
 ask `@container`, and every one of them was wrong as a media query first.
 
 **Watch the specificity of `.loadout button`.** It is `0-1-1`, which beats any
-bare class — so `.role-choice`, `.inv-cell` and `.nav-scrim` all rendered with
+bare class - so `.role-choice`, `.inv-cell` and `.nav-scrim` all rendered with
 the gold button fill until they were scoped as `.loadout button.role-choice`
 and friends. If something on this page is unexpectedly gold, this is why.
 
@@ -651,13 +651,13 @@ sit ON the artwork where a shadow alone loses against a torch flame.
 ## 8. Conventions
 
 - **All copy lives in `src/text/en.ts`.** Nothing inlined. `npm run check:text`
-  verifies overlay strings fit their boxes at the sizes they render — an
+  verifies overlay strings fit their boxes at the sizes they render - an
   overflowing string on stream is a visible bug in front of an audience.
 - **Comments explain why.** The codebase is written this way throughout; match
   it. A comment restating the line below it is noise; a comment recording the
   thing that made the line necessary is why the file stays maintainable.
 - **No new dependencies without a reason you can state.** The server has zero.
-- **Container queries over media queries** for panel-internal layout — a panel
+- **Container queries over media queries** for panel-internal layout - a panel
   should respond to its own width, not the window's.
 - **CSS transform is not a layout box.** A scaled element still occupies its
   original size, which is how the sim controls ended up under the stage. If you
@@ -678,13 +678,14 @@ npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd ru
 
 `npm run serve` then hosts all three pages on `http://localhost:8787`.
 
-`npm run simulate:progression` is not in that chain — it asserts nothing and is
+`npm run simulate:progression` is not in that chain - it asserts nothing and is
 for reading, not passing. Run it whenever you change balance or content.
 
-**Known red:** `simulate` currently fails one assertion — *"a balanced party
-should bring meaningfully more people home (8% vs 0%)"* — from `cops.json` in
-the seasoned band at pressure ×5.3. That is authored tuning, not a code fault,
-and it is the streamer's call to adjust.
+**Green.** `simulate` used to fail one assertion - *"a balanced party should
+bring meaningfully more people home (8% vs 0%)"* - from `cops.json` in the
+seasoned band. That was authored tuning rather than a code fault and it has
+been adjusted, so the suite passes end to end and a red run now means
+something broke.
 
 ---
 
@@ -693,7 +694,7 @@ and it is the streamer's call to adjust.
 **Marketgate has a dead zone from 14 to 30 players.** Measured with
 `npm run simulate:progression` §11: winnable at 8-12 (87%/73%/47%), *zero* from
 14 to 25, winnable again at 40 (73%). The mechanism is visible in the same
-table — the party's share of all actions COLLAPSES from 41% at ten players to
+table - the party's share of all actions COLLAPSES from 41% at ten players to
 23% at fourteen, which is a death spiral, not a close fight: enemy attack scales
 at `atkPerExtraMember: 0.24` per member over a baseline of five (5.8x at
 twenty-five) while enemy HP scales at 0.05 (2.0x) and a player's own HP not at
@@ -710,15 +711,15 @@ with a curve at all, and its curve has a hole in it.
 The lever is `partyScaling.atkPerExtraMember`. A sweep is in the transcript;
 lowering it alone does not close the hole (0.06 still reads 7% at fifteen),
 because the cliff is a threshold effect and not a slope. Making enemy attack
-scale SUB-linearly — the same log shape `crowdFactor` already uses for the band
-— is the change that fits the design. That is a balance decision, so it is
+scale SUB-linearly - the same log shape `crowdFactor` already uses for the band
+- is the change that fits the design. That is a balance decision, so it is
 listed here rather than made.
 
 **Difficulty stops scaling at `elite`.** `simulate:progression` §1 now asks
 this of the dungeons directly: every one of the five tops out at `elite` or
 below, and two (Saint's Rest, Chapter House) have only a `weak` layout.
 `squadFor` falls back DOWN, so a party rated 6,000 meets exactly the fight a
-party rated 1,200 meets — §8 measures 18 enemies and 1,122 HP at elite, brutal,
+party rated 1,200 meets - §8 measures 18 enemies and 1,122 HP at elite, brutal,
 infernal and apocalyptic alike, and a 10/10 flawless win at all four. Three of
 the six bands are decoration. Authoring brutal/infernal/apocalyptic formations
 in the admin panel is the fix.
@@ -734,11 +735,11 @@ Two structural causes are now gone: archetypes were SHARED, so one squad set
 the difficulty of every place it appeared, and nothing in the admin said which
 bodies had roles. A dungeon owns its bodies and the editor marks roleless ones
 "Plain". The fights themselves were carried over unchanged by the merge, so the
-ordering is still wrong until somebody assigns roles and re-measures — but that
+ordering is still wrong until somebody assigns roles and re-measures - but that
 is an afternoon in the Dungeons tab rather than a refactor.
 
 **The starter dungeon drops only greys.** §4: Tillage Hamlet's loot table is
-all common, so a new chat's first several nights — the 100%-win ones — produce
+all common, so a new chat's first several nights - the 100%-win ones - produce
 nothing but grey. 20 of 119 items can ever drop at all; the other 99 are
 shop-only or unreachable. A fight's table is now editable in one place, and a
 single body can carry its own (`unit.loot`), so "the serjeant drops the good
@@ -749,14 +750,23 @@ against a shop whose most expensive item is 260g. Everything in stock is one to
 three runs away on the first night, so there is nothing to save for and nothing
 a drop can be better than.
 
+> ALPHA, DELIBERATELY WORSE. Characters now start on 60g
+> (`economy.startingGold`) and recycling refunds the full price
+> (`economy.recycleRate: 1`), so gold is currently even less of a resource than
+> the finding above describes. That is a testing decision, not a balance one:
+> an empty purse means a new player cannot open the shop at all, and a tester
+> who loses 60% of an item's value every time they try one stops trying them.
+> Both numbers are the levers to pull when the loop is being balanced rather
+> than exercised - the reasoning is on the fields in `balance.ts`.
+
 **XP runs about 1.8x the documented budget.** §3: 289 XP per run at Tillage
 Hamlet puts level 300 at ~1,590 runs against the ~2,920 §2 is tuned to. Levels
-are cheap and the ladder is finished in about 35 runs (§9) — two or three
+are cheap and the ladder is finished in about 35 runs (§9) - two or three
 nights, after which nothing new is reachable.
 
 **Make the difficulty solver dungeon-aware.** It solves ONE fight to a target
 win rate. That was the whole problem when a dungeon fielded several encounters
-and each was solved in isolation — a run of individually-fair fights compounds
+and each was solved in isolation - a run of individually-fair fights compounds
 into an unwinnable night, and it shipped broken content **twice**. The merge
 removes most of the sting for dungeons, which are now one fight, but a RAID
 still runs four door fights and a boss and the solver still cannot see that.
@@ -767,20 +777,20 @@ still runs four door fights and a boss and the solver still cannot see that.
 and Settings are in the mock and are drawn in the top bar, dimmed and inert,
 because the bar is a large part of what makes the page look like the mock. They
 are the only controls on the page that cannot do anything. Either build them or
-take them out — leaving them indefinitely teaches players that dimmed things
+take them out - leaving them indefinitely teaches players that dimmed things
 are decoration.
 
 **The bag has a recycle MODE, not a multi-select.** Marking twenty pieces of
 junk and scrapping them in one action is the bag's second mode, behind the
-button in its header, rather than a modifier-click — half the players are on a
+button in its header, rather than a modifier-click - half the players are on a
 phone and there is no ctrl there. `LoadoutApp.recycle` then dispatches them in
 sequence, deliberately: every command re-reads the character afterwards, so
 firing twenty at once is twenty overlapping reads racing to be the last one to
 set state.
 
 **A socket is a way in, not a readout.** Clicking one opens the list of what
-fits it. The only route to putting gear ON used to be the bag — find the item
-among everything you own, select it, read the strip that appears below — and
+fits it. The only route to putting gear ON used to be the bag - find the item
+among everything you own, select it, read the strip that appears below - and
 "what can go in my off hand?" is the question a player actually has. Both that
 list and the bag's detail strip scroll themselves into view or stick to the
 bottom of the viewport, because both of them opened below the fold on a phone
@@ -790,13 +800,13 @@ nothing.
 **The bag has no carry limit.** The mock puts "6 / 16" beside the Inventory
 heading, and the engine has no cap at all, so that denominator would be a number
 a React component invented. The count says what is carried and stops there. A
-real cap is an engine rule — a command that can refuse a pickup — not a
+real cap is an engine rule - a command that can refuse a pickup - not a
 stylesheet's opinion. `InventoryGrid` draws in whole rows of 8 and is ready for
 one.
 
 **One slot mark is missing and three are unused.** The sheet draws nine socket
 tiles (helm, mask, sword, dagger, cloak, pants, glove, boot, ring) and this
-catalogue wears seven slots — but not the same seven. `top` has no drawn tile
+catalogue wears seven slots - but not the same seven. `top` has no drawn tile
 and keeps an inline SVG in `SlotIcon`; `glove`, `boot` and `ring` are cut and
 unused, waiting for slots that may never exist. Ask for a chest mark before
 inventing one.
@@ -806,13 +816,13 @@ was run while its chest/pants path still wiped rather than skipped, and it
 overwrote the ten hand-tuned top/bottom items. There is no VCS in this repo, so
 the originals were not recoverable from disk. What was restored, and how:
 
-- **Rarity** — recovered from a `statGuide` dump in an earlier session
+- **Rarity** - recovered from a `statGuide` dump in an earlier session
   transcript (Strapped Harness common, Chainmail Rig rare, Knight's Cuirass
   epic) and confirmed as the positional spread. Correct.
-- **`requires`** — reconstructed as `4 × tier depth`, the rule the rest of the
+- **`requires`** - reconstructed as `4 × tier depth`, the rule the rest of the
   catalogue follows; verified because it reproduces the catalogue-wide gate
   distribution exactly (59 ungated / 33 hp / 26 atk / 1 armour).
-- **`statMods`** — the same transcript gave original power scores for three
+- **`statMods`** - the same transcript gave original power scores for three
   items, and those three are restored exactly (9 / 19 / 22). The other seven
   are the generator's formula values and run slightly strong; the recovered
   three were 10–20% below it. Worth an eye in the admin panel.
@@ -823,8 +833,8 @@ level-4 reference party equips are a little stronger than they used to be.
 
 **Gear gates compare POINTS SPENT, not the stat value.** `gearUsableBy()` in
 `src/engine/character.ts` reads `character.allocated[stat]`, so `requires:
-{hp: 36}` means "has put 36 points into hp" — roughly level 18 at 2 points a
-level — not "has 36 hp". Every gate in the catalogue is therefore real and
+{hp: 36}` means "has put 36 points into hp" - roughly level 18 at 2 points a
+level - not "has 36 hp". Every gate in the catalogue is therefore real and
 load-bearing: dropping the 33 hp gates alone moved the simulator's balanced
 party from 13% survival to 47%. Do not reason about a gate from a character's
 displayed stats.
@@ -832,13 +842,13 @@ displayed stats.
 **`retier:gear` reports 45 of 119 items mis-rarified.** Pre-existing drift: an
 item's rarity and its stats were derived independently, so they parted company.
 The script prints the corrections and applies them with `--write`. It is left
-unapplied because it is a balance decision, not a cleanup — run it when you are
+unapplied because it is a balance decision, not a cleanup - run it when you are
 ready to look at the loot table as a whole.
 
 **`docs/design/art-generation-guide.md`** (formerly the root `AGENTS Design.md`
-— renamed and relocated in the naming/organization pass, see §11) holds the art
+- renamed and relocated in the naming/organization pass, see §11) holds the art
 rulebook (25-colour palette, pixel-density rules, consistency checklist) and is
-still current — but it references
+still current - but it references
 `a_clean_white_background_reference_sheet.png`, which is not in the repo. Ask
 for it before generating art against that spec.
 
@@ -847,52 +857,52 @@ for it before generating art against that spec.
 ## 11. Top-level layout and naming conventions
 
 A naming/organization/dead-file audit passed over the whole repo on
-2026-09-08. This section is the map it left behind — keep it in sync with the
+2026-09-08. This section is the map it left behind - keep it in sync with the
 tree, the way §3's Layout block is kept in sync with `src/`.
 
 ### What each top-level thing is for
 
-    AGENTS.md         this file — why, not what
+    AGENTS.md         this file - why, not what
     README.md         how to run it
     DEPLOY.md          how to ship it
     Dockerfile, fly.toml, .dockerignore, .env.example
-                       deployment config — see DEPLOY.md
+                       deployment config - see DEPLOY.md
     package.json       the engine's own scripts/deps (zero runtime deps)
     tsconfig*.json      engine TypeScript config
 
-    src/               the engine — see §3's Layout block for the breakdown
-    web/               React + Vite, three entry points — see web/package.json
+    src/               the engine - see §3's Layout block for the breakdown
+    web/               React + Vite, three entry points - see web/package.json
                        and web/vite.config.ts. web/src/ is components, hooks
                        and per-page apps; web/public/ is runtime-served art,
                        managed by the slicers, not hand-edited.
     content/           the game's data (gear/dungeons/consumables/raids +
-                       balance.json/shop.json/placements.json) — §3
+                       balance.json/shop.json/placements.json) - §3
     data/              runtime roster/save data. Gitignored. Not source.
     overlay/            BUILD OUTPUT of `npm run build:web`. Never edit by
-                       hand, never audit by hand — `web/` is the source of
+                       hand, never audit by hand - `web/` is the source of
                        truth for everything in here.
     dist/              BUILD OUTPUT of `npm run build` (tsc). Same rule.
-    art/               bulk source art — hundreds of sprite sheets, fed to
+    art/               bulk source art - hundreds of sprite sheets, fed to
                        the slicers in scripts/. Not audited file-by-file;
                        too large and too domain-specific for that.
     docs/              human-facing reference material that isn't code
       design/            the original concept brief (`concept-v0.6.html`)
                          plus the art-generation guide, the pixel-art design
-                         system and its JSON palette export — moved here
+                         system and its JSON palette export - moved here
                          together in the 2026-09-08 pass, since all three
                          are reference material for a human or an AI doing
                          art generation, not anything a script reads.
-    scripts/           slicers, simulators, tuners — TS run via `tsx`,
+    scripts/           slicers, simulators, tuners - TS run via `tsx`,
                        Python run directly. Every script here either has an
                        `npm run` entry in package.json, or is documented in
                        this file as a manual one-off (e.g.
                        `generate-gear-content.py`, run by hand after adding
                        new art). A script with neither is dead weight.
     sql/               Postgres migrations for the Supabase-backed
-                       `RosterStore` — see §3 and DEPLOY.md
+                       `RosterStore` - see §3 and DEPLOY.md
     supabase/functions/ the Edge Function the loadout talks to directly.
                        `_content.json` and `_engine.js` are BUILD OUTPUT of
-                       `npm run bundle:edge` — never hand-edited, regenerated
+                       `npm run bundle:edge` - never hand-edited, regenerated
                        by that command; `index.ts` is the actual source.
     .claude/           agent definitions and local dev launch config, not
                        part of the shipped game
@@ -903,33 +913,33 @@ tree, the way §3's Layout block is kept in sync with `src/`.
 
 Created by the 2026-09-08 audit. Anything moved in here was confirmed unused
 by grepping every import, `npm run` script, HTML `<script src>`/`<link>`,
-and doc reference across the repo — nothing found reading it. It mirrors
+and doc reference across the repo - nothing found reading it. It mirrors
 each file's original path (so `TO BE DELETED/scripts/_audit.ts` was at
 `scripts/_audit.ts`) purely so provenance is obvious and restoring one is a
 plain `mv` back.
 
 **Nothing in here was deleted.** That is a deliberate human call, not an
-oversight — an agent moved these because it could prove non-use, not because
+oversight - an agent moved these because it could prove non-use, not because
 it is authorized to destroy anything. Review it, then delete the folder (or
 individual files) once you agree, or move something back out if the audit
 got it wrong.
 
 As of the 2026-09-08 pass it holds:
 
-- `Logo.png` — an unused duplicate of `web/public/art/logo.png` (the file
+- `Logo.png` - an unused duplicate of `web/public/art/logo.png` (the file
   actually loaded by `StateBanner.tsx`, `LoadoutApp.tsx` and
   `SignInScreen.tsx`). Nothing referenced the root copy.
-- `pallete Reference.png` — misspelled, space in the name, and unreferenced
+- `pallete Reference.png` - misspelled, space in the name, and unreferenced
   anywhere. It duplicates `art/reference/palette Reference.jpg` (correctly
-  spelled, inside `art/`, left alone as out-of-scope bulk art) — this looks
+  spelled, inside `art/`, left alone as out-of-scope bulk art) - this looks
   like a stray export of that file that landed at the repo root.
-- `scripts/_audit.ts` — a runnable gear-power report script with no `npm
+- `scripts/_audit.ts` - a runnable gear-power report script with no `npm
   run` entry, no importer, and no mention in this file. Its leading
   underscore also breaks the sibling naming convention
   (`retier-gear.ts`, `tune-dungeons.ts`: kebab-case, verb-first) without
-  actually making it a private helper module — it has no exports, just a
+  actually making it a private helper module - it has no exports, just a
   top-level script body.
-- `scripts/retune-gear.ts` — an alternative gear-rebalancing tool (rescales
+- `scripts/retune-gear.ts` - an alternative gear-rebalancing tool (rescales
   power to a per-slot budget) with no `npm run` entry, no importer, and no
   mention in this file. `retier-gear.ts` (relabels rarity to match existing
   stats) is the tool this file documents and `retier:gear` wires up instead;
@@ -950,7 +960,7 @@ verb-first ones):
   (`retier-gear.ts`, `tune-dungeons.ts`, `check-text-fits.py`,
   `art-generation-guide.md`).
 - **`.ts` modules: camelCase** (`partyStrength.ts`, `statGuide.ts`,
-  `useGameConnection.ts`) — **except** a file whose whole job is to export
+  `useGameConnection.ts`) - **except** a file whose whole job is to export
   one class, which takes that class's PascalCase name
   (`StateMachine.ts` exports `StateMachine`, `DungeonController.ts` exports
   `DungeonController`). That is a deliberate, consistent exception, not a
@@ -958,10 +968,10 @@ verb-first ones):
 - **React components under `web/src/components`, `web/src/admin` and
   `web/src/loadout`: PascalCase** (`CombatLog.tsx`, `GearTuner.tsx`,
   `ShopPanel.tsx`). Vite's own entry points stay lowercase
-  (`main.tsx`) — that name is Vite's convention, not this project's, and
+  (`main.tsx`) - that name is Vite's convention, not this project's, and
   changing it would break the `<script src="/src/.../main.tsx">` tag in the
   matching `.html` file.
 - **A private helper module, not a runnable script, is the only thing a
-  leading underscore should mean** — and even then, prefer putting it where
+  leading underscore should mean** - and even then, prefer putting it where
   its importer lives rather than in `scripts/` next to the runnable tools,
   so the underscore isn't the only signal.

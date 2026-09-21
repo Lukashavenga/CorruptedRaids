@@ -4,14 +4,14 @@ A Twitch viewer-engagement game rendered as an OBS browser source. Viewers own
 a persistent character, level it, gear it, and join dungeon runs alongside
 everyone else watching. The fight resolves itself on stream.
 
-**This file is how to run it. [AGENTS.md](AGENTS.md) is how it works and why** —
+**This file is how to run it. [AGENTS.md](AGENTS.md) is how it works and why** -
 the design decisions, the balance model, and the traps. Read that one before
 changing anything.
 
 No Twitch integration yet, on purpose: `GameCommand` in
 `src/engine/commands/types.ts` is the seam it plugs into.
 
-The engine (`src/`) has zero runtime dependencies — Node 18+, TypeScript, and
+The engine (`src/`) has zero runtime dependencies - Node 18+, TypeScript, and
 `tsx`. The three web pages (`web/`) are a React + Vite app with its own
 `package.json`, importing engine types directly.
 
@@ -24,18 +24,32 @@ npm run build:web    # builds the three pages into overlay/
 npm run serve        # http://localhost:8787
 ```
 
-`build:web` must run once before `serve` has anything to serve — `overlay/` is
+`build:web` must run once before `serve` has anything to serve - `overlay/` is
 build output, not hand-written HTML.
 
 Three pages, all on 8787:
 
 | URL | For |
 |---|---|
-| `/` | the OBS browser source — add this one to OBS |
+| `/` | the OBS browser source - add this one to OBS |
 | `/loadout.html` | a viewer's character, gear and shop |
 | `/admin.html` | dungeon authoring and balancing |
 
 Append `?sim=0` to the overlay URL to hide the sim-control strip on stream.
+
+**Only the loadout is published.** The hosted copy lives at
+<https://corrupted.coster.im/loadout>, and the overlay and admin pages are
+dropped from the upload rather than being served to the internet with nothing
+to talk to (`scripts/publish-web.ts` says why). Two things follow from that and
+are easy to trip over:
+
+- Hosted, the page is `/loadout`, not `/loadout.html`. Cloudflare strips the
+  extension, and `redirectTo` is built from the path, so the Supabase redirect
+  allowlist has to match the stripped form. Wildcards avoid the question.
+- The hosted page is a STATIC site with no game server behind it. Anything the
+  loadout fetches from a server path has to be shipped as a file as well, or it
+  silently falls back: `/placements` and the shop's prices have both been that
+  bug. See DEPLOY.md section 4.
 
 The fastest look at the engine needs no server at all:
 
@@ -52,7 +66,7 @@ npm run dev:web
 Vite with hot reload, proxying `/state`, `/content`, `/events` and `/command`
 to `serve` on 8787 (see `web/vite.config.ts`), so run both at once.
 
-`tsx` has no watch mode here — changes under `src/` need a server restart.
+`tsx` has no watch mode here - changes under `src/` need a server restart.
 
 ### Driving a run by hand
 
@@ -76,7 +90,7 @@ Everything the game is made of is JSON under `content/`, validated at load:
 
 ## Art
 
-Sliced from artist-supplied sheets — there is no live generator.
+Sliced from artist-supplied sheets - there is no live generator.
 
 ```bash
 npm run slice      # gear, hands, encounter sprites
@@ -87,6 +101,14 @@ npm run gen:font   # the bitmap display font
 Slicing traces connected shapes rather than reading a grid, so a redrawn sheet
 slices itself. AGENTS.md §7 covers the two ways this has gone wrong before.
 
+**`slice` REFUSES to run when it would discard eraser edits.** Re-slicing
+rebuilds each sprite from its source sheet, which silently undoes anything
+rubbed out in the admin tool's Sprite Eraser, and those edits are not
+recoverable afterwards: `_original` holds the PRE-edit copy, so reverting hands
+back the un-erased sprite rather than the edit. The script names what is at
+risk and needs `--force` to go ahead anyway. This is not hypothetical; 81
+erases were lost to it once.
+
 ## Verification
 
 ```bash
@@ -95,8 +117,29 @@ npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd ru
 
 On Windows use `npm.cmd` / `npx.cmd`.
 
-`simulate` currently fails one assertion from `cops.json`'s seasoned-band
-tuning — see AGENTS.md §9. Everything else is green.
+All of it is green. `simulate` used to fail one assertion from `cops.json`'s
+seasoned-band tuning; that is fixed, so a failure here is now a real one.
+
+## Shipping
+
+```bash
+npm run deploy      # publish:web, then wrangler pages deploy
+npm run deploy:fn   # re-bundle content and deploy the Supabase Edge Function
+```
+
+`deploy` filters the build before uploading: only the loadout goes up. Run
+`build:web` first, and run `deploy:fn` in the same breath whenever gear,
+prices or `content/balance.json` changed, because the loadout renders from
+that bundle and the function validates against it. DEPLOY.md is the full
+checklist.
+
+```bash
+npm.cmd run chests -- twitch:<id>   # 5 test chests, one of each rarity
+```
+
+Loot arrives as a sealed chest the player opens. Winning one honestly means
+clearing a run and passing a 60% roll, which is the wrong loop to sit in when
+what you are testing is a 1.6 second animation.
 
 ## Scripts
 
@@ -110,3 +153,8 @@ tuning — see AGENTS.md §9. Everything else is green.
 | `slice` / `slice:ui` / `gen:font` | art pipeline |
 | `gen:placements` | seeds sprite placements |
 | `tune:dungeons` / `retier:gear` | balance passes over content |
+| `deploy` / `publish:web` | ship the loadout (loadout only, see above) |
+| `deploy:fn` / `bundle:edge` | ship the Edge Function and its content bundle |
+| `check:supabase` | walks the hosted setup and stops at the first broken thing |
+| `test:edge` / `test:store` | engine-in-the-function, and a real Supabase round trip |
+| `chests` | grant test chests to a viewer |
