@@ -20,3 +20,12 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/**
+ * The build identity, injected by web/vite.config.ts `define`.
+ *
+ * A `define` is a literal substitution at build time, not a variable, so it
+ * needs declaring for TypeScript to know it exists. See web/src/build.ts for
+ * what it holds and why.
+ */
+declare const __BUILD_ID__: string;

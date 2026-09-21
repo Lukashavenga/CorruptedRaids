@@ -3,6 +3,7 @@ import { useGameConnection } from "./hooks/useGameConnection.js";
 import { useContentCatalog } from "./hooks/useContentCatalog.js";
 import { useScenePreload } from "./hooks/useScenePreload.js";
 import { useCombatPlayback } from "./hooks/useCombatPlayback.js";
+import { useGameAudio } from "./hooks/useGameAudio.js";
 import { useCountdown } from "./hooks/useCountdown.js";
 import { useStageScale } from "./hooks/useStageScale.js";
 import { CombatantFigure } from "./components/CombatantFigure.js";
@@ -31,6 +32,10 @@ const SIM_ENABLED = new URLSearchParams(window.location.search).get("sim") !== "
 
 export function App(): JSX.Element {
   const { connected, snapshot, lastResult, updateSeq } = useGameConnection();
+
+  // Sound cues, derived from snapshot transitions. Must run before the early
+  // return below, or hook order changes when the connection drops.
+  useGameAudio(snapshot);
   const catalog = useContentCatalog();
   // Warms every scene the moment the catalogue lands, so a run that opens and
   // starts inside a second does not draw its first combat frames on black.

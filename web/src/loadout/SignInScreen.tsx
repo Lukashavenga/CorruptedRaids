@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { text } from "../../../src/text/index.js";
 import { signIn, type SessionState } from "./identity.js";
+import { LOGO_SRC } from "../build.js";
 
 export interface SignInScreenProps {
   session: SessionState;
@@ -32,7 +33,7 @@ export function SignInScreen({ session }: SignInScreenProps): JSX.Element {
   return (
     <main className="loadout is-centered">
       <div className="signin">
-        <img className="signin-logo" src="/art/logo.png" alt="" />
+        <img className="signin-logo" src={LOGO_SRC} alt="" />
         <h1>{t.title}</h1>
         <p className="signin-lead">{t.lead}</p>
 

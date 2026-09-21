@@ -433,8 +433,19 @@
   color: var(--ink-dim);
 }
 
+/* Unspent points are the one thing on this screen the player must ACT on.
+   Everything else is status; this is a to-do. Gold rather than --rail-lit
+   because the rail colour is used for "this is fine, it is on" all over the
+   panel, and a to-do that looks like every other lit thing gets skimmed past.
+   The slow pulse lives in motion.css so the reduced-motion opt-out can reach
+   it — the colour stays either way, only the movement is optional. */
 .points.has-points {
-  color: var(--rail-lit);
+  color: var(--points-gold, #f4c95d);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 201, 93, 0.45);
+  background: rgba(244, 201, 93, 0.08);
 }
 
 .stat-grid {
@@ -1298,4 +1309,147 @@
 
 .loadout .settings-row .screen-action {
   margin-top: 0;
+}
+
+/* --- build bar and bug reporter ------------------------------------------ */
+
+/* Present on every screen and in the way of nothing: the build string is only
+   interesting at the moment something breaks, so it sits quiet until looked
+   for. Fixed rather than in flow because the loadout's columns scroll
+   independently and a footer in flow ends up somewhere different on each. */
+.build-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 10px;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+  background: linear-gradient(to top, rgba(8, 6, 14, 0.92), rgba(8, 6, 14, 0));
+  pointer-events: none;
+}
+
+/* The bar is click-through so it never eats a tap meant for the panel behind
+   it; only the button takes pointer events back. */
+.build-bar > * {
+  pointer-events: auto;
+}
+
+.build-id {
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  user-select: all; /* one tap selects the whole string to paste into a report */
+}
+
+.bug-open {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.bug-open:hover {
+  color: var(--rail-lit);
+  border-color: var(--rail-lit);
+}
+
+.bug-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(6, 4, 12, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.bug-card {
+  width: min(460px, 100%);
+  background: var(--panel, #14101f);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.bug-card h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.bug-lead {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.bug-field {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.bug-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #ff8f8f;
+}
+
+.bug-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bug-cancel,
+.bug-send {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bug-cancel {
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.bug-send {
+  color: #120d1c;
+  background: var(--rail-lit);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.bug-send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.bug-build {
+  margin: 10px 0 0;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+  opacity: 0.7;
 }

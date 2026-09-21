@@ -13,6 +13,8 @@ import { usePlacements } from "../hooks/usePlacements.js";
 import { useHiddenSlots } from "./useHiddenSlots.js";
 import { InventoryGrid } from "./InventoryGrid.js";
 import { ChestShelf } from "./ChestShelf.js";
+import { BugReport } from "./BugReport.js";
+import { BUILD_LABEL } from "../build.js";
 import { haptic } from "./haptics.js";
 import { ShopPanel } from "./ShopPanel.js";
 import { signOut } from "./identity.js";
@@ -21,6 +23,7 @@ import { LeaderboardScreen } from "./LeaderboardScreen.js";
 import { HowToPlayScreen } from "./HowToPlayScreen.js";
 import { SettingsScreen } from "./SettingsScreen.js";
 import { text, format } from "../../../src/text/index.js";
+import { LOGO_SRC } from "../build.js";
 
 /**
  * The per-viewer loadout screen (AGENTS.md §2.6) — a separate surface from
@@ -223,7 +226,7 @@ export function LoadoutApp(): JSX.Element {
 
           {/* The logo carries the brand; the h1 stays as the accessible name
               and is hidden visually rather than removed. */}
-          <img className="brand-logo" src="/art/logo.png" alt="" />
+          <img className="brand-logo" src={LOGO_SRC} alt="" />
           <h1 className="visually-hidden">{text.loadout.title}</h1>
 
           {nav}
@@ -410,6 +413,18 @@ export function LoadoutApp(): JSX.Element {
           </p>
         )}
       </main>
+
+      {/* Which build, and a way to say it is broken.
+          Outside <main> so it is the last thing in the tab order: present on
+          every screen, in the way of nothing. During an alpha the build string
+          is the difference between a report that can be acted on and one that
+          cannot, so it is shown as well as attached. */}
+      <footer className="build-bar">
+        <span className="build-id" title="The build you are on. Include this in any report.">
+          {BUILD_LABEL}
+        </span>
+        <BugReport viewer={viewer} />
+      </footer>
 
       {/* The phone's section switch. Rendered always and hidden by CSS above
           the breakpoint, so which panels exist is stated once, here.

@@ -489,6 +489,37 @@
   70%      { transform: translateX(-2px); }
 }
 
+/* Unspent points, waiting to be spent.
+ *
+ * SLOW — 2.6s, and it never fully fades. This is an idle-state nudge that sits
+ * on screen for as long as the player has a point unspent, which may be the
+ * whole session; anything quicker reads as an alert and becomes something to
+ * tune out, which is the opposite of the job. It breathes rather than blinks.
+ *
+ * box-shadow and not opacity: the chip must stay READABLE at every point in
+ * the cycle. Pulsing the text's opacity makes the number harder to read for
+ * half of every cycle, which is a strange way to draw attention to it. */
+.points.has-points {
+  animation: points-waiting 2.6s ease-in-out infinite;
+}
+
+@keyframes points-waiting {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 201, 93, 0);
+    border-color: rgba(244, 201, 93, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 10px 2px rgba(244, 201, 93, 0.33);
+    border-color: rgba(244, 201, 93, 0.85);
+  }
+}
+
+/* The arrival pop must win while it is playing, or a point landing is
+   swallowed by the pulse it is about to start. */
+.points.has-points.points-fresh {
+  animation: points-arrive 0.8s ease-out, points-waiting 2.6s ease-in-out 0.8s infinite;
+}
+
 /* Points arriving. Sits on the unspent-points chip. */
 .points-fresh {
   animation: points-arrive 0.8s ease-out;
@@ -536,6 +567,7 @@
   .just-changed,
   .just-refused,
   .points-fresh,
+  .points.has-points,
   .panel-enter {
     animation: none !important;
   }

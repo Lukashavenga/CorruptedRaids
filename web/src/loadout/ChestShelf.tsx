@@ -3,6 +3,7 @@ import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import type { ContentCatalog } from "../hooks/useContentCatalog.js";
 import { ItemIcon } from "./ItemIcon.js";
 import { haptic } from "./haptics.js";
+import { play } from "../audio.js";
 import { text, format } from "../../../src/text/index.js";
 
 /**
@@ -129,6 +130,10 @@ export function ChestShelf({ character, catalog, onOpen, busy }: ChestShelfProps
     after(SHAKE_MS, () => {
       setPhase("opening");
       haptic("chestOpen");
+      // On the pop, not on the shake: the sting has its impact at the front,
+      // and the two land together this way. It is also safely inside a user
+      // gesture — the player pressed the chest — so autoplay never refuses it.
+      play("chestOpen");
       void job.then(() => {
         after(Math.round(OPEN_MS * REVEAL_AT), () => {
           setRevealed(pending.current);

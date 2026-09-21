@@ -3,6 +3,7 @@ import { STAGE_PAD, STAGE_W } from "../stage.js";
 import { useFittedFontSize } from "../hooks/useFittedFontSize.js";
 import type { StateId } from "../../../src/state/dungeonStates.config.js";
 import type { CombatOutcome } from "../../../src/engine/types.js";
+import { LOGO_SRC } from "../build.js";
 
 export interface StateBannerProps {
   state: StateId;
@@ -97,7 +98,7 @@ export function StateBanner({
     <div className={`state-banner state-${state}`}>
       {/* Idle is the only state with nothing happening, so it's where the
           brand mark earns its space — every other state needs the headline. */}
-      {state === "idle" && <img className="idle-logo" src="/art/logo.png" alt="" />}
+      {state === "idle" && <img className="idle-logo" src={LOGO_SRC} alt="" />}
       <span className="banner-line" style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize + 2}px` }}>
         {line}
       </span>
