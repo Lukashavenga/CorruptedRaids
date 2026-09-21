@@ -1023,17 +1023,19 @@ body {
 }
 
 /* --- loadout: hair picker --------------------------------------------------
-   Forty drawings, so a scrolling grid of thumbnails rather than a row. */
+   ELEVEN cells now, not forty: bald plus ten styles, with colour moved out to
+   its own swatch row. So no scroll box - eleven things fit, and a scrollbar
+   over two rows only hid the second one. The cells are bigger for the same
+   reason, because the choice is now between SHAPES and a 44px thumbnail of a
+   hairstyle is mostly a smudge. */
 .hair-choices {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-  gap: 4px;
-  max-height: 180px;
-  overflow-y: auto;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 6px;
 }
 
 .loadout .hair-choice {
-  height: 44px;
+  height: 56px;
   display: grid;
   place-items: center;
   padding: 2px;
