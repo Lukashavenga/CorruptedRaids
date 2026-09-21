@@ -40,3 +40,6 @@ supabase/functions/character/_content.json
 
 # Filtered copy of overlay/ that actually gets uploaded (scripts/publish-web.ts).
 .publish/
+
+# Vite writes this beside web/vite.config.ts while loading a TS config.
+web/vite.config.ts.timestamp-*

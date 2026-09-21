@@ -18,7 +18,17 @@ function buildId(): string {
   const day = new Date().toISOString().slice(0, 10);
   try {
     const sha = execSync("git rev-parse --short HEAD", { encoding: "utf-8" }).trim();
-    const dirty = execSync("git status --porcelain", { encoding: "utf-8" }).trim() !== "";
+    // `--untracked-files=no`, and it is load-bearing.
+    //
+    // Vite writes a temporary `vite.config.ts.timestamp-*.mjs` beside this
+    // file while loading a TypeScript config, so a plain `git status` is NEVER
+    // empty during a build and every build stamped itself dirty — which makes
+    // the marker noise, and a marker that is always on tells you nothing.
+    // Tracked modifications are also the honest definition: an untracked
+    // scratch file is not what the bundle was built from.
+    const dirty = execSync("git status --porcelain --untracked-files=no", {
+      encoding: "utf-8",
+    }).trim() !== "";
     return `${day}.${sha}${dirty ? "+" : ""}`;
   } catch {
     return `${day}.unknown`;
