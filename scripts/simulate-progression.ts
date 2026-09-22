@@ -434,28 +434,57 @@ for (const size of [1, 3, 5, 10, 15, 25, 40]) {
 // ---------------------------------------------------------------------------
 
 head("8. THE CEILING — what a party meets as it outgrows the content");
-console.log(`\n${"band".padEnd(14)}${"threshold".padEnd(11)}${"enemies".padEnd(9)}${"enemy hp".padEnd(10)}win at ${MID.id}`);
+
+/*
+ * TWENTY-FIVE RUNS PER BAND, not one.
+ *
+ * This printed a single victory/defeat per band, which is a coin flip reported
+ * as a measurement. author-bands.ts solves every band to roughly "Fair" - call
+ * it 70% - so one sample says "defeat" about three times in ten, and across
+ * six bands a couple of defeats are certain. Read as a pattern, they said the
+ * ladder inverted: brutal a wall, infernal a walkover. It said nothing of the
+ * kind, and AGENTS.md section 10 carried conclusions drawn from it for months.
+ *
+ * Twenty-five is still a wide interval - plus or minus about nine points at
+ * 70% - so the column is a rate to compare against author-bands, not a number
+ * to tune against. The place to tune is author-bands, which runs a hundred
+ * samples per band and exists for that.
+ */
+const CEILING_TRIALS = 25;
+console.log(`\n${"band".padEnd(14)}${"threshold".padEnd(11)}${"enemies".padEnd(9)}${"enemy hp".padEnd(10)}win at ${MID.id} (${CEILING_TRIALS} runs)`);
 for (const band of PARTY_BANDS) {
-  // Build a party rated into this band by handing it levels, then measure.
-  const engine = new GameEngine(content, mulberry32(55));
-  engine.dispatch({ type: "open_dungeon", dungeonId: MID.id });
-  engine.dispatch({ type: "sim_join", count: 10, dress: true });
   const target = BAND_THRESHOLDS[band];
-  let guard = 0;
-  while (partyRating(engine.party, content) < target && guard < 4000) {
-    for (const c of engine.party) {
-      c.unspentPoints += 2;
-      spendPoints(c, c.role, content.balance);
+  let wins = 0;
+  let survivors = 0;
+  let enemyCount = 0;
+  let hp = 0;
+
+  for (let t = 0; t < CEILING_TRIALS; t += 1) {
+    // Build a party rated into this band by handing it levels, then measure.
+    const engine = new GameEngine(content, mulberry32(55 + t * 7919));
+    engine.dispatch({ type: "open_dungeon", dungeonId: MID.id });
+    engine.dispatch({ type: "sim_join", count: 10, dress: true });
+    let guard = 0;
+    while (partyRating(engine.party, content) < target && guard < 4000) {
+      for (const c of engine.party) {
+        c.unspentPoints += 2;
+        spendPoints(c, c.role, content.balance);
+      }
+      guard += 1;
     }
-    guard += 1;
+    const rating = partyRating(engine.party, content);
+    const enemies = content.expandDungeonEnemies(content.getDungeon(MID.id), effectiveRating(rating, 10));
+    enemyCount = enemies.length;
+    hp = enemies.reduce((a, e) => a + e.stats.hp, 0);
+
+    const combat = engine.dispatch({ type: "start_dungeon" }).combat!;
+    if (combat.outcome === "victory") wins += 1;
+    survivors += combat.survivorIds.length;
   }
-  const rating = partyRating(engine.party, content);
-  const enemies = content.expandDungeonEnemies(content.getDungeon(MID.id), effectiveRating(rating, 10));
-  const hp = enemies.reduce((a, e) => a + e.stats.hp, 0);
-  const combat = engine.dispatch({ type: "start_dungeon" }).combat!;
+
   console.log(
-    `${band.padEnd(14)}${String(target).padEnd(11)}${String(enemies.length).padEnd(9)}${hp.toFixed(0).padEnd(10)}` +
-      `${combat.outcome === "victory" ? `victory, ${combat.survivorIds.length}/10 alive` : "defeat"}`,
+    `${band.padEnd(14)}${String(target).padEnd(11)}${String(enemyCount).padEnd(9)}${hp.toFixed(0).padEnd(10)}` +
+      `${pct(wins, CEILING_TRIALS)} win, ${(survivors / CEILING_TRIALS).toFixed(1)}/10 alive`,
   );
 }
 
@@ -540,7 +569,10 @@ head("9. THE CAREER — one chat, climbing");
 head("10. LADDER ORDER — the label against the fight");
 console.log(`\n${"dungeon".padEnd(17)}${"says".padEnd(7)}${"enemies".padEnd(9)}${"enemy hp".padEnd(11)}win at level 10   win at level 30`);
 {
-  function winRateAt(dungeonId: string, level: number, trials = 7): { win: number; enemies: number; hp: number } {
+  // 25, not 7. At a true 70% win rate, seven trials routinely read anywhere
+  // from 29% to 100%, which is wide enough to invent a ladder inversion that
+  // is not there - and did.
+  function winRateAt(dungeonId: string, level: number, trials = 25): { win: number; enemies: number; hp: number } {
     let wins = 0;
     let enemies = 0;
     let hp = 0;
