@@ -58,6 +58,17 @@ export class ContentRegistry {
   loadObjects(bundle: {
     gear?: unknown[];
     consumables?: unknown[];
+    /**
+     * Dungeons and raids as DATA, for a caller with no directory to read.
+     *
+     * The Edge Function never needed these - it validates a character's own
+     * commands and has no opinion about where a fight happens. The game server
+     * does, once content lives in Supabase rather than on the disk beside it,
+     * and the alternative was a second loader that agrees with the directory
+     * one until somebody changes a rule in only one of them.
+     */
+    dungeons?: unknown[];
+    raids?: unknown[];
     balance?: unknown;
     shop?: unknown;
   }): void {
@@ -71,6 +82,24 @@ export class ContentRegistry {
       if (this.consumables.has(def.id)) throw new Error(`duplicate consumable id "${def.id}"`);
       this.consumables.set(def.id, def);
     }
+    // Dungeons and raids AFTER gear, because both check their loot tables
+    // against it - the same ordering the directory loaders document, and for
+    // the same reason: a fight that drops a missing item should fail here
+    // rather than four rounds into a live run.
+    for (const [i, raw] of (bundle.dungeons ?? []).entries()) {
+      const def = validateDungeonDefinition(raw, `dungeons[${i}]`);
+      if (this.dungeons.has(def.id)) throw new Error(`duplicate dungeon id "${def.id}"`);
+      this.checkLoot(def, def.id, `dungeons[${i}]`);
+      this.dungeons.set(def.id, def);
+    }
+    for (const [i, raw] of (bundle.raids ?? []).entries()) {
+      const def = validateRaidDefinition(raw, `raids[${i}]`);
+      if (this.raids.has(def.id)) throw new Error(`duplicate raid id "${def.id}"`);
+      const fights = [def.boss.fight, ...def.rooms.flatMap((r) => (r.fight ? [r.fight] : []))];
+      for (const fight of fights) this.checkLoot(fight, def.id, `raids[${i}]`);
+      this.raids.set(def.id, def);
+    }
+
     if (bundle.balance && typeof bundle.balance === "object") {
       this.balance = mergeBalance(DEFAULT_BALANCE, bundle.balance as Record<string, unknown>);
     }

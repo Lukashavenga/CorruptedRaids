@@ -26,7 +26,15 @@
  * own. Deleting the page's check entirely would change nothing about what a
  * stranger can do.
  */
-import { ContentRegistry, GameEngine } from "./_engine.js";
+import {
+  ContentRegistry,
+  GameEngine,
+  validateConsumableDefinition,
+  validateDungeonDefinition,
+  validateGearDefinition,
+  validateRaidDefinition,
+  validateShopStock,
+} from "./_engine.js";
 import type { Character, GameCommand } from "./_engine.js";
 import bundledContent from "./_content.json" with { type: "json" };
 
@@ -115,6 +123,42 @@ function isOperator(twitchId: string | null): boolean {
     .map((s) => s.trim())
     .filter(Boolean);
   return ids.includes(twitchId);
+}
+
+/**
+ * Refuse a content write that the game could not load.
+ *
+ * The SAME validators the disk loader uses, exported through the edge bundle.
+ * Content arrives over HTTP now rather than being typed into a file by
+ * somebody who restarts the server and watches it start, so the moment to
+ * catch a malformed dungeon is while its author is still looking at it - not
+ * at the next boot, with nobody around who remembers touching anything.
+ *
+ * Keyed off the path, because that is what says which shape a file is. A path
+ * with no known shape is refused outright rather than written unchecked: an
+ * unrecognised path is either a typo or a new kind of content that nobody has
+ * taught this to validate, and both deserve a refusal.
+ */
+function validateContent(path: string, data: unknown): string | null {
+  try {
+    if (path.startsWith("gear/")) validateGearDefinition(data, path);
+    else if (path.startsWith("dungeons/")) validateDungeonDefinition(data, path);
+    else if (path.startsWith("raids/")) validateRaidDefinition(data, path);
+    else if (path.startsWith("consumables/")) validateConsumableDefinition(data, path);
+    else if (path === "shop.json") validateShopStock(data, path);
+    else if (path === "balance.json" || path === "placements.json") {
+      // Both are partial by design - balance.json names only the knobs it
+      // changes and merges over the in-code defaults, and placements.json is a
+      // free-form map of sprite to position. Neither has a validator on the
+      // disk side either, so inventing one here would be a second opinion.
+      if (typeof data !== "object" || data === null || Array.isArray(data)) return `${path} must be a JSON object`;
+    } else {
+      return `Refusing to write an unrecognised content path "${path}".`;
+    }
+    return null;
+  } catch (err) {
+    return (err as Error).message;
+  }
 }
 
 interface Row {
@@ -219,6 +263,67 @@ Deno.serve(async (req: Request) => {
         ]),
       });
       return json({ ok: true, message: result.message, character: engine.getCharacterView(target) }, 200, req);
+    }
+
+    if (action === "content-list") {
+      const res = await db("/content_files?select=path,updated_at,updated_by&order=path.asc");
+      return json({ ok: true, files: await res.json() }, 200, req);
+    }
+
+    if (action === "content-get") {
+      const path = url.searchParams.get("path");
+      if (!path) return json({ ok: false, message: "path is required" }, 400, req);
+      const res = await db(`/content_files?path=eq.${encodeURIComponent(path)}&select=path,data,updated_at,updated_by`);
+      const rows = (await res.json()) as { path: string; data: unknown }[];
+      if (!rows[0]) return json({ ok: false, message: `No content at "${path}".` }, 404, req);
+      return json({ ok: true, file: rows[0] }, 200, req);
+    }
+
+    if (action === "content-put" && req.method === "POST") {
+      const body = (await req.json()) as { path?: string; data?: unknown };
+      const path = body.path;
+      if (!path || body.data === undefined) return json({ ok: false, message: "path and data are required" }, 400, req);
+
+      const invalid = validateContent(path, body.data);
+      if (invalid) return json({ ok: false, message: invalid }, 400, req);
+
+      await db("/content_files", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates" },
+        body: JSON.stringify([
+          { path, data: body.data, updated_at: new Date().toISOString(), updated_by: twitchId },
+        ]),
+      });
+      // The previous contents are already in content_history by the time this
+      // returns - the trigger does it, so no caller can skip it.
+      return json({ ok: true, message: `Saved ${path}.` }, 200, req);
+    }
+
+    if (action === "content-history") {
+      const path = url.searchParams.get("path");
+      if (!path) return json({ ok: false, message: "path is required" }, 400, req);
+      const res = await db(
+        `/content_history?path=eq.${encodeURIComponent(path)}&select=id,replaced_at,replaced_by&order=replaced_at.desc&limit=25`,
+      );
+      return json({ ok: true, versions: await res.json() }, 200, req);
+    }
+
+    if (action === "content-restore" && req.method === "POST") {
+      // Restoring is a WRITE, so it goes through the same upsert and leaves
+      // the version it replaced in history too. Undo is undoable.
+      const body = (await req.json()) as { id?: number };
+      if (!body.id) return json({ ok: false, message: "id is required" }, 400, req);
+      const res = await db(`/content_history?id=eq.${body.id}&select=path,data`);
+      const rows = (await res.json()) as { path: string; data: unknown }[];
+      if (!rows[0]) return json({ ok: false, message: "No such version." }, 404, req);
+      await db("/content_files", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates" },
+        body: JSON.stringify([
+          { path: rows[0].path, data: rows[0].data, updated_at: new Date().toISOString(), updated_by: twitchId },
+        ]),
+      });
+      return json({ ok: true, message: `Restored ${rows[0].path}.` }, 200, req);
     }
 
     return json({ ok: false, message: `Unknown action "${action}".` }, 400, req);

@@ -30,7 +30,8 @@
     "deploy": "npm run publish:web && wrangler pages deploy",
     "preview": "wrangler dev",
     "publish:web": "tsx scripts/publish-web.ts && npm run check:hosted",
-    "check:hosted": "tsx scripts/check-hosted.ts"
+    "check:hosted": "tsx scripts/check-hosted.ts",
+    "push:content": "tsx --env-file-if-exists=.env scripts/push-content.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"

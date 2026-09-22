@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync, copyFileSync, mkdirSync, readd
 import { extname, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../engine/content/loader.js";
+import { loadContentFromSupabase, writeContentFile } from "./contentStore.js";
 import { GameEngine } from "../engine/state/gameEngine.js";
 import type { GameCommand } from "../engine/commands/types.js";
 import { DungeonController, type DungeonSnapshot, type DungeonUpdate } from "../state/DungeonController.js";
@@ -38,6 +39,15 @@ const CONTENT_DIR = join(ROOT, "content");
  * The file is a few hundred small objects, so the read is not worth optimising.
  */
 const PLACEMENTS_FILE = join(CONTENT_DIR, "placements.json");
+
+/**
+ * placements.json out of Supabase, when that is where content came from.
+ *
+ * Held here rather than written to disk: the whole point of the move is that
+ * the hosted panel is the authority, and a server that wrote its copy back
+ * would turn every restart into a race between two writers.
+ */
+let supabasePlacements: unknown = null;
 
 /**
  * Chat's door vote for the round in progress.
@@ -88,16 +98,47 @@ const BACKUP_SPRITES = join(ROOT, "art", "sprites", "_original");
 const PORT = Number(process.env.PORT ?? 8787);
 
 const content = new ContentRegistry();
-content.loadGearDir(join(CONTENT_DIR, "gear"));
-content.loadDungeonsDir(join(CONTENT_DIR, "dungeons"));
-content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
-content.loadBalance(join(CONTENT_DIR, "balance.json"));
-// Shop last: it validates its ids against everything loaded above.
-// Raids after gear: every fight in one names the gear it can drop.
-content.loadRaidsDir(join(CONTENT_DIR, "raids"));
-content.loadShop(join(CONTENT_DIR, "shop.json"));
+
+/**
+ * Supabase first, the disk second.
+ *
+ * Content lives in a table now so it can be edited from the hosted operator
+ * page rather than only from this machine (sql/003_content.sql). The
+ * directory loaders stay as the fallback and are not a legacy path: a fresh
+ * clone with no Supabase configured has to boot, the simulator reads content
+ * with no network at all, and a stream should not stop because a database is
+ * having an afternoon.
+ *
+ * Loaded ONCE, at boot, exactly as the files were. An edit in the panel
+ * reaches the game at the next restart.
+ */
+let contentSource = "files";
+try {
+  const fromDb = await loadContentFromSupabase(content);
+  if (fromDb.loaded) {
+    contentSource = `Supabase (${fromDb.count} files)`;
+    if (fromDb.placements) supabasePlacements = fromDb.placements;
+  }
+} catch (err) {
+  // Loud, then carry on with the disk. A silent fallback is how you end up
+  // running a stream on last week's balance and wondering why nothing you
+  // changed took effect.
+  console.error(`[content] Supabase load failed, falling back to content/: ${(err as Error).message}`);
+}
+
+if (contentSource === "files") {
+  content.loadGearDir(join(CONTENT_DIR, "gear"));
+  content.loadDungeonsDir(join(CONTENT_DIR, "dungeons"));
+  content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
+  content.loadBalance(join(CONTENT_DIR, "balance.json"));
+  // Shop last: it validates its ids against everything loaded above.
+  // Raids after gear: every fight in one names the gear it can drop.
+  content.loadRaidsDir(join(CONTENT_DIR, "raids"));
+  content.loadShop(join(CONTENT_DIR, "shop.json"));
+}
 console.log(
-  `Loaded ${content.listGear().length} gear items, ${content.listDungeons().length} dungeons, ${content.listRaids().length} raids.`,
+  `Content: ${contentSource}. ` +
+    `Loaded ${content.listGear().length} gear items, ${content.listDungeons().length} dungeons, ${content.listRaids().length} raids.`,
 );
 
 /**
@@ -518,36 +559,48 @@ const server = createServer((req, res) => {
    */
   if (req.method === "GET" && url.pathname === "/placements") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(readPlacements());
+    // The store wins when content came from it, so the admin screen and the
+    // overlay are looking at the same placements the hosted panel edits. The
+    // file is what a checkout with no Supabase reads.
+    res.end(supabasePlacements ? JSON.stringify(supabasePlacements) : readPlacements());
     return;
   }
 
   /**
-   * NO AUTH YET — deliberately, and it must not ship this way.
+   * Save placements, to wherever content lives.
    *
-   * This writes a content file to disk from an unauthenticated request. It is
-   * fine on a developer's machine, which is the only place the admin screen is
-   * meant to run, and it is the same trust model as the loadout's `?viewer=`.
-   * Gate both together when auth arrives.
+   * WRITES TO THE STORE when the server booted from it, because otherwise the
+   * local admin screen and the hosted panel edit two different copies and the
+   * last restart decides which one was real. When there is no Supabase this
+   * writes the file exactly as it always did.
+   *
+   * The store write goes through content_files, so it inherits the history
+   * trigger: the version it replaces is kept. That matters more here than
+   * anywhere else - placement and mask work is precisely what was lost before,
+   * and the recovery plan was a browser tab somebody had not closed yet.
    */
   if (req.method === "POST" && url.pathname === "/placements") {
-    // Operator only: this writes to the repo. See auth.ts.
+    // Operator only: this writes content. See auth.ts.
     if (denyNonAdmin(req, res)) return;
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
-      try {
-        const parsed = JSON.parse(body || "{}");
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-          throw new Error("expected an object of slot -> sprite -> placement");
+      void (async () => {
+        try {
+          const parsed = JSON.parse(body || "{}");
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+            throw new Error("expected an object of slot -> sprite -> placement");
+          }
+          const stored = await writeContentFile("placements.json", parsed);
+          if (stored) supabasePlacements = parsed;
+          else writePlacements(parsed);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ok: true, stored: stored ? "supabase" : "file" }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
         }
-        writePlacements(parsed);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true }));
-      } catch (err) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
-      }
+      })();
     });
     return;
   }
