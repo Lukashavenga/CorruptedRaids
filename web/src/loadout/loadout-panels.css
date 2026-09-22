@@ -1752,3 +1752,117 @@
   font-size: 10px;
   opacity: 0.65;
 }
+
+/* --- hosted content editor ------------------------------------------------ */
+
+/* List beside editor on a desktop, stacked on a phone. The list is narrow on
+   purpose: a file name is short and the JSON is what needs the room. */
+.ce-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .ce-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ce-list {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.ce-group ul {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.ce-group li button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 0;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ce-group li button:hover {
+  color: var(--rail-lit);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ce-group li button.is-current {
+  color: var(--accent);
+  background: rgba(226, 181, 112, 0.12);
+}
+
+.ce-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+/* Monospace, and tall: this is JSON, and a four-line box makes a dungeon
+   impossible to read let alone edit. */
+.ce-text {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 60vh;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 10px;
+  resize: vertical;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.ce-history ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+.ce-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ce-history button {
+  font: inherit;
+  font-size: 10px;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.ce-history button:hover:not(:disabled) {
+  color: var(--rail-lit);
+  border-color: var(--rail-lit);
+}

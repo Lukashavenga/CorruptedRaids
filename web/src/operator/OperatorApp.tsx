@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BUILD_LABEL, LOGO_SRC } from "../build.js";
 import { readSession, signIn, signOut, type SessionState } from "../loadout/identity.js";
 import * as api from "./api.js";
+import { ContentEditor } from "./ContentEditor.js";
 import type { RosterEntry } from "./api.js";
 
 /**
@@ -28,6 +29,7 @@ export function OperatorApp(): JSX.Element {
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("");
+  const [tab, setTab] = useState<"roster" | "content">("roster");
 
   /*
    * The gear catalogue, for choosing what a chest contains.
@@ -161,6 +163,17 @@ export function OperatorApp(): JSX.Element {
         </button>
       </header>
 
+      <nav className="site-nav" aria-label="Operator">
+        {(["roster", "content"] as const).map((t) => (
+          <button key={t} type="button" className={`nav-item ${tab === t ? "is-current" : ""}`} onClick={() => setTab(t)}>
+            {t === "roster" ? "Roster" : "Content"}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "content" && <ContentEditor />}
+
+      {tab === "roster" && (
       <section className="panel">
         <header className="panel-head">
           <h2>Roster</h2>
@@ -243,6 +256,7 @@ export function OperatorApp(): JSX.Element {
 
         {shown.length === 0 && <p className="hint">Nothing matches that.</p>}
       </section>
+      )}
 
       <footer className="build-bar">
         <span className="build-id">{BUILD_LABEL}</span>

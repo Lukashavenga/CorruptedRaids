@@ -71,3 +71,33 @@ export function command(target: string, cmd: Record<string, unknown>): Promise<{
     body: JSON.stringify({ target, command: cmd }),
   });
 }
+
+// --- content -----------------------------------------------------------------
+
+export interface ContentFile {
+  path: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export function contentList(): Promise<{ files: ContentFile[] }> {
+  return call("?action=content-list");
+}
+
+export function contentGet(path: string): Promise<{ file: { path: string; data: unknown } }> {
+  return call(`?action=content-get&path=${encodeURIComponent(path)}`);
+}
+
+export function contentPut(path: string, data: unknown): Promise<{ message?: string }> {
+  return call("?action=content-put", { method: "POST", body: JSON.stringify({ path, data }) });
+}
+
+export function contentHistory(
+  path: string,
+): Promise<{ versions: { id: number; replaced_at: string; replaced_by: string | null }[] }> {
+  return call(`?action=content-history&path=${encodeURIComponent(path)}`);
+}
+
+export function contentRestore(id: number): Promise<{ message?: string }> {
+  return call("?action=content-restore", { method: "POST", body: JSON.stringify({ id }) });
+}
