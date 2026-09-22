@@ -3082,88 +3082,6 @@
           }
         ],
         "xpReward": 68
-      },
-      {
-        "id": "brutal-30",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-02",
-        "role": "dps",
-        "x": 0.429,
-        "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "xpReward": 68
-      },
-      {
-        "id": "brutal-31",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.541,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "brutal-32",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.652,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-33",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.763,
-        "y": 0.835,
-        "role": "healer"
-      },
-      {
-        "id": "brutal-34",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.874,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-35",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "brutal-36",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.04,
-        "y": 0.78,
-        "role": "dps"
       }
     ],
     "infernal": [
@@ -4981,10 +4899,10 @@
   "flavorText": "A garrison town. They stopped waiting for you to come to them.",
   "bandStatScale": {
     "weak": 0.145,
-    "seasoned": 2.766,
-    "elite": 9.472,
-    "brutal": 7.583,
-    "infernal": 16.369,
-    "apocalyptic": 15.197
+    "seasoned": 2.771,
+    "elite": 9.461,
+    "brutal": 10.642,
+    "infernal": 11.837,
+    "apocalyptic": 16.174
   }
 }

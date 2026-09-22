@@ -613,32 +613,6 @@
           "skill": 1,
           "crit": 0.03
         }
-      },
-      {
-        "id": "brutal-16",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
-        "x": 0.485,
-        "y": 0.89,
-        "scale": 0.65
-      },
-      {
-        "id": "brutal-17",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "tank",
-        "x": 0.708,
-        "y": 0.89,
-        "scale": 0.7
-      },
-      {
-        "id": "brutal-18",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "role": "dps",
-        "x": 0.93,
-        "y": 0.89
       }
     ],
     "infernal": [
@@ -836,40 +810,6 @@
         "x": 0.218,
         "y": 0.89,
         "scale": 0.7
-      },
-      {
-        "id": "infernal-18",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "role": "dps",
-        "x": 0.396,
-        "y": 0.89
-      },
-      {
-        "id": "infernal-19",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "x": 0.574,
-        "y": 0.89,
-        "scale": 0.65,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-20",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "x": 0.752,
-        "y": 0.89,
-        "scale": 0.7,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-21",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.89,
-        "role": "healer"
       }
     ],
     "apocalyptic": [
@@ -1156,9 +1096,9 @@
   "bandStatScale": {
     "weak": 0.994,
     "seasoned": 16.618,
-    "elite": 38.479,
-    "brutal": 34.189,
-    "infernal": 59.549,
-    "apocalyptic": 50.881
+    "elite": 38.482,
+    "brutal": 49.652,
+    "infernal": 49.656,
+    "apocalyptic": 53.018
   }
 }

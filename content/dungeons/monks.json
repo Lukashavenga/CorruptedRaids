@@ -1569,46 +1569,6 @@
         "x": 0.294,
         "y": 0.89,
         "role": "dps"
-      },
-      {
-        "id": "brutal-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.421,
-        "y": 0.89,
-        "role": "healer"
-      },
-      {
-        "id": "brutal-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.549,
-        "y": 0.89,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.676,
-        "y": 0.89,
-        "role": "tank"
-      },
-      {
-        "id": "brutal-24",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.803,
-        "y": 0.89,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-25",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 0.89,
-        "role": "tank"
       }
     ],
     "infernal": [
@@ -2070,54 +2030,6 @@
         "sprite": "villagers/villagers-06",
         "x": 0.708,
         "y": 0.89,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-25",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 0.89,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-26",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.89,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-27",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.188,
-        "y": 0.835,
-        "role": "healer"
-      },
-      {
-        "id": "infernal-28",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-29",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.782,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-30",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.835,
         "role": "dps"
       }
     ],
@@ -2624,62 +2536,6 @@
         "x": 0.318,
         "y": 0.835,
         "role": "tank"
-      },
-      {
-        "id": "apocalyptic-30",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.429,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-31",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.541,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-32",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.652,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-33",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.763,
-        "y": 0.835,
-        "role": "healer"
-      },
-      {
-        "id": "apocalyptic-34",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.874,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-35",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-36",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.04,
-        "y": 0.78,
-        "role": "dps"
       }
     ]
   },
@@ -2697,10 +2553,10 @@
   "flavorText": "They have had a week to prepare, and they have used all of it.",
   "bandStatScale": {
     "weak": 0.365,
-    "seasoned": 5.05,
-    "elite": 11.01,
-    "brutal": 10.19,
-    "infernal": 15.036,
-    "apocalyptic": 15.71
+    "seasoned": 5.046,
+    "elite": 10.989,
+    "brutal": 12.899,
+    "infernal": 15.978,
+    "apocalyptic": 19.527
   }
 }

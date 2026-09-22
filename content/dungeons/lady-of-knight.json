@@ -4611,10 +4611,10 @@
   "flavorText": "Where the heroes are made. Burn it and there are no more of them.",
   "bandStatScale": {
     "weak": 0.145,
-    "seasoned": 2.019,
-    "elite": 4.86,
-    "brutal": 6.354,
-    "infernal": 8.491,
-    "apocalyptic": 12.181
+    "seasoned": 2.01,
+    "elite": 4.869,
+    "brutal": 6.338,
+    "infernal": 8.565,
+    "apocalyptic": 12.163
   }
 }
