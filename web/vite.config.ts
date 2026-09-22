@@ -58,6 +58,10 @@ export default defineConfig({
         index: resolve(__dirname, "index.html"),
         loadout: resolve(__dirname, "loadout.html"),
         admin: resolve(__dirname, "admin.html"),
+        // The hosted operator console. Unlike admin.html this one DOES ship:
+        // it talks to Supabase rather than the game server, so it works with
+        // no game process behind it. See scripts/publish-web.ts.
+        operator: resolve(__dirname, "operator.html"),
       },
     },
   },

@@ -43,3 +43,7 @@ supabase/functions/character/_content.json
 
 # Vite writes this beside web/vite.config.ts while loading a TS config.
 web/vite.config.ts.timestamp-*
+
+# Generated alongside the character function copies (scripts/bundle-edge-content.ts).
+supabase/functions/operator/_engine.js
+supabase/functions/operator/_content.json

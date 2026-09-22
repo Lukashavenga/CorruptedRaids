@@ -1659,3 +1659,73 @@
   color: var(--accent);
   opacity: 0.85;
 }
+
+/* --- hosted operator console ---------------------------------------------- */
+
+.op-who {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.op-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.op-table th {
+  text-align: left;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--ink-dim);
+  font-weight: 400;
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.op-table td {
+  padding: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* A row being edited mid-run would be overwritten by the game server's next
+   write-behind save, so the function refuses it. Dimming says why before the
+   button is reached for. */
+.op-table tr.is-inrun {
+  opacity: 0.55;
+}
+
+.op-tag {
+  margin-left: 6px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--accent);
+  border: 1px solid rgba(226, 181, 112, 0.4);
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+.op-actions button {
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.op-actions button:hover:not(:disabled) {
+  color: var(--rail-lit);
+  border-color: var(--rail-lit);
+}
+
+.op-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

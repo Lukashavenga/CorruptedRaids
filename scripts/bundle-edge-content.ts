@@ -14,7 +14,7 @@
  * and redeploy the function after changing gear, prices or balance.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../src/engine/content/loader.js";
@@ -206,3 +206,22 @@ execFileSync(
 );
 const engineKb = Math.round(readFileSync(ENGINE_OUT, "utf-8").length / 1024);
 console.log(`engine:  bundled -> ${engineKb}KB`);
+
+/*
+ * The operator function gets its OWN copies.
+ *
+ * Supabase deploys one function directory at a time, so an import reaching up
+ * into ../character/ resolves on this machine and not on the platform. Two
+ * copies of a generated file is the cheaper mistake: the alternative is a
+ * shared module that deploys correctly only when somebody remembers to ship
+ * the other function with it.
+ *
+ * Both are generated, both are gitignored, and both are rewritten by this
+ * script, so they cannot drift from each other.
+ */
+const OPERATOR_DIR = join(ROOT, "supabase", "functions", "operator");
+if (existsSync(OPERATOR_DIR)) {
+  copyFileSync(ENGINE_OUT, join(OPERATOR_DIR, "_engine.js"));
+  copyFileSync(OUT, join(OPERATOR_DIR, "_content.json"));
+  console.log("operator: engine and content copied");
+}
