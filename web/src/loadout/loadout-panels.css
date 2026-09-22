@@ -1729,3 +1729,26 @@
   opacity: 0.4;
   cursor: default;
 }
+
+.op-rarity {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.op-rarity select {
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+
+.hint-inline {
+  font-family: var(--font-data);
+  font-size: 10px;
+  opacity: 0.65;
+}

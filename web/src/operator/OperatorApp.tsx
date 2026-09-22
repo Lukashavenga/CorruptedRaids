@@ -29,6 +29,39 @@ export function OperatorApp(): JSX.Element {
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("");
 
+  /*
+   * The gear catalogue, for choosing what a chest contains.
+   *
+   * grant_chest takes a gearId - a chest is a WRAPPED ITEM, not a random
+   * roll deferred to opening time, because the roll already happened when the
+   * fight resolved and the chest is only the telling. The first version of
+   * this button sent no gearId at all and the engine answered `No such gear
+   * "undefined"`, which is exactly the right complaint.
+   *
+   * Read from the published content bundle rather than an endpoint: this page
+   * is static-hosted and has no game server to ask, the same constraint that
+   * check-hosted exists to enforce.
+   */
+  const [gear, setGear] = useState<{ id: string; name: string; rarity: string }[]>([]);
+  const [rarity, setRarity] = useState("common");
+
+  useEffect(() => {
+    fetch("/loadout-content.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const list = (data?.gear ?? []) as { id: string; name: string; rarity: string; enabled?: boolean }[];
+        setGear(list.filter((g) => g.enabled !== false).map((g) => ({ id: g.id, name: g.name, rarity: g.rarity })));
+      })
+      .catch(() => setGear([]));
+  }, []);
+
+  /** One of the chosen rarity, at random - the same spread `npm run chests` uses. */
+  const pickGearId = useCallback((): string | null => {
+    const pool = gear.filter((g) => g.rarity === rarity);
+    if (!pool.length) return null;
+    return pool[Math.floor(Math.random() * pool.length)]!.id;
+  }, [gear, rarity]);
+
   useEffect(() => {
     void readSession().then(setSession);
   }, []);
@@ -143,6 +176,21 @@ export function OperatorApp(): JSX.Element {
           aria-label="Search the roster"
         />
 
+        <label className="op-rarity">
+          Chest contains{" "}
+          <select value={rarity} onChange={(e) => setRarity(e.target.value)}>
+            {["common", "uncommon", "rare", "epic", "legendary"].map((r) => {
+              const n = gear.filter((g) => g.rarity === r).length;
+              return (
+                <option key={r} value={r} disabled={n === 0}>
+                  {r} ({n})
+                </option>
+              );
+            })}
+          </select>{" "}
+          <span className="hint-inline">a random one, as `npm run chests` does</span>
+        </label>
+
         {error && <p className="bug-error">{error}</p>}
         {note && <p className="hint">{note}</p>}
         {busy && <p className="hint">Working...</p>}
@@ -175,8 +223,15 @@ export function OperatorApp(): JSX.Element {
                 <td className="op-actions">
                   <button
                     type="button"
-                    disabled={busy || r.inRun}
-                    onClick={() => void run(r.id, { type: "grant_chest" }, "Chest granted")}
+                    disabled={busy || r.inRun || gear.length === 0}
+                    onClick={() => {
+                      const gearId = pickGearId();
+                      if (!gearId) {
+                        setError(`No ${rarity} gear in the bundle to put in a chest.`);
+                        return;
+                      }
+                      void run(r.id, { type: "grant_chest", gearId, from: "Operator" }, "Chest granted");
+                    }}
                   >
                     + chest
                   </button>
