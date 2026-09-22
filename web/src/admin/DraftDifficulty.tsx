@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FightDefinition, PartyBand } from "../../../src/engine/types.js";
 import { PARTY_BANDS } from "../../../src/engine/types.js";
 import { BAND_SAMPLE_PARTY } from "../../../src/engine/squad.js";
-import { adminFetch } from "../adminKey.js";
+import { adminFetch, getAdminKey } from "../adminKey.js";
 
 export interface Reading {
   winRate: number;
@@ -62,6 +62,16 @@ export function useDraftDifficulty(draft: FightDefinition | null) {
 
   useEffect(() => {
     if (!draft) return;
+
+    // Same reason as DifficultyMeter: /difficulty is gated, so measuring
+    // without a key is six requests that all 401 and a red box that blames
+    // the server for a field the operator has not filled in yet.
+    if (!getAdminKey()) {
+      setError("Enter the admin key above to measure this draft.");
+      setBusy(false);
+      return;
+    }
+
     let cancelled = false;
     setBusy(true);
     const t = setTimeout(async () => {

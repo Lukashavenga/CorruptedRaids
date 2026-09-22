@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { adminFetch } from "../adminKey.js";
+import { adminFetch, getAdminKey } from "../adminKey.js";
 
 export interface DifficultyReport {
   winRate: number;
@@ -44,6 +44,17 @@ export function DifficultyMeter({
 
   useEffect(() => {
     if (!query) return;
+
+    // No key, no request. /difficulty is gated now, so firing without one
+    // earns a 401 and an alarming red message before the operator has had a
+    // chance to type anything. Saying what is missing beats reporting that
+    // the server refused a header nobody had entered yet.
+    if (!getAdminKey()) {
+      setError("Enter the admin key above to measure difficulty.");
+      setBusy(false);
+      return;
+    }
+
     let cancelled = false;
     setBusy(true);
     const { tanks, dps, healers, level } = composition;

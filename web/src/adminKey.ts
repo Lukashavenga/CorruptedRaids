@@ -54,13 +54,22 @@ export class AdminAuthError extends Error {
  * only produces a second identical failure.
  */
 export async function adminFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  // Captured, because the clear below has to know WHICH key was refused.
+  const sent = getAdminKey();
   const res = await fetch(url, {
     ...init,
-    headers: { ...(init.headers ?? {}), "X-Admin-Secret": getAdminKey() },
+    headers: { ...(init.headers ?? {}), "X-Admin-Secret": sent },
   });
 
   if (res.status === 401 || res.status === 503) {
-    if (res.status === 401) setAdminKey("");
+    // Only clear the key that was actually refused.
+    //
+    // This used to clear unconditionally, which is a race as soon as anything
+    // on the screen fetches on its own: the difficulty meter fires on mount
+    // and on every slider drag, so a request sent with an EMPTY key could
+    // return 401 after the operator had typed a good one and wipe it. They
+    // would watch the field they just filled in empty itself.
+    if (res.status === 401 && getAdminKey() === sent) setAdminKey("");
     const body = (await res.json().catch(() => null)) as { message?: string } | null;
     throw new AdminAuthError(body?.message ?? "Not authorised", res.status);
   }
