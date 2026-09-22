@@ -195,7 +195,37 @@ export function AdminApp(): JSX.Element {
     const entry = (bucket[spriteId] ??= {});
     entry[bodyType] = { ...current, ...next };
     setDirty(true);
-    void save(merged);
+    report(save(merged));
+  };
+
+  /**
+   * Say what the SERVER did, not what the screen did.
+   *
+   * `save` is optimistic: it paints the change immediately and posts behind,
+   * which is right for a direct-manipulation surface where waiting on a round
+   * trip would make dragging feel broken. The cost is that a refused write
+   * looks identical to an accepted one, and the result used to be discarded
+   * with `void`.
+   *
+   * That is how placement and mask work was lost repeatedly. Every write here
+   * needs the operator key; without it the POST 401s, the hook catches it and
+   * returns false, and the screen kept its optimistic copy until the next
+   * reload threw it away. The panel meanwhile announced "Saved." on a timer
+   * that never consulted the answer - a green confirmation for work that was
+   * never written.
+   *
+   * A failure stays on screen until the next action clears it. It is the one
+   * message here that must not be missed.
+   */
+  const report = (result: Promise<boolean>) => {
+    void result.then((ok) => {
+      if (ok) {
+        setStatus("Saved.");
+        window.setTimeout(() => setStatus(""), 1200);
+      } else {
+        setStatus("NOT SAVED. Enter the admin key above, then try again.");
+      }
+    });
   };
 
   // --- dragging ------------------------------------------------------------
@@ -300,12 +330,10 @@ export function AdminApp(): JSX.Element {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  useEffect(() => {
-    if (!dirty) return;
-    setStatus("Saved.");
-    const t = setTimeout(() => setStatus(""), 1200);
-    return () => clearTimeout(t);
-  }, [placements, dirty]);
+  // The "Saved." announcement used to live here, fired by any change to
+  // `placements` while dirty - which includes the OPTIMISTIC update that
+  // happens before the request is even sent. It confirmed writes that never
+  // reached the server. `report` above now says what actually happened.
 
   /**
    * What the stage draws.
