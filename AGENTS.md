@@ -706,54 +706,54 @@ something broke.
 
 ## 10. Open work
 
-**Marketgate has a dead zone from 14 to 30 players.** Measured with
-`npm run simulate:progression` §11: winnable at 8-12 (87%/73%/47%), *zero* from
-14 to 25, winnable again at 40 (73%). The mechanism is visible in the same
-table - the party's share of all actions COLLAPSES from 41% at ten players to
-23% at fourteen, which is a death spiral, not a close fight: enemy attack scales
-at `atkPerExtraMember: 0.24` per member over a baseline of five (5.8x at
-twenty-five) while enemy HP scales at 0.05 (2.0x) and a player's own HP not at
-all. People get one-shot before they swing. Past thirty, raw numbers win it back
-because the multiplier caps at 6.
+> **Measured again 2026-09-22, and most of what was here was noise.**
+>
+> The findings below were taken from `simulate:progression`, which was
+> reporting ONE fight per band in section 8 and seven trials in section 10.
+> Against fights solved to roughly 70% win, one sample says "defeat" three
+> times in ten; across six bands a couple of defeats are guaranteed, and read
+> as a pattern they say things that are not true. Both sections now run 25.
+>
+> Gone with the re-measurement: the Marketgate 14-30 dead zone (that dungeon
+> no longer exists), and "difficulty stops scaling at elite" - all five
+> dungeons now field all six bands.
 
-That U is the worst possible shape for a Twitch game: a stream that GROWS gets
-worse at it, and 14-30 concurrent joiners is a healthy small stream. Saint's
-Rest and the two dungeons above it are monotonic but pitched so high that a
-party under thirty loses anyway; Tillage Hamlet is 100% at every size. So the
-whole ladder is either trivial or impossible, with Marketgate the only fight
-with a curve at all, and its curve has a hole in it.
+**~~Difficulty stops scaling at `elite`.~~ Done.** All five dungeons field all
+six bands. Section 1 of `simulate:progression` confirms it: "0 of 5 dungeons
+cannot field the top band."
 
-The lever is `partyScaling.atkPerExtraMember`. A sweep is in the transcript;
-lowering it alone does not close the hole (0.06 still reads 7% at fifteen),
-because the cliff is a threshold effect and not a slope. Making enemy attack
-scale SUB-linearly - the same log shape `crowdFactor` already uses for the band
-- is the change that fits the design. That is a balance decision, so it is
-listed here rather than made.
+**Band curves may not fall.** `expandFight` interpolates the stat multiplier
+from the band below up to the current band's across the width of that band, so
+a dip in `bandStatScale` is not a dip - it is a difficulty curve that FALLS
+for the whole width of a band. BARBIEVILLE solved to elite x18.27, brutal
+x13.63, infernal x33.60, which measured at 25 runs as elite 100% win, brutal
+8%, infernal 84%, with brutal fielding more enemy hp than infernal above it.
+`author-bands.ts` now ratchets: a band may never solve below the one under it.
+The cost is that a ratcheted band can land harder than its target, and it took
+bodies out of the top three bands of four dungeons to bring them back - see
+`--keep-layouts` for the other trade.
 
-**Difficulty stops scaling at `elite`.** `simulate:progression` §1 now asks
-this of the dungeons directly: every one of the five tops out at `elite` or
-below, and two (Saint's Rest, Chapter House) have only a `weak` layout.
-`squadFor` falls back DOWN, so a party rated 6,000 meets exactly the fight a
-party rated 1,200 meets - §8 measures 18 enemies and 1,122 HP at elite, brutal,
-infernal and apocalyptic alike, and a 10/10 flawless win at all four. Three of
-the six bands are decoration. Authoring brutal/infernal/apocalyptic formations
-in the admin panel is the fix.
+**The ladder is out of order.** Still true at 25 trials, and the band ratchet
+barely moved it, because it is a different problem: not how one dungeon scales
+to its party, but which dungeon is harder than which. At level 30 with twelve
+viewers:
 
-**The ladder is out of order, and now it is fixable.** `simulate:progression`
-§10: at level 10 a party wins Saint's Rest (says L8) 100% of the time and
-Marketgate (says L4) 14%. Roleless bodies get no `ENEMY_ROLE_SCALING`, no
-`ROLE_SKILL_FLOOR` and threat multiplier 1, so Saint's Rest's sixteen flat
-blocks are far softer than Marketgate's sixteen including a role-scaled cop
-squad, even though they carry more total HP.
+    poors           says L1    36% win
+    barbie          says L4    96%
+    monks           says L8    48%
+    cops            says L12   80%
+    lady-of-knight  says L16   52%
 
-Two structural causes are now gone: archetypes were SHARED, so one squad set
-the difficulty of every place it appeared, and nothing in the admin said which
-bodies had roles. A dungeon owns its bodies and the editor marks roleless ones
-"Plain". The fights themselves were carried over unchanged by the merge, so the
-ordering is still wrong until somebody assigns roles and re-measures - but that
-is an afternoon in the Dungeons tab rather than a refactor.
+The easiest place in the game is harder than three above it. Every dungeon is
+solved to its own target by rung (poors aims at 85%, cops at 62%), so the
+labels and the targets disagree with what a level-30 party actually meets.
 
-**The starter dungeon drops only greys.** §4: Tillage Hamlet's loot table is
+**The starter dungeon drops only greys.** §4, re-measured 2026-09-22 and still
+true: 109 drops over 40 runs, 100% common, and only 5 of the 34 commons can
+ever appear. The dungeon named below has since been renamed; the finding has
+not changed. The original text:
+
+§4: Tillage Hamlet's loot table is
 all common, so a new chat's first several nights - the 100%-win ones - produce
 nothing but grey. 20 of 119 items can ever drop at all; the other 99 are
 shop-only or unreachable. A fight's table is now editable in one place, and a
