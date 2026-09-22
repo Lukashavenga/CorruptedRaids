@@ -258,6 +258,36 @@ export interface BalanceConfig {
     pointsPerLevel: number;
     /** How much one spent point adds to each stat. */
     perPoint: Record<AllocatableStat, number>;
+    /**
+     * Multiplier on XP earned by PLAYING - kills and clears.
+     *
+     * xpToNextLevel is linear and says what it was built for: level 300 at
+     * about 2,900 runs of a mid-tier dungeon, roughly a year for someone doing
+     * a dozen a day. Reaching 300 costs about 460,500 XP, so that budget wants
+     * around 160 XP a run. The content paid 233 to 946, so a chat gained about
+     * TWO LEVELS PER RUN and finished the ladder in two or three nights.
+     *
+     * That is not only a pacing problem. Party rating is roughly 95% level, so
+     * levels are what push a party up through the difficulty bands - and gear,
+     * which is what actually decides a fight (same level, same dungeon: 1% win
+     * on typical gear against 88% on best), arrives at about a quarter of an
+     * item per viewer per run. Levels outran gear by an order of magnitude, so
+     * parties were promoted into fights dressed for equipment they had no time
+     * to collect, and four of five dungeons got HARDER the longer you played.
+     *
+     * 0.25 puts the mid-tier dungeon near that 2,900-run budget. 0.45 was
+     * tried first and left it at about 1,600 runs: slowing XP also RAISES win
+     * rates, because a party stays in a band it can handle, and a party that
+     * wins earns more XP. The lever partly fights itself. It does not
+     * change the SHAPE of the difficulty curve, only how fast a party travels
+     * along it: the fight at level 60 is the same fight, but a chat now
+     * arrives there with six times as many runs of loot behind it.
+     *
+     * Applied where XP is EARNED, not inside grantXp: the difficulty and sim
+     * helpers grant exact amounts to build a party at a known level, and
+     * scaling those would quietly corrupt every measurement in the repo.
+     */
+    xpRate: number;
   };
 
   /**
@@ -404,6 +434,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
   },
   progression: {
     pointsPerLevel: 2,
+    xpRate: 0.25,
     perPoint: { hp: 2, atk: 1, skill: 1, spd: 1 },
   },
   economy: {

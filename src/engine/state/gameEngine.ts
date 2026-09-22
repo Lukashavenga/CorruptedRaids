@@ -355,7 +355,8 @@ export class GameEngine extends EventEmitter {
             if (survived) {
               character.gold += randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng);
             }
-            const xp = Math.round(dungeon.completionXp * share * bonus);
+            // xpRate: see balance.ts.
+            const xp = Math.round(dungeon.completionXp * share * bonus * this.content.balance.progression.xpRate);
             for (const level of grantXp(character, xp, this.content.balance)) {
               combat.events.push({ type: "levelUp", characterId: character.id, newLevel: level });
             }

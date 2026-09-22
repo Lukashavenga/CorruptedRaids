@@ -65,7 +65,8 @@
       "atk": 1,
       "skill": 1,
       "spd": 1
-    }
+    },
+    "xpRate": 0.25
   },
   "economy": {
     "recycleRate": 1,

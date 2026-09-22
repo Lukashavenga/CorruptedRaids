@@ -583,7 +583,8 @@ export function runCombat(
        * stops mattering; it just should not be worth *nothing*.
        */
       const share = won ? (isSurvivor ? 1 : balance.rewards.casualtyXpMultiplier) : balance.rewards.defeatXpMultiplier;
-      const xp = Math.round(totalXp * share);
+      // xpRate: see balance.ts. Levels outran gear by an order of magnitude.
+      const xp = Math.round(totalXp * share * balance.progression.xpRate);
       // Gold is looting the bodies. There are no bodies if you lost.
       const gold =
         won && isSurvivor
