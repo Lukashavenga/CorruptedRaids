@@ -45,6 +45,8 @@ import { PARTY_BANDS, type EnemyUnit, type PartyBand, type Role } from "../src/e
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CONTENT = join(ROOT, "content");
 const WRITE = process.argv.includes("--write");
+/** Never rewrite an authored formation; solve the curve against what is there. */
+const KEEP_LAYOUTS = process.argv.includes("--keep-layouts");
 
 /** Aim just inside "Fair" — the party wins most nights but loses people. */
 const TARGET_WIN = 0.7;
@@ -252,10 +254,30 @@ function solveDungeonScale(dungeonId: string, rung: number): Record<PartyBand, n
     }).winRate;
   };
 
+  let floor = 0.05;
+
   for (const band of PARTY_BANDS) {
     // Wide bounds in both directions: the top bands need ~50x to be a fight at
     // all, and the entry band of the hardest place needs to come well under 1.
-    let lo = 0.05;
+    //
+    // RATCHETED: a band may never solve BELOW the one under it.
+    //
+    // Solving each band against its own reference party is right, and on its
+    // own it produced sequences that fell - BARBIEVILLE came out elite x18.27,
+    // brutal x13.63, infernal x33.60. That looks harmless, and is not, because
+    // expandFight INTERPOLATES the multiplier from the band below up to this
+    // band's value across the width of the band. A dip is therefore not a dip:
+    // it is a difficulty curve that falls for the entire width of brutal, so a
+    // party gets weaker opposition the stronger it grows, and then walks into
+    // a wall at infernal. Measured at 25 runs: elite 100% win, brutal 8%,
+    // infernal 84%.
+    //
+    // The cost is honest and worth naming. A ratcheted band can land HARDER
+    // than its target, because it is not allowed to come down to meet it. That
+    // is the better failure: a band slightly over target is a fight, whereas a
+    // band under the one below it is a reward for progress that reads as a
+    // bug.
+    let lo = floor;
     let hi = 120;
     for (let step = 0; step < 13; step += 1) {
       const mid = (lo + hi) / 2;
@@ -264,7 +286,9 @@ function solveDungeonScale(dungeonId: string, rung: number): Record<PartyBand, n
       if (winAt(band, mid) > target) lo = mid;
       else hi = mid;
     }
-    solved[band] = Number(((lo + hi) / 2).toFixed(3));
+    const value = Number(((lo + hi) / 2).toFixed(3));
+    solved[band] = Math.max(value, floor);
+    floor = solved[band]!;
   }
 
   fight.bandStatScale = original;
@@ -330,7 +354,13 @@ ${"=".repeat(78)}`);
   // So when a band is floor-bound and still short of target, the layout comes
   // down and the curve is re-solved against the smaller one. Trimming from the
   // end keeps the front rank the author drew.
-  for (let pass = 0; pass < 4; pass += 1) {
+  // `--keep-layouts` stops here. Trimming rewrites formations somebody drew,
+  // and a hand-authored layout is content rather than a tuning knob: the body
+  // count, the roles and the order are what the fight LOOKS like. With the
+  // ratchet above forcing the top bands up, the trim fires on bands that were
+  // authored deliberately, so whether it may is a decision for whoever owns
+  // the content, not a default.
+  for (let pass = 0; pass < 4 && !KEEP_LAYOUTS; pass += 1) {
     let trimmed = false;
     for (const band of PARTY_BANDS) {
       const units = formations[band];
