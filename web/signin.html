@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Corrupted Raids: Sign In</title>
+  </head>
+  <body>
+    <!--
+      The markup is here rather than rendered, because this page has no state
+      worth a framework and one job: get a token, hand it to the edge, leave.
+      Static markup also means no blank frame while a bundle parses, which on
+      the page standing between an operator and a locked door reads as broken.
+    -->
+    <main class="loadout is-centered">
+      <div class="signin">
+        <img class="signin-logo" id="logo" src="" alt="" />
+        <h1 id="heading">Admin</h1>
+        <p class="signin-lead" id="lead">Checking...</p>
+        <button type="button" class="signin-button" id="go" hidden>Sign in with Twitch</button>
+        <button type="button" class="signin-button" id="out" hidden>Sign out</button>
+      </div>
+    </main>
+    <script type="module" src="/src/signin/main.ts"></script>
+  </body>
+</html>

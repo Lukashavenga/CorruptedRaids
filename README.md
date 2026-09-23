@@ -20,7 +20,7 @@ The engine (`src/`) has zero runtime dependencies - Node 18+, TypeScript, and
 ```bash
 npm install          # engine deps (typescript + tsx, both dev-only)
 npm run install:web  # React + Vite, separate package.json in web/
-npm run build:web    # builds the three pages into overlay/
+npm run build:web    # builds the five pages into overlay/
 npm run serve        # http://localhost:8787
 ```
 
@@ -33,7 +33,7 @@ Three pages, all on 8787:
 |---|---|
 | `/` | the OBS browser source - add this one to OBS |
 | `/loadout.html` | a viewer's character, gear and shop |
-| `/admin.html` | dungeon authoring and balancing |
+| `/admin.html` | dungeon authoring and balancing (hosted: behind the edge gate) |
 
 Append `?sim=0` to the overlay URL to hide the sim-control strip on stream.
 

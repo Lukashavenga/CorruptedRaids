@@ -63,19 +63,29 @@ export async function readSession(): Promise<SessionState> {
  * Twitch's own domain and see Twitch's own consent screen, which is the entire
  * security value of OAuth.
  */
-export async function signIn(): Promise<{ ok: boolean; message?: string }> {
+export async function signIn(redirectTo?: string): Promise<{ ok: boolean; message?: string }> {
   if (!supabase) return { ok: false, message: "Supabase is not configured" };
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "twitch",
     // Back to the page they started on, so a viewer who opened the loadout
     // from a link does not land on a different one.
-    options: { redirectTo: window.location.origin + window.location.pathname },
+    //
+    // The sign-in page overrides it because it has a query string to keep:
+    // `?to=/admin` is where the edge gate wants the caller sent afterwards,
+    // and the default drops everything but the path.
+    options: { redirectTo: redirectTo ?? window.location.origin + window.location.pathname },
   });
   return error ? { ok: false, message: error.message } : { ok: true };
 }
 
 export async function signOut(): Promise<void> {
   await supabase?.auth.signOut();
+  // ...and drop the edge gate's cookie, which the browser session knows
+  // nothing about. Hosted, signing out of Twitch while leaving twelve hours
+  // of admin access behind on a shared machine is not signing out. Locally
+  // there is no gate and the game server 404s this, which is why the result
+  // is ignored rather than checked.
+  await fetch("/__gate/out", { method: "POST" }).catch(() => undefined);
 }
 
 /** Re-exported so callers do not need to know where the flag lives. */

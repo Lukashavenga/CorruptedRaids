@@ -1,49 +1,49 @@
 /**
  * What gets UPLOADED, as opposed to what gets built.
  *
- * `npm run build:web` produces three pages into `overlay/` — the OBS overlay,
- * the loadout, and the admin panel — because they are one Vite project with
- * three entry points, and the local game server serves that whole directory at
- * localhost:8787. All three belong there.
+ * `npm run build:web` produces five pages into `overlay/` - the OBS overlay,
+ * the loadout, the admin panel, the operator console and the sign-in door -
+ * because they are one Vite project with five entry points, and the local game
+ * server serves that whole directory at localhost:8787. All five belong there.
  *
- * Only ONE of them belongs on the public internet.
+ * Only the overlay does not belong on the public internet. It is a browser
+ * source for OBS and has nothing to say on the open web, so it is dropped
+ * along with its entry chunk.
  *
- * DEPLOY.md used to argue the other two were harmless up there, on the grounds
- * that they are static shells which only do anything when talking to
- * localhost:8787, and the public internet cannot reach that. Both halves are
- * true and the conclusion is still wrong:
+ * ADMIN AND OPERATOR ARE PUBLISHED, which they were not always, and the
+ * history is kept here because it is what the gate had to be built to earn:
  *
- * ADMIN IS PUBLISHED AGAIN, and the reasoning below is kept because it is why
- * it took a gate to get there. Content moved into Supabase, so the panel no
- * longer needs a filesystem, and it now signs in against the same operator
- * allowlist the console uses - a stranger who guesses /admin gets a refusal
- * from an Edge Function rather than a working console. The overlay stays
- * dropped: it is a browser source for OBS and has nothing to say on the open
- * web.
+ *   - First they were dropped, because every admin write was a file write and
+ *     a hosted panel had no server to write to.
+ *   - Then admin shipped ungated, once content moved into Supabase. Writes
+ *     were safe - the operator Edge Function re-derives the caller from a
+ *     verified token and refuses - but the PAGE was served to anyone who
+ *     guessed the URL, and so was the 66KB bundle behind it, which is the map
+ *     of the tooling: every action name, every field, every content shape.
+ *     "The buttons do not work" is a weak thing to be relying on.
+ *   - Now functions/_middleware.ts refuses both pages, and both bundles, to
+ *     anyone without a cookie minted from a Supabase-verified operator
+ *     sign-in. That is what makes publishing them defensible.
  *
- * The original argument, which held while admin was unauthenticated:
+ * WHICH MEANS THIS SCRIPT HAS A SECOND JOB. The gate names the bundles it
+ * protects by prefix (functions/gated.ts), on the strength of Vite naming an
+ * entry chunk after its entry. That is true today and is an assumption, and
+ * the failure mode of a wrong assumption there is an admin-only chunk served
+ * in the clear with nothing to notice. So it is checked, against the real
+ * manifest of the real build, every publish - in both directions:
  *
- *   - It served the operator's console, live, to anyone who guessed `/admin`.
- *     No write could succeed — every one carries `X-Admin-Secret` and the
- *     server refuses without it (src/server/auth.ts) — but "the buttons do not
- *     work" is a weak thing to be relying on, and it reads as an oversight to
- *     anyone who finds it.
- *   - It published the admin bundle, which is the map of the tooling: every
- *     endpoint name, every field, every content shape the panel can edit.
- *   - It only holds while the admin screen never talks to anything but
- *     localhost. The loadout already talks to Supabase from the browser. The
- *     day some admin action follows it, the exposure changes silently and
- *     nothing here would have flagged it.
+ *   - nothing reachable ONLY from admin or operator may fall outside the gate,
+ *     or it ships unprotected;
+ *   - nothing reachable from the loadout may fall INSIDE it, or the gate locks
+ *     viewers out of a chunk they need and the loadout breaks for everyone.
  *
- * So the upload is filtered rather than argued about. The build is untouched:
- * this copies `overlay/` to `.publish/`, drops the two pages that are not the
- * loadout along with their entry chunks, and points `/` at the loadout so the
- * bare domain is not a 404.
- *
- * Shared chunks (the theme, the sprite index) stay — the loadout imports them.
+ * The build itself is untouched: this copies `overlay/` to `.publish/`, drops
+ * the overlay page, and points `/` at the loadout so the bare domain is not a
+ * 404.
  */
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { GATED_ASSET_PREFIXES, GATED_PAGES, isGated } from "../functions/gated.js";
 
 const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const BUILD = join(ROOT, "overlay");
@@ -53,6 +53,73 @@ if (!existsSync(join(BUILD, "loadout.html"))) {
   console.error("No build found. Run `npm run build:web` first.");
   process.exit(1);
 }
+
+// --- prove the gate covers what it claims to ---------------------------------
+
+interface ManifestEntry {
+  file?: string;
+  css?: string[];
+  assets?: string[];
+  imports?: string[];
+  dynamicImports?: string[];
+}
+
+const MANIFEST = join(BUILD, ".vite", "manifest.json");
+if (!existsSync(MANIFEST)) {
+  console.error("No .vite/manifest.json in the build. `manifest: true` must stay on in web/vite.config.ts —");
+  console.error("without it there is no way to check that the admin bundle is actually behind the gate.");
+  process.exit(1);
+}
+const manifest = JSON.parse(readFileSync(MANIFEST, "utf-8")) as Record<string, ManifestEntry>;
+
+/** Every file a browser ends up fetching because it opened these entries. */
+function reachableFrom(entries: string[]): Set<string> {
+  const files = new Set<string>();
+  const seen = new Set<string>();
+  const queue = [...entries];
+  while (queue.length > 0) {
+    const key = queue.pop()!;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const node = manifest[key];
+    if (!node) continue;
+    if (node.file) files.add(node.file);
+    for (const css of node.css ?? []) files.add(css);
+    for (const asset of node.assets ?? []) files.add(asset);
+    // Static and dynamic imports both, because a lazily loaded admin chunk is
+    // still an admin chunk - being fetched later does not make it public.
+    for (const next of [...(node.imports ?? []), ...(node.dynamicImports ?? [])]) queue.push(next);
+  }
+  return files;
+}
+
+const behindGate = reachableFrom(["admin.html", "operator.html"]);
+const publicFiles = reachableFrom(["index.html", "loadout.html", "signin.html"]);
+
+/** Files the loadout never loads - the ones the gate is responsible for. */
+const adminOnly = [...behindGate].filter((file) => !publicFiles.has(file));
+
+const leaked = adminOnly.filter((file) => !isGated(`/${file}`));
+const lockedOut = [...publicFiles].filter((file) => isGated(`/${file}`));
+
+if (leaked.length > 0 || lockedOut.length > 0) {
+  console.error("functions/gated.ts no longer matches what the build emits.\n");
+  for (const file of leaked) {
+    console.error(`  UNPROTECTED  ${file}`);
+    console.error("               only admin/operator import it, and the gate would serve it to anyone.");
+  }
+  for (const file of lockedOut) {
+    console.error(`  LOCKED OUT   ${file}`);
+    console.error("               the loadout needs it, and the gate would refuse it to viewers.");
+  }
+  console.error(`\nGate prefixes: ${GATED_ASSET_PREFIXES.join(", ")}`);
+  console.error("Fix functions/gated.ts, or name the chunk so an existing prefix covers it.");
+  process.exit(1);
+}
+
+console.log(`Gate covers ${adminOnly.length} admin-only file(s); loadout untouched.`);
+
+// --- assemble the upload -----------------------------------------------------
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
@@ -69,9 +136,9 @@ const DROP_PREFIXES = ["index-"];
 const dropped: string[] = [];
 
 for (const page of DROP_PAGES) {
-  const p = join(OUT, page);
-  if (existsSync(p)) {
-    rmSync(p);
+  const path = join(OUT, page);
+  if (existsSync(path)) {
+    rmSync(path);
     dropped.push(page);
   }
 }
@@ -84,6 +151,14 @@ if (existsSync(assets)) {
       dropped.push(`assets/${file}`);
     }
   }
+}
+
+// The manifest is a build artefact, not a page. It has just done its job above
+// and publishing it would hand a stranger the chunk list for free.
+const publishedManifest = join(OUT, ".vite");
+if (existsSync(publishedManifest)) {
+  rmSync(publishedManifest, { recursive: true, force: true });
+  dropped.push(".vite/manifest.json");
 }
 
 // content/placements.json, as a static asset.
@@ -118,3 +193,4 @@ console.log(`Publishing ${OUT}`);
 for (const name of dropped) console.log(`  dropped  ${name}`);
 console.log("  added    placements.json");
 console.log("  added    _redirects  (/ -> /loadout)");
+console.log(`  gated    ${GATED_PAGES.join(", ")} and their bundles`);

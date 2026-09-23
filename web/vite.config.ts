@@ -45,14 +45,23 @@ export default defineConfig({
   build: {
     outDir: "../overlay",
     emptyOutDir: true,
-    // Three separate pages, three separate bundles: the OBS overlay, the
+    // Emitted so scripts/publish-web.ts can prove, against the real output,
+    // that every chunk only the admin and operator pages import is covered by
+    // functions/gated.ts. Without it that coverage is an assumption about how
+    // Vite names things, and an assumption there means a bundle served in the
+    // clear with nothing to notice.
+    manifest: true,
+    // One page per surface, one bundle per page: the OBS overlay, the
     // per-viewer loadout screen (AGENTS.md §2.6 wants these to be distinct
-    // surfaces, not routes inside one app), and the admin placement tool.
-    // They share engine types at build time and nothing at runtime.
+    // surfaces, not routes inside one app), the admin tool, the operator
+    // console and the sign-in door. They share engine types at build time and
+    // nothing at runtime.
     //
     // admin is bundled rather than dev-only because it edits content the game
-    // reads, and it has to be usable against a built server — but it must be
-    // put behind auth before this is deployed anywhere public.
+    // reads and has to be usable against a built server. It used to carry a
+    // note here that it must be put behind auth before being deployed
+    // anywhere public; that is now functions/_middleware.ts, which refuses to
+    // serve this bundle without a verified operator sign-in.
     rollupOptions: {
       input: {
         index: resolve(__dirname, "index.html"),
@@ -62,6 +71,11 @@ export default defineConfig({
         // it talks to Supabase rather than the game server, so it works with
         // no game process behind it. See scripts/publish-web.ts.
         operator: resolve(__dirname, "operator.html"),
+        // The public door to both of the above. It has to be its own entry
+        // because functions/_middleware.ts refuses to serve their bundles to
+        // anyone who has not signed in yet, and a sign-in screen inside one of
+        // them would be behind the lock it opens.
+        signin: resolve(__dirname, "signin.html"),
       },
     },
   },

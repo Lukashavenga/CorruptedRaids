@@ -1,0 +1,26 @@
+{
+  // Its own config because this directory runs somewhere nothing else does.
+  //
+  // Wrangler compiles `functions/` with esbuild and does not typecheck it, so
+  // without this the one file standing between a stranger and the admin bundle
+  // would be the only unchecked code in the repo. `npm run typecheck` runs it
+  // (see package.json) for exactly that reason.
+  //
+  // WebWorker rather than DOM: the edge has `crypto.subtle`, `fetch`, `Request`
+  // and `btoa`, and does not have `window` or `document`. Naming the right lib
+  // means a stray `localStorage` is a compile error here rather than a 500 in
+  // production.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "WebWorker"],
+    "types": [],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["."]
+}

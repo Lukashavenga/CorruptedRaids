@@ -133,7 +133,8 @@ server reads live - so re-running it is what keeps the three from disagreeing.
 
 ### 4. Build and deploy the loadout
 
-The Vite app in `web/` builds all three pages (overlay, loadout, admin) into
+The Vite app in `web/` builds all five pages (overlay, loadout, admin,
+operator, sign-in) into
 one output directory, `overlay/`, because it's one project with three entry
 points (`web/vite.config.ts`).
 
@@ -167,19 +168,76 @@ Supabase must allow is `/loadout`. Use a wildcard (`https://<domain>/**`) in
 the allowlist and the question does not arise. An allowlist written the old way
 fails at sign-in only, AFTER Twitch, which is an unpleasant place to find out.
 
-#### Only the loadout is published
+#### What is published, and what is behind the gate
 
 `npm run deploy` runs `scripts/publish-web.ts` first. It copies `overlay/` to
-`.publish/`, DROPS `admin.html` and `index.html` along with their entry chunks,
-and writes a `_redirects` sending `/` to `/loadout`. The build is untouched -
-the local server still serves all three pages at localhost:8787, which is where
-the overlay and the admin panel belong.
+`.publish/`, DROPS `index.html` (the OBS overlay) along with its entry chunk,
+and writes a `_redirects` sending `/` to `/loadout`.
 
-The admin panel used to go up with the rest. Nothing could be DONE with it -
-every write carries `X-Admin-Secret` and the server refuses without it - but it
-served the operator's console to anyone who guessed `/admin`, and published the
-bundle naming every endpoint that console can reach. The script's header has
-the longer argument.
+Four pages go up:
+
+| Page | Who can load it |
+|---|---|
+| `/loadout` | anyone; it asks for a Twitch sign-in itself |
+| `/signin` | anyone - it is the door to the two below |
+| `/admin` | only with a gate cookie |
+| `/operator` | only with a gate cookie |
+
+The admin panel used to be dropped entirely, because every write was a file
+write and there was no server to write to. Then it shipped ungated once content
+moved into Supabase: nothing could be DONE with it - the operator Edge Function
+re-derives the caller from a verified token and refuses - but the PAGE was
+served to anyone who guessed `/admin`, and with it a 66KB bundle naming every
+action, field and content shape the console can reach.
+
+#### The gate
+
+`functions/_middleware.ts`, a Cloudflare Pages Function. It refuses `/admin`,
+`/operator` and their bundles unless the request carries a cookie it minted,
+and it mints one only after Supabase confirms the access token belongs to an
+account in `OPERATOR_TWITCH_IDS`. A browser with no cookie is sent to
+`/signin`; a script or stylesheet gets a flat 401.
+
+**There is nothing to guess.** The cookie is HMAC-SHA256 over the expiry and
+the Twitch id, keyed on `GATE_SECRET`. A password was the obvious alternative
+and was rejected: at the edge there is no shared counter to rate-limit one
+with, since Pages Functions are stateless and this project has no KV namespace,
+so it would be precisely the brute-forceable thing.
+
+**It fails closed.** Missing configuration refuses everything gated with a 503,
+the same rule the game server follows for an unset `ADMIN_SECRET`.
+
+Four secrets on the Pages project (`wrangler pages secret put <KEY>
+--project-name corrupted-raids`, or the bulk form used to set them):
+
+| Key | Value |
+|---|---|
+| `GATE_SECRET` | 32 random bytes. Rotating it signs everyone out at once. |
+| `OPERATOR_TWITCH_IDS` | same comma-separated list as the Supabase secret |
+| `SUPABASE_URL` | the project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | the publishable key, used as `apikey` when verifying a token |
+
+These are PRODUCTION secrets. Preview deployments do not inherit them, so a
+preview serves 503 at `/admin` rather than serving it open - which is the right
+way round.
+
+**`https://<domain>/signin` must be in Supabase's Redirect URLs.** The wildcard
+the step above recommends (`https://<domain>/**`) already covers it. Without
+it, Supabase silently redirects to the Site URL instead of erroring, and the
+sign-in button appears to do nothing; the page detects that case and says so
+rather than looping in silence.
+
+**The gate is one of three locks, not the only one.** `AdminGate` still asks
+the operator function `whoami` before drawing anything, and every write still
+goes through that function, which re-derives the caller from a verified JWT.
+Someone who got past the edge would find a console whose every button 403s.
+
+**What is checked at publish time.** The gate names the bundles it protects by
+prefix (`functions/gated.ts`), which relies on Vite naming an entry chunk after
+its entry. `scripts/publish-web.ts` proves that against the real build manifest
+on every publish, in both directions - an admin-only chunk outside the gate
+fails the publish, and so does a loadout chunk inside it. Neither failure is
+visible any other way until someone is either reading the bundle or locked out.
 
 Note for when this comes up again: Cloudflare caches Pages HTML with
 `s-maxage=604800`. Removing a page from the origin does NOT remove it from the

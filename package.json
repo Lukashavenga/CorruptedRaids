@@ -8,7 +8,7 @@
     "simulate": "tsx scripts/simulate.ts",
     "simulate:progression": "tsx scripts/simulate-progression.ts",
     "serve": "tsx --env-file-if-exists=.env src/server/index.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p functions/tsconfig.json",
     "dev:web": "npm run dev --prefix web",
     "build:web": "npm run build --prefix web",
     "install:web": "npm install --prefix web",

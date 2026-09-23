@@ -691,7 +691,10 @@ Run all of these before calling anything done:
 npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd run build:web && npm.cmd run check:text && npm.cmd run simulate
 ```
 
-`npm run serve` then hosts all three pages on `http://localhost:8787`.
+`npm run serve` then hosts every page on `http://localhost:8787`. The admin
+panel is ungated there on purpose - it is reached over loopback and its writes
+carry `ADMIN_SECRET`. Hosted, `functions/_middleware.ts` refuses it without a
+verified operator sign-in; see DEPLOY.md.
 
 `npm run simulate:progression` is not in that chain - it asserts nothing and is
 for reading, not passing. Run it whenever you change balance or content.
