@@ -270,6 +270,29 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, files: await res.json() }, 200, req);
     }
 
+    if (action === "content-all") {
+      /*
+       * Everything the tuning screens read, in the shape GET /content returns.
+       *
+       * The admin panel asks the game server for this. Hosted there is no game
+       * server, so it asks here instead and gets the same keys - which is what
+       * lets one screen serve both without knowing where it is running.
+       */
+      const res = await db("/content_files?select=path,data");
+      const rows = (await res.json()) as { path: string; data: unknown }[];
+      const gear: unknown[] = [];
+      const dungeons: unknown[] = [];
+      const raids: unknown[] = [];
+      const consumables: unknown[] = [];
+      for (const row of rows) {
+        if (row.path.startsWith("gear/")) gear.push(row.data);
+        else if (row.path.startsWith("dungeons/")) dungeons.push(row.data);
+        else if (row.path.startsWith("raids/")) raids.push(row.data);
+        else if (row.path.startsWith("consumables/")) consumables.push(row.data);
+      }
+      return json({ ok: true, gear, dungeons, raids, consumables }, 200, req);
+    }
+
     if (action === "content-get") {
       const path = url.searchParams.get("path");
       if (!path) return json({ ok: false, message: "path is required" }, 400, req);

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { readContent } from "./backend.js";
 import type {
   DungeonDefinition,
   GearDefinition,
@@ -24,13 +25,14 @@ export function useTuningContent(): {
   const [gear, setGear] = useState<GearDefinition[]>([]);
   const [dungeons, setDungeons] = useState<DungeonDefinition[]>([]);
 
+  // Through the backend switch, so the same screens work served by the game
+  // server and served as a static page. See web/src/admin/backend.ts.
   const reload = useCallback(() => {
-    fetch("/content")
-      .then((r) => r.json())
+    readContent()
       .then((data) => {
-        setRaids(data.raids ?? []);
-        setGear(data.gear ?? []);
-        setDungeons(data.dungeons ?? []);
+        setRaids(data.raids as RaidDefinition[]);
+        setGear(data.gear as GearDefinition[]);
+        setDungeons(data.dungeons as DungeonDefinition[]);
       })
       .catch(() => {
         setRaids([]);

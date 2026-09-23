@@ -13,6 +13,16 @@
  * localhost:8787, and the public internet cannot reach that. Both halves are
  * true and the conclusion is still wrong:
  *
+ * ADMIN IS PUBLISHED AGAIN, and the reasoning below is kept because it is why
+ * it took a gate to get there. Content moved into Supabase, so the panel no
+ * longer needs a filesystem, and it now signs in against the same operator
+ * allowlist the console uses - a stranger who guesses /admin gets a refusal
+ * from an Edge Function rather than a working console. The overlay stays
+ * dropped: it is a browser source for OBS and has nothing to say on the open
+ * web.
+ *
+ * The original argument, which held while admin was unauthenticated:
+ *
  *   - It served the operator's console, live, to anyone who guessed `/admin`.
  *     No write could succeed — every one carries `X-Admin-Secret` and the
  *     server refuses without it (src/server/auth.ts) — but "the buttons do not
@@ -50,11 +60,11 @@ cpSync(BUILD, OUT, { recursive: true });
 
 // The pages themselves. Without the HTML there is no way in, even for someone
 // who knows the hashed chunk name.
-const DROP_PAGES = ["admin.html", "index.html"];
+const DROP_PAGES = ["index.html"];
 
 // ...and their entry chunks, so the bundle is not readable either. These are
 // content-hashed, hence the prefix match rather than a fixed list.
-const DROP_PREFIXES = ["admin-", "index-"];
+const DROP_PREFIXES = ["index-"];
 
 const dropped: string[] = [];
 

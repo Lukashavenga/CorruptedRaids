@@ -10,6 +10,7 @@ import { BalancePanel, useDraftDifficulty } from "./DraftDifficulty.js";
 import { RoleIcon } from "../components/RoleIcon.js";
 import "./encounter.css";
 import { adminFetch } from "../adminKey.js";
+import { writeContent } from "./backend.js";
 
 /**
  * Which stats get a slider, and the range each is worth dragging over.
@@ -110,15 +111,15 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
   const dirty = JSON.stringify(draft) !== JSON.stringify(selected);
 
   const write = async (data: DungeonDefinition, what: string) => {
-    const res = await adminFetch("/content/write", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: "dungeon", id: data.id, data }),
-    });
-    const body = await res.json();
-    setStatus(body.ok ? what : `Rejected: ${body.message}`);
-    if (body.ok) onSaved();
-    return body.ok as boolean;
+    try {
+      await writeContent("dungeon", data.id, data);
+      setStatus(what);
+      onSaved();
+      return true;
+    } catch (err) {
+      setStatus(`Rejected: ${(err as Error).message}`);
+      return false;
+    }
   };
 
   const addUnit = (sprite: string, name: string) => {

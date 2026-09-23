@@ -21,6 +21,7 @@ import { GearInspector } from "./GearInspector.js";
 import { useTuningContent } from "./useTuningContent.js";
 import "./admin.css";
 import { getAdminKey, setAdminKey } from "../adminKey.js";
+import { backendMode } from "./backend.js";
 
 const BODY_TYPES: BodyType[] = ["male", "female"];
 const TONES = ["fair", "light", "tan", "brown", "dark"];
@@ -95,6 +96,25 @@ export function AdminApp(): JSX.Element {
   const [showKit, setShowKit] = useState(false);
   const [kit, setKit] = useState<Partial<Record<GearSlot, string>>>({});
   const [tab, setTab] = useState<"placement" | "gear" | "dungeons" | "raids" | "names">("placement");
+
+  /*
+   * Sprite work needs the game server.
+   *
+   * Placement positions are content and live in the store like everything
+   * else, but the ERASER rewrites PNG files in art/sprites through POST
+   * /sprite - there is no hosted equivalent until the art moves to Supabase
+   * Storage. Rather than offer a tab whose eraser silently fails, the panel
+   * starts somewhere useful when hosted and says why.
+   */
+  const [hosted, setHosted] = useState(false);
+  useEffect(() => {
+    void backendMode().then((m) => {
+      if (m === "hosted") {
+        setHosted(true);
+        setTab("gear");
+      }
+    });
+  }, []);
   const tuning = useTuningContent();
   /**
    * Which layer the mask tool is carving, or null when it is off.
@@ -424,7 +444,7 @@ export function AdminApp(): JSX.Element {
       <header className="admin-bar">
         <h1>Corrupted Admin</h1>
         <nav className="admin-tabs">
-          {(["placement", "gear", "dungeons", "raids", "names"] as const).map((t) => (
+          {(["placement", "gear", "dungeons", "raids", "names"] as const).filter((t) => !(hosted && t === "placement")).map((t) => (
             <button key={t} type="button" className={tab === t ? "is-active" : ""} onClick={() => setTab(t)}>
               {t}
             </button>

@@ -20,6 +20,7 @@ import { useDraftDifficulty } from "./DraftDifficulty.js";
 import { RoleIcon } from "../components/RoleIcon.js";
 import "./encounter.css";
 import { adminFetch } from "../adminKey.js";
+import { writeContent } from "./backend.js";
 
 /** What a role is called on the authoring screens. Matches DungeonTuner. */
 const ROLE_LABEL: Record<Role, string> = {
@@ -258,14 +259,13 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
   const dirty = JSON.stringify(draft) !== JSON.stringify(selected);
 
   const save = async () => {
-    const res = await adminFetch("/content/write", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: "raid", id: draft.id, data: draft }),
-    });
-    const body = await res.json();
-    setStatus(body.ok ? `Saved ${draft.name}.` : `Rejected: ${body.message}`);
-    if (body.ok) onSaved();
+    try {
+      await writeContent("raid", draft.id, draft);
+      setStatus(`Saved ${draft.name}.`);
+      onSaved();
+    } catch (err) {
+      setStatus(`Rejected: ${(err as Error).message}`);
+    }
   };
 
   /** Rooms nothing on the path points at — authored work nobody will see. */

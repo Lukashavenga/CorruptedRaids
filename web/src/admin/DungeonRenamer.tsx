@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { DungeonDefinition } from "../../../src/engine/types.js";
 import { adminFetch } from "../adminKey.js";
+import { backendMode, writeContent } from "./backend.js";
 
 /**
  * Naming the places.
@@ -50,19 +51,16 @@ export function DungeonRenamer({
       // Name first, against the id the file still has. Doing it the other way
       // round would write to a path the rename is about to move.
       if (nameChanged) {
-        const res = await adminFetch("/content/write", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            kind: "dungeon",
-            id: original.id,
-            data: { ...original, name: draft.name.trim() },
-          }),
-        });
-        const body = await res.json();
-        if (!body.ok) throw new Error(body.message);
+        await writeContent("dungeon", original.id, { ...original, name: draft.name.trim() });
       }
       if (idChanged) {
+        // CHANGING AN ID still needs the game server: it moves a file, and the
+        // hosted store has no equivalent - a rename there would be a delete
+        // and an insert, and a half-finished one leaves a dungeon under two
+        // ids. Renaming stays a local operation until that is built properly.
+        if ((await backendMode()) === "hosted") {
+          throw new Error("Changing an id needs the local admin panel for now. The display name saved.");
+        }
         const res = await adminFetch("/content/rename", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

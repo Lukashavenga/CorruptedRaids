@@ -101,3 +101,8 @@ export function contentHistory(
 export function contentRestore(id: number): Promise<{ message?: string }> {
   return call("?action=content-restore", { method: "POST", body: JSON.stringify({ id }) });
 }
+
+/** Everything the tuning screens read, in the shape GET /content returns. */
+export function contentAll(): Promise<{ gear: unknown[]; dungeons: unknown[]; raids: unknown[] }> {
+  return call("?action=content-all");
+}

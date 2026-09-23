@@ -5,6 +5,7 @@ import { DEFAULT_BALANCE } from "../../../src/engine/balance.js";
 import { explainStat, powerScore, RARITY_POWER_BAND } from "../../../src/engine/statGuide.js";
 import { SLOT_FOLDER, spriteForGear, spriteUrl } from "../sprites.js";
 import { adminFetch } from "../adminKey.js";
+import { writeContent } from "./backend.js";
 
 /**
  * Sensible drag ranges per gear stat.
@@ -88,14 +89,13 @@ export function GearTuner({ gear, onSaved, setStatus }: GearTunerProps): JSX.Ele
   const sprite = spriteForGear(draft, bodies[0] ?? "male");
 
   const save = async () => {
-    const res = await adminFetch("/content/write", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: "gear", id: draft.id, data: draft }),
-    });
-    const body = await res.json();
-    setStatus(body.ok ? `Saved ${draft.name}.` : `Rejected: ${body.message}`);
-    if (body.ok) onSaved();
+    try {
+      await writeContent("gear", draft.id, draft);
+      setStatus(`Saved ${draft.name}.`);
+      onSaved();
+    } catch (err) {
+      setStatus(`Rejected: ${(err as Error).message}`);
+    }
   };
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(selected);
