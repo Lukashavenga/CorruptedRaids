@@ -152,6 +152,15 @@ function validateContent(path: string, data: unknown): string | null {
       // free-form map of sprite to position. Neither has a validator on the
       // disk side either, so inventing one here would be a second opinion.
       if (typeof data !== "object" || data === null || Array.isArray(data)) return `${path} must be a JSON object`;
+    } else if (path === "sprites.json") {
+      // Normally written by sprite-put / sprite-revert below, but restoring an
+      // older version through content-restore or editing it by hand is also
+      // legitimate - so the shape every surface relies on is checked here.
+      if (typeof data !== "object" || data === null || Array.isArray(data)) return `${path} must be a JSON object`;
+      for (const [key, entry] of Object.entries(data as Record<string, unknown>)) {
+        const file = (entry as { file?: unknown } | null)?.file;
+        if (typeof file !== "string" || !file) return `${path}: "${key}" has no file`;
+      }
     } else {
       return `Refusing to write an unrecognised content path "${path}".`;
     }
@@ -159,6 +168,66 @@ function validateContent(path: string, data: unknown): string | null {
   } catch (err) {
     return (err as Error).message;
   }
+}
+
+/**
+ * Which sprite an erase is for, as "<folder>/<id>".
+ *
+ * The same alphabet the game server allowed for its disk writes: one optional
+ * nested folder for enemy groups ("enemies/cops"), no dots, no slashes in the
+ * id. It becomes an object path in the bucket, and a rejected name is better
+ * than a clever one.
+ */
+function spriteKey(folder: unknown, id: unknown): string | null {
+  if (typeof folder !== "string" || !/^[a-z0-9]+(?:\/[a-z0-9-]+)?$/i.test(folder)) return null;
+  if (typeof id !== "string" || !/^[a-z0-9_-]+$/i.test(id)) return null;
+  return `${folder}/${id}`;
+}
+
+const PNG_PREFIX = "data:image/png;base64,";
+const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+/** Decode the eraser's data URL, refusing anything that is not a PNG. */
+function decodePng(png: unknown): Uint8Array | string {
+  if (typeof png !== "string" || !png.startsWith(PNG_PREFIX)) return "png must be a data:image/png;base64 string";
+  let bytes: Uint8Array;
+  try {
+    bytes = Uint8Array.from(atob(png.slice(PNG_PREFIX.length)), (c) => c.charCodeAt(0));
+  } catch {
+    return "png is not valid base64";
+  }
+  if (!PNG_MAGIC.every((b, i) => bytes[i] === b)) return "that is not a PNG";
+  // The bucket enforces the same limit; checking here gives a readable refusal.
+  if (bytes.length > 2 * 1024 * 1024) return "PNG is over 2MB";
+  return bytes;
+}
+
+/**
+ * Upload one object to the public sprites bucket.
+ *
+ * `x-upsert: false`: every erase is a NEW name, so an existing object here is a
+ * bug, and overwriting it would destroy the version history this bucket
+ * exists to keep. Cached for a year because a name is never reused.
+ */
+async function uploadSprite(objectPath: string, bytes: Uint8Array): Promise<void> {
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/sprites/${objectPath}`, {
+    method: "POST",
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      "Content-Type": "image/png",
+      "cache-control": "max-age=31536000",
+      "x-upsert": "false",
+    },
+    body: bytes,
+  });
+  if (!res.ok) throw new Error(`storage upload ${objectPath}: ${res.status} ${await res.text()}`);
+}
+
+/** Call one of the manifest functions in sql/004_sprites.sql. */
+async function manifestRpc(fn: "sprites_set" | "sprites_revert", args: Record<string, unknown>): Promise<unknown> {
+  const res = await db(`/rpc/${fn}`, { method: "POST", body: JSON.stringify(args) });
+  return await res.json();
 }
 
 interface Row {
@@ -347,6 +416,46 @@ Deno.serve(async (req: Request) => {
         ]),
       });
       return json({ ok: true, message: `Restored ${rows[0].path}.` }, 200, req);
+    }
+
+    if (action === "sprite-put" && req.method === "POST") {
+      /*
+       * Save an erase. Uploads the pixels as a new object, then points the
+       * manifest at it - in that order, so a failed upload leaves the manifest
+       * on the last good version rather than naming an object that is not
+       * there. Nothing already in the bucket is touched.
+       */
+      const body = (await req.json()) as { folder?: unknown; id?: unknown; png?: unknown };
+      const key = spriteKey(body.folder, body.id);
+      if (!key) return json({ ok: false, message: "bad folder or id" }, 400, req);
+      const bytes = decodePng(body.png);
+      if (typeof bytes === "string") return json({ ok: false, message: bytes }, 400, req);
+
+      const file = `${key}/${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+      await uploadSprite(file, bytes);
+
+      // The existing entry's `original`, if it has one, has to survive: it is
+      // the only copy of that sprite's unerased pixels.
+      const current = await db(`/content_files?path=eq.sprites.json&select=data`);
+      const rows = (await current.json()) as { data: Record<string, { original?: string }> }[];
+      const original = rows[0]?.data?.[key]?.original;
+      const sprites = await manifestRpc("sprites_set", {
+        p_key: key,
+        p_entry: original ? { file, original } : { file },
+        p_by: twitchId,
+      });
+      return json({ ok: true, message: `Saved ${key}.`, sprites }, 200, req);
+    }
+
+    if (action === "sprite-revert" && req.method === "POST") {
+      // A manifest edit only. The erased objects stay in the bucket, and the
+      // manifest this replaces goes to content_history, so a revert is itself
+      // undoable.
+      const body = (await req.json()) as { folder?: unknown; id?: unknown };
+      const key = spriteKey(body.folder, body.id);
+      if (!key) return json({ ok: false, message: "bad folder or id" }, 400, req);
+      const sprites = await manifestRpc("sprites_revert", { p_key: key, p_by: twitchId });
+      return json({ ok: true, message: `Reverted ${key}.`, sprites: sprites ?? {} }, 200, req);
     }
 
     return json({ ok: false, message: `Unknown action "${action}".` }, 400, req);

@@ -36,6 +36,9 @@ export const BODY_FOLDER = "body";
  *
  * A module-level counter rather than per-component state because every surface
  * showing that sprite has to invalidate together, and they do not share a tree.
+ *
+ * Only the BUILT art needs it now. An erased sprite is a new object with its
+ * own name every time (see SpriteManifest), so its URL changes by itself.
  */
 let spriteVersion = 0;
 
@@ -44,9 +47,42 @@ export function bumpSpriteVersion(): number {
   return spriteVersion;
 }
 
-export function spriteUrl(folder: string, id: string): string {
+/**
+ * sprites.json: which sprites have been erased, and which object each draws.
+ *
+ * Keyed by the sprite's path under art/sprites without the extension -
+ * "head/iron-helm", "enemies/cops/cops-08". `file` is the object in the public
+ * `sprites` bucket; `original` is present only for sprites erased before the
+ * bucket existed, whose untouched pixels had to be uploaded too. A sprite with
+ * no entry draws the built art, which IS its original. See sql/004_sprites.sql.
+ */
+export interface SpriteManifest {
+  [key: string]: { file: string; original?: string };
+}
+
+let manifest: SpriteManifest = {};
+
+/** Replace the manifest. Surfaces re-render through usePlacements, which calls this. */
+export function setSpriteManifest(next: SpriteManifest): void {
+  manifest = next ?? {};
+}
+
+const STORAGE_BASE = `${(import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? ""}/storage/v1/object/public/sprites/`;
+
+/**
+ * THE one place a sprite path becomes a URL, so an erased sprite is drawn
+ * erased on every surface or on none. Two builders that each knew half of it
+ * is how an item ends up erased in the bag and whole on the doll.
+ */
+function artUrl(key: string): string {
+  const erased = manifest[key];
+  if (erased && STORAGE_BASE.startsWith("http")) return STORAGE_BASE + erased.file;
   const v = spriteVersion > 0 ? `?v=${spriteVersion}` : "";
-  return `/art/sprites/${folder}/${id}.png${v}`;
+  return `/art/sprites/${key}.png${v}`;
+}
+
+export function spriteUrl(folder: string, id: string): string {
+  return artUrl(`${folder}/${id}`);
 }
 
 export function bodyUrl(bodyType: BodyType, skinTone: string): string {
@@ -55,8 +91,7 @@ export function bodyUrl(bodyType: BodyType, skinTone: string): string {
 
 /** A finished enemy sprite, addressed as "<group>/<id>". */
 export function enemySpriteUrl(path: string): string {
-  const v = spriteVersion > 0 ? `?v=${spriteVersion}` : "";
-  return `/art/sprites/enemies/${path}.png${v}`;
+  return artUrl(`enemies/${path}`);
 }
 
 /** The scene a fight happens in. */

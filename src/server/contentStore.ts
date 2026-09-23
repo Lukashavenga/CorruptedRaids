@@ -138,3 +138,59 @@ export async function writeContentFile(path: string, data: unknown): Promise<boo
   if (!res.ok) throw new Error(`content_files write ${path}: ${res.status} ${await res.text()}`);
   return true;
 }
+
+/**
+ * Save an erased sprite to the public `sprites` bucket and point the manifest
+ * at it. Returns the new manifest, or null when Supabase is not configured so
+ * the caller can fall back to writing art/sprites.
+ *
+ * The same two steps the operator function takes (supabase/functions/
+ * operator/index.ts, sprite-put), so an erase made here and one made on the
+ * hosted page land in the same place. See sql/004_sprites.sql for why a save
+ * is always a new object and never an overwrite.
+ */
+export async function saveSpriteToStore(key: string, bytes: Buffer): Promise<unknown | null> {
+  const url = process.env.SUPABASE_URL;
+  const secret = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !secret) return null;
+  const auth = { apikey: secret, Authorization: `Bearer ${secret}` };
+
+  const file = `${key}/${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+  const up = await fetch(`${url}/storage/v1/object/sprites/${file}`, {
+    method: "POST",
+    headers: { ...auth, "Content-Type": "image/png", "cache-control": "max-age=31536000", "x-upsert": "false" },
+    body: new Uint8Array(bytes),
+  });
+  if (!up.ok) throw new Error(`storage upload ${file}: ${up.status} ${await up.text()}`);
+
+  // Carry an existing `original` forward - it is the only copy of that
+  // sprite's unerased pixels.
+  const cur = await fetch(`${url}/rest/v1/content_files?path=eq.sprites.json&select=data`, { headers: auth });
+  if (!cur.ok) throw new Error(`sprites.json: ${cur.status} ${await cur.text()}`);
+  const rows = (await cur.json()) as { data: Record<string, { original?: string }> }[];
+  const original = rows[0]?.data?.[key]?.original;
+
+  return spritesRpc(url, secret, "sprites_set", {
+    p_key: key,
+    p_entry: original ? { file, original } : { file },
+    p_by: "game-server",
+  });
+}
+
+/** Point a sprite back at its original. Null when Supabase is not configured. */
+export async function revertSpriteInStore(key: string): Promise<unknown | null> {
+  const url = process.env.SUPABASE_URL;
+  const secret = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !secret) return null;
+  return (await spritesRpc(url, secret, "sprites_revert", { p_key: key, p_by: "game-server" })) ?? {};
+}
+
+async function spritesRpc(url: string, secret: string, fn: string, args: unknown): Promise<unknown> {
+  const res = await fetch(`${url}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers: { apikey: secret, Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
+    body: JSON.stringify(args),
+  });
+  if (!res.ok) throw new Error(`${fn}: ${res.status} ${await res.text()}`);
+  return res.json();
+}

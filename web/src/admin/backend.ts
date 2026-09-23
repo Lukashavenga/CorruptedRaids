@@ -1,6 +1,7 @@
 import { adminFetch } from "../adminKey.js";
 import * as operator from "../operator/api.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
+import { setSpriteManifest, type SpriteManifest } from "../sprites.js";
 
 /**
  * Where the admin panel's content comes from, and where it goes.
@@ -170,4 +171,48 @@ async function drain(): Promise<void> {
     }
   }
   inFlight = null;
+}
+
+/**
+ * Save an erased sprite, or put one back. Null when done, else the reason.
+ *
+ * Hosted, through the operator function into the public sprites bucket. Local,
+ * through the game server, which writes to the same bucket when it has
+ * Supabase and to art/sprites only when it does not - so an erase has one home
+ * whichever panel made it.
+ *
+ * The manifest the write produced is applied here, before returning, so the
+ * caller's re-render already draws the new object. Waiting for the next
+ * reload would show the unerased sprite straight after a successful save.
+ */
+export function saveSprite(folder: string, id: string, png: string): Promise<string | null> {
+  return spriteWrite(() => operator.spritePut(folder, id, png), "/sprite", { folder, id, png });
+}
+
+export function revertSprite(folder: string, id: string): Promise<string | null> {
+  return spriteWrite(() => operator.spriteRevert(folder, id), "/sprite/revert", { folder, id });
+}
+
+async function spriteWrite(
+  hosted: () => Promise<{ sprites: SpriteManifest }>,
+  localPath: string,
+  body: unknown,
+): Promise<string | null> {
+  try {
+    if ((await backendMode()) === "hosted") {
+      setSpriteManifest((await hosted()).sprites);
+      return null;
+    }
+    const res = await adminFetch(localPath, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const out = (await res.json().catch(() => null)) as { ok?: boolean; message?: string; sprites?: SpriteManifest } | null;
+    if (!res.ok || !out?.ok) return out?.message ?? `Rejected (${res.status})`;
+    if (out.sprites) setSpriteManifest(out.sprites);
+    return null;
+  } catch (err) {
+    return (err as Error).message ?? String(err);
+  }
 }

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlacementFile } from "../../../src/character/layers.js";
 import { adminFetch } from "../adminKey.js";
+import { fetchLiveArt } from "../liveArt.js";
+import { setSpriteManifest } from "../sprites.js";
 
 /**
  * Loads content/placements.json from the server.
@@ -57,14 +59,35 @@ export function usePlacements(source?: PlacementSource): {
    * after the save still lands, because its stamp is newer.
    */
   const savedAt = useRef(0);
+  /**
+   * Bumped when the erased-sprite manifest arrives. Sprite URLs are built at
+   * render time from a module-level manifest, so the surface has to render
+   * again once it lands or it keeps drawing the unerased built art.
+   */
+  const [, setArtRev] = useState(0);
 
   const reload = useCallback(() => {
     const at = Date.now();
 
+    // One read of the store serves both files. The manifest is applied for
+    // every surface - the admin included - because it only decides which PNG
+    // to draw, and every surface draws.
+    const live = fetchLiveArt();
+    void live.then((art) => {
+      if (!art?.sprites) return;
+      setSpriteManifest(art.sprites);
+      setArtRev((n) => n + 1);
+    });
+
     /**
-     * TWO SOURCES, and the order is the point.
+     * THREE SOURCES, and the order is the point.
      *
-     * `/placements` is the game server's live copy — the file the admin screen
+     * The content store first. It is where the hosted admin writes, so it is
+     * the only copy that is current everywhere - the others lag it by a
+     * restart or a deploy. It is skipped when this build has no project or the
+     * store cannot be reached, which is what the two below are for.
+     *
+     * `/placements` is the game server's copy — the file the admin screen
      * writes back to, so a rectangle you just dragged shows up on the overlay
      * without a rebuild. That endpoint only exists on localhost:8787.
      *
@@ -76,11 +99,13 @@ export function usePlacements(source?: PlacementSource): {
      * hosted site. scripts/publish-web.ts ships the file as a static asset for
      * exactly this case.
      *
-     * Server first: locally the bundled copy is a build-time snapshot and the
+     * Server before the bundle: locally the bundled copy is a build-time snapshot and the
      * server's is current, so preferring the snapshot would silently mask the
      * edit you just made.
      */
     const load = async (): Promise<PlacementFile> => {
+      const fromStore = await live;
+      if (fromStore?.placements) return fromStore.placements;
       for (const url of ["/placements", "/placements.json"]) {
         try {
           const res = await fetch(url);

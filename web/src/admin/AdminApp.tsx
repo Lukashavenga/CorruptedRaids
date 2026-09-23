@@ -52,9 +52,8 @@ const PLACEMENT_SOURCE = { load: readPlacements, save: writePlacements };
  * scale with a slider, against the real character at 1:1. Typing coordinates
  * into a form would be the same data and a far worse way to find it.
  *
- * Positions and masks are both placements.json, which lives in the content
- * store, so this tab works hosted too. Only the pixel eraser does not - see
- * `hosted` below.
+ * Positions and masks are placements.json in the content store, and erased
+ * pixels are objects in the sprites bucket, so all of it works hosted.
  */
 export function AdminApp(): JSX.Element {
   const { placements, error: placementsError, save } = usePlacements(PLACEMENT_SOURCE);
@@ -106,13 +105,8 @@ export function AdminApp(): JSX.Element {
   const [tab, setTab] = useState<"placement" | "gear" | "dungeons" | "raids" | "names">("placement");
 
   /*
-   * The eraser needs the game server.
-   *
-   * Positions and masks are placements.json and live in the store like
-   * everything else, so the tab itself works hosted. The ERASER rewrites PNG
-   * files in art/sprites through POST /sprite, and there is no hosted
-   * equivalent until the art moves to Supabase Storage - so hosted, its button
-   * is not offered rather than offered and silently failing.
+   * Hosted or served by the game server. Only changes how a failed save is
+   * explained - the admin key means nothing to the hosted page.
    */
   const [hosted, setHosted] = useState(false);
   useEffect(() => {
@@ -398,11 +392,10 @@ export function AdminApp(): JSX.Element {
 
   const finishErasing = async (keep: boolean) => {
     if (keep) {
-      const ok = await eraser.commit(folder, spriteId);
-      setStatus(ok ? "Sprite saved." : "Could not save sprite.");
-      // Force every <img> of this sprite to refetch — the file changed under
-      // a URL the browser has already cached.
-      if (ok) setBust(bumpSpriteVersion());
+      const failure = await eraser.commit(folder, spriteId);
+      setStatus(failure ? `SPRITE NOT SAVED. ${failure}` : "Sprite saved.");
+      // Re-render so every <img> of this sprite picks up its new URL.
+      if (!failure) setBust(bumpSpriteVersion());
     }
     eraser.discard();
     eraser.setErasing(false);
@@ -737,19 +730,17 @@ export function AdminApp(): JSX.Element {
             >
               Place
             </button>
-            {!hosted && (
-              <button
-                type="button"
-                className={eraser.erasing ? "is-active" : ""}
-                onClick={() => {
-                  setMaskTarget(null);
-                  void startErasing();
-                }}
-                disabled={!spriteId}
-              >
-                Erase
-              </button>
-            )}
+            <button
+              type="button"
+              className={eraser.erasing ? "is-active" : ""}
+              onClick={() => {
+                setMaskTarget(null);
+                void startErasing();
+              }}
+              disabled={!spriteId}
+            >
+              Erase
+            </button>
             <button
               type="button"
               className={maskTarget === "body" ? "is-active" : ""}
@@ -842,9 +833,9 @@ export function AdminApp(): JSX.Element {
                 type="button"
                 className="admin-revert"
                 onClick={async () => {
-                  const ok = await eraser.revert(folder, spriteId);
-                  setStatus(ok ? "Reverted to original." : "No backup for this sprite.");
-                  if (ok) {
+                  const failure = await eraser.revert(folder, spriteId);
+                  setStatus(failure ? `NOT REVERTED. ${failure}` : "Reverted to original.");
+                  if (!failure) {
                     setBust(bumpSpriteVersion());
                     await eraser.begin(spriteUrl(folder, spriteId));
                   }
@@ -853,8 +844,8 @@ export function AdminApp(): JSX.Element {
                 Revert this sprite
               </button>
               <p className="admin-hint">
-                Overwrites art/sprites. Undo with <code>npm run slice</code> - the source
-                sheets are never touched.
+                Saves a new version; the original and every earlier erase are kept.
+                Players see it on their next page load.
               </p>
             </>
           )}

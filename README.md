@@ -109,6 +109,14 @@ back the un-erased sprite rather than the edit. The script names what is at
 risk and needs `--force` to go ahead anyway. This is not hypothetical; 81
 erases were lost to it once.
 
+**Erases live in Supabase now, not in `art/sprites`.** Since
+`sql/004_sprites.sql` every erase is saved as a new object in the public
+`sprites` bucket, and `sprites.json` in the content store says which one each
+sprite draws - so an erase is live for players on their next page load and a
+re-slice no longer touches it. The files on disk are only the fallback for a
+checkout with no Supabase. `npm run push:sprites` uploaded the 81 disk-era
+erases once; it skips anything already in the manifest.
+
 ## Verification
 
 ```bash

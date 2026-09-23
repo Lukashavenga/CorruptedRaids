@@ -106,3 +106,18 @@ export function contentRestore(id: number): Promise<{ message?: string }> {
 export function contentAll(): Promise<{ gear: unknown[]; dungeons: unknown[]; raids: unknown[] }> {
   return call("?action=content-all");
 }
+
+// --- sprites -----------------------------------------------------------------
+
+/** The erased-sprite manifest after a write. See web/src/sprites.ts. */
+type Manifest = Record<string, { file: string; original?: string }>;
+
+/** Save an erase as a new object in the sprites bucket. */
+export function spritePut(folder: string, id: string, png: string): Promise<{ sprites: Manifest }> {
+  return call("?action=sprite-put", { method: "POST", body: JSON.stringify({ folder, id, png }) });
+}
+
+/** Point a sprite back at its original. Deletes nothing. */
+export function spriteRevert(folder: string, id: string): Promise<{ sprites: Manifest }> {
+  return call("?action=sprite-revert", { method: "POST", body: JSON.stringify({ folder, id }) });
+}

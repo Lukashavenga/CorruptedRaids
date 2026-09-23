@@ -30,9 +30,8 @@ const VIEW = 380;
  * cannot separate two figures whose pixels genuinely touch. Those are the ones
  * that need a brush.
  *
- * Destructive, and safe for the same reason the other eraser is: art/sprites is
- * generated, so `npm run slice` restores everything, and the server keeps a
- * per-sprite backup of the original before the first edit.
+ * Saved the same way as the other eraser: a new object in the sprites bucket,
+ * with the original and every earlier erase kept (sql/004_sprites.sql).
  */
 export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: SpriteEraserProps): JSX.Element {
   const eraser = useEraser();
@@ -70,9 +69,9 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
   };
 
   const save = async () => {
-    const ok = await eraser.commit(folder, id);
-    setStatus(ok ? `Saved ${id}.` : `Could not save ${id}.`);
-    if (ok) {
+    const failure = await eraser.commit(folder, id);
+    setStatus(failure ? `${id} NOT SAVED. ${failure}` : `Saved ${id}.`);
+    if (!failure) {
       bumpSpriteVersion();
       onChanged?.();
       onClose();
@@ -153,9 +152,9 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
         type="button"
         className="admin-revert"
         onClick={async () => {
-          const ok = await eraser.revert(folder, id);
-          setStatus(ok ? `Reverted ${id}.` : "No backup - this sprite has never been edited.");
-          if (ok) {
+          const failure = await eraser.revert(folder, id);
+          setStatus(failure ? `${id} NOT REVERTED. ${failure}` : `Reverted ${id}.`);
+          if (!failure) {
             bumpSpriteVersion();
             onChanged?.();
             await eraser.begin(spriteUrl(folder, id));
@@ -165,8 +164,8 @@ export function SpriteEraser({ folder, id, onClose, setStatus, onChanged }: Spri
         Revert to the sliced original
       </button>
       <p className="admin-hint">
-        Overwrites art/sprites. <code>npm run slice</code> restores everything - the source sheets
-        are never touched.
+        Saves a new version; the original and every earlier erase are kept. Players see it on
+        their next page load.
       </p>
     </div>
   );

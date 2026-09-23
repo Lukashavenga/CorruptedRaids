@@ -3,7 +3,12 @@ import { readFileSync, writeFileSync, existsSync, copyFileSync, mkdirSync, readd
 import { extname, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../engine/content/loader.js";
-import { loadContentFromSupabase, writeContentFile } from "./contentStore.js";
+import {
+  loadContentFromSupabase,
+  revertSpriteInStore,
+  saveSpriteToStore,
+  writeContentFile,
+} from "./contentStore.js";
 import { GameEngine } from "../engine/state/gameEngine.js";
 import type { GameCommand } from "../engine/commands/types.js";
 import { DungeonController, type DungeonSnapshot, type DungeonUpdate } from "../state/DungeonController.js";
@@ -606,22 +611,22 @@ const server = createServer((req, res) => {
   }
 
   /**
-   * Overwrite one sliced sprite PNG. Used by the admin eraser.
+   * Save one erased sprite. Used by the admin eraser.
    *
-   * Destructive to art/sprites — and safe precisely because that directory is
-   * GENERATED. The source sheets in art/New Assets are never touched, so any
-   * erase is undone by re-running `npm run slice`. That is what made an eraser
-   * worth building rather than a mask stored alongside the placement: the
-   * pixels can just be edited, because they are reproducible.
+   * TO THE SPRITES BUCKET when Supabase is configured, exactly as the hosted
+   * page does - otherwise an erase made here would live on this disk while the
+   * one made hosted lives in the bucket, and players would see whichever the
+   * last deploy happened to carry. See sql/004_sprites.sql.
    *
-   * Same no-auth caveat as POST /placements.
+   * Only with no Supabase does it overwrite art/sprites, which is safe because
+   * that directory is GENERATED: `npm run slice` rebuilds it from the sheets.
    */
   if (req.method === "POST" && url.pathname === "/sprite") {
     // Operator only: this writes to the repo. See auth.ts.
     if (denyNonAdmin(req, res)) return;
     let body = "";
     req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
+    req.on("end", () => void (async () => {
       try {
         const { folder, id, png } = JSON.parse(body || "{}");
         // Both parts are path segments on disk, so they are constrained to a
@@ -634,6 +639,12 @@ const server = createServer((req, res) => {
           throw new Error("png must be a data:image/png;base64 string");
         }
         const bytes = Buffer.from(png.slice("data:image/png;base64,".length), "base64");
+        const sprites = await saveSpriteToStore(`${folder}/${id}`, bytes);
+        if (sprites !== null) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ok: true, stored: "supabase", sprites }));
+          return;
+        }
         const source = join(ROOT, "art", "sprites", folder, `${id}.png`);
         // Back up the ORIGINAL once, before the first edit. Re-slicing already
         // restores everything, but that discards every other erase too — a
@@ -647,26 +658,35 @@ const server = createServer((req, res) => {
           writeFileSync(join(dir, `${id}.png`), bytes);
         }
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true }));
+        res.end(JSON.stringify({ ok: true, stored: "file" }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
       }
-    });
+    })());
     return;
   }
 
-  /** Restore one sprite from the backup taken before its first erase. */
+  /**
+   * Put one sprite back to its original. A manifest edit in the bucket's case
+   * (nothing is deleted); a copy from the pre-erase backup in the disk case.
+   */
   if (req.method === "POST" && url.pathname === "/sprite/revert") {
     // Operator only: this writes to the repo. See auth.ts.
     if (denyNonAdmin(req, res)) return;
     let body = "";
     req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
+    req.on("end", () => void (async () => {
       try {
         const { folder, id } = JSON.parse(body || "{}");
         if (!SPRITE_FOLDER.test(folder ?? "") || !/^[a-z0-9_-]+$/i.test(id ?? "")) {
           throw new Error("bad folder or id");
+        }
+        const sprites = await revertSpriteInStore(`${folder}/${id}`);
+        if (sprites !== null) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ ok: true, stored: "supabase", sprites }));
+          return;
         }
         const backup = join(BACKUP_SPRITES, folder, `${id}.png`);
         if (!existsSync(backup)) throw new Error("no backup - this sprite has never been erased");
@@ -674,12 +694,12 @@ const server = createServer((req, res) => {
           copyFileSync(backup, join(dir, `${id}.png`));
         }
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true }));
+        res.end(JSON.stringify({ ok: true, stored: "file" }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
       }
-    });
+    })());
     return;
   }
 

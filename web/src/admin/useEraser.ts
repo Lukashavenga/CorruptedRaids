@@ -1,17 +1,13 @@
 import { useCallback, useRef, useState } from "react";
-import { adminFetch } from "../adminKey.js";
+import { revertSprite, saveSprite } from "./backend.js";
 
 /**
  * A destructive pixel eraser for one sliced sprite.
  *
- * WHY THIS IS ALLOWED TO BE DESTRUCTIVE
- * -------------------------------------
- * art/sprites is GENERATED — scripts/slice-sheets.py cuts it out of the
- * untouched source sheets in art/New Assets. So an erase is always undoable
- * with `npm run slice`, and there is no need to carry a non-destructive mask
- * alongside every placement, invent an undo stack, or version the edits. The
- * cheap option is the correct one here only because the pipeline is
- * reproducible; against hand-authored files it would not be.
+ * NOTHING IS OVERWRITTEN. A save uploads the erased pixels as a new object in
+ * the public `sprites` bucket and points the manifest at it; the original is
+ * the built art and is never touched, and every earlier erase stays in the
+ * bucket. Revert is a manifest edit. See sql/004_sprites.sql.
  *
  * The sprite is loaded into a canvas at its NATURAL size, so brush strokes are
  * converted from stage coordinates back into sprite pixels before they are
@@ -37,9 +33,11 @@ export function useEraser(): {
   removedSurface: HTMLCanvasElement | null;
   begin: (url: string) => Promise<void>;
   erase: (sx: number, sy: number) => void;
-  commit: (folder: string, id: string) => Promise<boolean>;
+  /** Null when saved, else the reason it was not. */
+  commit: (folder: string, id: string) => Promise<string | null>;
   discard: () => void;
-  revert: (folder: string, id: string) => Promise<boolean>;
+  /** Null when reverted, else the reason it was not. */
+  revert: (folder: string, id: string) => Promise<string | null>;
 } {
   const [erasing, setErasing] = useState(false);
   const [brush, setBrush] = useState(12);
@@ -116,17 +114,8 @@ export function useEraser(): {
 
   const commit = useCallback(async (folder: string, id: string) => {
     const c = canvas.current;
-    if (!c) return false;
-    try {
-      const res = await adminFetch("/sprite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder, id, png: c.toDataURL("image/png") }),
-      });
-      return res.ok;
-    } catch {
-      return false;
-    }
+    if (!c) return "Nothing to save.";
+    return saveSprite(folder, id, c.toDataURL("image/png"));
   }, []);
 
   const discard = useCallback(() => {
@@ -137,19 +126,8 @@ export function useEraser(): {
     setStrokes(0);
   }, []);
 
-  /** Restore this sprite from the backup taken before its first erase. */
-  const revert = useCallback(async (folder: string, id: string) => {
-    try {
-      const res = await adminFetch("/sprite/revert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder, id }),
-      });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  }, []);
+  /** Point this sprite back at its original. The erased versions are kept. */
+  const revert = useCallback((folder: string, id: string) => revertSprite(folder, id), []);
 
   return {
     erasing, setErasing, brush, setBrush, strokes, natural, surface, removedSurface,

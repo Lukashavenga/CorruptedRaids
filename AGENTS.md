@@ -545,6 +545,17 @@ Two traps already hit:
 `transform: scaleX(-1)` to enemy art - that assumption was in both the overlay
 and the admin panel, and it had every enemy fighting the back wall.
 
+### Erased sprites are hosted, not files
+
+The admin eraser saves to the public `sprites` bucket, never to `art/sprites`
+(sql/004_sprites.sql). Every save is a NEW object; `sprites.json` in the
+content store names the one each sprite draws, and `spriteUrl()` in
+`web/src/sprites.ts` is the only place that reads it - so a sprite is erased on
+every surface or none. Revert is a manifest edit and deletes nothing; the
+manifest's own history (content_history) is how an older erase comes back.
+Placements and the manifest are the only two content rows readable with the
+public key, because every page needs them to draw a character.
+
 ### Turning new art into gear
 
 `scripts/generate-gear-content.py` turns sliced sprites into gear definitions.

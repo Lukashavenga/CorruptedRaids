@@ -58,6 +58,11 @@ from inside this repo - they all need an account you own.
 2. Run `sql/001_roster.sql` in its SQL editor. It creates `characters` and
    `roster_snapshots`, enables RLS, and adds the one policy viewers get
    (read their own character - see the file for why there's no write policy).
+   Then `sql/003_content.sql` (content, with history) and `sql/004_sprites.sql`
+   (the public `sprites` bucket for erased art, and public read of exactly
+   `placements.json` and `sprites.json`, which every page needs to draw a
+   character). Any erases made on disk before 004 go up once with
+   `npm run push:sprites -- --write`.
 3. **Authentication → Sign in / Providers → Twitch**: open its settings panel
    (don't enable or save yet - Supabase won't let you save it enabled without
    a Client ID and Secret, and you don't have those yet). The panel shows the
