@@ -1,5 +1,6 @@
 import { adminFetch } from "../adminKey.js";
 import * as operator from "../operator/api.js";
+import type { PlacementFile } from "../../../src/character/layers.js";
 
 /**
  * Where the admin panel's content comes from, and where it goes.
@@ -87,4 +88,86 @@ export async function writeContent(kind: string, id: string, data: unknown): Pro
     return;
   }
   await operator.contentPut(pathFor(kind, id), data);
+}
+
+/**
+ * placements.json - where every sprite sits, and the body and hair masks it
+ * carves. Read from wherever the screen will write it back to.
+ *
+ * NO EMPTY FALLBACK. The file is saved WHOLE on every nudge, so a read that
+ * quietly became `{}` would make the next drag write one sprite's position over
+ * everybody else's. A read that fails throws, and the screen refuses to save
+ * until it has the real file. (The overlay's own hook does fall back to `{}`,
+ * and is right to: it never writes.)
+ */
+export async function readPlacements(): Promise<PlacementFile> {
+  if ((await backendMode()) === "local") {
+    const res = await fetch("/placements");
+    if (!res.ok) throw new Error(`GET /placements answered ${res.status}`);
+    return (await res.json()) as PlacementFile;
+  }
+  const { file } = await operator.contentGet("placements.json");
+  if (!file.data || typeof file.data !== "object" || Array.isArray(file.data)) {
+    throw new Error("placements.json in the store is not an object");
+  }
+  return file.data as PlacementFile;
+}
+
+async function sendPlacements(data: PlacementFile): Promise<void> {
+  if ((await backendMode()) === "local") {
+    const res = await adminFetch("/placements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const body = (await res.json().catch(() => null)) as { ok?: boolean; message?: string } | null;
+    if (!res.ok || !body?.ok) throw new Error(body?.message ?? `Rejected (${res.status})`);
+    return;
+  }
+  await operator.contentPut("placements.json", data);
+}
+
+/**
+ * One write in flight, and only the newest waiting behind it.
+ *
+ * The placement screen saves on every pointermove of a drag. Sent as they come,
+ * those are dozens of whole-file writes racing each other, and whichever lands
+ * LAST wins - not whichever was made last - so a drag could end with the
+ * sprite back where it was three frames earlier. Over the network to the Edge
+ * Function that stops being theoretical. Each write also files the previous
+ * version into content_history, so racing them buries the useful history under
+ * a hundred copies of one drag.
+ *
+ * Serialising them fixes both: the writes arrive in order, and everything made
+ * while one is in flight collapses into the newest. Every caller is answered
+ * with the outcome of the write that carried their change.
+ */
+let inFlight: Promise<void> | null = null;
+let queued: { data: PlacementFile; waiters: { resolve: () => void; reject: (e: unknown) => void }[] } | null = null;
+
+export function writePlacements(data: PlacementFile): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (queued) {
+      queued.data = data;
+      queued.waiters.push({ resolve, reject });
+    } else {
+      queued = { data, waiters: [{ resolve, reject }] };
+    }
+    if (!inFlight) void drain();
+  });
+}
+
+async function drain(): Promise<void> {
+  while (queued) {
+    const batch = queued;
+    queued = null;
+    inFlight = sendPlacements(batch.data);
+    try {
+      await inFlight;
+      for (const w of batch.waiters) w.resolve();
+    } catch (err) {
+      for (const w of batch.waiters) w.reject(err);
+    }
+  }
+  inFlight = null;
 }

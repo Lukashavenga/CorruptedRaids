@@ -14,12 +14,38 @@ import { adminFetch } from "../adminKey.js";
  * DEFAULT_PLACEMENT, so callers never need a loading branch. The character just
  * draws with its gear stacked at the origin for one frame.
  */
-export function usePlacements(): {
+/**
+ * Where the admin screen reads and writes placements instead.
+ *
+ * Injected rather than imported because the overlay and the loadout use this
+ * hook too, and the admin's source goes through the operator Edge Function -
+ * pulling that (and the Supabase client behind it) into the overlay bundle to
+ * serve a screen the overlay never shows would be weight for nothing.
+ */
+export interface PlacementSource {
+  load: () => Promise<PlacementFile>;
+  save: (next: PlacementFile) => Promise<void>;
+}
+
+export function usePlacements(source?: PlacementSource): {
   placements: PlacementFile;
+  /** Why the file could not be read. While set, `save` refuses. */
+  error: string | null;
   reload: () => void;
-  save: (next: PlacementFile) => Promise<boolean>;
+  /** Null when written; otherwise the reason it was not. */
+  save: (next: PlacementFile) => Promise<string | null>;
 } {
   const [placements, setPlacements] = useState<PlacementFile>({});
+  const [error, setError] = useState<string | null>(null);
+  /**
+   * Whether `placements` is the real file rather than the `{}` it starts as.
+   *
+   * Only an injected source gates on this. Every save writes the WHOLE file,
+   * so saving before the read landed - or after it failed - writes one
+   * sprite's position over everyone else's.
+   */
+  const loaded = useRef(!source);
+  const sourceRef = useRef(source);
   /**
    * When the newest local edit was made.
    *
@@ -66,6 +92,20 @@ export function usePlacements(): {
       return {};
     };
 
+    const custom = sourceRef.current;
+    if (custom) {
+      void custom.load().then(
+        (data) => {
+          loaded.current = true;
+          setError(null);
+          if (at < savedAt.current) return;
+          setPlacements(data ?? {});
+        },
+        (err: unknown) => setError((err as Error).message ?? String(err)),
+      );
+      return;
+    }
+
     void load().then((data) => {
       if (at < savedAt.current) return;
       setPlacements(data ?? {});
@@ -74,23 +114,33 @@ export function usePlacements(): {
 
   useEffect(reload, [reload]);
 
-  const save = useCallback(async (next: PlacementFile) => {
+  const save = useCallback(async (next: PlacementFile): Promise<string | null> => {
+    if (!loaded.current) return "Placements have not loaded, so saving would overwrite them.";
     // Optimistic: the admin screen is a direct-manipulation surface, and
     // waiting for a round trip before showing the drag you just made would
     // make positioning feel broken.
     savedAt.current = Date.now();
     setPlacements(next);
+    const custom = sourceRef.current;
+    if (custom) {
+      try {
+        await custom.save(next);
+        return null;
+      } catch (err) {
+        return (err as Error).message ?? String(err);
+      }
+    }
     try {
       const res = await adminFetch("/placements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(next),
       });
-      return res.ok;
-    } catch {
-      return false;
+      return res.ok ? null : `Rejected (${res.status})`;
+    } catch (err) {
+      return (err as Error).message ?? String(err);
     }
   }, []);
 
-  return { placements, reload, save };
+  return { placements, error, reload, save };
 }

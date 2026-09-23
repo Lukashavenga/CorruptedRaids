@@ -120,6 +120,10 @@
   line-height: 1.4;
 }
 
+.admin-hint.admin-error {
+  color: var(--danger, #bc5960);
+}
+
 /* Thumbnail picker. Fixed-height cells with the sprite scaled to fit, because
    the source art ranges from a 175px face mark to a 539px torch and a picker
    that respected that would be unusable. */

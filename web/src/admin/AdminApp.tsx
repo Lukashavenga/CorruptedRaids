@@ -21,7 +21,7 @@ import { GearInspector } from "./GearInspector.js";
 import { useTuningContent } from "./useTuningContent.js";
 import "./admin.css";
 import { getAdminKey, setAdminKey } from "../adminKey.js";
-import { backendMode } from "./backend.js";
+import { backendMode, readPlacements, writePlacements } from "./backend.js";
 
 const BODY_TYPES: BodyType[] = ["male", "female"];
 const TONES = ["fair", "light", "tan", "brown", "dark"];
@@ -31,6 +31,14 @@ const EDITABLE = ["hair", ...Object.keys(SLOT_FOLDER)] as const;
 type Editable = (typeof EDITABLE)[number];
 
 const FOLDER: Record<string, string> = { hair: "hair", ...(SLOT_FOLDER as Record<string, string>) };
+
+/**
+ * Placements through the backend switch, like every other screen here: the
+ * game server when it is there, the content store when this page is hosted.
+ * Module-level so the hook sees one stable source rather than a new one each
+ * render.
+ */
+const PLACEMENT_SOURCE = { load: readPlacements, save: writePlacements };
 
 /**
  * The sprite placement tool.
@@ -44,12 +52,12 @@ const FOLDER: Record<string, string> = { hair: "hair", ...(SLOT_FOLDER as Record
  * scale with a slider, against the real character at 1:1. Typing coordinates
  * into a form would be the same data and a far worse way to find it.
  *
- * NO AUTH — see the POST /placements handler in src/server/index.ts. This
- * writes a content file from an unauthenticated request and is for local use
- * only until auth lands.
+ * Positions and masks are both placements.json, which lives in the content
+ * store, so this tab works hosted too. Only the pixel eraser does not - see
+ * `hosted` below.
  */
 export function AdminApp(): JSX.Element {
-  const { placements, save } = usePlacements();
+  const { placements, error: placementsError, save } = usePlacements(PLACEMENT_SOURCE);
   const [slot, setSlot] = useState<Editable>("head");
   const [spriteId, setSpriteId] = useState<string>(SPRITE_INDEX.head?.[0] ?? "");
   const [bodyType, setBodyType] = useState<BodyType>("male");
@@ -98,22 +106,17 @@ export function AdminApp(): JSX.Element {
   const [tab, setTab] = useState<"placement" | "gear" | "dungeons" | "raids" | "names">("placement");
 
   /*
-   * Sprite work needs the game server.
+   * The eraser needs the game server.
    *
-   * Placement positions are content and live in the store like everything
-   * else, but the ERASER rewrites PNG files in art/sprites through POST
-   * /sprite - there is no hosted equivalent until the art moves to Supabase
-   * Storage. Rather than offer a tab whose eraser silently fails, the panel
-   * starts somewhere useful when hosted and says why.
+   * Positions and masks are placements.json and live in the store like
+   * everything else, so the tab itself works hosted. The ERASER rewrites PNG
+   * files in art/sprites through POST /sprite, and there is no hosted
+   * equivalent until the art moves to Supabase Storage - so hosted, its button
+   * is not offered rather than offered and silently failing.
    */
   const [hosted, setHosted] = useState(false);
   useEffect(() => {
-    void backendMode().then((m) => {
-      if (m === "hosted") {
-        setHosted(true);
-        setTab("gear");
-      }
-    });
+    void backendMode().then((m) => setHosted(m === "hosted"));
   }, []);
   const tuning = useTuningContent();
   /**
@@ -237,13 +240,15 @@ export function AdminApp(): JSX.Element {
    * A failure stays on screen until the next action clears it. It is the one
    * message here that must not be missed.
    */
-  const report = (result: Promise<boolean>) => {
-    void result.then((ok) => {
-      if (ok) {
+  const report = (result: Promise<string | null>) => {
+    void result.then((failure) => {
+      if (!failure) {
         setStatus("Saved.");
         window.setTimeout(() => setStatus(""), 1200);
+      } else if (hosted) {
+        setStatus(`NOT SAVED. ${failure}`);
       } else {
-        setStatus("NOT SAVED. Enter the admin key above, then try again.");
+        setStatus(`NOT SAVED (${failure}). Enter the admin key above, then try again.`);
       }
     });
   };
@@ -444,7 +449,7 @@ export function AdminApp(): JSX.Element {
       <header className="admin-bar">
         <h1>Corrupted Admin</h1>
         <nav className="admin-tabs">
-          {(["placement", "gear", "dungeons", "raids", "names"] as const).filter((t) => !(hosted && t === "placement")).map((t) => (
+          {(["placement", "gear", "dungeons", "raids", "names"] as const).map((t) => (
             <button key={t} type="button" className={tab === t ? "is-active" : ""} onClick={() => setTab(t)}>
               {t}
             </button>
@@ -492,6 +497,14 @@ export function AdminApp(): JSX.Element {
       {tab === "placement" && (
       <div className="admin-body">
         <aside className="admin-panel">
+          {/* Loud, because saving is refused until this clears: the file is
+              written whole, and writing it from an empty read would wipe
+              every other sprite's position. */}
+          {placementsError && (
+            <p className="admin-hint admin-error">
+              Could not load placements, so nothing here will save: {placementsError}
+            </p>
+          )}
           <label>
             Slot
             <select value={slot} onChange={(e) => setSlot(e.target.value as Editable)}>
@@ -724,17 +737,19 @@ export function AdminApp(): JSX.Element {
             >
               Place
             </button>
-            <button
-              type="button"
-              className={eraser.erasing ? "is-active" : ""}
-              onClick={() => {
-                setMaskTarget(null);
-                void startErasing();
-              }}
-              disabled={!spriteId}
-            >
-              Erase
-            </button>
+            {!hosted && (
+              <button
+                type="button"
+                className={eraser.erasing ? "is-active" : ""}
+                onClick={() => {
+                  setMaskTarget(null);
+                  void startErasing();
+                }}
+                disabled={!spriteId}
+              >
+                Erase
+              </button>
+            )}
             <button
               type="button"
               className={maskTarget === "body" ? "is-active" : ""}
