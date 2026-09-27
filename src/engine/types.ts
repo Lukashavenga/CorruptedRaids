@@ -197,9 +197,23 @@ export interface FightDefinition {
    * Absent means fall back to `balance.bandStatScale`, which is identity
    * unless solved — so an un-tuned fight behaves exactly as it always did.
    *
-   * SOLVED, NOT AUTHORED BY HAND: `npx tsx scripts/author-bands.ts --write`.
+   * SOLVED, NOT AUTHORED BY HAND - from the admin panel's Solve buttons, or
+   * `npx tsx scripts/author-bands.ts --write`. Both call src/engine/bandSolver.ts.
    */
   bandStatScale?: Partial<Record<PartyBand, number>>;
+  /**
+   * The win rate every level of this fight is solved towards, 0..1.
+   *
+   * THE ONE DIFFICULTY NUMBER AN AUTHOR SHOULD SET. Everything else on the
+   * balance screen is either the fight's shape (who is in it) or the solver's
+   * answer (bandStatScale). This is the intent: "a place a fresh chat wins
+   * most nights" is 0.85, "a coin flip you usually take" is 0.55.
+   *
+   * It is not a level: it applies at every level, because a level is decided
+   * by who turned up and a place should feel as hard as it says it is whoever
+   * that was. Absent means DEFAULT_TARGET_WIN.
+   */
+  targetWinRate?: number;
 }
 
 /**
@@ -242,8 +256,38 @@ export interface EnemyUnit {
   x: number;
   /** 0..1 down the stage, 1 at the feet line. Also the depth cue. */
   y: number;
-  /** Size multiplier, for standing someone further back or making a brute. */
+  /**
+   * Size multiplier, for standing someone further back or making a brute.
+   *
+   * SPRITE SIZE ONLY. A unit drawn at 1.7x is exactly as dangerous as one drawn
+   * at 1x - which is how three raid rooms ended up with a king-boss portrait on
+   * a body that fought like a farmhand. `strength` is the one that fights.
+   */
   scale?: number;
+  /**
+   * How many ordinary bodies this one is worth. Absent means 1.
+   *
+   * WHAT LETS A FIGHT BE HARD WITHOUT BEING CROWDED. A squad could only get
+   * harder by adding bodies, and forty identical villagers on a 450px stage is
+   * a smear. A body at strength 8 is eight bodies' worth in one sprite.
+   *
+   * IT MULTIPLIES HP AND TURNS, NOT DAMAGE PER HIT - and the obvious version was
+   * measured and is wrong. Multiplying hp and attack by 8 made one body that a
+   * party beat 99% of the time where eight regulars won 48%: initiative is drawn
+   * per combatant, so eight bodies get eight times the turns, and one body
+   * hitting eight times as hard mostly wastes it overkilling one player. With
+   * hp and turns multiplied instead it tracks eight regulars almost exactly -
+   * 38% against their 48%, slightly tougher because one body does not lose
+   * turns as it is hurt the way a squad loses members. (Measured on monks at
+   * the elite level, 120 fights per cell.)
+   *
+   * It composes with the level's multiplier, which scales hp and attack for
+   * every body; a Boss at a level scaled 10x has 80x hp and 10x attack.
+   *
+   * The admin names the steps: Minion 0.5, Regular 1, Elite 2, Champion 4,
+   * Boss 8.
+   */
+  strength?: number;
   /**
    * How often this unit acts, relative to one ordinary combatant.
    *
@@ -491,8 +535,16 @@ export interface EnemyDefinition {
    * eight ordinary combatants, which is the raid-boss fantasy of one thing that
    * keeps up with a whole party. Left at 1 for mobs, where being outnumbered is
    * already answered by there being several of them.
+   *
+   * Authored as a unit's `weight` (tempo) times its `strength`.
    */
   initiativeWeight?: number;
+  /**
+   * How many bodies this one is worth - the unit's `strength`, carried through
+   * so a rating can price it. Its hp and turns are already multiplied by it;
+   * this only exists so a score can undo the hp before counting it per body.
+   */
+  strength?: number;
   /**
    * A finished enemy sprite, as "<group>/<id>" under art/sprites/enemies.
    *

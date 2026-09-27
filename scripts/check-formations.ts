@@ -154,7 +154,12 @@ const level = (band: PartyBand): string => `L${PARTY_BANDS.indexOf(band) + 1}`;
  */
 function authoredPower(fight: FightDefinition, band: PartyBand): number {
   const units = fight.formations?.[band] ?? [];
-  return units.reduce((sum, unit) => sum + ratePoints(unitStats(fight.stats, unit.role, unit.stats), content.balance), 0);
+  // Strength counts as that many bodies - it multiplies hp AND turns (see
+  // EnemyUnit.strength), so a Boss at 8 is priced as eight of whatever it is.
+  return units.reduce(
+    (sum, unit) => sum + ratePoints(unitStats(fight.stats, unit.role, unit.stats), content.balance) * (unit.strength ?? 1),
+    0,
+  );
 }
 
 /**
@@ -233,7 +238,7 @@ for (const { label, fight } of subjects) {
       } else if (drawnBig(fight, band)) {
         problems.push(
           `${label} ${level(band)} ${how} ${level(previousBand)} in bodies (${previous} -> ${count}) and is WEAKER (${short(previousPower)} -> ${short(power)}). ` +
-            `Its units are scaled up, but scale is a sprite size - give them stats, or it is one ordinary body wearing a king's portrait.`,
+            `Its units are drawn bigger, but size is only a sprite size - raise their Strength in the unit editor, or it is one ordinary body wearing a king's portrait.`,
         );
       } else {
         problems.push(
@@ -263,10 +268,10 @@ if (problems.length > 0) {
   console.error("A level must field more bodies than the one below, or hit harder:");
   for (const problem of problems) console.error(`  FAIL  ${problem}`);
   console.error("");
-  console.error("Add bodies to the level named, in the admin panel's Dungeons tab - one");
-  console.error("formation per level, each with more units than the level below it. Then");
-  console.error("re-solve the stat curve with `npx tsx scripts/author-bands.ts`, because");
-  console.error("the two are solved together and a changed layout invalidates the old curve.");
+  console.error("In the admin panel's Dungeons tab, give the level named another body or");
+  console.error("make one of its bodies stronger (Elite, Champion, Boss) - a Boss is worth");
+  console.error("eight regulars without crowding the stage. Then press Solve all levels,");
+  console.error("because a changed squad invalidates the level's old multiplier.");
   process.exit(1);
 }
 

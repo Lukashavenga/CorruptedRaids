@@ -322,7 +322,7 @@ in a `.ts` file is a bug report waiting to happen.
     GET  /state /character /placements /ratings /content /events
     GET  /difficulty                                    (admin)
     POST /command /placements /sprite /sprite/revert
-    POST /difficulty
+    POST /difficulty /difficulty/measure /difficulty/solve   (admin)
     POST /content/write /content/delete /content/rename
 
 `GET /events` is the overlay's stream. `POST /difficulty` exists because the
@@ -526,6 +526,61 @@ findable: two endpoints answering the same question differently. Any raid
 tuning done through the meter before 2026-09-27 was done against the weak
 layout and is worth re-reading.
 
+### Balancing a dungeon, in practice
+
+Dungeons tab. The whole job is three controls:
+
+1. **Draw each level's squad.** Who is in the fight, and which of them are
+   tougher - every unit has a **Strength**: Minion, Regular, Elite, Champion,
+   Boss (0.5, 1, 2, 4, 8). A Boss is worth eight regulars in one sprite, which
+   is how a fight gets hard without forty villagers on a 450px stage.
+2. **Set the Target win rate** at the top. One number for the whole place:
+   85% is a starter a fresh chat wins nearly every night, 55% is a coin flip.
+3. **Press Solve all levels.** The solver sets each level's **strength** - the
+   multiplier on every enemy's health and attack at that level - so it lands on
+   the target. The squads are left exactly as drawn. Then Save.
+
+The six level tabs show each level's unit count and measured win rate,
+coloured against the target: green inside it, red too hard, pale too easy.
+
+**When a level will not go green, the solver says what to change.** It can
+only move the multiplier, and two things it cannot fix are reported under the
+level: *too hard even at the lowest strength* (fewer units, or weaker ones) and
+*still too easy at the highest* (more, or stronger). The first also fires when
+a level is not allowed to be set easier than the level below it - the ratchet,
+§10 - which is a squad problem wearing a multiplier's clothes.
+
+Tempo (formerly "fight pressure") is under Advanced, defaults to 1, and opens
+itself when a level has it set. It is the last tenth, not a dial to start with.
+
+**The tab, the Solve button, `author-bands.ts` and the hosted panel are one
+measurement.** All of them call `src/engine/bandSolver.ts` - the same party
+(`bandParty`), the same sixty fights, the same seed. It used to be four: the
+tab and the solver used different seeds, so a level solved to 70% could read
+64% on its own tab, and the tab judged every dungeon against a fixed 45-70%
+window whatever it was aiming for.
+
+The hosted solve is RESUMABLE because it has to be: a Supabase Edge Function is
+killed at 2s of CPU, and one level of lady-of-knight takes 2.5s. The search is a
+state machine with no simulator in it (`src/engine/bandSearch.ts`); the edge
+runs it for ~800ms and hands the state back, and the browser sends it again.
+Proven identical to solving in one go on the three heaviest levels in the game.
+
+### Strength multiplies hp and TURNS, not damage per hit
+
+The obvious version is wrong and was measured. Multiplying one body's hp and
+attack by 8 gave a unit a party beat 99% of the time where eight regulars won
+48%: initiative is drawn per combatant, so eight bodies get eight times the
+turns, and one huge hit mostly overkills one player. Multiplying hp and turns
+instead tracks eight regulars almost exactly (38% against their 48% - slightly
+tougher, because one body does not lose turns as it is hurt). The same lesson
+was already recorded on `initiativeWeight`; strength just makes it the default.
+
+    scale   8 regulars   hp&atk x8   hp&turns x8
+    x25          94%        100%          93%
+    x30          48%         99%          38%
+    x35           9%         99%           5%
+
 ### How far each lever reaches
 
 Measured on monks at Level 3 against twelve viewers, 400 samples a row:
@@ -542,10 +597,10 @@ Measured on monks at Level 3 against twelve viewers, 400 samples a row:
 | bandStatScale x1.05 | 22 | 27% |
 | bandStatScale x1.1 | 22 | 12% |
 
-**Bodies are the only lever with usable resolution.** One is inside the noise,
-six is a 48-point swing - a dial you can turn. Pressure and the stat curve are
-both cliffs: a 5% nudge to `bandStatScale` costs 30 points of win rate, which
-is why `author-bands.ts` solves it rather than anybody dragging it.
+**This is why the solver exists.** Pressure and the level multiplier are both
+cliffs - a 5% nudge to `bandStatScale` costs 30 points of win rate - so nobody
+should be finding them by hand. Bodies and Strength decide what the fight IS;
+Solve decides how hard it hits.
 
 The pressure dial in the admin used to run 0.5 to 16, so about nine tenths of
 its travel said the same thing - everybody dies - and the part that tuned
@@ -569,6 +624,11 @@ person, 73% win at seven players down to 33% at ten).
 But the ramp is guarded: `if (prev.length >= units.length) return units`. A
 level that does not GROW turns the smoothing off and restores the exact cliff
 it was built to prevent.
+
+It counts Strength as bodies - a Boss at 8 is priced as eight - so a level may
+grow by making its units stronger rather than adding more, and a top level
+that is one Boss rather than twelve guards passes. What fails is a level no
+stronger, in what the author drew, than the one below it.
 
 `--live` (or `npm run check:formations:live`) reads the Supabase store instead
 of `content/` on disk. That is the copy the game plays and the two have drifted
@@ -843,13 +903,18 @@ overlay is a smear and the fight is long rather than hard". It is the one
 dungeon that has to escalate by making units nastier rather than more numerous.
 `monks` got its Level 6 back from the solver, measured into Fair at 70%.
 
-**BARBIEVILLE's top level is the cost, and it is unresolved.** Measured at its
-own reference party, L6 went from 38% win to **4%**: apocalyptic was already
-pinned at the ratchet floor (x31.88, a hair above infernal's x31.87), so the
-two extra bodies had nowhere to be absorbed. Given a free hand the solver wants
-8 bodies at x36.77 for 86% - FEWER than infernal's 11, which is the shape this
-dungeon's top band actually wants and the opposite of the rule above. The two
-cannot both hold here; the ladder ordering work is where that gets decided.
+**BARBIEVILLE's top level is unresolved, and the panel now says so.** It
+measures 13% against a 78% target and the solver reports it floor-bound: it may
+not be set easier than Level 5, and at Level 5's multiplier the level-200 party
+loses. Given a free hand the solver wants 8 bodies at x36.77 for 86% - fewer
+than Level 5's 11, the opposite of the growth rule. Both cannot hold here; the
+ladder ordering work is where that gets decided. Pressing Solve all levels on
+BARBIEVILLE puts Levels 1-5 on target (80/78/78/78/78%) and leaves this one
+flagged - measured 2026-09-27, not saved.
+
+BARBIEVILLE's Level 1 also runs at **4.6x tempo** in the live store - four and
+a half turns to a player's one, on the level a fresh chat meets. The panel
+surfaces it now; whether it was meant is a content decision.
 
 Everything else moved the right way - barbie L3 37%->70%, L4 54%->68%.
 
@@ -859,8 +924,15 @@ layout holding one hand-placed boss sprite. Those are deliberate - king-boss at
 scale 1.7, a role, placed by hand - but `scale` is a SPRITE SIZE and the units
 carry no stat overrides, so mechanically the top level of each room is one
 ordinary body and measures WEAKER than the level below it (wayside-chapel 98 ->
-58, toll-gate 469 -> 73). Giving them stats is a balance decision, not a
-mechanical fix. `the-watch-house` exists on disk and not in the store.
+58, toll-gate 469 -> 73). **Strength is the fix, and it exists now**: set
+each boss to Boss in the Raids tab's unit editor and it is worth eight bodies.
+Which of them should be Champion and which Boss is a design call, so it has not
+been done for you.
+
+The Raids tab has Strength but no Solve, deliberately. A raid is four door
+fights and a boss in a row, and solving each room on its own is exactly how
+individually-fair fights compound into an unwinnable night (see "Make the
+difficulty solver dungeon-aware" below). A per-room button would invite it. `the-watch-house` exists on disk and not in the store.
 
 **The ladder is out of order.** Still true at 25 trials, and the band ratchet
 barely moved it, because it is a different problem: not how one dungeon scales

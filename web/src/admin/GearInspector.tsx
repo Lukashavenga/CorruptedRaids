@@ -4,7 +4,6 @@ import { ALLOCATABLE_STATS, GEAR_STAT_KEYS, RARITIES } from "../../../src/engine
 import { DEFAULT_BALANCE } from "../../../src/engine/balance.js";
 import { explainStat, powerScore, RARITY_POWER_BAND } from "../../../src/engine/statGuide.js";
 import { spriteForGear } from "../sprites.js";
-import { adminFetch } from "../adminKey.js";
 import { writeContent } from "./backend.js";
 
 // Negative on purpose. Gear may TAKE a stat as well as give one — a

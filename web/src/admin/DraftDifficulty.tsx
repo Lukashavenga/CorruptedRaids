@@ -1,29 +1,19 @@
 import { useEffect, useState } from "react";
 import type { FightDefinition, PartyBand } from "../../../src/engine/types.js";
 import { PARTY_BANDS } from "../../../src/engine/types.js";
-import { BAND_SAMPLE_PARTY } from "../../../src/engine/squad.js";
+import type { BandReading } from "../../../src/engine/bandSolver.js";
 import { getAdminKey } from "../adminKey.js";
-import { measureDifficulty, needsAdminKey, readRatings } from "./backend.js";
+import { measureLevel, needsAdminKey, readRatings } from "./backend.js";
 
-export interface Reading {
-  winRate: number;
-  /** The squad's own rating, priced with the same scorer as a party's. */
-  enemyRating: number;
-  survivorRate: number;
-  rating: string;
-  enemyCount: number;
-  stalemateRate: number;
-}
-
-/** A party of `n` split the way a stream actually turns up. */
-function composition(n: number) {
-  const tanks = Math.max(1, Math.round(n / 6));
-  const healers = Math.max(1, Math.round(n / 6));
-  return { tanks, healers, dps: Math.max(0, n - tanks - healers) };
-}
-
-/** Levels are numbered, matching what the player is shown on the overlay. */
-const levelLabel = (band: PartyBand) => `LEVEL ${PARTY_BANDS.indexOf(band) + 1}`;
+/**
+ * A level's reading - the engine's own type, not a copy of it.
+ *
+ * It used to be a separate interface here describing roughly what the server
+ * sent back. Now the tab, the solver and the server all speak BandReading from
+ * src/engine/bandSolver.ts, so a field added there cannot quietly go missing
+ * on the way to the screen.
+ */
+export type Reading = BandReading;
 
 /**
  * What each of the three layouts actually plays like.
@@ -47,35 +37,41 @@ const levelLabel = (band: PartyBand) => `LEVEL ${PARTY_BANDS.indexOf(band) + 1}`
  * and let them disagree mid-drag, which is exactly the disconnect this screen
  * was suffering from.
  */
-export function useDraftDifficulty(draft: FightDefinition | null) {
+export function useDraftDifficulty(draft: FightDefinition | null, options: { paused?: boolean } = {}) {
   const [readings, setReadings] = useState<Partial<Record<PartyBand, Reading>>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // What the party is assumed to be wearing. Not a detail — the same fight
   // reads 0% win against a naked party and 57% against a mixed bag of drops.
+  // "band" is each level's own party, and it is the only setting the solver
+  // aims at; the others are what-ifs.
   const [gear, setGear] = useState<"band" | "none" | "typical" | "best">("band");
+  const paused = options.paused ?? false;
 
+  // bandStatScale is in the key because it IS the difficulty: a Solve or a
+  // strength nudge changes nothing else, and a key without it would leave
+  // every tab showing the number from before the change.
   const key = JSON.stringify({
     stats: draft?.stats,
     formations: draft?.formations,
+    bandStatScale: draft?.bandStatScale,
     gear,
   });
 
   useEffect(() => {
-    if (!draft) return;
+    // Paused while a Solve runs. Every level it finishes changes the draft,
+    // and re-measuring all six after each one would be five wasted rounds of
+    // requests racing the solver for the same tabs. It re-measures once when
+    // the solve lets go.
+    if (!draft || paused) return;
 
     let cancelled = false;
     setBusy(true);
     const t = setTimeout(async () => {
       try {
         // The admin key is a LOCAL requirement, asked about rather than
-        // assumed. /difficulty on the game server is gated by ADMIN_SECRET, so
-        // firing without one locally is six requests that all 401 and a red
-        // box blaming the server for a field nobody has filled in yet. Hosted
-        // there is no game server and no key - the caller already proved who
-        // they are with a Twitch sign-in the edge verified - and demanding one
-        // there is how this panel came to refuse to measure at all, with a
-        // message naming a fix that would not have worked.
+        // assumed. Hosted there is no game server and no key - the caller
+        // already proved who they are with a Twitch sign-in the edge verified.
         if ((await needsAdminKey()) && !getAdminKey()) {
           if (!cancelled) {
             setError("Enter the admin key above to measure this draft.");
@@ -84,21 +80,13 @@ export function useDraftDifficulty(draft: FightDefinition | null) {
           return;
         }
 
+        // Every level, including ones with no bodies of their own: those fight
+        // the layout of the level below at their own multiplier, and the tab
+        // should say what that plays like rather than going blank.
         const results = await Promise.all(
-          PARTY_BANDS.map(async (band) => {
-            // Each level measures the party it is FOR — its own size,
-            // Corruption and gear — because a level is defined by party rating,
-            // and rating is exactly those things.
-            const sample = BAND_SAMPLE_PARTY[band];
-            const data = await measureDifficulty({
-              fight: draft,
-              composition: composition(sample.size),
-              level: sample.level,
-              samples: 60,
-              gear: gear === "band" ? sample.gear : gear,
-            });
-            return [band, data as unknown as Reading] as const;
-          }),
+          PARTY_BANDS.map(
+            async (band) => [band, await measureLevel(draft, band, gear === "band" ? undefined : gear)] as const,
+          ),
         );
         if (!cancelled) {
           setReadings(Object.fromEntries(results) as Partial<Record<PartyBand, Reading>>);
@@ -115,9 +103,13 @@ export function useDraftDifficulty(draft: FightDefinition | null) {
       clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, paused]);
 
-  return { readings, busy, error, gear, setGear };
+  /** Show a reading the solver already took, without measuring it again. */
+  const setReading = (band: PartyBand, reading: Reading) =>
+    setReadings((current) => ({ ...current, [band]: reading }));
+
+  return { readings, busy, error, gear, setGear, setReading };
 }
 
 interface Shape {
@@ -221,6 +213,12 @@ export function BalancePanel({
           <option value="best">Everyone fully geared</option>
         </select>
       </label>
+      {gear !== "band" && (
+        <p className="admin-hint">
+          What-if view: the level tabs now show this party instead. Solve always aims at each level&apos;s
+          own party, so a solved level can read off-target here and still be right.
+        </p>
+      )}
     </div>
   );
 }

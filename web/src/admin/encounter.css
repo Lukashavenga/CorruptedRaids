@@ -888,3 +888,194 @@
   font-size: 11.5px;
   padding: 4px 10px;
 }
+
+/* --- difficulty controls ---------------------------------------------------
+   The target, the Solve buttons, a level's strength and each unit's strength.
+   Grouped because they are one idea: the author sets the squad and the target,
+   the solver sets the strength. */
+
+.enc-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 4px 0 12px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.enc-target label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 260px;
+}
+
+.enc-target input[type="range"] {
+  flex: 1;
+}
+
+.enc-target-label {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.enc-target strong {
+  font-size: 18px;
+  min-width: 3ch;
+  text-align: right;
+}
+
+.enc-target-says {
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1 1 200px;
+}
+
+.enc-solve {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #fff;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.enc-solve:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.enc-right .enc-solve {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* The verdict takes the colour of where it sits against the target. */
+.enc-verdict.is-good strong {
+  color: var(--good);
+}
+
+.enc-verdict.is-easy strong {
+  color: rgb(120, 175, 225);
+}
+
+.enc-verdict.is-hard strong {
+  color: rgb(255, 107, 114);
+}
+
+.diff-bar {
+  position: relative;
+}
+
+.enc-strength {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.enc-strength strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.enc-strength button {
+  min-width: 52px;
+}
+
+/* A solve that stopped short. Warm rather than alarming: it is an instruction,
+   not an error - the squad needs a change the multiplier cannot make. */
+.enc-bound {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  background: rgba(226, 181, 112, 0.1);
+  border: 1px solid rgba(226, 181, 112, 0.45);
+  border-radius: 7px;
+  color: #ecd3a8;
+}
+
+/* The squad is locked while the solver works from a snapshot of it. */
+.enc-body.is-locked .enc-left,
+.enc-body.is-locked .enc-main .formation-field {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.enc-advanced {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.enc-advanced summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- per-unit strength ---------------------------------------------------- */
+
+.strength {
+  margin: 10px 0 6px;
+}
+
+.strength-label {
+  display: block;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.strength-tiers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.strength-tiers button {
+  padding: 5px 2px;
+  font-size: 11px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.strength-tiers button.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.strength-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  font-size: 9.5px;
+  line-height: 15px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.strength-badge.is-strong {
+  background: rgba(226, 181, 112, 0.2);
+  color: #e2b570;
+}
+
+.strength-badge.is-weak {
+  background: rgba(141, 151, 173, 0.18);
+  color: var(--muted);
+}

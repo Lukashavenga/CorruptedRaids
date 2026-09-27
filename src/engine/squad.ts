@@ -386,7 +386,12 @@ export function expandFight(
   const below = PARTY_BANDS[PARTY_BANDS.indexOf(band) - 1];
   const t = bandSpan(strength, band);
   const scale = below ? curveAt(below) + (curveAt(band) - curveAt(below)) * t : curveAt(band);
-  const scaled = (s: Stats): Stats => (scale === 1 ? s : { ...s, hp: s.hp * scale, atk: s.atk * scale });
+  // The level multiplier scales hp and attack for every body. A unit's own
+  // strength scales hp and TURNS - its attack per hit is left alone, because
+  // multiplying that was measured to waste itself on overkill (see
+  // EnemyUnit.strength). The turns are applied to initiativeWeight below.
+  const scaled = (s: Stats, strength = 1): Stats =>
+    scale === 1 && strength === 1 ? s : { ...s, hp: s.hp * scale * strength, atk: s.atk * scale };
   return squadFor(fight, strength).map((unit) => ({
     // The fight's id, not the unit's, so loot, XP and combatant numbering
     // behave exactly as they did when a fight was one repeated stat block.
@@ -394,7 +399,7 @@ export function expandFight(
     name: unit.name ?? name,
     kind: unit.kind ?? fight.kind,
     levelTier: 1,
-    stats: scaled(unitStats(fight.stats, unit.role, unit.stats)),
+    stats: scaled(unitStats(fight.stats, unit.role, unit.stats), unit.strength),
     abilities: unit.abilities,
     loot: unit.loot ?? fight.loot,
     goldReward: unit.goldReward ?? fight.goldReward,
@@ -402,6 +407,7 @@ export function expandFight(
     role: unit.role,
     enemySprite: unit.sprite,
     unitId: unit.id,
-    initiativeWeight: unit.weight ?? 1,
+    initiativeWeight: (unit.weight ?? 1) * (unit.strength ?? 1),
+    ...(unit.strength !== undefined && unit.strength !== 1 ? { strength: unit.strength } : {}),
   }));
 }

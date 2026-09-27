@@ -29,11 +29,16 @@
 import {
   BAND_SAMPLE_PARTY,
   ContentRegistry,
+  DEFAULT_TARGET_WIN,
   GameEngine,
   PARTY_BANDS,
   bandFor,
+  beginSolve,
+  continueSolve,
   estimateDifficulty,
   expandFight,
+  floorFor,
+  measureBand,
   ratePoints,
   referencePartyStrength,
   validateConsumableDefinition,
@@ -42,7 +47,18 @@ import {
   validateRaidDefinition,
   validateShopStock,
 } from "./_engine.js";
-import type { Character, FightDefinition, GameCommand } from "./_engine.js";
+import type { Character, FightDefinition, GameCommand, PartyBand, SearchState } from "./_engine.js";
+
+/**
+ * How long one solve request may run before handing its state back.
+ *
+ * The platform kills a request at 2s of CPU. A level of lady-of-knight takes
+ * up to 2.5s to solve, and the heaviest single reading in the game was
+ * measured at 317ms - so stopping once 800ms is spent leaves the worst case
+ * near 1.1s, with room for Deno being slower than the Node it was timed on.
+ * The browser sends the state back until the search is done.
+ */
+const SOLVE_BUDGET_MS = 800;
 import bundledContent from "./_content.json" with { type: "json" };
 
 /**
@@ -695,6 +711,50 @@ Deno.serve(async (req: Request) => {
       const lopsided = referencePartyStrength({ tanks: 0, healers: 0, dps: 12 }, 5, content, "typical");
       rows.push({ label: "12 all-dps, mid gear", size: 12, rating: lopsided, band: bandFor(lopsided) });
       return json({ ok: true, shapes: rows }, 200, req);
+    }
+
+    if (action === "measure-band" && req.method === "POST") {
+      // One level of a draft, measured the way the solver measures it - so the
+      // percentage on a level's tab is the number the Solve button aimed at.
+      const body = (await req.json()) as { fight?: unknown; band?: string; gear?: string };
+      if (!body.fight || typeof body.fight !== "object") return json({ ok: false, message: "expected a fight draft" }, 400, req);
+      if (!body.band || !PARTY_BANDS.includes(body.band as PartyBand)) {
+        return json({ ok: false, message: `expected a band: ${PARTY_BANDS.join(", ")}` }, 400, req);
+      }
+      const gear = body.gear === "none" || body.gear === "typical" || body.gear === "best" ? body.gear : undefined;
+      const reading = measureBand(body.fight as FightDefinition, body.band as PartyBand, await liveContent(), { gear });
+      return json({ ok: true, reading }, 200, req);
+    }
+
+    if (action === "solve-band" && req.method === "POST") {
+      /*
+       * One level, solved towards the draft's own target - resumably.
+       *
+       * The browser sends the fight and the level; this runs the search for up
+       * to SOLVE_BUDGET_MS and returns its state. While the state is not
+       * "done", the browser sends it straight back. Target and ratchet floor
+       * come from the DRAFT, never the request, so a level cannot be solved
+       * against numbers the fight does not carry.
+       */
+      const body = (await req.json()) as { fight?: unknown; band?: string; state?: SearchState };
+      if (!body.fight || typeof body.fight !== "object") return json({ ok: false, message: "expected a fight draft" }, 400, req);
+      const band = body.band as PartyBand;
+      if (!band || !PARTY_BANDS.includes(band)) {
+        return json({ ok: false, message: `expected a band: ${PARTY_BANDS.join(", ")}` }, 400, req);
+      }
+      const fight = body.fight as FightDefinition;
+      if (!fight.formations?.[band]?.length) {
+        return json({ ok: false, message: `level ${PARTY_BANDS.indexOf(band) + 1} has no units to solve` }, 400, req);
+      }
+      const content = await liveContent();
+      const start =
+        body.state ??
+        beginSolve(fight, band, content, {
+          target: fight.targetWinRate ?? DEFAULT_TARGET_WIN,
+          floor: floorFor(fight, band, content),
+        });
+      const result = continueSolve(fight, band, content, start, SOLVE_BUDGET_MS);
+      return json({ ok: true, ...result }, 200, req);
     }
 
     if (action === "bands") {

@@ -7,10 +7,12 @@ import { enemySpriteUrl } from "../sprites.js";
 import { SpriteEraser } from "./SpriteEraser.js";
 import { FormationField } from "./FormationEditor.js";
 import { BalancePanel, useDraftDifficulty } from "./DraftDifficulty.js";
+import { StrengthBadge, StrengthPicker } from "./Strength.js";
+import { DEFAULT_TARGET_WIN, SCALE_MIN, TARGET_TOLERANCE } from "../../../src/engine/bandSearch.js";
+import type { BandSolution } from "../../../src/engine/bandSolver.js";
 import { RoleIcon } from "../components/RoleIcon.js";
 import "./encounter.css";
-import { adminFetch } from "../adminKey.js";
-import { writeContent } from "./backend.js";
+import { deleteContent, solveLevel, writeContent } from "./backend.js";
 
 /**
  * What the pressure dial can say, and why it is not what it used to say.
@@ -73,6 +75,33 @@ const ROLE_LABEL: Record<Role, string> = {
 /** A level's shorthand, so the tabs read as difficulty rather than as numbers. */
 const LEVEL_TONE = ["Easy", "Normal", "Normal+", "Hard", "Hard+", "Boss"];
 
+/**
+ * Where a win rate sits against THIS fight's target.
+ *
+ * Relative, where it used to be fixed at 45-70% for every dungeon. That made a
+ * starter dungeon aiming at 85% read "Too easy" on every tab forever, and the
+ * hardest place in the game read "Good challenge" while sitting a whole band
+ * off what it was solved for - the screen argued with its own solver.
+ */
+function verdictOf(win: number, target: number): "good" | "easy" | "hard" {
+  if (win > target + TARGET_TOLERANCE) return "easy";
+  if (win < target - TARGET_TOLERANCE) return "hard";
+  return "good";
+}
+
+const VERDICT_WORDS = { good: "On target", easy: "Too easy", hard: "Too hard" } as const;
+
+/** A target, said the way a streamer would say it. */
+function targetPhrase(t: number): string {
+  if (t >= 0.85) return "A fresh chat wins nearly every night.";
+  if (t >= 0.72) return "Usually won - somebody always goes down.";
+  if (t >= 0.6) return "A real fight. Lost about one night in three.";
+  if (t >= 0.5) return "A coin flip you usually take.";
+  return "Mostly lost. Brutal on purpose.";
+}
+
+const GEAR_WORDS = { none: "no gear", typical: "some gear", best: "the best gear" } as const;
+
 /** Compact thresholds for the tab: "1.2k–2k" beats "1200–2000" at this size. */
 function short(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : String(n);
@@ -110,12 +139,26 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
   const [artVersion, setArtVersion] = useState(0);
   // Alignment guides over the field. Off by default; the scene is the thing.
   const [grid, setGrid] = useState(false);
+  /*
+   * The level the solver is working on, or null.
+   *
+   * While set, the tabs stop re-measuring and the squad is locked. The solver
+   * works from a snapshot of the draft and writes its answer back into the
+   * draft when it finishes, so an edit made underneath it would be measured
+   * against the wrong squad and then quietly kept beside a multiplier solved
+   * for a different one.
+   */
+  const [solving, setSolving] = useState<PartyBand | null>(null);
+  const [solveSteps, setSolveSteps] = useState(0);
+  /** What the last solve said about each level - including WHY it stopped short. */
+  const [solved, setSolved] = useState<Partial<Record<PartyBand, BandSolution>>>({});
 
-  const difficulty = useDraftDifficulty(draft);
+  const difficulty = useDraftDifficulty(draft, { paused: solving !== null });
   const selected = useMemo(() => dungeons.find((d) => d.id === id), [dungeons, id]);
 
   useEffect(() => {
     if (selected) setDraft(structuredClone(selected));
+    setSolved({});
   }, [selected]);
   useEffect(() => {
     if (!dungeons.some((d) => d.id === id)) setId(dungeons[0]?.id ?? "");
@@ -125,8 +168,14 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
 
   const patch = (next: Partial<DungeonDefinition>) => setDraft({ ...draft, ...next });
   const units: EnemyUnit[] = draft.formations?.[band] ?? [];
-  const setUnits = (next: EnemyUnit[]) =>
+  const setUnits = (next: EnemyUnit[]) => {
     patch({ formations: { ...draft.formations, [band]: next } });
+    // The last solve was for the old squad; its verdict no longer applies.
+    setSolved((current) => {
+      const { [band]: _stale, ...rest } = current;
+      return rest;
+    });
+  };
   const patchUnit = (unitId: string, next: Partial<EnemyUnit>) =>
     setUnits(units.map((u) => (u.id === unitId ? { ...u, ...next } : u)));
 
@@ -164,6 +213,96 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
   // Content authored above the scale. Shown rather than clamped - see the note
   // on PRESSURE_MAX.
   const overPressured = pressure > PRESSURE_MAX + 0.001;
+  const tempoIsSet = Math.abs(pressure - 1) > 0.001;
+
+  const target = draft.targetWinRate ?? DEFAULT_TARGET_WIN;
+
+  /** The multiplier a level runs at: the draft's own value, or what its reading used. */
+  const scaleOf = (b: PartyBand): number | undefined => draft.bandStatScale?.[b] ?? difficulty.readings[b]?.scale;
+  const setScale = (b: PartyBand, value: number) =>
+    patch({ bandStatScale: { ...(draft.bandStatScale ?? {}), [b]: Number(value.toFixed(3)) } });
+
+  /** The nearest level below that has a squad of its own - the one this level may not go under. */
+  const levelBelow = (b: PartyBand): PartyBand | undefined => {
+    for (let i = PARTY_BANDS.indexOf(b) - 1; i >= 0; i -= 1) {
+      const below = PARTY_BANDS[i]!;
+      if (draft.formations?.[below]?.length) return below;
+    }
+    return undefined;
+  };
+
+  /** Levels with a squad, in order - the ones there is anything to solve. */
+  const solvable = PARTY_BANDS.filter((b) => (draft.formations?.[b]?.length ?? 0) > 0);
+
+  /**
+   * What a stuck solve means, in terms of what to change.
+   *
+   * The solver can only move the multiplier. When the multiplier cannot get
+   * there, the fix is in the squad - and "floor" has two different causes that
+   * want the same fix but deserve different explanations.
+   */
+  const boundText = (sol: BandSolution): string | null => {
+    if (!sol.bound) return null;
+    const n = PARTY_BANDS.indexOf(sol.band) + 1;
+    if (sol.bound === "ceiling") {
+      return `Still too easy at the strongest setting. Add a unit, or make one stronger.`;
+    }
+    const below = levelBelow(sol.band);
+    if (below && sol.scale > SCALE_MIN + 1e-6) {
+      const m = PARTY_BANDS.indexOf(below) + 1;
+      return (
+        `Too hard, and it can't be set easier than Level ${m} - a level set below the one beneath it gets ` +
+        `easier as players get stronger. Remove a unit from Level ${n}, or make one weaker.`
+      );
+    }
+    return `Too hard even at the weakest setting. Remove a unit, or make one weaker.`;
+  };
+
+  /**
+   * Solve the given levels, in order, each floored on the one below.
+   *
+   * Works on a local copy of the draft and threads each answer into it before
+   * solving the next level, because the next level's floor IS that answer -
+   * reading it back out of React state would get the value from before this
+   * render, one level behind.
+   */
+  const solveBands = async (bands: PartyBand[]) => {
+    let working = draft;
+    const results: BandSolution[] = [];
+    try {
+      for (const b of bands) {
+        setSolving(b);
+        setSolveSteps(0);
+        const solution = await solveLevel(working, b, setSolveSteps);
+        working = { ...working, bandStatScale: { ...(working.bandStatScale ?? {}), [b]: solution.scale } };
+        setDraft((d) => (d ? { ...d, bandStatScale: { ...(d.bandStatScale ?? {}), [b]: solution.scale } } : d));
+        difficulty.setReading(b, solution);
+        setSolved((current) => ({ ...current, [b]: solution }));
+        results.push(solution);
+      }
+      const stuck = results.filter((r) => r.bound).map((r) => `Level ${PARTY_BANDS.indexOf(r.band) + 1}`);
+      const what = results.length === 1 ? `Level ${PARTY_BANDS.indexOf(results[0]!.band) + 1}` : `${results.length} levels`;
+      setStatus(
+        stuck.length === 0
+          ? `Solved ${what} - on target. Save to keep it.`
+          : `Solved ${what}. ${stuck.join(", ")} can't reach the target by strength alone - see the note under it.`,
+      );
+    } catch (err) {
+      setStatus(`Solve stopped: ${(err as Error).message}`);
+    } finally {
+      setSolving(null);
+    }
+  };
+
+  const scaleNow = scaleOf(band);
+  const below = levelBelow(band);
+  const belowScale = below ? scaleOf(below) : undefined;
+  // A hand-nudged level under the one below: the difficulty curve then falls
+  // across this whole level. Worth saying before it is saved.
+  const falling = scaleNow !== undefined && belowScale !== undefined && scaleNow < belowScale - 1e-9;
+  // Only while it still describes this level: a nudge or a squad edit since
+  // the solve makes its verdict about a different fight.
+  const note = solved[band] && solved[band]!.scale === scaleNow ? solved[band] : undefined;
 
   return (
     <div className="enc">
@@ -200,14 +339,14 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
         <button
           type="button"
           className="enc-save"
-          disabled={!dirty}
+          disabled={!dirty || solving !== null}
           onClick={() => void write(draft, `Saved ${draft.name}.`)}
         >
           {dirty ? "Save Dungeon" : "No changes"}
         </button>
       </header>
 
-      <div className="enc-body">
+      <div className={`enc-body ${solving ? "is-locked" : ""}`}>
         {/* --- left: what the fight is made of --------------------------- */}
         <aside className="enc-col enc-left">
           <h2 className="enc-h">Fight setup</h2>
@@ -266,7 +405,9 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
                     onChange={(e) => patchUnit(u.id, { name: e.target.value })}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <small className={`role-${u.role ?? "none"}`}>{u.role ? ROLE_LABEL[u.role] : "Plain"}</small>
+                  <small className={`role-${u.role ?? "none"}`}>
+                    {u.role ? ROLE_LABEL[u.role] : "Plain"} <StrengthBadge value={u.strength} />
+                  </small>
                 </span>
                 <button
                   type="button"
@@ -312,8 +453,13 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
                   </button>
                 ))}
               </div>
+              <StrengthPicker
+                value={units.find((u) => u.id === selectedUnit)?.strength}
+                onChange={(next) => patchUnit(selectedUnit, { strength: next })}
+              />
               <label>
-                size {(units.find((u) => u.id === selectedUnit)?.scale ?? 1).toFixed(2)}
+                sprite size {(units.find((u) => u.id === selectedUnit)?.scale ?? 1).toFixed(2)}
+                <small className="admin-hint"> - how big it is drawn. Looks only; Strength is what fights.</small>
                 <input
                   type="range"
                   min={0.5}
@@ -356,11 +502,19 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
             </select>
           </label>
 
+          {/*
+            Tempo was "Fight pressure", top level, beside the squad - which read
+            as the main difficulty dial, and it is the one with the least
+            usable range. It lives under Advanced now, and opens itself when a
+            level has it set, so a 2.8x nobody remembers cannot hide in here.
+          */}
+          <details className="enc-advanced" open={tempoIsSet ? true : undefined}>
+          <summary>Advanced: tempo{tempoIsSet ? ` (${pressure.toFixed(2)}x)` : ""}</summary>
           <h2 className="enc-h">
-            Fight pressure
+            Tempo
             <span
               className="enc-help"
-              title="How often this squad acts, against one action for an ordinary fighter. It reaches further than any other lever, which is exactly why its useful range is narrow."
+              title="How often this squad takes a turn, against one turn for an ordinary fighter. It reaches further than any other lever, which is exactly why its useful range is narrow."
             >
               ?
             </span>
@@ -399,10 +553,11 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
               <p className="admin-hint">
                 1.0x is one action a turn, the same as anybody else. Measured on monks at Level 3
                 against twelve viewers: 1.0x wins 57%, 1.1x wins 44%, 1.25x wins 26%, 1.5x wins
-                10%, 2.0x wins 1%. Move bodies first - this is the last tenth.
+                10%, 2.0x wins 1%. Use Strength and Solve first - this is the last tenth.
               </p>
             </>
           )}
+          </details>
         </aside>
 
         {/* --- middle: what it looks like -------------------------------- */}
@@ -414,6 +569,36 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
             </p>
           </div>
 
+          {/*
+            The one difficulty number an author sets. Everything below it is
+            either the fight's shape (who is in it) or the solver's answer.
+          */}
+          <div className="enc-target">
+            <label>
+              <span className="enc-target-label">Target win rate</span>
+              <input
+                type="range"
+                min={0.4}
+                max={0.95}
+                step={0.01}
+                value={target}
+                disabled={solving !== null}
+                onChange={(e) => patch({ targetWinRate: Number(e.target.value) })}
+              />
+              <strong>{Math.round(target * 100)}%</strong>
+            </label>
+            <span className="enc-target-says">{targetPhrase(target)}</span>
+            <button
+              type="button"
+              className="enc-solve"
+              disabled={solving !== null || solvable.length === 0}
+              onClick={() => void solveBands(solvable)}
+              title="Set every level's strength so it lands on the target. Your squads are left exactly as drawn."
+            >
+              {solving ? `Solving level ${PARTY_BANDS.indexOf(solving) + 1}...` : "Solve all levels"}
+            </button>
+          </div>
+
           {/* Levels. Each carries its own verdict, because a level and how it
               plays are one thing - separating them is what made the old screen
               feel like two unrelated lists. */}
@@ -423,7 +608,7 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
             {PARTY_BANDS.map((b, i) => {
               const r = difficulty.readings[b];
               const n = (draft.formations?.[b] ?? []).length;
-              const tone = !r ? "" : r.winRate > 0.7 ? "is-easy" : r.winRate < 0.45 ? "is-hard" : "is-good";
+              const tone = !r ? "" : `is-${verdictOf(r.winRate, target)}`;
               return (
                 <button
                   key={b}
@@ -433,9 +618,9 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
                   title={`Party rating ${bandRange(b)} - ${n} units`}
                 >
                   <span className="enc-level-n">{i + 1}</span>
-                  <small>{bandRange(b)}</small>
-                  <small className={difficulty.busy ? "is-stale" : ""}>
-                    {r ? `${Math.round(r.winRate * 100)}%` : LEVEL_TONE[i]}
+                  <small>{n === 0 ? "no units" : `${n} ${n === 1 ? "unit" : "units"}`}</small>
+                  <small className={difficulty.busy && solving !== b ? "is-stale" : ""}>
+                    {solving === b ? "solving..." : r ? `${Math.round(r.winRate * 100)}%` : LEVEL_TONE[i]}
                   </small>
                 </button>
               );
@@ -554,50 +739,92 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
 
         {/* --- right: what it plays like --------------------------------- */}
         <aside className="enc-col enc-right">
-          <h2 className="enc-h">Fight info</h2>
-          <dl className="enc-facts">
-            <dt>Level</dt>
-            <dd>{levelNo}</dd>
-            <dt>Total units</dt>
-            <dd>{units.length}</dd>
-            <dt>Fight rating</dt>
-            <dd>{reading?.enemyRating?.toLocaleString() ?? "…"}</dd>
-            <dt>XP reward</dt>
-            <dd>{draft.xpReward}</dd>
-            <dt>Win rate (expected)</dt>
-            <dd>{reading ? `${Math.round(reading.winRate * 100)}%` : "…"}</dd>
-          </dl>
+          <h2 className="enc-h">Level {levelNo}</h2>
+          <p className="admin-hint">
+            Met by {sample.size} players rated {bandRange(band)} - level {sample.level}, {GEAR_WORDS[sample.gear]}.
+          </p>
 
-          <h2 className="enc-h">Balance overview</h2>
-          <dl className="enc-facts">
-            <dt>Expected party</dt>
-            <dd>{sample.size} players</dd>
-            <dt>Party rating</dt>
-            <dd>{bandRange(band)}</dd>
-          </dl>
-
-          <div className={`enc-verdict ${difficulty.busy ? "is-stale" : ""}`}>
-            <strong>{reading ? `${Math.round(reading.winRate * 100)}%` : "…"}</strong>
+          <div
+            className={`enc-verdict is-${reading ? verdictOf(reading.winRate, target) : "none"} ${
+              difficulty.busy && solving !== band ? "is-stale" : ""
+            }`}
+          >
+            <strong>{solving === band ? "..." : reading ? `${Math.round(reading.winRate * 100)}%` : "..."}</strong>
             <span>
-              {!reading
-                ? "measuring"
-                : reading.winRate > 0.7
-                  ? "Too easy"
-                  : reading.winRate < 0.45
-                    ? "Too hard"
-                    : "Good challenge"}
+              {solving === band
+                ? "solving"
+                : !reading
+                  ? "measuring"
+                  : `${VERDICT_WORDS[verdictOf(reading.winRate, target)]} - aiming for ${Math.round(target * 100)}%`}
             </span>
-            {/* The target band drawn on the bar, so the reading is a position
-                rather than a number to interpret. */}
+            {/* The target drawn on the bar, so the reading is a position rather
+                than a number to interpret. */}
             <div className="diff-bar">
               <span className="diff-bar-fill" style={{ width: `${(reading?.winRate ?? 0) * 100}%` }} />
-              <span className="diff-bar-target" />
+              <span
+                className="diff-bar-target"
+                style={{
+                  left: `${Math.max(0, target - TARGET_TOLERANCE) * 100}%`,
+                  width: `${(Math.min(1, target + TARGET_TOLERANCE) - Math.max(0, target - TARGET_TOLERANCE)) * 100}%`,
+                }}
+              />
             </div>
           </div>
 
+          <h3 className="enc-sub">Level strength</h3>
+          <div className="enc-strength">
+            <button
+              type="button"
+              disabled={scaleNow === undefined || solving !== null}
+              onClick={() => scaleNow !== undefined && setScale(band, scaleNow / 1.05)}
+            >
+              -5%
+            </button>
+            <strong>
+              {scaleNow === undefined ? "..." : `x${scaleNow < 10 ? scaleNow.toFixed(2) : scaleNow.toFixed(1)}`}
+            </strong>
+            <button
+              type="button"
+              disabled={scaleNow === undefined || solving !== null}
+              onClick={() => scaleNow !== undefined && setScale(band, scaleNow * 1.05)}
+            >
+              +5%
+            </button>
+          </div>
+          <p className="admin-hint">
+            Every enemy&apos;s health and attack at this level. Solve sets it; a 5% nudge can move the win
+            rate twenty points, so nudge sparingly.
+          </p>
+          <button
+            type="button"
+            className="enc-solve"
+            disabled={solving !== null || units.length === 0}
+            title={units.length === 0 ? "This level has no units of its own to solve." : undefined}
+            onClick={() => void solveBands([band])}
+          >
+            {solving === band ? `Solving... ${solveSteps} readings` : `Solve level ${levelNo}`}
+          </button>
+          {note && boundText(note) && <p className="enc-bound">{boundText(note)}</p>}
+          {falling && below && (
+            <p className="admin-warn">
+              Set below Level {PARTY_BANDS.indexOf(below) + 1}. Across this level the fight would get easier as
+              players get stronger. Solve puts it back.
+            </p>
+          )}
+
           <dl className="enc-facts">
-            <dt>Pressure</dt>
-            <dd>{pressure.toFixed(1)}x</dd>
+            <dt>Enemies</dt>
+            <dd>{units.length}</dd>
+            <dt>Squad rating</dt>
+            <dd>{reading?.enemyRating ? Math.round(reading.enemyRating).toLocaleString() : "..."}</dd>
+            <dt>XP reward</dt>
+            <dd>{draft.xpReward}</dd>
+            {tempoIsSet && (
+              <>
+                <dt>Tempo</dt>
+                <dd>{pressure.toFixed(2)}x</dd>
+              </>
+            )}
           </dl>
 
           <h2 className="enc-h">Actions</h2>
@@ -615,23 +842,24 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
             type="button"
             className="admin-danger"
             onClick={async () => {
-              const attempt = (force: boolean) =>
-                adminFetch("/content/delete", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ kind: "dungeon", id: draft.id, force }),
-                }).then((r) => r.json());
               if (!window.confirm(`Delete "${draft.name}" (${draft.id})?`)) return;
-              let body = await attempt(false);
-              if (!body.ok && body.references?.length) {
-                const where = body.references.map((r: { file: string }) => r.file).join(", ");
-                if (!window.confirm(`Still used by ${where}. Remove it from those too?`)) {
-                  return setStatus("Delete cancelled - nothing changed.");
+              try {
+                let body = await deleteContent("dungeon", draft.id, false);
+                if (!body.ok && body.references?.length) {
+                  const where = body.references.map((r) => r.file).join(", ");
+                  if (!window.confirm(`Still used by ${where}. Remove it from those too?`)) {
+                    return setStatus("Delete cancelled - nothing changed.");
+                  }
+                  body = await deleteContent("dungeon", draft.id, true);
                 }
-                body = await attempt(true);
+                setStatus(body.ok ? `Deleted ${draft.id}.` : `Rejected: ${body.message}`);
+                if (body.ok) onSaved();
+              } catch (err) {
+                // Hosted, this is the plain-words refusal; locally, a real
+                // failure. Either way it is said, rather than swallowed as an
+                // unhandled rejection the way the old call was.
+                setStatus(`Not deleted: ${(err as Error).message}`);
               }
-              setStatus(body.ok ? `Deleted ${draft.id}.` : `Rejected: ${body.message}`);
-              if (body.ok) onSaved();
             }}
           >
             Delete dungeon

@@ -16,6 +16,15 @@ import { estimateDifficulty } from "../engine/difficulty.js";
 import { bandFor, expandFight } from "../engine/squad.js";
 import { referencePartyStrength } from "../engine/difficulty.js";
 import { memberPower, ratePoints } from "../engine/partyStrength.js";
+import {
+  DEFAULT_TARGET_WIN,
+  beginSolve,
+  continueSolve,
+  floorFor,
+  measureBand,
+} from "../engine/bandSolver.js";
+import type { SearchState } from "../engine/bandSearch.js";
+import { PARTY_BANDS, type PartyBand } from "../engine/types.js";
 import { FileRosterStore } from "../engine/persistence/fileRosterStore.js";
 import { SupabaseRosterStore } from "../engine/persistence/supabaseRosterStore.js";
 import { pruneUnknownGear, type RosterStore } from "../engine/persistence/rosterStore.js";
@@ -848,6 +857,86 @@ const server = createServer((req, res) => {
         const enemyRating = enemies.reduce((sum, e) => sum + ratePoints(e.stats, content.balance), 0);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ...report, enemyCount: enemies.length, enemyRating }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
+      }
+    });
+    return;
+  }
+
+  /**
+   * One level of a DRAFT fight, measured against the party that level is for.
+   *
+   * The balance screen's per-level percentages. Separate from POST /difficulty
+   * because this one takes a LEVEL rather than a party composition, and runs
+   * through measureBand - the same function the solver aims with - so the
+   * number on a level's tab and the number the Solve button targeted are one
+   * measurement, not two samples that disagree by five points.
+   */
+  if (req.method === "POST" && url.pathname === "/difficulty/measure") {
+    if (denyNonAdmin(req, res)) return;
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { fight, band, gear } = JSON.parse(body || "{}") as {
+          fight?: FightDefinition;
+          band?: PartyBand;
+          gear?: "none" | "typical" | "best";
+        };
+        if (!fight || typeof fight !== "object") throw new Error("expected a fight draft");
+        if (!band || !PARTY_BANDS.includes(band)) throw new Error(`expected a band: ${PARTY_BANDS.join(", ")}`);
+        const reading = measureBand(fight, band, content, {
+          gear: gear === "none" || gear === "typical" || gear === "best" ? gear : undefined,
+        });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, reading }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
+      }
+    });
+    return;
+  }
+
+  /**
+   * Solve one level of a DRAFT fight towards its target.
+   *
+   * RESUMABLE, because the hosted twin of this runs inside an Edge Function
+   * with a 2s CPU budget and one level can take 2.5s. The protocol is the same
+   * here so the browser has one loop for both: send the fight and the level,
+   * get back a search state; while that state is not "done", send it back.
+   * Here the search simply runs to the end, so the first reply is the last.
+   *
+   * The target and the ratchet floor are read from the DRAFT - its
+   * `targetWinRate`, and the multiplier of the level below - rather than taken
+   * from the request, so a browser cannot solve a level against numbers the
+   * saved fight does not carry.
+   */
+  if (req.method === "POST" && url.pathname === "/difficulty/solve") {
+    if (denyNonAdmin(req, res)) return;
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { fight, band, state } = JSON.parse(body || "{}") as {
+          fight?: FightDefinition;
+          band?: PartyBand;
+          state?: SearchState;
+        };
+        if (!fight || typeof fight !== "object") throw new Error("expected a fight draft");
+        if (!band || !PARTY_BANDS.includes(band)) throw new Error(`expected a band: ${PARTY_BANDS.join(", ")}`);
+        if (!fight.formations?.[band]?.length) throw new Error(`level ${PARTY_BANDS.indexOf(band) + 1} has no units to solve`);
+        const start =
+          state ??
+          beginSolve(fight, band, content, {
+            target: fight.targetWinRate ?? DEFAULT_TARGET_WIN,
+            floor: floorFor(fight, band, content),
+          });
+        const result = continueSolve(fight, band, content, start);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, ...result }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, message: (err as Error).message }));

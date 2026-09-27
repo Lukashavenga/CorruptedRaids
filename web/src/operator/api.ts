@@ -1,4 +1,6 @@
 import type { PartyBand } from "../../../src/engine/types.js";
+import type { BandReading } from "../../../src/engine/bandSolver.js";
+import type { SearchState } from "../../../src/engine/bandSearch.js";
 import { supabase } from "../loadout/supabase.js";
 
 /**
@@ -133,6 +135,28 @@ export interface DifficultyRequest {
 
 export function difficulty(body: DifficultyRequest): Promise<Record<string, unknown>> {
   return call("?action=difficulty", { method: "POST", body: JSON.stringify(body) });
+}
+
+/** One level of a draft, measured the way the solver measures it. */
+export function measureBand(
+  fight: unknown,
+  band: PartyBand,
+  gear?: "none" | "typical" | "best",
+): Promise<{ reading: BandReading }> {
+  return call("?action=measure-band", { method: "POST", body: JSON.stringify({ fight, band, gear }) });
+}
+
+/**
+ * One step of solving a level. Returns the search state and the readings
+ * taken; send the state back until its phase is "done". See
+ * src/engine/bandSearch.ts for why it is resumable.
+ */
+export function solveBand(
+  fight: unknown,
+  band: PartyBand,
+  state?: SearchState,
+): Promise<{ state: SearchState; readings: BandReading[] }> {
+  return call("?action=solve-band", { method: "POST", body: JSON.stringify({ fight, band, state }) });
 }
 
 export function ratings(): Promise<{

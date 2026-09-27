@@ -38,9 +38,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../src/engine/content/loader.js";
-import { estimateDifficulty, referencePartyStrength, ratingFor } from "../src/engine/difficulty.js";
-import { BAND_SAMPLE_PARTY } from "../src/engine/squad.js";
-import { PARTY_BANDS, type EnemyUnit, type PartyBand, type Role } from "../src/engine/types.js";
+import { ratingFor } from "../src/engine/difficulty.js";
+import { measureBand, solveFight } from "../src/engine/bandSolver.js";
+import { PARTY_BANDS, type EnemyUnit, type FightDefinition, type PartyBand, type Role } from "../src/engine/types.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CONTENT = join(ROOT, "content");
@@ -50,7 +50,6 @@ const KEEP_LAYOUTS = process.argv.includes("--keep-layouts");
 
 /** Aim just inside "Fair" — the party wins most nights but loses people. */
 const TARGET_WIN = 0.7;
-const SAMPLES = 100;
 /** Past this the overlay is a smear and the fight is long rather than hard. */
 const MAX_BODIES = 40;
 
@@ -84,13 +83,6 @@ function load(): ContentRegistry {
   c.loadBalance(join(CONTENT, "balance.json"));
   c.loadShop(join(CONTENT, "shop.json"));
   return c;
-}
-
-/** The party a band is authored against: one of each support, the rest damage. */
-function compositionFor(size: number) {
-  const tanks = Math.max(1, Math.round(size * 0.2));
-  const healers = Math.max(1, Math.round(size * 0.2));
-  return { tanks, healers, dps: Math.max(1, size - tanks - healers) };
 }
 
 /**
@@ -154,38 +146,6 @@ function buildLayout(seed: EnemyUnit[], band: PartyBand, count: number, weight: 
   return out;
 }
 
-/** Win rate for a candidate layout, measured against the band's own party. */
-function winRateFor(
-  c: ContentRegistry,
-  dungeonId: string,
-  band: PartyBand,
-  layout: EnemyUnit[],
-): number {
-  const dungeon = c.getDungeon(dungeonId);
-  const sample = BAND_SAMPLE_PARTY[band];
-  const composition = compositionFor(sample.size);
-  // Install the candidate so expandDungeonEnemies resolves it exactly as the
-  // game would — including squadFor's ramp across the band floor.
-  const formations = dungeon.formations as Record<string, EnemyUnit[]>;
-  const previous = formations[band];
-  formations[band] = layout;
-  try {
-    const strength = referencePartyStrength(composition, sample.level, c, sample.gear);
-    const enemies = c.expandDungeonEnemies(dungeon, strength);
-    if (!enemies.length) return 1;
-    return estimateDifficulty(enemies, c, {
-      composition,
-      level: sample.level,
-      gear: sample.gear,
-      samples: SAMPLES,
-      seed: 11,
-    }).winRate;
-  } finally {
-    if (previous === undefined) delete formations[band];
-    else formations[band] = previous;
-  }
-}
-
 const c = load();
 
 /**
@@ -219,6 +179,17 @@ function targetFor(rung: number): number {
 }
 
 /**
+ * The dungeon's own target when it has one, the ladder's otherwise.
+ *
+ * The admin panel lets an author set `targetWinRate` per dungeon now, and this
+ * script must not quietly solve towards a different number than the panel
+ * shows. The ladder is only the default for a dungeon nobody has decided about.
+ */
+function targetOf(dungeon: { targetWinRate?: number }, rung: number): number {
+  return dungeon.targetWinRate ?? targetFor(rung);
+}
+
+/**
  * Solve one dungeon's `bandStatScale`, band by band.
  *
  * Per dungeon, because a global curve provably cannot work: solved to the
@@ -232,73 +203,20 @@ function targetFor(rung: number): number {
  * lets it.
  */
 function solveDungeonScale(dungeonId: string, rung: number): Record<PartyBand, number> {
-  const dungeon = c.getDungeon(dungeonId);
-  const target = targetFor(rung);
-  const solved: Record<string, number> = {};
-  const fight = dungeon as unknown as { bandStatScale?: Record<string, number> };
-  const original = fight.bandStatScale;
-
-  const winAt = (band: PartyBand, scale: number): number => {
-    fight.bandStatScale = { ...solved, [band]: scale };
-    const sample = BAND_SAMPLE_PARTY[band];
-    const composition = compositionFor(sample.size);
-    const strength = referencePartyStrength(composition, sample.level, c, sample.gear);
-    const enemies = c.expandDungeonEnemies(dungeon, strength);
-    if (!enemies.length) return 1;
-    return estimateDifficulty(enemies, c, {
-      composition,
-      level: sample.level,
-      gear: sample.gear,
-      samples: SAMPLES,
-      seed: 7,
-    }).winRate;
-  };
-
-  let floor = 0.05;
-
-  for (const band of PARTY_BANDS) {
-    // Wide bounds in both directions: the top bands need ~50x to be a fight at
-    // all, and the entry band of the hardest place needs to come well under 1.
-    //
-    // RATCHETED: a band may never solve BELOW the one under it.
-    //
-    // Solving each band against its own reference party is right, and on its
-    // own it produced sequences that fell - BARBIEVILLE came out elite x18.27,
-    // brutal x13.63, infernal x33.60. That looks harmless, and is not, because
-    // expandFight INTERPOLATES the multiplier from the band below up to this
-    // band's value across the width of the band. A dip is therefore not a dip:
-    // it is a difficulty curve that falls for the entire width of brutal, so a
-    // party gets weaker opposition the stronger it grows, and then walks into
-    // a wall at infernal. Measured at 25 runs: elite 100% win, brutal 8%,
-    // infernal 84%.
-    //
-    // The cost is honest and worth naming. A ratcheted band can land HARDER
-    // than its target, because it is not allowed to come down to meet it. That
-    // is the better failure: a band slightly over target is a fight, whereas a
-    // band under the one below it is a reward for progress that reads as a
-    // bug.
-    let lo = floor;
-    let hi = 120;
-    for (let step = 0; step < 13; step += 1) {
-      const mid = (lo + hi) / 2;
-      // More scale = tougher bodies = the party wins less. Monotonic, so
-      // bisection is sound.
-      if (winAt(band, mid) > target) lo = mid;
-      else hi = mid;
-    }
-    const value = Number(((lo + hi) / 2).toFixed(3));
-    solved[band] = Math.max(value, floor);
-    floor = solved[band]!;
-  }
-
-  fight.bandStatScale = original;
-  return solved as Record<PartyBand, number>;
+  // The engine's solver - the same one behind the admin panel's Solve buttons
+  // and the operator Edge Function - so the three cannot disagree about what a
+  // level needs. It carries the ratchet and the reasoning for it; see
+  // src/engine/bandSolver.ts.
+  const dungeon = c.getDungeon(dungeonId) as unknown as FightDefinition & { targetWinRate?: number };
+  const { scale } = solveFight(dungeon, c, { target: targetOf(dungeon, rung) });
+  return scale as Record<PartyBand, number>;
 }
 
 interface DungeonPlan {
   id: string;
   name: string;
   rung: number;
+  target: number;
   layouts: { band: PartyBand; layout: EnemyUnit[] }[];
   scale: Record<PartyBand, number>;
   measured: { band: PartyBand; win: number; bodies: number }[];
@@ -309,7 +227,7 @@ const ladder = [...c.listDungeons()].sort((a, b) => a.recommendedLevel - b.recom
 
 for (const [rung, dungeon] of ladder.entries()) {
   const formations = (dungeon.formations ?? {}) as Record<string, EnemyUnit[]>;
-  const target = targetFor(rung);
+  const target = targetOf(dungeon, rung);
   console.log(`
 ${"=".repeat(78)}`);
   console.log(`${dungeon.name}  (rung ${rung + 1}, says level ${dungeon.recommendedLevel}) -> target ${(target * 100).toFixed(0)}%`);
@@ -365,18 +283,9 @@ ${"=".repeat(78)}`);
     for (const band of PARTY_BANDS) {
       const units = formations[band];
       if (!units || units.length <= 4) continue;
-      const sample = BAND_SAMPLE_PARTY[band];
-      const composition = compositionFor(sample.size);
-      const strength = referencePartyStrength(composition, sample.level, c, sample.gear);
-      const enemies = c.expandDungeonEnemies(dungeon, strength);
-      if (!enemies.length) continue;
-      const win = estimateDifficulty(enemies, c, {
-        composition,
-        level: sample.level,
-        gear: sample.gear,
-        samples: SAMPLES,
-        seed: 23,
-      }).winRate;
+      const reading = measureBand(dungeon as unknown as FightDefinition, band, c);
+      if (!reading.enemyCount) continue;
+      const win = reading.winRate;
       // The tolerance is sampling noise at SAMPLES trials, not slack — a band
       // inside it is measured as on target by a different seed than solved it.
       if (win >= target - 0.08) continue;
@@ -392,28 +301,19 @@ ${"=".repeat(78)}`);
 
   const measured: DungeonPlan["measured"] = [];
   for (const band of PARTY_BANDS) {
-    const sample = BAND_SAMPLE_PARTY[band];
-    const composition = compositionFor(sample.size);
-    const strength = referencePartyStrength(composition, sample.level, c, sample.gear);
-    const enemies = c.expandDungeonEnemies(dungeon, strength);
-    const win = enemies.length
-      ? estimateDifficulty(enemies, c, {
-          composition,
-          level: sample.level,
-          gear: sample.gear,
-          samples: SAMPLES,
-          seed: 23,
-        }).winRate
-      : 1;
-    measured.push({ band, win, bodies: enemies.length });
+    // measureBand, so this report is the same number the panel's tab shows.
+    const reading = measureBand(dungeon as unknown as FightDefinition, band, c);
+    const win = reading.winRate;
+    const enemies = { length: reading.enemyCount };
+    measured.push({ band, win, bodies: reading.enemyCount });
     const generated = layouts.some((l) => l.band === band);
     console.log(
-      `  ${band.padEnd(12)} x${scale[band]!.toFixed(2).padStart(7)}  ${String(enemies.length).padStart(3)} bodies  ` +
+      `  ${band.padEnd(12)} x${(scale[band] ?? 1).toFixed(2).padStart(7)}  ${String(enemies.length).padStart(3)} bodies  ` +
         `${(win * 100).toFixed(0).padStart(3)}%  ${ratingFor(win).padEnd(9)} ${generated ? "generated" : "authored"}`,
     );
   }
 
-  plans.push({ id: dungeon.id, name: dungeon.name, rung, layouts, scale, measured });
+  plans.push({ id: dungeon.id, name: dungeon.name, rung, target, layouts, scale, measured });
 }
 
 if (!WRITE) {
@@ -431,6 +331,7 @@ Re-run with --write to apply.
     const raw = JSON.parse(readFileSync(path, "utf-8")) as {
       formations: Record<string, unknown>;
       bandStatScale?: Record<string, number>;
+      targetWinRate?: number;
     };
     for (const { band, layout } of plan.layouts) raw.formations[band] = layout;
     // Bands in ladder order, so a diff of this file reads top to bottom.
@@ -438,6 +339,9 @@ Re-run with --write to apply.
     for (const band of PARTY_BANDS) if (raw.formations[band]) ordered[band] = raw.formations[band];
     raw.formations = ordered;
     raw.bandStatScale = plan.scale;
+    // Written down, so the admin panel shows the target this curve was solved
+    // for instead of re-deriving it from where the dungeon sits in the ladder.
+    raw.targetWinRate = plan.target;
     writeFileSync(path, `${JSON.stringify(raw, null, 2)}
 `);
     console.log(`wrote ${plan.id}.json  (+${plan.layouts.length} band(s), stat curve solved)`);

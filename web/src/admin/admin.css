@@ -1090,8 +1090,10 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* The 45–70% window a fight should land in, drawn on the bar itself so the
-   reading is a position rather than a number to interpret. */
+/* The window a fight should land in, drawn on the bar itself so the reading is
+   a position rather than a number to interpret. The dungeon tuner places it
+   inline at its own target plus or minus the solver's tolerance; the 45-70%
+   here is only the default for screens that have no target of their own. */
 .diff-bar-target {
   position: absolute;
   left: 45%;

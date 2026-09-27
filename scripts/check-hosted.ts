@@ -204,11 +204,21 @@ for (const file of adminFiles) {
   if (!rel.startsWith("web/src/admin/")) continue;
 
   const source = readFileSync(file, "utf-8");
-  for (const m of source.matchAll(/fetch\(\s*["'`](\/[^"'`]*)["'`]/g)) {
+  // `adminFetch(` as well as `fetch(`. The first version of this matched only
+  // `fetch(`, which is lower-case, and so walked straight past every
+  // `adminFetch("/content/delete")` - the call that made the hosted Delete
+  // button post to a static host and silently do nothing. A check that misses
+  // the one wrapper every privileged call goes through is not checking.
+  for (const m of source.matchAll(/(?:adminFetch|\bfetch)\(\s*["'`](\/[^"'`]*)["'`]/g)) {
     const path = m[1]!;
     const hit = SERVER_ONLY.find((sp) => path === sp || path.startsWith(`${sp}/`) || path.startsWith(`${sp}?`));
     if (!hit) continue;
-    adminProblems.push(`${rel} fetches ${path} directly`);
+    adminProblems.push(`${rel} calls ${path} directly`);
+  }
+  // Importing adminFetch at all outside the switch is the same mistake one
+  // step earlier: the only reason to import it is to call the game server.
+  if (/import\s*\{[^}]*\badminFetch\b[^}]*\}\s*from/.test(source)) {
+    adminProblems.push(`${rel} imports adminFetch - server calls belong in ${ADMIN_SWITCH}`);
   }
 }
 

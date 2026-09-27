@@ -19,8 +19,8 @@ import { DifficultyMeter, type Composition } from "./DifficultyMeter.js";
 import { useDraftDifficulty } from "./DraftDifficulty.js";
 import { RoleIcon } from "../components/RoleIcon.js";
 import "./encounter.css";
-import { adminFetch } from "../adminKey.js";
 import { writeContent } from "./backend.js";
+import { StrengthBadge, StrengthPicker } from "./Strength.js";
 
 /** What a role is called on the authoring screens. Matches DungeonTuner. */
 const ROLE_LABEL: Record<Role, string> = {
@@ -609,7 +609,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                         onClick={(e) => e.stopPropagation()}
                       />
                       <small className={`role-${u.role ?? "none"}`}>
-                        {u.role ? ROLE_LABEL[u.role] : "Plain"}
+                        {u.role ? ROLE_LABEL[u.role] : "Plain"} <StrengthBadge value={u.strength} />
                       </small>
                     </span>
                     <button
@@ -654,8 +654,19 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                       </button>
                     ))}
                   </div>
+                  {/*
+                    The fix for the raid's bosses. Their top-level units were a
+                    king-boss sprite drawn at 1.7x with no strength at all, so
+                    each "boss" fought like one farmhand. Size is how big it is
+                    drawn; Strength is what it is worth in the fight.
+                  */}
+                  <StrengthPicker
+                    value={units.find((u) => u.id === selectedUnit)?.strength}
+                    onChange={(next) => patchUnit(selectedUnit, { strength: next })}
+                  />
                   <label>
-                    size {(units.find((u) => u.id === selectedUnit)?.scale ?? 1).toFixed(2)}
+                    sprite size {(units.find((u) => u.id === selectedUnit)?.scale ?? 1).toFixed(2)}
+                    <small className="admin-hint"> - how big it is drawn. Looks only; Strength is what fights.</small>
                     <input
                       type="range"
                       min={0.5}

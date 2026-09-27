@@ -1520,5 +1520,6 @@
     110
   ],
   "recommendedLevel": 12,
-  "scalesWithPartySize": true
+  "scalesWithPartySize": true,
+  "targetWinRate": 0.62
 }

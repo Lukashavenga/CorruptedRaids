@@ -58,3 +58,10 @@ export { expandFight, bandFor, BAND_SAMPLE_PARTY } from "./squad.js";
 export { ratePoints } from "./partyStrength.js";
 export { PARTY_BANDS } from "./types.js";
 export type { FightDefinition, PartyBand } from "./types.js";
+
+/*
+ * The level solver, for the admin panel's Solve buttons when it is hosted.
+ * The same functions the game server and scripts/author-bands.ts call.
+ */
+export { beginSolve, continueSolve, floorFor, measureBand, DEFAULT_TARGET_WIN } from "./bandSolver.js";
+export type { SearchState } from "./bandSearch.js";

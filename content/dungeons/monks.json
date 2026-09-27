@@ -2642,5 +2642,6 @@
     60
   ],
   "recommendedLevel": 8,
-  "scalesWithPartySize": true
+  "scalesWithPartySize": true,
+  "targetWinRate": 0.7
 }

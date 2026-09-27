@@ -1,4 +1,6 @@
 import type { PartyBand } from "../../../src/engine/types.js";
+import type { BandReading, BandSolution } from "../../../src/engine/bandSolver.js";
+import type { SearchState } from "../../../src/engine/bandSearch.js";
 import { adminFetch } from "../adminKey.js";
 import * as operator from "../operator/api.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
@@ -140,6 +142,88 @@ export async function measureDifficulty(req: DifficultyRequest): Promise<Record<
   return operator.difficulty(req);
 }
 
+/**
+ * One level of a draft, measured against the party that level is for.
+ *
+ * The per-level percentages on the balance screen. The game server and the
+ * Edge Function both run measureBand from src/engine/bandSolver.ts, which is
+ * the function the solver aims with - so the number on the tab is the number
+ * Solve targeted, not a second sample that disagrees with it.
+ */
+export async function measureLevel(
+  fight: unknown,
+  band: PartyBand,
+  gear?: "none" | "typical" | "best",
+): Promise<BandReading> {
+  if ((await backendMode()) === "local") {
+    const res = await adminFetch("/difficulty/measure", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fight, band, gear }),
+    });
+    const body = await res.json();
+    if (!body.ok) throw new Error(body.message ?? "could not measure");
+    return body.reading as BandReading;
+  }
+  return (await operator.measureBand(fight, band, gear)).reading;
+}
+
+/**
+ * Solve one level of a draft towards the draft's own target.
+ *
+ * THE LOOP LIVES HERE, not in the server, because the hosted server is an Edge
+ * Function killed at 2s of CPU and one level can take 2.5s. Each request runs
+ * the search as far as it can and hands its state back; this sends it again
+ * until the search says it is done. Locally the game server finishes in one
+ * reply and the loop runs once. Either way the search itself is the engine's
+ * (src/engine/bandSearch.ts) - this only carries it back and forth.
+ *
+ * `onStep` reports progress, so a level that takes several round trips on the
+ * hosted panel shows it is working rather than looking hung.
+ */
+export async function solveLevel(
+  fight: unknown,
+  band: PartyBand,
+  onStep?: (evaluations: number) => void,
+): Promise<BandSolution> {
+  const local = (await backendMode()) === "local";
+  const readings: BandReading[] = [];
+  let state: SearchState | undefined;
+
+  for (let round = 0; round < 40; round += 1) {
+    let reply: { state: SearchState; readings: BandReading[] };
+    if (local) {
+      const res = await adminFetch("/difficulty/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fight, band, state }),
+      });
+      const body = await res.json();
+      if (!body.ok) throw new Error(body.message ?? "could not solve");
+      reply = body;
+    } else {
+      reply = await operator.solveBand(fight, band, state);
+    }
+    readings.push(...reply.readings);
+    state = reply.state;
+    onStep?.(state.evaluations);
+
+    if (state.phase === "done" && state.best) {
+      const best = state.best;
+      // The full reading for the winning candidate. It may have been taken on
+      // an earlier request than the one that finished, which is why every
+      // request's readings are kept.
+      const reading = readings.find((r) => r.scale === best.scale);
+      if (!reading) throw new Error("the solver finished on a reading it did not return");
+      return { ...reading, scale: Number(best.scale.toFixed(3)), bound: state.bound, evaluations: state.evaluations };
+    }
+  }
+  // A backstop against a server that never finishes. The search itself stops
+  // at 24 readings, so reaching this means something other than the search
+  // is wrong.
+  throw new Error("solving did not finish");
+}
+
 /** One row of the reference table. */
 export interface RatingShape {
   label: string;
@@ -158,6 +242,61 @@ export async function readRatings(): Promise<RatingShape[]> {
   }
   const data = await operator.ratings();
   return data.shapes ?? [];
+}
+
+// --- local-only operations --------------------------------------------------
+//
+// Two things still need the game server, and both used to be called straight
+// from their screens. One refused properly when hosted; the other posted to a
+// static host, got an HTML error page back, failed to parse it, and did
+// nothing at all - a Delete button that silently did not delete. They live here
+// now, where the switch is, and say so in words when there is no server.
+
+/** Thrown when an operation needs the game server and this page is hosted. */
+export class NeedsLocalPanel extends Error {
+  constructor(what: string) {
+    super(`${what} needs the local admin panel for now.`);
+    this.name = "NeedsLocalPanel";
+  }
+}
+
+/**
+ * Change a dungeon's ID. LOCAL ONLY: it moves a file, and the hosted store has
+ * no atomic equivalent - a rename there is a delete plus an insert, and a
+ * half-finished one leaves a dungeon under two ids.
+ */
+export async function renameContent(kind: string, id: string, newId: string): Promise<void> {
+  if ((await backendMode()) === "hosted") throw new NeedsLocalPanel("Changing an id");
+  const res = await adminFetch("/content/rename", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind, id, newId }),
+  });
+  const body = await res.json();
+  if (!body.ok) throw new Error(body.message);
+}
+
+/**
+ * Delete a piece of content. LOCAL ONLY for now: the game server knows which
+ * other files name it and offers to remove it from them too, and that
+ * reference check has no hosted equivalent yet. Deleting without it would leave
+ * a raid pointing at a dungeon that no longer exists.
+ *
+ * Returns the server's answer, including `references` when other content still
+ * uses it and `force` was not set.
+ */
+export async function deleteContent(
+  kind: string,
+  id: string,
+  force: boolean,
+): Promise<{ ok: boolean; message?: string; references?: { file: string }[] }> {
+  if ((await backendMode()) === "hosted") throw new NeedsLocalPanel("Deleting a dungeon");
+  const res = await adminFetch("/content/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind, id, force }),
+  });
+  return res.json();
 }
 
 /** Save one piece of content. Throws with the server's reason on refusal. */

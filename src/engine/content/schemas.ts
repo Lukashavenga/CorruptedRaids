@@ -524,6 +524,12 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
       if (u.weight !== undefined && (typeof u.weight !== "number" || u.weight <= 0)) {
         fail(file, `${what}: unit "${String(u.id)}" has a non-positive weight`);
       }
+      // Validated because it multiplies a body's hp and attack: a typo that
+      // became `undefined` would silently turn a boss back into a villager,
+      // and a zero would put an unkillable-because-harmless body on stage.
+      if (u.strength !== undefined && (typeof u.strength !== "number" || !Number.isFinite(u.strength) || u.strength <= 0)) {
+        fail(file, `${what}: unit "${String(u.id)}" has a non-positive strength`);
+      }
       if (u.xpReward !== undefined && !isNumber(u.xpReward)) {
         fail(file, `${what}: unit "${String(u.id)}" has a non-numeric xpReward`);
       }
@@ -559,6 +565,17 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
     }
   }
 
+  // The target is a win RATE, so it has to be one. Outside 0.05..0.95 the
+  // solver is being asked for a fight nobody ever wins or nobody ever loses,
+  // and it would dutifully push every level to its floor or ceiling trying.
+  let targetWinRate: number | undefined;
+  if (obj.targetWinRate !== undefined) {
+    if (typeof obj.targetWinRate !== "number" || obj.targetWinRate < 0.05 || obj.targetWinRate > 0.95) {
+      fail(file, `${what}: "targetWinRate" must be a number between 0.05 and 0.95`);
+    }
+    targetWinRate = obj.targetWinRate as number;
+  }
+
   return {
     kind,
     stats,
@@ -567,5 +584,6 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
     xpReward,
     formations,
     ...(bandStatScale ? { bandStatScale } : {}),
+    ...(targetWinRate !== undefined ? { targetWinRate } : {}),
   };
 }
