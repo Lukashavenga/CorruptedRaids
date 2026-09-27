@@ -676,7 +676,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               {/* The boss is measured through the saved content, multipliers
                   included - they are what make it a boss, and the draft meter
                   above measures the fight without them. */}
-              <DifficultyMeter query={`raidId=${draft.id}`} composition={comp} onComposition={setComp} />
+              <DifficultyMeter target={{ raidId: draft.id }} composition={comp} onComposition={setComp} />
             </>
           )}
 

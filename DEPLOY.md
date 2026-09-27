@@ -232,6 +232,11 @@ it, Supabase silently redirects to the Site URL instead of erroring, and the
 sign-in button appears to do nothing; the page detects that case and says so
 rather than looping in silence.
 
+**Both Edge Functions ship together.** `npm run deploy:fn` bundles the engine
+and deploys `character` AND `operator`, because they share `_engine.js` -
+deploying one after a bundle change leaves the other running an older engine
+than the one just built.
+
 **The gate is one of three locks, not the only one.** `AdminGate` still asks
 the operator function `whoami` before drawing anything, and every write still
 goes through that function, which re-derives the caller from a verified JWT.

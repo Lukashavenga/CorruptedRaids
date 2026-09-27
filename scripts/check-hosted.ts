@@ -42,6 +42,29 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ENTRY = join(ROOT, "web", "src", "loadout", "main.tsx");
 
 /**
+ * The admin panel, which is hosted too now and has the same problem.
+ *
+ * It arrived later and worse. The loadout at least failed soft; the admin
+ * panel's difficulty meter fetched /ratings and /difficulty - both game server
+ * routes - from a page with no game server behind it, so /ratings 404d and the
+ * table sat on "measuring..." indefinitely while the meter told the operator
+ * to enter an admin key that would not have helped. Nothing caught it because
+ * this file only ever walked the loadout.
+ */
+const ADMIN_ENTRY = join(ROOT, "web", "src", "admin", "main.tsx");
+
+/**
+ * The ONE file allowed to know the game server exists.
+ *
+ * web/src/admin/backend.ts probes for the server and picks a path per call:
+ * the game server when it answers, the operator Edge Function when it does
+ * not. Every server-only fetch in the admin panel belongs in there, so the
+ * rule for the rest of the panel is simply "not you" - which is a rule with no
+ * exceptions to argue about, unlike a list of which paths have fallbacks.
+ */
+const ADMIN_SWITCH = "web/src/admin/backend.ts";
+
+/**
  * Paths only `src/server/index.ts` answers. Anything here is unreachable from
  * the hosted loadout.
  */
@@ -155,3 +178,48 @@ if (problems.length) {
 }
 
 console.log(`Hosted loadout: no unguarded server paths (${graph(ENTRY).length} files checked).`);
+
+/*
+ * The admin panel, by a different rule.
+ *
+ * The loadout's rule is "no server-only path without a published fallback",
+ * because a viewer's page has to work with nothing behind it. The admin panel
+ * has something behind it - the operator Edge Function - so its rule is about
+ * ROUTING rather than fallbacks: the server is reachable, but only through the
+ * switch that knows whether it is there.
+ *
+ * Which makes the check a one-liner to state and impossible to drift: a
+ * server-only fetch anywhere in web/src/admin except backend.ts is a screen
+ * that will work on localhost and do nothing hosted.
+ */
+const adminFiles = graph(ADMIN_ENTRY);
+const adminProblems: string[] = [];
+
+for (const file of adminFiles) {
+  const rel = file.slice(ROOT.length + 1).replace(/\\/g, "/");
+  if (rel === ADMIN_SWITCH) continue;
+  // Only files that ARE the admin panel. The graph reaches shared hooks and
+  // the loadout's identity module, which the pass above already judged by the
+  // rule that applies to them.
+  if (!rel.startsWith("web/src/admin/")) continue;
+
+  const source = readFileSync(file, "utf-8");
+  for (const m of source.matchAll(/fetch\(\s*["'`](\/[^"'`]*)["'`]/g)) {
+    const path = m[1]!;
+    const hit = SERVER_ONLY.find((sp) => path === sp || path.startsWith(`${sp}/`) || path.startsWith(`${sp}?`));
+    if (!hit) continue;
+    adminProblems.push(`${rel} fetches ${path} directly`);
+  }
+}
+
+if (adminProblems.length) {
+  console.error("");
+  console.error("The hosted admin panel reaches a game server that is not there:");
+  for (const p of adminProblems) console.error(`  FAIL  ${p}`);
+  console.error("");
+  console.error(`Route it through ${ADMIN_SWITCH}, which picks the game server or the`);
+  console.error("operator Edge Function depending on where the page is running.");
+  process.exit(1);
+}
+
+console.log(`Hosted admin: every server path goes through the switch (${adminFiles.length} files checked).`);

@@ -499,6 +499,33 @@ that actually works.
 `npm run simulate` is the source of truth. Trust it over your intuition and
 over any formula, including the ones in this file.
 
+**It runs in two places now, and they are the same code.** The game server
+answers `/difficulty` and `/ratings`; the operator Edge Function answers the
+same two questions for the hosted admin panel, using the simulator exported
+through `src/engine/edgeEntry.ts`. Not an approximation of it - a second
+opinion about difficulty is the exact thing this section exists to forbid. The
+edge measures against the LIVE content in Supabase (cached per isolate for 60s,
+dropped on any write), because measuring a draft against last deploy's gear
+catalogue is how a meter stops meaning anything. One band of 60 samples costs
+37-120ms, measured.
+
+**A reading that never changes is a broken control, not a trivial fight.**
+`GET /difficulty` passed the party HEADCOUNT where `expandFight` wanted the
+party's RATING. `bandFor(12)` is `weak` for every party that will ever exist,
+so measuring a dungeon or a raid by id fielded the weak layout whatever the
+sliders said, and answered 100% win at every Corruption. Measured on barbie
+with 2/8/2 after the fix:
+
+    level   as headcount             as rating
+    L5      weak,  10 bodies, 100%   seasoned, 16 bodies, 100%
+    L30     weak,  10 bodies, 100%   elite,    18 bodies,  30%
+    L120    weak,  10 bodies, 100%   infernal, 17 bodies,  92%
+
+The POST twin took a draft and got this right, which is the only reason it was
+findable: two endpoints answering the same question differently. Any raid
+tuning done through the meter before 2026-09-27 was done against the weak
+layout and is worth re-reading.
+
 ### Two simulators, two questions
 
 `npm run simulate` asks **is the engine correct** - aggro pulls, healers heal, a

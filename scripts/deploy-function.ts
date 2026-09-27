@@ -1,5 +1,5 @@
 /**
- * Deploy the character Edge Function, without needing `supabase link`.
+ * Deploy the Edge Functions, without needing `supabase link`.
  *
  * `supabase functions deploy character` alone fails with
  * "Cannot find project ref. Have you run supabase link?" on any checkout that
@@ -38,9 +38,23 @@ if (!match) {
 }
 
 const ref = match[1]!;
-console.log(`Deploying character function to ${ref}`);
 
-execFileSync("npx", ["--yes", "supabase", "functions", "deploy", "character", "--project-ref", ref], {
-  stdio: "inherit",
-  shell: true,
-});
+/**
+ * BOTH functions, because they share `_engine.js`.
+ *
+ * `npm run bundle:edge` rebuilds that bundle and copies it into both
+ * directories, so deploying only `character` after a bundle change leaves
+ * `operator` running against an older engine than the one just built - which
+ * is how the difficulty simulator could be exported, bundled, and still absent
+ * from the function that needs it. One command, both deployed, no ordering to
+ * remember.
+ */
+const FUNCTIONS = ["character", "operator"];
+
+for (const name of FUNCTIONS) {
+  console.log(`Deploying ${name} function to ${ref}`);
+  execFileSync("npx", ["--yes", "supabase", "functions", "deploy", name, "--project-ref", ref], {
+    stdio: "inherit",
+    shell: true,
+  });
+}

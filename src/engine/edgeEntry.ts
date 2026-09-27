@@ -34,3 +34,27 @@ export {
   validateDungeonDefinition,
   validateRaidDefinition,
 } from "./content/schemas.js";
+
+/*
+ * The difficulty simulator, for the operator function.
+ *
+ * DIFFICULTY IS MEASURED, NEVER DERIVED (AGENTS.md section 6) - the only way
+ * to know how hard a fight is, is to resolve it a few dozen times and count.
+ * That was the game server's job because the admin panel was local, and when
+ * the panel moved to the open web the meter stayed pointed at a server that is
+ * not there: /ratings 404d and /difficulty 405d, so the panel sat on
+ * "measuring..." forever while blaming a missing admin key.
+ *
+ * So the simulator ships to the edge. It is the SAME code the server runs, not
+ * an approximation that agrees with it today - a second opinion about
+ * difficulty is the exact thing section 6 exists to forbid.
+ *
+ * Measured before it was moved: 37-120ms for one band of 60 samples, ~530ms
+ * for all six. That fits an edge request with room to spare, which is why this
+ * is a move rather than a rewrite into something cheaper.
+ */
+export { estimateDifficulty, referencePartyStrength } from "./difficulty.js";
+export { expandFight, bandFor, BAND_SAMPLE_PARTY } from "./squad.js";
+export { ratePoints } from "./partyStrength.js";
+export { PARTY_BANDS } from "./types.js";
+export type { FightDefinition, PartyBand } from "./types.js";

@@ -1,3 +1,4 @@
+import type { PartyBand } from "../../../src/engine/types.js";
 import { supabase } from "../loadout/supabase.js";
 
 /**
@@ -105,6 +106,39 @@ export function contentRestore(id: number): Promise<{ message?: string }> {
 /** Everything the tuning screens read, in the shape GET /content returns. */
 export function contentAll(): Promise<{ gear: unknown[]; dungeons: unknown[]; raids: unknown[] }> {
   return call("?action=content-all");
+}
+
+// --- measurement -------------------------------------------------------------
+
+/**
+ * How hard a fight is, measured by the edge playing it.
+ *
+ * The same simulator the game server runs, bundled into the function (see
+ * src/engine/edgeEntry.ts). This exists because the meter it feeds used to
+ * point at the game server from a page with no game server behind it: /ratings
+ * 404d, /difficulty 405d, and the panel sat on "measuring..." forever while
+ * blaming a missing admin key.
+ */
+export interface DifficultyRequest {
+  /** A draft, for the meter to answer about what is on screen rather than on disk. */
+  fight?: unknown;
+  dungeonId?: string;
+  raidId?: string;
+  roomId?: string;
+  composition: { tanks: number; dps: number; healers: number };
+  level: number;
+  gear?: "none" | "typical" | "best";
+  samples?: number;
+}
+
+export function difficulty(body: DifficultyRequest): Promise<Record<string, unknown>> {
+  return call("?action=difficulty", { method: "POST", body: JSON.stringify(body) });
+}
+
+export function ratings(): Promise<{
+  shapes: { label: string; size: number; rating: number; band: PartyBand }[];
+}> {
+  return call("?action=ratings");
 }
 
 // --- sprites -----------------------------------------------------------------

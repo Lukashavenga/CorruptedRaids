@@ -27,22 +27,98 @@
  * stranger can do.
  */
 import {
+  BAND_SAMPLE_PARTY,
   ContentRegistry,
   GameEngine,
+  PARTY_BANDS,
+  bandFor,
+  estimateDifficulty,
+  expandFight,
+  ratePoints,
+  referencePartyStrength,
   validateConsumableDefinition,
   validateDungeonDefinition,
   validateGearDefinition,
   validateRaidDefinition,
   validateShopStock,
 } from "./_engine.js";
-import type { Character, GameCommand } from "./_engine.js";
+import type { Character, FightDefinition, GameCommand } from "./_engine.js";
 import bundledContent from "./_content.json" with { type: "json" };
 
-// Built once per isolate, not per request, for the same reason the character
-// function does it: validating 119 gear definitions on every click would
-// dominate the response time. Shared safely because it is read-only.
-const content = new ContentRegistry();
-content.loadObjects(bundledContent as Parameters<ContentRegistry["loadObjects"]>[0]);
+/**
+ * The bundled content, as a FALLBACK only.
+ *
+ * It is a snapshot taken by `npm run bundle:edge`, and it holds gear,
+ * consumables, balance and shop - but no dungeons and no raids, because the
+ * character function never needed a fight. So it cannot answer "how hard is
+ * BARBIEVILLE" at all, and its gear catalogue is as old as the last deploy.
+ *
+ * Content lives in Supabase now and is edited from the hosted panel. Measuring
+ * against this snapshot would mean tuning a gear stat, watching the difficulty
+ * meter not move, and having no way to tell that from the change not
+ * mattering - which is the exact failure the draft meter was built to end.
+ */
+const bundled = new ContentRegistry();
+bundled.loadObjects(bundledContent as Parameters<ContentRegistry["loadObjects"]>[0]);
+
+/**
+ * The LIVE content, cached per isolate.
+ *
+ * Building a registry from 132 rows costs about 1.4ms - measured, and a good
+ * deal cheaper than the note this replaced assumed. The round trip to
+ * PostgREST is the real cost, so that is what the cache is for.
+ *
+ * Sixty seconds, and dropped outright by any write this isolate handles. The
+ * write path is what matters: an operator who saves a gear change and
+ * re-measures gets the new number immediately, because the same isolate almost
+ * always serves both. The TTL only covers the case where another isolate did
+ * the writing, and a minute of staleness there is worth one DB read per minute
+ * rather than one per click.
+ */
+let cached: { at: number; content: ContentRegistry } | null = null;
+const CONTENT_TTL_MS = 60_000;
+
+/** Group content rows the way the loader wants them. Mirrors groupContent(). */
+function groupRows(rows: { path: string; data: unknown }[]) {
+  const out = {
+    gear: [] as unknown[],
+    consumables: [] as unknown[],
+    dungeons: [] as unknown[],
+    raids: [] as unknown[],
+    balance: undefined as unknown,
+    shop: undefined as unknown,
+  };
+  for (const row of rows) {
+    if (row.path.startsWith("gear/")) out.gear.push(row.data);
+    else if (row.path.startsWith("consumables/")) out.consumables.push(row.data);
+    else if (row.path.startsWith("dungeons/")) out.dungeons.push(row.data);
+    else if (row.path.startsWith("raids/")) out.raids.push(row.data);
+    else if (row.path === "balance.json") out.balance = row.data;
+    else if (row.path === "shop.json") out.shop = row.data;
+    // Anything else is ignored rather than fatal, same as the server's loader.
+  }
+  return out;
+}
+
+async function liveContent(): Promise<ContentRegistry> {
+  if (cached && Date.now() - cached.at < CONTENT_TTL_MS) return cached.content;
+  try {
+    const res = await db("/content_files?select=path,data");
+    const rows = (await res.json()) as { path: string; data: unknown }[];
+    const registry = new ContentRegistry();
+    registry.loadObjects(groupRows(rows));
+    cached = { at: Date.now(), content: registry };
+    return registry;
+  } catch (err) {
+    // The store being unreachable, or holding content this build cannot
+    // validate, must not take the roster screens down with it - they only need
+    // gear names. Answering from the snapshot is wrong for difficulty and
+    // right for everything else, so the difficulty actions say so rather than
+    // quietly reporting a number measured against last month's catalogue.
+    console.error(`live content unavailable, falling back to the bundle: ${(err as Error).message}`);
+    return bundled;
+  }
+}
 
 /**
  * A fresh engine per request, holding exactly the character being acted on.
@@ -51,7 +127,7 @@ content.loadObjects(bundledContent as Parameters<ContentRegistry["loadObjects"]>
  * calls, and a shared roster would let one operator's edit land on the
  * character another was looking at.
  */
-function seed(character: Character): GameEngine {
+function seed(character: Character, content: ContentRegistry): GameEngine {
   const engine = new GameEngine(content, Math.random);
   engine.roster.hydrate([character]);
   return engine;
@@ -295,7 +371,7 @@ Deno.serve(async (req: Request) => {
       const rows = (await res.json()) as Row[];
       const row = rows[0];
       if (!row) return json({ ok: false, message: "No such character." }, 404, req);
-      const engine = seed(row.data as Character);
+      const engine = seed(row.data as Character, await liveContent());
       return json({ ok: true, character: engine.getCharacterView(row.id), inRun: row.in_run }, 200, req);
     }
 
@@ -316,7 +392,7 @@ Deno.serve(async (req: Request) => {
       // Silently losing an operator's grant is worse than refusing it.
       if (row.in_run) return json({ ok: false, message: `${row.id} is mid-run. Try again once the beat ends.` }, 409, req);
 
-      const engine = seed(row.data as Character);
+      const engine = seed(row.data as Character, await liveContent());
       // `requestedBy` is the TARGET, not the operator: the engine's commands
       // act on the character they name, and the operator's identity has
       // already done its job by getting past the gate above.
@@ -386,6 +462,10 @@ Deno.serve(async (req: Request) => {
           { path, data: body.data, updated_at: new Date().toISOString(), updated_by: twitchId },
         ]),
       });
+      // The next read rebuilds the registry, so a gear change is reflected by
+      // the difficulty meter on the very next measurement rather than up to a
+      // minute later. Saving and re-measuring is one gesture in the panel.
+      cached = null;
       // The previous contents are already in content_history by the time this
       // returns - the trigger does it, so no caller can skip it.
       return json({ ok: true, message: `Saved ${path}.` }, 200, req);
@@ -415,6 +495,7 @@ Deno.serve(async (req: Request) => {
           { path: rows[0].path, data: rows[0].data, updated_at: new Date().toISOString(), updated_by: twitchId },
         ]),
       });
+      cached = null;
       return json({ ok: true, message: `Restored ${rows[0].path}.` }, 200, req);
     }
 
@@ -456,6 +537,170 @@ Deno.serve(async (req: Request) => {
       if (!key) return json({ ok: false, message: "bad folder or id" }, 400, req);
       const sprites = await manifestRpc("sprites_revert", { p_key: key, p_by: twitchId });
       return json({ ok: true, message: `Reverted ${key}.`, sprites: sprites ?? {} }, 200, req);
+    }
+
+    if (action === "difficulty" && req.method === "POST") {
+      /*
+       * How hard is this fight, for this party? Measured, by playing it.
+       *
+       * THE SAME SIMULATOR THE GAME SERVER RUNS, exported through the edge
+       * bundle - not a cheaper approximation. AGENTS.md section 6 is emphatic
+       * that a formula predicting difficulty from stats has been tried here and
+       * lied (it once read "Trivial, 100%" for a fight that measured 13%), so a
+       * second opinion living at the edge would be the same mistake wearing a
+       * different hat.
+       *
+       * Two ways to name the fight, because the panel asks both questions: a
+       * DRAFT in the body, which is what the tuning screens send so the meter
+       * answers for what is on screen rather than what is saved, and an ID for
+       * a dungeon or a raid room.
+       */
+      const body = (await req.json()) as {
+        fight?: unknown;
+        dungeonId?: string;
+        raidId?: string;
+        roomId?: string;
+        composition?: { tanks?: number; dps?: number; healers?: number };
+        level?: number;
+        gear?: string;
+        samples?: number;
+      };
+
+      const content = await liveContent();
+
+      // Every number that reaches the simulator is clamped, because all of them
+      // are multipliers on work this function does. `samples` is the obvious
+      // one; `dps` is not, and a party of fifty thousand is the same denial of
+      // service spelled differently.
+      const int = (value: unknown, min: number, max: number, fallback: number): number => {
+        const n = Math.floor(Number(value));
+        return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+      };
+      const composition = {
+        tanks: int(body.composition?.tanks, 0, 50, 1),
+        dps: int(body.composition?.dps, 0, 100, 4),
+        healers: int(body.composition?.healers, 0, 50, 1),
+      };
+      if (composition.tanks + composition.dps + composition.healers === 0) {
+        return json({ ok: false, message: "A party of nobody has no difficulty." }, 400, req);
+      }
+      const level = int(body.level, 1, 500, 5);
+      const gear = body.gear === "none" || body.gear === "best" ? body.gear : "typical";
+      // 200 rather than the server's 400. The server runs on one machine the
+      // streamer owns and can afford to be told to work; this one is shared.
+      const samples = int(body.samples, 1, 200, 60);
+
+      /*
+       * The party's RATING, not its headcount.
+       *
+       * `expandFight` feeds this straight to `bandFor()`, which reads a
+       * composition-adjusted rating in the hundreds or thousands. The server's
+       * GET twin passed the party SIZE here, and `bandFor(12)` is `weak` for
+       * every party that will ever exist - so that endpoint fielded the weak
+       * layout whatever the sliders said and answered 100% win at every level.
+       * Fixed there in the same commit as this; written correctly here.
+       */
+      const strength = referencePartyStrength(composition, level, content, gear);
+
+      let enemies: ReturnType<typeof expandFight> = [];
+      let multipliers: { hp: number; atk: number } | undefined;
+
+      if (body.fight && typeof body.fight === "object") {
+        enemies = expandFight(body.fight as FightDefinition, "draft", "draft", strength, content.balance.bandStatScale);
+      } else if (body.dungeonId) {
+        const dungeon = content.getDungeon(body.dungeonId);
+        if (!dungeon) return json({ ok: false, message: `No such dungeon "${body.dungeonId}".` }, 404, req);
+        enemies = content.expandDungeonEnemies(dungeon, strength);
+      } else if (body.raidId) {
+        const raid = content.getRaid(body.raidId);
+        if (!raid) return json({ ok: false, message: `No such raid "${body.raidId}".` }, 404, req);
+        const room = body.roomId ? raid.rooms.find((r) => r.id === body.roomId) : undefined;
+        if (body.roomId && !room) {
+          return json({ ok: false, message: `Raid "${body.raidId}" has no room "${body.roomId}".` }, 404, req);
+        }
+        if (room?.fight) {
+          enemies = expandFight(room.fight, `${raid.id}:${room.id}`, room.name, strength, content.balance.bandStatScale);
+        } else if (!room) {
+          // No room named means the BOSS: the fixed wall every run ends at, and
+          // the only part of a raid there is one answer for.
+          enemies = expandFight(
+            raid.boss.fight,
+            `${raid.id}:${raid.boss.id}`,
+            raid.boss.name,
+            strength,
+            content.balance.bandStatScale,
+          );
+          multipliers = { hp: raid.boss.hpMultiplier, atk: raid.boss.atkMultiplier };
+        }
+      } else {
+        return json({ ok: false, message: "Pass a fight draft, a dungeonId or a raidId." }, 400, req);
+      }
+
+      if (enemies.length === 0) return json({ ok: false, message: "This layout has no units yet." }, 400, req);
+      // A formation is authored data and arrives in the body on the draft path,
+      // so its size is the caller's choice. The largest real fight is 25.
+      if (enemies.length > 200) {
+        return json({ ok: false, message: `${enemies.length} bodies is more than this will measure.` }, 400, req);
+      }
+
+      const report = estimateDifficulty(enemies, content, {
+        composition,
+        level,
+        gear,
+        samples,
+        enemyMultipliers: multipliers,
+      });
+      // The squad's own rating, priced with the same scorer as a party's, so
+      // "squad 3,420 against a party of 1,200" is a comparison rather than two
+      // unrelated numbers.
+      const enemyRating = enemies.reduce((sum, e) => sum + ratePoints(e.stats, content.balance), 0);
+      return json(
+        { ok: true, ...report, enemyCount: enemies.length, enemyRating, partyRating: Math.round(strength) },
+        200,
+        req,
+      );
+    }
+
+    if (action === "ratings") {
+      /*
+       * What real party shapes rate, and which level each one meets.
+       *
+       * The reference table for the whole difficulty model - "what do thirty
+       * naked players get?", "does a small kitted group outrank a big scruffy
+       * one?" - answered by reading a row rather than by reasoning about a
+       * formula nobody can hold in their head. Computed here rather than in the
+       * browser because dressing the reference parties needs the gear
+       * catalogue, and the browser has no copy of it.
+       */
+      const content = await liveContent();
+      const shapes: { label: string; size: number; gear: "none" | "typical" | "best"; level: number }[] = [
+        { label: "5, no gear", size: 5, gear: "none", level: 1 },
+        { label: "30, no gear", size: 30, gear: "none", level: 1 },
+        { label: "5, mid gear", size: 5, gear: "typical", level: 5 },
+        { label: "30, mid gear", size: 30, gear: "typical", level: 5 },
+        { label: "5, fully geared", size: 5, gear: "best", level: 12 },
+        { label: "30, fully geared", size: 30, gear: "best", level: 12 },
+      ];
+      const rows = shapes.map((shape) => {
+        const t = Math.max(1, Math.round(shape.size / 6));
+        const rating = referencePartyStrength(
+          { tanks: t, healers: t, dps: Math.max(0, shape.size - 2 * t) },
+          shape.level,
+          content,
+          shape.gear,
+        );
+        return { label: shape.label, size: shape.size, rating, band: bandFor(rating) };
+      });
+      // A party with no support roles, to show the composition penalty biting.
+      const lopsided = referencePartyStrength({ tanks: 0, healers: 0, dps: 12 }, 5, content, "typical");
+      rows.push({ label: "12 all-dps, mid gear", size: 12, rating: lopsided, band: bandFor(lopsided) });
+      return json({ ok: true, shapes: rows }, 200, req);
+    }
+
+    if (action === "bands") {
+      // What party each level is measured against, so the panel does not carry
+      // its own copy of a table the engine owns.
+      return json({ ok: true, bands: PARTY_BANDS, sample: BAND_SAMPLE_PARTY }, 200, req);
     }
 
     return json({ ok: false, message: `Unknown action "${action}".` }, 400, req);

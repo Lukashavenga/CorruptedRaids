@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { adminFetch, getAdminKey } from "../adminKey.js";
+import { getAdminKey } from "../adminKey.js";
+import { measureDifficulty, needsAdminKey } from "./backend.js";
 
 export interface DifficultyReport {
   winRate: number;
@@ -17,24 +18,31 @@ export interface Composition {
   level: number;
 }
 
+/** Which fight to measure. Structured, because two backends spell it differently. */
+export interface MeterTarget {
+  dungeonId?: string;
+  raidId?: string;
+  roomId?: string;
+}
+
 /**
  * Live difficulty readout for whatever is being tuned.
  *
- * The number is a MEASURED win rate — the server simulates a few hundred
- * fights against the composition below (see src/engine/difficulty.ts). That is
- * why the composition controls are part of this component rather than a global
- * setting: "how hard is this" has no answer without "for whom", and the whole
- * point of the role rework is that the answer changes enormously with party
- * makeup. Marketgate is Fair for a balanced six and Brutal for six damage
- * dealers, and a tuning screen that hid that would be lying.
+ * The number is a MEASURED win rate — a few dozen fights actually resolved
+ * against the composition below (see src/engine/difficulty.ts), by the game
+ * server locally and by the operator Edge Function when this page is hosted.
+ * That is why the composition controls are part of this component rather than
+ * a global setting: "how hard is this" has no answer without "for whom", and
+ * the whole point of the role rework is that the answer changes enormously
+ * with party makeup. A place is Fair for a balanced six and Brutal for six
+ * damage dealers, and a tuning screen that hid that would be lying.
  */
 export function DifficultyMeter({
-  query,
+  target,
   composition,
   onComposition,
 }: {
-  /** Query string identifying the fight: `dungeonId=…`, `raidId=…` or `encounters=…`. */
-  query: string;
+  target: MeterTarget;
   composition: Composition;
   onComposition: (next: Composition) => void;
 }): JSX.Element {
@@ -42,47 +50,47 @@ export function DifficultyMeter({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!query) return;
+  const key = JSON.stringify(target);
 
-    // No key, no request. /difficulty is gated now, so firing without one
-    // earns a 401 and an alarming red message before the operator has had a
-    // chance to type anything. Saying what is missing beats reporting that
-    // the server refused a header nobody had entered yet.
-    if (!getAdminKey()) {
-      setError("Enter the admin key above to measure difficulty.");
-      setBusy(false);
-      return;
-    }
+  useEffect(() => {
+    if (!target.dungeonId && !target.raidId) return;
 
     let cancelled = false;
     setBusy(true);
     const { tanks, dps, healers, level } = composition;
-    const url = `/difficulty?${query}&tanks=${tanks}&dps=${dps}&healers=${healers}&level=${level}&samples=150`;
 
     // Debounced: a slider drag fires a change per pixel, and each reading is a
-    // few hundred simulated fights on the server.
-    const t = setTimeout(() => {
-      adminFetch(url)
-        .then((r) => r.json())
-        .then((data) => {
-          if (cancelled) return;
-          if (data && typeof data.winRate === "number") {
-            setReport(data);
-            setError(null);
-          } else {
-            setError(data?.message ?? "could not measure");
+    // few dozen simulated fights.
+    const t = setTimeout(async () => {
+      try {
+        // Locally the key is real - /difficulty is gated by ADMIN_SECRET, and
+        // firing without one earns a 401 and an alarming red message before the
+        // operator has had a chance to type anything. Hosted there is no game
+        // server to hold that secret, and the sign-in already happened.
+        if ((await needsAdminKey()) && !getAdminKey()) {
+          if (!cancelled) {
+            setError("Enter the admin key above to measure difficulty.");
+            setBusy(false);
           }
-        })
-        .catch((e) => !cancelled && setError((e as Error).message))
-        .finally(() => !cancelled && setBusy(false));
+          return;
+        }
+        const data = await measureDifficulty({ ...target, composition: { tanks, dps, healers }, level, samples: 150 });
+        if (cancelled) return;
+        setReport(data as unknown as DifficultyReport);
+        setError(null);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message);
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
     }, 250);
 
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [query, composition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, composition]);
 
   const field = (label: string, key: keyof Composition, max: number) => (
     <label className="diff-field">

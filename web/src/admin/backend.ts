@@ -1,3 +1,4 @@
+import type { PartyBand } from "../../../src/engine/types.js";
 import { adminFetch } from "../adminKey.js";
 import * as operator from "../operator/api.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
@@ -74,6 +75,89 @@ function pathFor(kind: string, id: string): string {
   if (kind === "gear") return `gear/${id}.json`;
   if (kind === "consumable") return `consumables/${id}.json`;
   throw new Error(`Unknown content kind "${kind}"`);
+}
+
+// --- measurement -------------------------------------------------------------
+
+/**
+ * Does this screen need the operator to type an admin key first?
+ *
+ * Only locally. The key is `ADMIN_SECRET`, which belongs to the game server;
+ * hosted there is no game server and the caller has already proved who they
+ * are with a Twitch sign-in the edge verified. Asking for a key there is
+ * asking for a password to a machine that is not in the conversation - and
+ * that is exactly what the difficulty meter did: it refused to measure,
+ * saying "enter the admin key above", when no key would have helped.
+ */
+export async function needsAdminKey(): Promise<boolean> {
+  return (await backendMode()) === "local";
+}
+
+export interface DifficultyRequest {
+  /** The draft on screen. Takes precedence over the ids below. */
+  fight?: unknown;
+  dungeonId?: string;
+  raidId?: string;
+  roomId?: string;
+  composition: { tanks: number; dps: number; healers: number };
+  level: number;
+  gear?: "none" | "typical" | "best";
+  samples?: number;
+}
+
+/**
+ * Measure one fight against one party.
+ *
+ * The two backends take the same question in different shapes - the game
+ * server has a GET form for ids and a POST form for drafts, the Edge Function
+ * takes one POST for both - so this is where that is reconciled rather than in
+ * each screen.
+ */
+export async function measureDifficulty(req: DifficultyRequest): Promise<Record<string, unknown>> {
+  if ((await backendMode()) === "local") {
+    const { composition, level, gear, samples } = req;
+    if (req.fight) {
+      const res = await adminFetch("/difficulty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+      });
+      const body = await res.json();
+      if (typeof body?.winRate !== "number") throw new Error(body?.message ?? "could not measure");
+      return body;
+    }
+    const target = req.dungeonId
+      ? `dungeonId=${encodeURIComponent(req.dungeonId)}`
+      : `raidId=${encodeURIComponent(req.raidId ?? "")}${req.roomId ? `&roomId=${encodeURIComponent(req.roomId)}` : ""}`;
+    const query =
+      `${target}&tanks=${composition.tanks}&dps=${composition.dps}&healers=${composition.healers}` +
+      `&level=${level}&gear=${gear ?? "typical"}&samples=${samples ?? 150}`;
+    const res = await adminFetch(`/difficulty?${query}`);
+    const body = await res.json();
+    if (typeof body?.winRate !== "number") throw new Error(body?.message ?? "could not measure");
+    return body;
+  }
+  return operator.difficulty(req);
+}
+
+/** One row of the reference table. */
+export interface RatingShape {
+  label: string;
+  size: number;
+  rating: number;
+  band: PartyBand;
+}
+
+/** The reference table: what real party shapes rate, and which level each meets. */
+export async function readRatings(): Promise<RatingShape[]> {
+  if ((await backendMode()) === "local") {
+    const res = await fetch("/ratings");
+    if (!res.ok) throw new Error(`the game server refused /ratings (${res.status})`);
+    const data = await res.json();
+    return data.shapes ?? [];
+  }
+  const data = await operator.ratings();
+  return data.shapes ?? [];
 }
 
 /** Save one piece of content. Throws with the server's reason on refusal. */

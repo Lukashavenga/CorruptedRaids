@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import type { FightDefinition, PartyBand } from "../../../src/engine/types.js";
 import { PARTY_BANDS } from "../../../src/engine/types.js";
 import { BAND_SAMPLE_PARTY } from "../../../src/engine/squad.js";
-import { adminFetch, getAdminKey } from "../adminKey.js";
+import { getAdminKey } from "../adminKey.js";
+import { measureDifficulty, needsAdminKey, readRatings } from "./backend.js";
 
 export interface Reading {
   winRate: number;
@@ -63,40 +64,40 @@ export function useDraftDifficulty(draft: FightDefinition | null) {
   useEffect(() => {
     if (!draft) return;
 
-    // Same reason as DifficultyMeter: /difficulty is gated, so measuring
-    // without a key is six requests that all 401 and a red box that blames
-    // the server for a field the operator has not filled in yet.
-    if (!getAdminKey()) {
-      setError("Enter the admin key above to measure this draft.");
-      setBusy(false);
-      return;
-    }
-
     let cancelled = false;
     setBusy(true);
     const t = setTimeout(async () => {
       try {
+        // The admin key is a LOCAL requirement, asked about rather than
+        // assumed. /difficulty on the game server is gated by ADMIN_SECRET, so
+        // firing without one locally is six requests that all 401 and a red
+        // box blaming the server for a field nobody has filled in yet. Hosted
+        // there is no game server and no key - the caller already proved who
+        // they are with a Twitch sign-in the edge verified - and demanding one
+        // there is how this panel came to refuse to measure at all, with a
+        // message naming a fix that would not have worked.
+        if ((await needsAdminKey()) && !getAdminKey()) {
+          if (!cancelled) {
+            setError("Enter the admin key above to measure this draft.");
+            setBusy(false);
+          }
+          return;
+        }
+
         const results = await Promise.all(
           PARTY_BANDS.map(async (band) => {
             // Each level measures the party it is FOR — its own size,
             // Corruption and gear — because a level is defined by party rating,
             // and rating is exactly those things.
             const sample = BAND_SAMPLE_PARTY[band];
-            const res = await adminFetch("/difficulty", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                fight: draft,
-                composition: composition(sample.size),
-                level: sample.level,
-                samples: 60,
-                count: 3,
-                gear: gear === "band" ? sample.gear : gear,
-              }),
+            const data = await measureDifficulty({
+              fight: draft,
+              composition: composition(sample.size),
+              level: sample.level,
+              samples: 60,
+              gear: gear === "band" ? sample.gear : gear,
             });
-            const data = await res.json();
-            if (typeof data?.winRate !== "number") throw new Error(data?.message ?? "could not measure");
-            return [band, data as Reading] as const;
+            return [band, data as unknown as Reading] as const;
           }),
         );
         if (!cancelled) {
@@ -147,11 +148,20 @@ export function BalancePanel({
 }): JSX.Element {
   const [shapes, setShapes] = useState<Shape[] | null>(null);
 
+  // Null means "not loaded yet"; an empty array means "asked, and there is
+  // nothing to show". They used to be the same value, so a failed request left
+  // the table saying "measuring..." for as long as anyone cared to look at it -
+  // which is what it did on every hosted page load, because /ratings is a game
+  // server route and there is no game server up here.
+  const [failed, setFailed] = useState<string | null>(null);
+
   useEffect(() => {
-    fetch("/ratings")
-      .then((r) => r.json())
-      .then((d) => setShapes(d.shapes ?? null))
-      .catch(() => setShapes(null));
+    readRatings()
+      .then(setShapes)
+      .catch((e: Error) => {
+        setShapes([]);
+        setFailed(e.message);
+      });
   }, []);
 
   return (
@@ -184,6 +194,13 @@ export function BalancePanel({
             <tr>
               <td colSpan={4} className="admin-hint">
                 measuring…
+              </td>
+            </tr>
+          )}
+          {failed && (
+            <tr>
+              <td colSpan={4} className="admin-warn">
+                {failed}
               </td>
             </tr>
           )}

@@ -732,9 +732,34 @@ const server = createServer((req, res) => {
 
       const dungeonId = q.get("dungeonId");
       const raidId = q.get("raidId");
-      // Measured against the party being asked about, so a fight is read at
-      // the band that party would actually meet.
-      const size = num("tanks", 1) + num("dps", 4) + num("healers", 1);
+
+      /*
+       * The party's RATING, not its headcount.
+       *
+       * `expandFight`'s `strength` is fed straight to `bandFor()`, which reads
+       * a composition-adjusted rating in the hundreds or thousands. This
+       * passed the party SIZE - twelve - and `bandFor(12)` is `weak` for every
+       * party that will ever exist, so this endpoint fielded the weak layout
+       * no matter what the sliders said. Measured on barbie with 2/8/2:
+       *
+       *   level   as headcount            as rating
+       *   L5      weak,  10 bodies, 100%  seasoned, 16 bodies, 100%
+       *   L30     weak,  10 bodies, 100%  elite,    18 bodies,  30%
+       *   L120    weak,  10 bodies, 100%  infernal, 17 bodies,  92%
+       *
+       * So the Corruption slider in the raid tuner moved and the reading never
+       * did - it answered 100% at every setting, which reads as "this fight is
+       * trivial" rather than "this control is not wired up". The POST twin got
+       * this right because it was written later, against the draft; the
+       * disagreement between them is what made it visible.
+       */
+      const composition = {
+        tanks: num("tanks", 1),
+        dps: num("dps", 4),
+        healers: num("healers", 1),
+      };
+      const gearAssumption = (q.get("gear") as "none" | "typical" | "best" | null) ?? "typical";
+      const size = referencePartyStrength(composition, num("level", 5), content, gearAssumption);
 
       if (dungeonId) {
         enemies = content.expandDungeonEnemies(content.getDungeon(dungeonId), size);
@@ -761,13 +786,9 @@ const server = createServer((req, res) => {
       if (enemies.length === 0) throw new Error("nothing to measure - pass dungeonId or raidId");
 
       const report = estimateDifficulty(enemies, content, {
-        composition: {
-          tanks: num("tanks", 1),
-          dps: num("dps", 4),
-          healers: num("healers", 1),
-        },
+        composition,
         level: num("level", 5),
-        gear: (q.get("gear") as "none" | "typical" | "best" | null) ?? "typical",
+        gear: gearAssumption,
         samples: Math.min(400, num("samples", 150)),
         enemyMultipliers: multipliers,
       });
