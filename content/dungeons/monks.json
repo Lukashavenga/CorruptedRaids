@@ -1,12 +1,6 @@
 {
+  "id": "monks",
   "kind": "mob",
-  "stats": {
-    "hp": 20,
-    "atk": 3,
-    "spd": 3,
-    "skill": 2,
-    "crit": 0.07
-  },
   "loot": [
     {
       "gearId": "plated-greaves",
@@ -29,82 +23,79 @@
       "weight": 2
     }
   ],
-  "goldReward": [
-    11,
-    27
-  ],
+  "name": "Monkestary",
+  "stats": {
+    "hp": 20,
+    "atk": 3,
+    "spd": 3,
+    "crit": 0.07,
+    "skill": 2
+  },
   "xpReward": 50,
+  "background": "monks",
+  "flavorText": "They have had a week to prepare, and they have used all of it.",
   "formations": {
     "weak": [
       {
+        "x": 0.08,
+        "y": 1,
         "id": "militia-serjeant-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.25,
+        "y": 1,
         "id": "militia-serjeant-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.42,
+        "y": 1,
         "id": "militia-serjeant-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.59,
+        "y": 1,
         "id": "militia-serjeant-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.76,
+        "y": 1,
         "id": "militia-serjeant-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "militia-serjeant-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.08,
+        "y": 0.86,
         "id": "militia-serjeant-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 0.86
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.25,
+        "y": 0.86,
         "id": "militia-serjeant-7",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 0.86
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "knight-errant-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.08,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "knight-errant-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -127,25 +118,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "knight-errant-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.25,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "knight-errant-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -168,25 +159,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "knight-errant-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.42,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "knight-errant-10",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -209,25 +200,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "knight-errant-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.59,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "knight-errant-11",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -250,25 +241,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "knight-errant-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.76,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "knight-errant-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -291,83 +282,83 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       }
     ],
     "seasoned": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "seasoned-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.188,
+        "y": 1,
         "id": "seasoned-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.188,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.337,
+        "y": 1,
         "id": "seasoned-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.337,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "seasoned-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.633,
+        "y": 1,
         "id": "seasoned-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.633,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.782,
+        "y": 1,
         "id": "seasoned-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.782,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "seasoned-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.114,
+        "y": 0.945,
         "id": "seasoned-7",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.114,
-        "y": 0.945
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "seasoned-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.263,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -390,25 +381,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.411,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -431,25 +422,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.559,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-10",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -472,25 +463,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.708,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-11",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -513,25 +504,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.856,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -554,25 +545,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-13",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -595,25 +586,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-14",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -636,25 +627,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "seasoned-15",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -677,107 +668,107 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "seasoned-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "role": "dps"
+        "id": "seasoned-16",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "seasoned-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.708,
         "y": 0.89,
-        "role": "tank"
+        "id": "seasoned-17",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "seasoned-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.93,
         "y": 0.89,
-        "role": "dps"
+        "id": "seasoned-18",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       }
     ],
     "elite": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "elite-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.167,
+        "y": 1,
         "id": "elite-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.167,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.294,
+        "y": 1,
         "id": "elite-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.294,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.421,
+        "y": 1,
         "id": "elite-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.421,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.549,
+        "y": 1,
         "id": "elite-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.549,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.676,
+        "y": 1,
         "id": "elite-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.676,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.803,
+        "y": 1,
         "id": "elite-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.803,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "elite-7",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "elite-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.104,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -800,25 +791,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.231,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -841,25 +832,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.358,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-10",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -882,25 +873,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.485,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-11",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -923,25 +914,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.612,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -964,25 +955,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.739,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-13",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1005,25 +996,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.866,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-14",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1046,25 +1037,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "elite-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "elite-15",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1087,132 +1078,132 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "healer",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "healer"
+        ]
       },
       {
-        "id": "elite-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "role": "dps"
+        "id": "elite-16",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "elite-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.218,
         "y": 0.89,
-        "role": "tank"
+        "id": "elite-17",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "elite-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.396,
         "y": 0.89,
-        "role": "dps"
+        "id": "elite-18",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "elite-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.574,
         "y": 0.89,
-        "role": "tank"
+        "id": "elite-19",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "elite-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.752,
         "y": 0.89,
-        "role": "dps"
+        "id": "elite-20",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "elite-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.93,
         "y": 0.89,
-        "role": "healer"
+        "id": "elite-21",
+        "name": "Women of the Night",
+        "role": "healer",
+        "sprite": "villagers/villagers-06"
       }
     ],
     "brutal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "brutal-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "brutal-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "brutal-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "brutal-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "brutal-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "brutal-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "brutal-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.708,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "brutal-7",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "brutal-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1235,25 +1226,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.096,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1276,25 +1267,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.207,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-10",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1317,25 +1308,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.318,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-11",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1358,25 +1349,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.429,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1399,25 +1390,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.541,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-13",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1440,25 +1431,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "brutal-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-14",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1481,26 +1472,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "dps",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "dps"
+        ]
       },
       {
-        "id": "brutal-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "brutal-15",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1523,124 +1514,206 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "healer",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "healer"
+        ]
       },
       {
-        "id": "brutal-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "role": "dps"
+        "id": "brutal-16",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "brutal-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "role": "tank"
+        "id": "brutal-17",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "brutal-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "role": "dps"
+        "id": "brutal-18",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "brutal-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.167,
         "y": 0.89,
-        "role": "tank"
+        "id": "brutal-19",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "brutal-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.294,
         "y": 0.89,
-        "role": "dps"
+        "id": "brutal-20",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-14"
+      },
+      {
+        "x": 0.207,
+        "y": 1,
+        "id": "brutal-8-grow0",
+        "loot": [
+          {
+            "gearId": "plated-greaves",
+            "weight": 2
+          },
+          {
+            "gearId": "knight-s-cuirass",
+            "weight": 3
+          },
+          {
+            "gearId": "poacher-s-cap",
+            "weight": 2
+          },
+          {
+            "gearId": "cleaver-greatsword",
+            "weight": 3
+          },
+          {
+            "gearId": "parrying-dirk",
+            "weight": 2
+          }
+        ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
+        "goldReward": [
+          14,
+          34
+        ]
+      },
+      {
+        "x": 0.652,
+        "y": 1,
+        "id": "brutal-8-grow1",
+        "loot": [
+          {
+            "gearId": "plated-greaves",
+            "weight": 2
+          },
+          {
+            "gearId": "knight-s-cuirass",
+            "weight": 3
+          },
+          {
+            "gearId": "poacher-s-cap",
+            "weight": 2
+          },
+          {
+            "gearId": "cleaver-greatsword",
+            "weight": 3
+          },
+          {
+            "gearId": "parrying-dirk",
+            "weight": 2
+          }
+        ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
+        "goldReward": [
+          14,
+          34
+        ]
       }
     ],
     "infernal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "infernal-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "infernal-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "infernal-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "infernal-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "infernal-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "infernal-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "infernal-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.708,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "infernal-7",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "infernal-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1663,25 +1736,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "infernal-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.096,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1704,25 +1777,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "infernal-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.207,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-10",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1745,25 +1818,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "infernal-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.318,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-11",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1786,25 +1859,25 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62
+        ]
       },
       {
-        "id": "infernal-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.429,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1827,26 +1900,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "dps",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.541,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-13",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1869,26 +1942,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "tank",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "tank"
+        ]
       },
       {
-        "id": "infernal-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-14",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1911,26 +1984,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "dps",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "infernal-15",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1953,156 +2026,157 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "healer",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "healer"
+        ]
       },
       {
-        "id": "infernal-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "role": "dps"
+        "id": "infernal-16",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "infernal-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "role": "tank"
+        "id": "infernal-17",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "infernal-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "role": "dps"
+        "id": "infernal-18",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "infernal-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.151,
         "y": 0.89,
-        "role": "tank"
+        "id": "infernal-19",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "infernal-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.263,
         "y": 0.89,
-        "role": "dps"
+        "id": "infernal-20",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "infernal-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.374,
         "y": 0.89,
-        "role": "healer"
+        "id": "infernal-21",
+        "name": "Women of the Night",
+        "role": "healer",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "infernal-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "role": "dps"
+        "id": "infernal-22",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "infernal-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "role": "tank"
+        "id": "infernal-23",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "infernal-24",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.708,
         "y": 0.89,
-        "role": "dps"
+        "id": "infernal-24",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       }
     ],
     "apocalyptic": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "apocalyptic-0",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "apocalyptic-1",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "apocalyptic-2",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "apocalyptic-3",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "apocalyptic-4",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "apocalyptic-5",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "apocalyptic-6",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.708,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "apocalyptic-7",
         "name": "Women of the Night",
         "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 1
+        "role": "tank"
       },
       {
-        "id": "apocalyptic-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-8",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2125,109 +2199,26 @@
             "weight": 2
           }
         ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "apocalyptic-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945,
         "stats": {
           "hp": 24,
           "atk": 4,
           "spd": 3,
-          "skill": 3,
-          "crit": 0.08
+          "crit": 0.08,
+          "skill": 3
         },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "healer"
-      },
-      {
-        "id": "apocalyptic-10",
-        "name": "Knight Errant",
         "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
+        "xpReward": 62,
         "goldReward": [
           14,
           34
         ],
-        "xpReward": 62,
         "role": "dps"
       },
       {
-        "id": "apocalyptic-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
+        "x": 0.096,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-9",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2250,26 +2241,110 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
         ],
+        "role": "healer"
+      },
+      {
+        "x": 0.207,
+        "y": 0.945,
+        "id": "apocalyptic-10",
+        "loot": [
+          {
+            "gearId": "plated-greaves",
+            "weight": 2
+          },
+          {
+            "gearId": "knight-s-cuirass",
+            "weight": 3
+          },
+          {
+            "gearId": "poacher-s-cap",
+            "weight": 2
+          },
+          {
+            "gearId": "cleaver-greatsword",
+            "weight": 3
+          },
+          {
+            "gearId": "parrying-dirk",
+            "weight": 2
+          }
+        ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
         "xpReward": 62,
+        "goldReward": [
+          14,
+          34
+        ],
+        "role": "dps"
+      },
+      {
+        "x": 0.318,
+        "y": 0.945,
+        "id": "apocalyptic-11",
+        "loot": [
+          {
+            "gearId": "plated-greaves",
+            "weight": 2
+          },
+          {
+            "gearId": "knight-s-cuirass",
+            "weight": 3
+          },
+          {
+            "gearId": "poacher-s-cap",
+            "weight": 2
+          },
+          {
+            "gearId": "cleaver-greatsword",
+            "weight": 3
+          },
+          {
+            "gearId": "parrying-dirk",
+            "weight": 2
+          }
+        ],
+        "name": "Knight Errant",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
+        "goldReward": [
+          14,
+          34
+        ],
         "role": "tank"
       },
       {
-        "id": "apocalyptic-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.429,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-12",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2292,26 +2367,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "dps",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.541,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-13",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2334,26 +2409,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "tank",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "tank"
+        ]
       },
       {
-        "id": "apocalyptic-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-14",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2376,26 +2451,26 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "dps",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
+        "id": "apocalyptic-15",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2418,145 +2493,154 @@
             "weight": 2
           }
         ],
+        "name": "Knight Errant",
+        "role": "healer",
+        "stats": {
+          "hp": 24,
+          "atk": 4,
+          "spd": 3,
+          "crit": 0.08,
+          "skill": 3
+        },
+        "sprite": "heroic-guards/heroic-guards-02",
+        "xpReward": 62,
         "goldReward": [
           14,
           34
-        ],
-        "xpReward": 62,
-        "role": "healer"
+        ]
       },
       {
-        "id": "apocalyptic-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "role": "dps"
+        "id": "apocalyptic-16",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "role": "tank"
+        "id": "apocalyptic-17",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "apocalyptic-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "role": "dps"
+        "id": "apocalyptic-18",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.151,
         "y": 0.89,
-        "role": "tank"
+        "id": "apocalyptic-19",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.263,
         "y": 0.89,
-        "role": "dps"
+        "id": "apocalyptic-20",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "apocalyptic-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.374,
         "y": 0.89,
-        "role": "healer"
+        "id": "apocalyptic-21",
+        "name": "Women of the Night",
+        "role": "healer",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "role": "dps"
+        "id": "apocalyptic-22",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "role": "tank"
+        "id": "apocalyptic-23",
+        "name": "Women of the Night",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       },
       {
-        "id": "apocalyptic-24",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.708,
         "y": 0.89,
-        "role": "dps"
+        "id": "apocalyptic-24",
+        "name": "Women of the Night",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-25",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.819,
         "y": 0.89,
+        "id": "apocalyptic-25",
+        "name": "Women of the Night",
+        "sprite": "villagers/villagers-06",
         "role": "tank"
       },
       {
-        "id": "apocalyptic-26",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.93,
         "y": 0.89,
+        "id": "apocalyptic-26",
+        "name": "Women of the Night",
+        "sprite": "villagers/villagers-14",
         "role": "dps"
       },
       {
+        "x": 0.263,
+        "y": 0.835,
         "id": "apocalyptic-27",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.096,
-        "y": 0.835,
+        "sprite": "villagers/villagers-06",
         "role": "healer"
       },
       {
+        "x": 0.708,
+        "y": 0.835,
         "id": "apocalyptic-28",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.207,
-        "y": 0.835,
+        "sprite": "villagers/villagers-14",
         "role": "dps"
       },
       {
+        "x": 0.93,
+        "y": 0.835,
         "id": "apocalyptic-29",
         "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.318,
-        "y": 0.835,
+        "sprite": "villagers/villagers-06",
         "role": "tank"
       }
     ]
   },
-  "id": "monks",
-  "name": "Monkestary",
-  "joinWindowMs": 30000,
-  "recommendedLevel": 8,
-  "scalesWithPartySize": true,
-  "background": "monks",
-  "completionXp": 140,
-  "completionGold": [
-    30,
-    60
+  "goldReward": [
+    11,
+    27
   ],
-  "flavorText": "They have had a week to prepare, and they have used all of it.",
+  "completionXp": 140,
+  "joinWindowMs": 30000,
   "bandStatScale": {
     "weak": 0.365,
     "seasoned": 5.046,
     "elite": 10.989,
-    "brutal": 12.899,
+    "brutal": 11.682,
     "infernal": 15.978,
-    "apocalyptic": 19.527
-  }
+    "apocalyptic": 19.187
+  },
+  "completionGold": [
+    30,
+    60
+  ],
+  "recommendedLevel": 8,
+  "scalesWithPartySize": true
 }

@@ -827,30 +827,40 @@ The cost is that a ratcheted band can land harder than its target, and it took
 bodies out of the top three bands of four dungeons to bring them back - see
 `--keep-layouts` for the other trade.
 
-**No dungeon's levels grow all the way up.** `npm run check:formations`,
-2026-09-27, against the live store:
+**~~No dungeon's levels grow all the way up.~~ Done for the dungeons,
+2026-09-27.** 14 bodies added, curves re-solved for the changed bands only:
 
                               L1   L2   L3   L4   L5   L6
-    poors                      6   11   16   16   18   26
+    poors                      6   11   16   17   18   26
     lady-of-knight             5   38   40   40   40   40
-    monks                     13   19   22   21   25    -
-    barbie                     3    6    6    8   11   10
-    cops                       3    5    7    6    6    7
+    monks                     13   19   22   23   25   30
+    barbie                     3    6    7    8   11   12
+    cops                       3    5    7    8    9   10
 
-Three of them field FEWER bodies at some level than the level below (monks L4,
-barbie L6, cops L4); the rest have levels that merely match, which makes them
-levels that are not levels - only the stat multiplier separates them.
-`lady-of-knight` is the loud one: five of its six levels are the same forty
-bodies. `monks` has no Level 6 at all and falls back to Level 5.
+`lady-of-knight` is untouched and stays flat above L3 on purpose: it already
+fields 40, which is MAX_BODIES in author-bands.ts - "past about forty the
+overlay is a smear and the fight is long rather than hard". It is the one
+dungeon that has to escalate by making units nastier rather than more numerous.
+`monks` got its Level 6 back from the solver, measured into Fair at 70%.
 
-The live store has also picked up stray `apocalyptic` formations on three raid
-rooms holding FEWER units than their `weak` layouts (1-2 against 2-3), and the
-`the-watch-house` room that exists on disk is not in the store at all. Both
-look like accidents of editing rather than decisions; confirm before fixing.
+**BARBIEVILLE's top level is the cost, and it is unresolved.** Measured at its
+own reference party, L6 went from 38% win to **4%**: apocalyptic was already
+pinned at the ratchet floor (x31.88, a hair above infernal's x31.87), so the
+two extra bodies had nowhere to be absorbed. Given a free hand the solver wants
+8 bodies at x36.77 for 86% - FEWER than infernal's 11, which is the shape this
+dungeon's top band actually wants and the opposite of the rule above. The two
+cannot both hold here; the ladder ordering work is where that gets decided.
 
-Fixing this is drawing bodies, then re-solving with `author-bands.ts` - the
-layout and the stat curve are solved together, so a changed layout invalidates
-the old curve.
+Everything else moved the right way - barbie L3 37%->70%, L4 54%->68%.
+
+**The raid still fails the check, and it is not a body-count problem.** Three
+rooms and the boss author only L1 (toll-gate, L1-L3) plus an `apocalyptic`
+layout holding one hand-placed boss sprite. Those are deliberate - king-boss at
+scale 1.7, a role, placed by hand - but `scale` is a SPRITE SIZE and the units
+carry no stat overrides, so mechanically the top level of each room is one
+ordinary body and measures WEAKER than the level below it (wayside-chapel 98 ->
+58, toll-gate 469 -> 73). Giving them stats is a balance decision, not a
+mechanical fix. `the-watch-house` exists on disk and not in the store.
 
 **The ladder is out of order.** Still true at 25 trials, and the band ratchet
 barely moved it, because it is a different problem: not how one dungeon scales

@@ -1,1104 +1,1118 @@
 {
+  "id": "poors",
   "kind": "mob",
-  "stats": {
-    "hp": 8,
-    "atk": 1,
-    "spd": 3,
-    "skill": 1,
-    "crit": 0.03
-  },
   "loot": [
     {
       "gearId": "worn-breeches",
       "weight": 2
     }
   ],
-  "goldReward": [
-    5,
-    13
-  ],
+  "name": "The POORS",
+  "stats": {
+    "hp": 8,
+    "atk": 1,
+    "spd": 3,
+    "crit": 0.03,
+    "skill": 1
+  },
   "xpReward": 26,
+  "background": "poors",
+  "flavorText": "Eleven houses and a mill. Nobody has locked a door here in living memory.",
   "formations": {
     "weak": [
       {
-        "id": "poors-umtg73v8c2",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-07",
-        "role": "dps",
         "x": 0,
         "y": 0.9216670303294785,
+        "id": "poors-umtg73v8c2",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-07",
         "weight": 2.8
       },
       {
-        "id": "poors-umtg73yfz3",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-07",
-        "role": "dps",
         "x": 0.035876181841730345,
         "y": 0.8052949305404029,
+        "id": "poors-umtg73yfz3",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-07",
         "weight": 2.8
       },
       {
-        "id": "poors-umtg741bl4",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-11",
-        "role": "dps",
         "x": 0.30665285153045807,
         "y": 0.9053749363590079,
+        "id": "poors-umtg741bl4",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-11",
         "weight": 2.8
       },
       {
-        "id": "poors-umtg743ha5",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-13",
-        "role": "dps",
         "x": 0.5194059491430298,
         "y": 0.8006400465488399,
+        "id": "poors-umtg743ha5",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-13",
         "weight": 2.8
       },
       {
-        "id": "goodwife-umtg77i7b26",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.07732159046755602,
         "y": 0.819259582515092,
+        "id": "goodwife-umtg77i7b26",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.55,
-        "weight": 2.8,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 2.8
       },
       {
-        "id": "goodwife-umtg77mxr27",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.28178560635496264,
         "y": 0.9216670303294785,
+        "id": "goodwife-umtg77mxr27",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.6,
-        "weight": 2.8,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16",
+        "weight": 2.8
       }
     ],
     "seasoned": [
       {
-        "id": "poors-umtg749586",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-13",
-        "role": "dps",
         "x": 0,
         "y": 0.9612335442577642,
+        "id": "poors-umtg749586",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-13",
         "weight": 1.5
       },
       {
-        "id": "poors-umtg74aul7",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-09",
-        "role": "dps",
         "x": 0.030350127358286922,
         "y": 0.8821005164011928,
+        "id": "poors-umtg74aul7",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-09",
         "weight": 1.5
       },
       {
-        "id": "poors-umtg74f2l8",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-02",
-        "role": "dps",
         "x": 0.14087121702715538,
         "y": 0.9751981962324533,
+        "id": "poors-umtg74f2l8",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-02",
         "weight": 1.5
       },
       {
-        "id": "poors-umtg74idc9",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-07",
-        "role": "dps",
         "x": 0.30388982428873634,
         "y": 0.8029674885446214,
+        "id": "poors-umtg74idc9",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-07",
         "weight": 1.5
       },
       {
-        "id": "poors-umtg74mfg10",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "role": "healer",
         "x": 0.5719034667357423,
         "y": 0.9472688922830751,
+        "id": "poors-umtg74mfg10",
+        "name": "the POORS",
+        "role": "healer",
+        "sprite": "villagers/villagers-06",
         "weight": 1.5
       },
       {
-        "id": "poors-umtg755rd12",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.8482061909079135,
         "y": 0.7913302785657139,
+        "id": "poors-umtg755rd12",
+        "name": "the POORS",
+        "role": "dps",
         "scale": 0.6,
+        "sprite": "villagers/villagers-08",
         "weight": 1.5
       },
       {
-        "id": "goodwife-umtg77rh228",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.03311315460000863,
         "y": 0.8169321405193105,
+        "id": "goodwife-umtg77rh228",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.65,
-        "weight": 1.5,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1.5
       },
       {
-        "id": "goodwife-umtg77vpu29",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.7266329922721582,
         "y": 0.7890028365699323,
+        "id": "goodwife-umtg77vpu29",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.6,
-        "weight": 1.5,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1.5
       },
       {
-        "id": "goodwife-umtg77w0a30",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.5497992488019686,
         "y": 0.9635609862535457,
+        "id": "goodwife-umtg77w0a30",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.65,
-        "weight": 1.5,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1.5
       },
       {
-        "id": "goodwife-umtg77wcm31",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.30941587877217974,
         "y": 0.8704633064222853,
+        "id": "goodwife-umtg77wcm31",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.6,
-        "weight": 1.5,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1.5
       },
       {
-        "id": "goodwife-umtg77wm632",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.049691318050338905,
         "y": 0.9845079642155793,
+        "id": "goodwife-umtg77wm632",
+        "name": "Sheeple",
+        "role": "dps",
         "scale": 0.6,
-        "weight": 1.5,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1.5
       }
     ],
     "elite": [
       {
-        "id": "poors-umtg75wfx13",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "tank",
         "x": 0.05798039977550404,
         "y": 0.6819405047639828,
+        "id": "poors-umtg75wfx13",
+        "name": "the POORS",
+        "role": "tank",
         "scale": 0.65,
+        "sprite": "villagers/villagers-08",
         "weight": 1
       },
       {
-        "id": "poors-umtg761tv14",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "tank",
         "x": 0.0248240728748435,
         "y": 0.910029820350571,
+        "id": "poors-umtg761tv14",
+        "name": "the POORS",
+        "role": "tank",
         "scale": 0.7,
+        "sprite": "villagers/villagers-08",
         "weight": 1
       },
       {
-        "id": "poors-umtg76b9i15",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "role": "healer",
         "x": 0.8785994905668523,
         "y": 0.9030474943632264,
+        "id": "poors-umtg76b9i15",
+        "name": "the POORS",
+        "role": "healer",
+        "sprite": "villagers/villagers-06",
         "weight": 1
       },
       {
-        "id": "poors-umtg76d4016",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-14",
-        "role": "healer",
         "x": 0.8122868367655313,
         "y": 0.7168521347007055,
+        "id": "poors-umtg76d4016",
+        "name": "the POORS",
+        "role": "healer",
+        "sprite": "villagers/villagers-14",
         "weight": 1
       },
       {
-        "id": "poors-umtg76gpa17",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-11",
-        "role": "dps",
         "x": 0.29007468808012776,
         "y": 0.9333042403083861,
+        "id": "poors-umtg76gpa17",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-11",
         "weight": 1
       },
       {
-        "id": "poors-umtg76iy918",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-02",
-        "role": "dps",
         "x": 0.28178560635496264,
         "y": 0.7028874827260164,
+        "id": "poors-umtg76iy918",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-02",
         "weight": 1
       },
       {
+        "x": 0.5,
+        "y": 0.72,
         "id": "poors-umtg76ljh19",
         "name": "the POORS",
-        "sprite": "villagers/villagers-07",
         "role": "dps",
-        "x": 0.5,
-        "y": 0.72,
+        "sprite": "villagers/villagers-07",
         "weight": 1
       },
       {
-        "id": "poors-umtg76oou20",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-13",
-        "role": "dps",
         "x": 0.5553253032854121,
         "y": 0.9170121463379155,
+        "id": "poors-umtg76oou20",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-13",
         "weight": 1
       },
       {
-        "id": "goodwife-umtg775oi21",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.05798039977550404,
         "y": 0.72383446068805,
-        "weight": 1,
+        "id": "goodwife-umtg775oi21",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg7791422",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.15192332599404224,
         "y": 0.9472688922830751,
-        "weight": 1,
+        "id": "goodwife-umtg7791422",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg77am123",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.5,
         "y": 0.72,
-        "weight": 1,
+        "id": "goodwife-umtg77am123",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg77bmw24",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.4199369684410482,
         "y": 0.9798530802240163,
-        "weight": 1,
+        "id": "goodwife-umtg77bmw24",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg77c5v25",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.8261019729741398,
         "y": 0.9170121463379155,
-        "weight": 1,
+        "id": "goodwife-umtg77c5v25",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg78o3h33",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.795708673315201,
         "y": 0.6703032947850753,
-        "weight": 1,
+        "id": "goodwife-umtg78o3h33",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg78qoq34",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.6575573112291154,
         "y": 0.9961451741944869,
-        "weight": 1,
+        "id": "goodwife-umtg78qoq34",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1
       },
       {
-        "id": "goodwife-umtg78yvh35",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.29836376980529294,
         "y": 0.6935777147428904,
-        "weight": 1,
+        "id": "goodwife-umtg78yvh35",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08",
+        "weight": 1
       }
     ],
     "brutal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "brutal-0",
         "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "x": 0.04,
-        "y": 1,
-        "scale": 0.65
+        "scale": 0.65,
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "brutal-1",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.188,
         "y": 1,
-        "scale": 0.7
+        "id": "brutal-1",
+        "name": "the POORS",
+        "scale": 0.7,
+        "sprite": "villagers/villagers-08"
       },
       {
+        "x": 0.337,
+        "y": 1,
         "id": "brutal-2",
         "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "x": 0.337,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "brutal-3",
         "name": "the POORS",
-        "sprite": "villagers/villagers-14",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.633,
+        "y": 1,
         "id": "brutal-4",
         "name": "the POORS",
-        "sprite": "villagers/villagers-11",
-        "x": 0.633,
-        "y": 1
+        "sprite": "villagers/villagers-11"
       },
       {
+        "x": 0.782,
+        "y": 1,
         "id": "brutal-5",
         "name": "the POORS",
-        "sprite": "villagers/villagers-02",
-        "x": 0.782,
-        "y": 1
+        "sprite": "villagers/villagers-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "brutal-6",
         "name": "the POORS",
-        "sprite": "villagers/villagers-07",
-        "x": 0.93,
-        "y": 1
+        "sprite": "villagers/villagers-07"
       },
       {
+        "x": 0.114,
+        "y": 0.945,
         "id": "brutal-7",
         "name": "the POORS",
-        "sprite": "villagers/villagers-13",
-        "x": 0.114,
-        "y": 0.945
+        "sprite": "villagers/villagers-13"
       },
       {
+        "x": 0.263,
+        "y": 0.945,
         "id": "brutal-8",
         "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "x": 0.263,
-        "y": 0.945,
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "brutal-9",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
         "x": 0.411,
         "y": 0.945,
+        "id": "brutal-9",
+        "name": "Sheeple",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "brutal-10",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.559,
         "y": 0.945,
+        "id": "brutal-10",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "brutal-11",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.708,
         "y": 0.945,
+        "id": "brutal-11",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "brutal-12",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.856,
         "y": 0.945,
+        "id": "brutal-12",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "brutal-13",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.93,
         "y": 0.945,
+        "id": "brutal-13",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "brutal-14",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.04,
         "y": 0.89,
+        "id": "brutal-14",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "brutal-15",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "healer",
         "x": 0.263,
         "y": 0.89,
+        "id": "brutal-15",
+        "name": "Sheeple",
+        "role": "healer",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
+      },
+      {
+        "x": 0.2625,
+        "y": 1,
+        "id": "brutal-8-grow0",
+        "name": "Sheeple",
+        "stats": {
+          "hp": 8,
+          "atk": 1,
+          "spd": 4,
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       }
     ],
     "infernal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "infernal-0",
         "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "x": 0.04,
-        "y": 1,
-        "scale": 0.65
+        "scale": 0.65,
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-1",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.167,
         "y": 1,
-        "scale": 0.7
+        "id": "infernal-1",
+        "name": "the POORS",
+        "scale": 0.7,
+        "sprite": "villagers/villagers-08"
       },
       {
+        "x": 0.294,
+        "y": 1,
         "id": "infernal-2",
         "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "x": 0.294,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.421,
+        "y": 1,
         "id": "infernal-3",
         "name": "the POORS",
-        "sprite": "villagers/villagers-14",
-        "x": 0.421,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.549,
+        "y": 1,
         "id": "infernal-4",
         "name": "the POORS",
-        "sprite": "villagers/villagers-11",
-        "x": 0.549,
-        "y": 1
+        "sprite": "villagers/villagers-11"
       },
       {
+        "x": 0.676,
+        "y": 1,
         "id": "infernal-5",
         "name": "the POORS",
-        "sprite": "villagers/villagers-02",
-        "x": 0.676,
-        "y": 1
+        "sprite": "villagers/villagers-02"
       },
       {
+        "x": 0.803,
+        "y": 1,
         "id": "infernal-6",
         "name": "the POORS",
-        "sprite": "villagers/villagers-07",
-        "x": 0.803,
-        "y": 1
+        "sprite": "villagers/villagers-07"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "infernal-7",
         "name": "the POORS",
-        "sprite": "villagers/villagers-13",
-        "x": 0.93,
-        "y": 1
+        "sprite": "villagers/villagers-13"
       },
       {
-        "id": "infernal-8",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
         "x": 0.104,
         "y": 0.945,
+        "id": "infernal-8",
+        "name": "Sheeple",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "infernal-9",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
         "x": 0.231,
         "y": 0.945,
+        "id": "infernal-9",
+        "name": "Sheeple",
+        "role": "healer",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
+          "crit": 0.03,
+          "skill": 1
         },
-        "role": "healer"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-10",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.358,
         "y": 0.945,
+        "id": "infernal-10",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-11",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.485,
         "y": 0.945,
+        "id": "infernal-11",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "infernal-12",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.612,
         "y": 0.945,
+        "id": "infernal-12",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "infernal-13",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.739,
         "y": 0.945,
+        "id": "infernal-13",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "infernal-14",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.866,
         "y": 0.945,
+        "id": "infernal-14",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-15",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "healer",
         "x": 0.93,
         "y": 0.945,
+        "id": "infernal-15",
+        "name": "Sheeple",
+        "role": "healer",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-16",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.04,
         "y": 0.89,
-        "scale": 0.65
+        "id": "infernal-16",
+        "name": "the POORS",
+        "role": "dps",
+        "scale": 0.65,
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "infernal-17",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "tank",
         "x": 0.218,
         "y": 0.89,
-        "scale": 0.7
+        "id": "infernal-17",
+        "name": "the POORS",
+        "role": "tank",
+        "scale": 0.7,
+        "sprite": "villagers/villagers-08"
       }
     ],
     "apocalyptic": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "apocalyptic-0",
         "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "x": 0.04,
-        "y": 1,
-        "scale": 0.65
+        "scale": 0.65,
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-1",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.151,
         "y": 1,
-        "scale": 0.7
+        "id": "apocalyptic-1",
+        "name": "the POORS",
+        "scale": 0.7,
+        "sprite": "villagers/villagers-08"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "apocalyptic-2",
         "name": "the POORS",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
+        "sprite": "villagers/villagers-06"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "apocalyptic-3",
         "name": "the POORS",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
+        "sprite": "villagers/villagers-14"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "apocalyptic-4",
         "name": "the POORS",
-        "sprite": "villagers/villagers-11",
-        "x": 0.485,
-        "y": 1
+        "sprite": "villagers/villagers-11"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "apocalyptic-5",
         "name": "the POORS",
-        "sprite": "villagers/villagers-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "villagers/villagers-02"
       },
       {
-        "id": "apocalyptic-6",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-07",
         "x": 0.708,
         "y": 1,
-        "role": "dps"
+        "id": "apocalyptic-6",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-07"
       },
       {
-        "id": "apocalyptic-7",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-13",
         "x": 0.819,
         "y": 1,
-        "role": "tank"
+        "id": "apocalyptic-7",
+        "name": "the POORS",
+        "role": "tank",
+        "sprite": "villagers/villagers-13"
       },
       {
-        "id": "apocalyptic-8",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
         "x": 0.93,
         "y": 1,
+        "id": "apocalyptic-8",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
+          "crit": 0.03,
+          "skill": 1
         },
-        "role": "dps"
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "apocalyptic-9",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
         "x": 0.096,
         "y": 0.945,
+        "id": "apocalyptic-9",
+        "name": "Sheeple",
+        "role": "healer",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
+          "crit": 0.03,
+          "skill": 1
         },
-        "role": "healer"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-10",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.207,
         "y": 0.945,
+        "id": "apocalyptic-10",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-11",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.318,
         "y": 0.945,
+        "id": "apocalyptic-11",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "apocalyptic-12",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "dps",
         "x": 0.429,
         "y": 0.945,
+        "id": "apocalyptic-12",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "apocalyptic-13",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-16",
-        "role": "tank",
         "x": 0.541,
         "y": 0.945,
+        "id": "apocalyptic-13",
+        "name": "Sheeple",
+        "role": "tank",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-16"
       },
       {
-        "id": "apocalyptic-14",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.652,
         "y": 0.945,
+        "id": "apocalyptic-14",
+        "name": "Sheeple",
+        "role": "dps",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-15",
-        "name": "Sheeple",
-        "sprite": "villagers/villagers-08",
-        "role": "healer",
         "x": 0.763,
         "y": 0.945,
+        "id": "apocalyptic-15",
+        "name": "Sheeple",
+        "role": "healer",
         "stats": {
           "hp": 8,
           "atk": 1,
           "spd": 4,
-          "skill": 1,
-          "crit": 0.03
-        }
+          "crit": 0.03,
+          "skill": 1
+        },
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-16",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "dps",
         "x": 0.874,
         "y": 0.945,
-        "scale": 0.65
+        "id": "apocalyptic-16",
+        "name": "the POORS",
+        "role": "dps",
+        "scale": 0.65,
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-17",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
-        "role": "tank",
         "x": 0.93,
         "y": 0.945,
-        "scale": 0.7
+        "id": "apocalyptic-17",
+        "name": "the POORS",
+        "role": "tank",
+        "scale": 0.7,
+        "sprite": "villagers/villagers-08"
       },
       {
+        "x": 0.04,
+        "y": 0.89,
         "id": "apocalyptic-18",
         "name": "the POORS",
-        "sprite": "villagers/villagers-06",
         "role": "dps",
-        "x": 0.04,
-        "y": 0.89
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-19",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.167,
         "y": 0.89,
+        "id": "apocalyptic-19",
+        "name": "the POORS",
+        "role": "tank",
         "scale": 0.65,
-        "role": "tank"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-20",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.294,
         "y": 0.89,
+        "id": "apocalyptic-20",
+        "name": "the POORS",
+        "role": "dps",
         "scale": 0.7,
-        "role": "dps"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-21",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
         "x": 0.421,
         "y": 0.89,
-        "role": "healer"
+        "id": "apocalyptic-21",
+        "name": "the POORS",
+        "role": "healer",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-22",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.549,
         "y": 0.89,
+        "id": "apocalyptic-22",
+        "name": "the POORS",
+        "role": "dps",
         "scale": 0.65,
-        "role": "dps"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-23",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-08",
         "x": 0.676,
         "y": 0.89,
+        "id": "apocalyptic-23",
+        "name": "the POORS",
+        "role": "tank",
         "scale": 0.7,
-        "role": "tank"
+        "sprite": "villagers/villagers-08"
       },
       {
-        "id": "apocalyptic-24",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-06",
         "x": 0.803,
         "y": 0.89,
-        "role": "dps"
+        "id": "apocalyptic-24",
+        "name": "the POORS",
+        "role": "dps",
+        "sprite": "villagers/villagers-06"
       },
       {
-        "id": "apocalyptic-25",
-        "name": "the POORS",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.89,
-        "role": "tank"
+        "id": "apocalyptic-25",
+        "name": "the POORS",
+        "role": "tank",
+        "sprite": "villagers/villagers-14"
       }
     ]
   },
-  "id": "poors",
-  "name": "The POORS",
-  "joinWindowMs": 20000,
-  "recommendedLevel": 1,
-  "scalesWithPartySize": true,
-  "background": "poors",
-  "completionXp": 20,
-  "completionGold": [
-    3,
-    8
+  "goldReward": [
+    5,
+    13
   ],
-  "flavorText": "Eleven houses and a mill. Nobody has locked a door here in living memory.",
+  "completionXp": 20,
+  "joinWindowMs": 20000,
   "bandStatScale": {
     "weak": 0.994,
     "seasoned": 16.618,
     "elite": 38.482,
-    "brutal": 49.652,
+    "brutal": 45.096,
     "infernal": 49.656,
     "apocalyptic": 53.018
-  }
+  },
+  "completionGold": [
+    3,
+    8
+  ],
+  "recommendedLevel": 1,
+  "scalesWithPartySize": true
 }

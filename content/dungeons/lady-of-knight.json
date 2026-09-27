@@ -1,12 +1,6 @@
 {
+  "id": "lady-of-knight",
   "kind": "mob",
-  "stats": {
-    "hp": 24,
-    "atk": 4,
-    "spd": 3,
-    "skill": 3,
-    "crit": 0.08
-  },
   "loot": [
     {
       "gearId": "plated-greaves",
@@ -29,654 +23,172 @@
       "weight": 2
     }
   ],
-  "goldReward": [
-    14,
-    34
-  ],
+  "name": "Ladies of The Knight",
+  "stats": {
+    "hp": 24,
+    "atk": 4,
+    "spd": 3,
+    "crit": 0.08,
+    "skill": 3
+  },
   "xpReward": 62,
+  "background": "guards",
+  "flavorText": "Where the heroes are made. Burn it and there are no more of them.",
   "formations": {
     "weak": [
       {
-        "id": "knight-errant-0",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 1
-      },
-      {
-        "id": "knight-errant-1",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 1
-      },
-      {
-        "id": "knight-errant-2",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 1
-      },
-      {
-        "id": "knight-errant-3",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 1
-      },
-      {
+        "x": 0.497362103018048,
+        "y": 0.948013945414905,
         "id": "knight-errant-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.25991356396847204,
+        "y": 0.9663552067530411,
         "id": "knight-errant-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.07256890455164892,
+        "y": 0.8746489000623611,
         "id": "knight-errant-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 0.86
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.699955848766944,
+        "y": 0.9461798472676353,
         "id": "knight-errant-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 0.86
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "knight-errant-8",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-9",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-10",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-11",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 0.72
-      },
-      {
+        "x": 0.32962315056983177,
+        "y": 0.8893219651059574,
         "id": "knight-errant-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 0.72
-      },
-      {
-        "id": "knight-errant-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 0.72
-      },
-      {
-        "id": "knight-errant-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 0.72
-      },
-      {
-        "id": "militia-serjeant-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 0.86,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "militia-serjeant-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 0.86,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50
-      },
-      {
-        "id": "hero-of-the-vale-40",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
-        "x": 0.08,
-        "y": 1,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
-        "loot": [
-          {
-            "gearId": "heralds-tassets",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "shardspire-staff",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "kind": "boss"
-      },
-      {
-        "id": "hero-of-the-vale-41",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
-        "x": 0.25,
-        "y": 1,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
-        "loot": [
-          {
-            "gearId": "heralds-tassets",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "shardspire-staff",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "kind": "boss"
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ],
     "seasoned": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "seasoned-0",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "seasoned-1",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "seasoned-2",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "seasoned-3",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "seasoned-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "seasoned-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "seasoned-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.708,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "seasoned-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.819,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "seasoned-8",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.096,
+        "y": 0.945,
         "id": "seasoned-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.207,
+        "y": 0.945,
         "id": "seasoned-10",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.318,
+        "y": 0.945,
         "id": "seasoned-11",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.429,
+        "y": 0.945,
         "id": "seasoned-12",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.541,
+        "y": 0.945,
         "id": "seasoned-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.652,
+        "y": 0.945,
         "id": "seasoned-14",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.763,
+        "y": 0.945,
         "id": "seasoned-15",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-16",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -699,25 +211,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-17",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -740,25 +252,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-18",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -781,25 +293,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.151,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-19",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -822,25 +334,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-20",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -863,25 +375,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.374,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-21",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -904,25 +416,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-22",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -945,25 +457,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "seasoned-23",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -986,25 +498,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "seasoned-24",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.708,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-24",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1027,21 +540,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-25",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-25",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1064,21 +577,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-26",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-26",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1101,21 +614,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-27",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-27",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1138,21 +651,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-28",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-28",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1175,21 +688,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-29",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-29",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1212,21 +725,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-30",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-30",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1249,21 +762,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-31",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.541,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "seasoned-31",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1286,183 +799,182 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "seasoned-32",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.835,
-        "role": "dps"
+        "id": "seasoned-32",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-33",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.835,
-        "role": "healer"
+        "id": "seasoned-33",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-34",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.874,
         "y": 0.835,
-        "role": "dps"
+        "id": "seasoned-34",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-35",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.835,
-        "role": "tank"
+        "id": "seasoned-35",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-36",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.78,
-        "role": "dps"
+        "id": "seasoned-36",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "seasoned-37",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.78,
-        "role": "tank"
+        "id": "seasoned-37",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ],
     "elite": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "elite-0",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "elite-1",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "elite-2",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "elite-3",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "elite-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "elite-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "elite-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.708,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "elite-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.819,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "elite-8",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.096,
+        "y": 0.945,
         "id": "elite-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.207,
+        "y": 0.945,
         "id": "elite-10",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.318,
+        "y": 0.945,
         "id": "elite-11",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.429,
+        "y": 0.945,
         "id": "elite-12",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.541,
+        "y": 0.945,
         "id": "elite-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.652,
+        "y": 0.945,
         "id": "elite-14",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.763,
+        "y": 0.945,
         "id": "elite-15",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-16",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1485,25 +997,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-17",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1526,25 +1038,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-18",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1567,25 +1079,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.151,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-19",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1608,25 +1120,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-20",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1649,25 +1161,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.374,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-21",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1690,25 +1202,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-22",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1731,25 +1243,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "elite-23",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -1772,25 +1284,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "elite-24",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.708,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-24",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1813,21 +1326,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-25",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-25",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1850,21 +1363,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-26",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-26",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1887,21 +1400,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-27",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-27",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1924,21 +1437,21 @@
             "weight": 2
           }
         ],
-        "kind": "boss"
+        "name": "Hero of the Vale",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-28",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-28",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1961,22 +1474,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-29",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-29",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -1999,22 +1512,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-30",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-30",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2037,22 +1550,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-31",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.541,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "elite-31",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2075,200 +1588,199 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "elite-32",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.835,
-        "role": "dps"
+        "id": "elite-32",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-33",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.835,
-        "role": "healer"
+        "id": "elite-33",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-34",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.874,
         "y": 0.835,
-        "role": "dps"
+        "id": "elite-34",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-35",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.835,
-        "role": "tank"
+        "id": "elite-35",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-36",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.78,
-        "role": "dps"
+        "id": "elite-36",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-37",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.337,
         "y": 0.78,
-        "role": "tank"
+        "id": "elite-37",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-38",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.633,
         "y": 0.78,
-        "role": "dps"
+        "id": "elite-38",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "elite-39",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.78,
-        "role": "healer"
+        "id": "elite-39",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ],
     "brutal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "brutal-0",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "brutal-1",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "brutal-2",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "brutal-3",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "brutal-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "brutal-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "brutal-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.708,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "brutal-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.819,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "brutal-8",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.096,
+        "y": 0.945,
         "id": "brutal-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.207,
+        "y": 0.945,
         "id": "brutal-10",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.318,
+        "y": 0.945,
         "id": "brutal-11",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.429,
+        "y": 0.945,
         "id": "brutal-12",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.541,
+        "y": 0.945,
         "id": "brutal-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.652,
+        "y": 0.945,
         "id": "brutal-14",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.763,
+        "y": 0.945,
         "id": "brutal-15",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-16",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2291,25 +1803,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-17",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2332,25 +1844,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-18",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2373,25 +1885,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.151,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-19",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2414,25 +1926,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-20",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2455,25 +1967,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.374,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-21",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2496,25 +2008,25 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50
+        ]
       },
       {
-        "id": "brutal-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-22",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2537,26 +2049,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "brutal-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "brutal-23",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -2579,26 +2091,27 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "brutal-24",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.708,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-24",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2621,22 +2134,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-25",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-25",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2659,22 +2172,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-26",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-26",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2697,22 +2210,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-27",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-27",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2735,22 +2248,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "healer"
+        "name": "Hero of the Vale",
+        "role": "healer",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-28",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-28",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2773,22 +2286,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-29",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-29",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2811,22 +2324,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-30",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-30",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2849,22 +2362,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-31",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.541,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "brutal-31",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -2887,200 +2400,199 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "brutal-32",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.835,
-        "role": "dps"
+        "id": "brutal-32",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-33",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.835,
-        "role": "healer"
+        "id": "brutal-33",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-34",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.874,
         "y": 0.835,
-        "role": "dps"
+        "id": "brutal-34",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-35",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.835,
-        "role": "tank"
+        "id": "brutal-35",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-36",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.78,
-        "role": "dps"
+        "id": "brutal-36",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-37",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.337,
         "y": 0.78,
-        "role": "tank"
+        "id": "brutal-37",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-38",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.633,
         "y": 0.78,
-        "role": "dps"
+        "id": "brutal-38",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "brutal-39",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.78,
-        "role": "healer"
+        "id": "brutal-39",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ],
     "infernal": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "infernal-0",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "infernal-1",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "infernal-2",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "infernal-3",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "infernal-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "infernal-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "infernal-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.708,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "infernal-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.819,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "infernal-8",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.096,
+        "y": 0.945,
         "id": "infernal-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.207,
+        "y": 0.945,
         "id": "infernal-10",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.318,
+        "y": 0.945,
         "id": "infernal-11",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.429,
+        "y": 0.945,
         "id": "infernal-12",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.541,
+        "y": 0.945,
         "id": "infernal-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.652,
+        "y": 0.945,
         "id": "infernal-14",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.763,
+        "y": 0.945,
         "id": "infernal-15",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-16",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3103,26 +2615,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-17",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3145,26 +2657,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "infernal-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-18",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3187,26 +2699,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.151,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-19",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3229,26 +2741,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "infernal-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-20",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3271,26 +2783,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.374,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-21",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3313,26 +2825,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "healer",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "healer"
+        ]
       },
       {
-        "id": "infernal-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-22",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3355,26 +2867,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "infernal-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "infernal-23",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3397,26 +2909,27 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "infernal-24",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.708,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-24",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3439,22 +2952,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-25",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-25",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3477,22 +2990,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-26",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-26",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3515,22 +3028,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-27",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-27",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3553,22 +3066,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "healer"
+        "name": "Hero of the Vale",
+        "role": "healer",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-28",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-28",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3591,22 +3104,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-29",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-29",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3629,22 +3142,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-30",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-30",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3667,22 +3180,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-31",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.541,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "infernal-31",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -3705,206 +3218,205 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "infernal-32",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.835,
-        "role": "dps"
+        "id": "infernal-32",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-33",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.835,
-        "role": "healer"
+        "id": "infernal-33",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-34",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.874,
         "y": 0.835,
-        "role": "dps"
+        "id": "infernal-34",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-35",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.835,
-        "role": "tank"
+        "id": "infernal-35",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-36",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.78,
-        "role": "dps"
+        "id": "infernal-36",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-37",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.337,
         "y": 0.78,
-        "role": "tank"
+        "id": "infernal-37",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-38",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.633,
         "y": 0.78,
-        "role": "dps"
+        "id": "infernal-38",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "infernal-39",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.78,
-        "role": "healer"
+        "id": "infernal-39",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ],
     "apocalyptic": [
       {
+        "x": 0.04,
+        "y": 1,
         "id": "apocalyptic-0",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.151,
+        "y": 1,
         "id": "apocalyptic-1",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.263,
+        "y": 1,
         "id": "apocalyptic-2",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.374,
+        "y": 1,
         "id": "apocalyptic-3",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.485,
+        "y": 1,
         "id": "apocalyptic-4",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.596,
+        "y": 1,
         "id": "apocalyptic-5",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.708,
+        "y": 1,
         "id": "apocalyptic-6",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.708,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.819,
+        "y": 1,
         "id": "apocalyptic-7",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.819,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.93,
+        "y": 1,
         "id": "apocalyptic-8",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.096,
+        "y": 0.945,
         "id": "apocalyptic-9",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.096,
-        "y": 0.945
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.207,
+        "y": 0.945,
         "id": "apocalyptic-10",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.207,
-        "y": 0.945,
-        "role": "dps"
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.318,
+        "y": 0.945,
         "id": "apocalyptic-11",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.318,
-        "y": 0.945,
-        "role": "tank"
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.429,
+        "y": 0.945,
         "id": "apocalyptic-12",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945,
-        "role": "dps"
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.541,
+        "y": 0.945,
         "id": "apocalyptic-13",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945,
-        "role": "tank"
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.652,
+        "y": 0.945,
         "id": "apocalyptic-14",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945,
-        "role": "dps"
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
+        "x": 0.763,
+        "y": 0.945,
         "id": "apocalyptic-15",
         "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945,
-        "role": "healer"
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-16",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.874,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-16",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3927,26 +3439,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-17",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.93,
         "y": 0.945,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-17",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -3969,26 +3481,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "apocalyptic-18",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-18",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4011,26 +3523,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-19",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.151,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-19",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4053,26 +3565,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "apocalyptic-20",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.263,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-20",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4095,26 +3607,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-21",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.374,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-21",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4137,26 +3649,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "healer",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "healer"
+        ]
       },
       {
-        "id": "apocalyptic-22",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.485,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-22",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4179,26 +3691,26 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "dps",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-06",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "dps"
+        ]
       },
       {
-        "id": "apocalyptic-23",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.596,
         "y": 0.89,
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
+        "id": "apocalyptic-23",
         "loot": [
           {
             "gearId": "plated-greaves",
@@ -4221,26 +3733,27 @@
             "weight": 2
           }
         ],
+        "name": "Women of the Night",
+        "role": "tank",
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "sprite": "villagers/villagers-14",
+        "xpReward": 50,
         "goldReward": [
           11,
           27
-        ],
-        "xpReward": 50,
-        "role": "tank"
+        ]
       },
       {
-        "id": "apocalyptic-24",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.708,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-24",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4263,22 +3776,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-25",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-25",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4301,22 +3814,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-26",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-26",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4339,22 +3852,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-27",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-27",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4377,22 +3890,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "healer"
+        "name": "Hero of the Vale",
+        "role": "healer",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-28",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-28",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4415,22 +3928,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-29",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-29",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4453,22 +3966,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-30",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-30",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4491,22 +4004,22 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "dps"
+        "name": "Hero of the Vale",
+        "role": "dps",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-31",
-        "name": "Hero of the Vale",
-        "sprite": "heroic-guards/heroic-guards-03",
         "x": 0.541,
         "y": 0.835,
-        "stats": {
-          "hp": 48,
-          "atk": 6,
-          "spd": 5,
-          "skill": 4,
-          "crit": 0.12
-        },
+        "id": "apocalyptic-31",
+        "kind": "boss",
         "loot": [
           {
             "gearId": "heralds-tassets",
@@ -4529,86 +4042,89 @@
             "weight": 2
           }
         ],
-        "kind": "boss",
-        "role": "tank"
+        "name": "Hero of the Vale",
+        "role": "tank",
+        "stats": {
+          "hp": 48,
+          "atk": 6,
+          "spd": 5,
+          "crit": 0.12,
+          "skill": 4
+        },
+        "sprite": "heroic-guards/heroic-guards-03"
       },
       {
-        "id": "apocalyptic-32",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.652,
         "y": 0.835,
-        "role": "dps"
+        "id": "apocalyptic-32",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-33",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.763,
         "y": 0.835,
-        "role": "healer"
+        "id": "apocalyptic-33",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-34",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.874,
         "y": 0.835,
-        "role": "dps"
+        "id": "apocalyptic-34",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-35",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.835,
-        "role": "tank"
+        "id": "apocalyptic-35",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-36",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.04,
         "y": 0.78,
-        "role": "dps"
+        "id": "apocalyptic-36",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-37",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.337,
         "y": 0.78,
-        "role": "tank"
+        "id": "apocalyptic-37",
+        "name": "Knight Errant",
+        "role": "tank",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-38",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.633,
         "y": 0.78,
-        "role": "dps"
+        "id": "apocalyptic-38",
+        "name": "Knight Errant",
+        "role": "dps",
+        "sprite": "heroic-guards/heroic-guards-02"
       },
       {
-        "id": "apocalyptic-39",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
         "x": 0.93,
         "y": 0.78,
-        "role": "healer"
+        "id": "apocalyptic-39",
+        "name": "Knight Errant",
+        "role": "healer",
+        "sprite": "heroic-guards/heroic-guards-02"
       }
     ]
   },
-  "id": "lady-of-knight",
-  "name": "Ladies of The Knight",
-  "joinWindowMs": 35000,
-  "recommendedLevel": 16,
-  "scalesWithPartySize": true,
-  "completionXp": 440,
-  "completionGold": [
-    120,
-    220
+  "goldReward": [
+    14,
+    34
   ],
-  "flavorText": "Where the heroes are made. Burn it and there are no more of them.",
+  "completionXp": 440,
+  "joinWindowMs": 35000,
   "bandStatScale": {
     "weak": 0.145,
     "seasoned": 2.01,
@@ -4616,5 +4132,11 @@
     "brutal": 6.338,
     "infernal": 8.565,
     "apocalyptic": 12.163
-  }
+  },
+  "completionGold": [
+    120,
+    220
+  ],
+  "recommendedLevel": 16,
+  "scalesWithPartySize": true
 }

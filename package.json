@@ -34,6 +34,7 @@
     "check:formations": "tsx scripts/check-formations.ts",
     "check:formations:live": "tsx --env-file-if-exists=.env scripts/check-formations.ts --live",
     "push:content": "tsx --env-file-if-exists=.env scripts/push-content.ts",
+    "pull:content": "tsx --env-file-if-exists=.env scripts/pull-content.ts",
     "push:sprites": "tsx --env-file-if-exists=.env scripts/push-sprites.ts"
   },
   "dependencies": {

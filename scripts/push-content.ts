@@ -17,6 +17,30 @@
  *   npm run push:content -- --write
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
+
+/**
+ * The same value with its object keys in a fixed order, for COMPARISON ONLY.
+ *
+ * `jsonb` does not preserve key order, so a value that has been through
+ * Postgres comes back reordered and a plain JSON.stringify comparison calls
+ * every file changed. Measured: this script offered to rewrite 129 of 133 rows
+ * when five had actually changed - which is not just noise, it is 124 no-op
+ * versions in content_history burying the real ones.
+ */
+function canonical(value: unknown): string {
+  const sort = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(sort);
+    if (v && typeof v === "object") {
+      return Object.fromEntries(
+        Object.keys(v as Record<string, unknown>)
+          .sort()
+          .map((k) => [k, sort((v as Record<string, unknown>)[k])]),
+      );
+    }
+    return v;
+  };
+  return JSON.stringify(sort(value));
+}
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -67,7 +91,7 @@ const existing = new Map<string, string>();
 {
   const res = await db("/content_files?select=path,data");
   for (const row of (await res.json()) as { path: string; data: unknown }[]) {
-    existing.set(row.path, JSON.stringify(row.data));
+    existing.set(row.path, canonical(row.data));
   }
 }
 console.log(`${existing.size} rows already in Supabase.\n`);
@@ -77,7 +101,7 @@ let same = 0;
 
 for (const path of local) {
   const data = JSON.parse(readFileSync(join(CONTENT, path), "utf-8"));
-  const serialised = JSON.stringify(data);
+  const serialised = canonical(data);
   const was = existing.get(path);
   if (was === undefined) {
     console.log(`  new       ${path}`);

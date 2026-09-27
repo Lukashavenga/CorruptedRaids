@@ -1,0 +1,338 @@
+{
+  "face/face03": {
+    "file": "face/face03/migrated.png",
+    "original": "face/face03/original.png"
+  },
+  "face/face18": {
+    "file": "face/face18/migrated.png",
+    "original": "face/face18/original.png"
+  },
+  "face/face19": {
+    "file": "face/face19/migrated.png",
+    "original": "face/face19/original.png"
+  },
+  "face/face20": {
+    "file": "face/face20/migrated.png",
+    "original": "face/face20/original.png"
+  },
+  "face/face29": {
+    "file": "face/face29/migrated.png",
+    "original": "face/face29/original.png"
+  },
+  "face/face30": {
+    "file": "face/face30/migrated.png",
+    "original": "face/face30/original.png"
+  },
+  "face/face31": {
+    "file": "face/face31/migrated.png",
+    "original": "face/face31/original.png"
+  },
+  "face/face34": {
+    "file": "face/face34/migrated.png",
+    "original": "face/face34/original.png"
+  },
+  "face/face36": {
+    "file": "face/face36/migrated.png",
+    "original": "face/face36/original.png"
+  },
+  "head/head01": {
+    "file": "head/head01/migrated.png",
+    "original": "head/head01/original.png"
+  },
+  "head/head02": {
+    "file": "head/head02/2026-09-23T18-54-37-926Z.png",
+    "original": "head/head02/original.png"
+  },
+  "head/head05": {
+    "file": "head/head05/2026-09-23T18-55-41-875Z.png",
+    "original": "head/head05/original.png"
+  },
+  "head/head06": {
+    "file": "head/head06/2026-09-23T18-56-15-283Z.png",
+    "original": "head/head06/original.png"
+  },
+  "head/head14": {
+    "file": "head/head14/2026-09-23T18-56-44-213Z.png",
+    "original": "head/head14/original.png"
+  },
+  "head/head15": {
+    "file": "head/head15/2026-09-23T18-56-59-230Z.png",
+    "original": "head/head15/original.png"
+  },
+  "head/head16": {
+    "file": "head/head16/2026-09-23T18-57-11-742Z.png",
+    "original": "head/head16/original.png"
+  },
+  "head/head17": {
+    "file": "head/head17/2026-09-23T18-57-23-703Z.png",
+    "original": "head/head17/original.png"
+  },
+  "head/head19": {
+    "file": "head/head19/2026-09-23T18-57-49-879Z.png",
+    "original": "head/head19/original.png"
+  },
+  "head/head20": {
+    "file": "head/head20/2026-09-23T18-58-21-601Z.png",
+    "original": "head/head20/original.png"
+  },
+  "head/head23": {
+    "file": "head/head23/2026-09-23T19-01-44-861Z.png",
+    "original": "head/head23/original.png"
+  },
+  "hair/s04-red": {
+    "file": "hair/s04-red/2026-09-24T05-18-57-230Z.png",
+    "original": "hair/s04-red/original.png"
+  },
+  "hair/s06-red": {
+    "file": "hair/s06-red/2026-09-24T05-19-30-076Z.png"
+  },
+  "hair/s07-red": {
+    "file": "hair/s07-red/2026-09-24T05-20-02-624Z.png",
+    "original": "hair/s07-red/original.png"
+  },
+  "hair/s09-red": {
+    "file": "hair/s09-red/2026-09-24T05-21-42-451Z.png",
+    "original": "hair/s09-red/original.png"
+  },
+  "hair/s10-red": {
+    "file": "hair/s10-red/2026-09-24T05-24-57-696Z.png",
+    "original": "hair/s10-red/original.png"
+  },
+  "offhand/oh01": {
+    "file": "offhand/oh01/2026-09-24T05-14-26-937Z.png",
+    "original": "offhand/oh01/original.png"
+  },
+  "offhand/oh02": {
+    "file": "offhand/oh02/2026-09-24T05-14-48-806Z.png",
+    "original": "offhand/oh02/original.png"
+  },
+  "offhand/oh03": {
+    "file": "offhand/oh03/2026-09-24T05-15-17-665Z.png",
+    "original": "offhand/oh03/original.png"
+  },
+  "offhand/oh04": {
+    "file": "offhand/oh04/2026-09-24T05-15-46-359Z.png",
+    "original": "offhand/oh04/original.png"
+  },
+  "offhand/oh05": {
+    "file": "offhand/oh05/2026-09-24T05-16-35-520Z.png",
+    "original": "offhand/oh05/original.png"
+  },
+  "offhand/oh07": {
+    "file": "offhand/oh07/2026-09-24T05-17-12-153Z.png",
+    "original": "offhand/oh07/original.png"
+  },
+  "offhand/oh08": {
+    "file": "offhand/oh08/2026-09-24T05-17-30-936Z.png",
+    "original": "offhand/oh08/original.png"
+  },
+  "offhand/oh09": {
+    "file": "offhand/oh09/2026-09-24T05-17-45-902Z.png",
+    "original": "offhand/oh09/original.png"
+  },
+  "offhand/oh10": {
+    "file": "offhand/oh10/2026-09-24T05-17-58-838Z.png",
+    "original": "offhand/oh10/original.png"
+  },
+  "chest/male-t1": {
+    "file": "chest/male-t1/2026-09-23T05-11-59-953Z.png",
+    "original": "chest/male-t1/original.png"
+  },
+  "chest/male-t2": {
+    "file": "chest/male-t2/2026-09-23T05-14-20-825Z.png",
+    "original": "chest/male-t2/original.png"
+  },
+  "chest/male-t3": {
+    "file": "chest/male-t3/2026-09-23T05-14-36-970Z.png",
+    "original": "chest/male-t3/original.png"
+  },
+  "chest/male-t4": {
+    "file": "chest/male-t4/2026-09-23T05-07-24-229Z.png",
+    "original": "chest/male-t4/original.png"
+  },
+  "chest/male-t5": {
+    "file": "chest/male-t5/2026-09-23T05-15-15-511Z.png",
+    "original": "chest/male-t5/original.png"
+  },
+  "mainhand/mh01": {
+    "file": "mainhand/mh01/2026-09-23T19-07-02-346Z.png",
+    "original": "mainhand/mh01/original.png"
+  },
+  "mainhand/mh02": {
+    "file": "mainhand/mh02/2026-09-23T19-07-24-833Z.png",
+    "original": "mainhand/mh02/original.png"
+  },
+  "mainhand/mh03": {
+    "file": "mainhand/mh03/2026-09-23T19-07-50-864Z.png",
+    "original": "mainhand/mh03/original.png"
+  },
+  "mainhand/mh04": {
+    "file": "mainhand/mh04/2026-09-23T19-10-03-444Z.png",
+    "original": "mainhand/mh04/original.png"
+  },
+  "mainhand/mh05": {
+    "file": "mainhand/mh05/2026-09-23T19-33-00-192Z.png",
+    "original": "mainhand/mh05/original.png"
+  },
+  "mainhand/mh06": {
+    "file": "mainhand/mh06/2026-09-23T19-34-37-725Z.png",
+    "original": "mainhand/mh06/original.png"
+  },
+  "mainhand/mh07": {
+    "file": "mainhand/mh07/2026-09-23T19-40-35-357Z.png",
+    "original": "mainhand/mh07/original.png"
+  },
+  "mainhand/mh08": {
+    "file": "mainhand/mh08/2026-09-23T19-40-46-387Z.png",
+    "original": "mainhand/mh08/original.png"
+  },
+  "mainhand/mh09": {
+    "file": "mainhand/mh09/2026-09-23T19-40-55-778Z.png",
+    "original": "mainhand/mh09/original.png"
+  },
+  "mainhand/mh10": {
+    "file": "mainhand/mh10/2026-09-23T19-41-16-733Z.png",
+    "original": "mainhand/mh10/original.png"
+  },
+  "mainhand/mh11": {
+    "file": "mainhand/mh11/2026-09-24T04-31-51-552Z.png",
+    "original": "mainhand/mh11/original.png"
+  },
+  "mainhand/mh12": {
+    "file": "mainhand/mh12/2026-09-24T04-32-11-509Z.png",
+    "original": "mainhand/mh12/original.png"
+  },
+  "mainhand/mh13": {
+    "file": "mainhand/mh13/2026-09-24T04-32-22-208Z.png",
+    "original": "mainhand/mh13/original.png"
+  },
+  "mainhand/mh14": {
+    "file": "mainhand/mh14/2026-09-24T04-33-24-009Z.png",
+    "original": "mainhand/mh14/original.png"
+  },
+  "mainhand/mh15": {
+    "file": "mainhand/mh15/2026-09-24T04-33-58-285Z.png",
+    "original": "mainhand/mh15/original.png"
+  },
+  "mainhand/mh16": {
+    "file": "mainhand/mh16/2026-09-24T04-35-19-978Z.png",
+    "original": "mainhand/mh16/original.png"
+  },
+  "mainhand/mh17": {
+    "file": "mainhand/mh17/migrated.png",
+    "original": "mainhand/mh17/original.png"
+  },
+  "mainhand/mh19": {
+    "file": "mainhand/mh19/2026-09-24T05-11-51-036Z.png",
+    "original": "mainhand/mh19/original.png"
+  },
+  "mainhand/mh20": {
+    "file": "mainhand/mh20/2026-09-24T05-12-03-320Z.png",
+    "original": "mainhand/mh20/original.png"
+  },
+  "mainhand/mh21": {
+    "file": "mainhand/mh21/2026-09-24T04-36-47-389Z.png",
+    "original": "mainhand/mh21/original.png"
+  },
+  "mainhand/mh22": {
+    "file": "mainhand/mh22/2026-09-24T04-37-03-325Z.png",
+    "original": "mainhand/mh22/original.png"
+  },
+  "mainhand/mh23": {
+    "file": "mainhand/mh23/2026-09-24T04-39-04-217Z.png",
+    "original": "mainhand/mh23/original.png"
+  },
+  "mainhand/mh24": {
+    "file": "mainhand/mh24/2026-09-24T05-12-24-789Z.png",
+    "original": "mainhand/mh24/original.png"
+  },
+  "mainhand/mh26": {
+    "file": "mainhand/mh26/2026-09-24T05-12-33-466Z.png",
+    "original": "mainhand/mh26/original.png"
+  },
+  "hair/s04-brown": {
+    "file": "hair/s04-brown/2026-09-24T05-18-46-327Z.png",
+    "original": "hair/s04-brown/original.png"
+  },
+  "hair/s06-brown": {
+    "file": "hair/s06-brown/2026-09-24T05-19-24-903Z.png"
+  },
+  "hair/s07-brown": {
+    "file": "hair/s07-brown/2026-09-24T05-19-54-697Z.png",
+    "original": "hair/s07-brown/original.png"
+  },
+  "hair/s09-brown": {
+    "file": "hair/s09-brown/2026-09-24T05-21-35-543Z.png",
+    "original": "hair/s09-brown/original.png"
+  },
+  "hair/s10-brown": {
+    "file": "hair/s10-brown/2026-09-24T05-24-49-387Z.png",
+    "original": "hair/s10-brown/original.png"
+  },
+  "chest/female-t2": {
+    "file": "chest/female-t2/2026-09-23T19-02-48-068Z.png",
+    "original": "chest/female-t2/original.png"
+  },
+  "chest/female-t4": {
+    "file": "chest/female-t4/2026-09-23T05-12-46-876Z.png"
+  },
+  "chest/female-t5": {
+    "file": "chest/female-t5/2026-09-23T05-13-11-763Z.png",
+    "original": "chest/female-t5/original.png"
+  },
+  "hair/s04-blonde": {
+    "file": "hair/s04-blonde/2026-09-24T05-18-30-543Z.png",
+    "original": "hair/s04-blonde/original.png"
+  },
+  "hair/s04-violet": {
+    "file": "hair/s04-violet/2026-09-24T05-19-06-633Z.png",
+    "original": "hair/s04-violet/original.png"
+  },
+  "hair/s06-blonde": {
+    "file": "hair/s06-blonde/2026-09-24T05-19-19-396Z.png",
+    "original": "hair/s06-blonde/original.png"
+  },
+  "hair/s06-violet": {
+    "file": "hair/s06-violet/2026-09-24T05-19-34-980Z.png"
+  },
+  "hair/s07-blonde": {
+    "file": "hair/s07-blonde/2026-09-24T05-19-48-241Z.png",
+    "original": "hair/s07-blonde/original.png"
+  },
+  "hair/s07-violet": {
+    "file": "hair/s07-violet/2026-09-24T05-20-11-224Z.png",
+    "original": "hair/s07-violet/original.png"
+  },
+  "hair/s08-violet": {
+    "file": "hair/s08-violet/2026-09-24T05-21-16-499Z.png",
+    "original": "hair/s08-violet/original.png"
+  },
+  "hair/s09-blonde": {
+    "file": "hair/s09-blonde/2026-09-24T05-21-27-936Z.png",
+    "original": "hair/s09-blonde/original.png"
+  },
+  "hair/s09-violet": {
+    "file": "hair/s09-violet/2026-09-24T05-21-48-902Z.png",
+    "original": "hair/s09-violet/original.png"
+  },
+  "hair/s10-blonde": {
+    "file": "hair/s10-blonde/2026-09-24T05-22-09-909Z.png",
+    "original": "hair/s10-blonde/original.png"
+  },
+  "hair/s10-violet": {
+    "file": "hair/s10-violet/2026-09-24T05-25-38-309Z.png",
+    "original": "hair/s10-violet/original.png"
+  },
+  "pants/female-t2": {
+    "file": "pants/female-t2/migrated.png",
+    "original": "pants/female-t2/original.png"
+  },
+  "pants/female-t3": {
+    "file": "pants/female-t3/migrated.png",
+    "original": "pants/female-t3/original.png"
+  },
+  "enemies/cops/cops-08": {
+    "file": "enemies/cops/cops-08/migrated.png",
+    "original": "enemies/cops/cops-08/original.png"
+  }
+}

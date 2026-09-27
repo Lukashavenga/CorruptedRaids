@@ -1,463 +1,11 @@
 {
-  "_comment": "The first raid. The PATH is authored: every round names what is behind Left, Ahead and Right, and the number of rounds is the length of that list. Two runs of this raid are now identical - that is the trade for being able to say what a night looks like before it happens. The audience still cannot see behind a door until it opens, so a chat vote is as blind as it ever was. Edit rooms and the path in the admin panel's Raids tab. NOTE: saving from the admin rewrites this file from the validated object, which drops underscore-prefixed keys - this comment included.",
   "id": "the-long-road",
-  "name": "The Long Road",
-  "recommendedLevel": 6,
-  "joinWindowMs": 30000,
-  "buffs": [
-    {
-      "id": "stolen-vestments",
-      "name": "Stolen Vestments",
-      "description": "Taken off a shrine. Still warm.",
-      "statMods": {
-        "hp": 1,
-        "skill": 1
-      }
-    },
-    {
-      "id": "blood-in-the-water",
-      "name": "Blood in the Water",
-      "description": "The first scream carries. The rest come easier.",
-      "statMods": {
-        "atk": 1,
-        "crit": 0.05
-      }
-    },
-    {
-      "id": "unhallowed-ground",
-      "name": "Unhallowed Ground",
-      "description": "Something under the chapel agrees with you.",
-      "statMods": {
-        "hp": 6,
-        "spd": 1
-      }
-    },
-    {
-      "id": "tithe-of-teeth",
-      "name": "Tithe of Teeth",
-      "description": "Paid in what the village had left.",
-      "statMods": {
-        "atk": 1,
-        "skill": 1
-      }
-    }
-  ],
-  "rooms": [
-    {
-      "id": "the-watch-house",
-      "name": "The Watch House",
-      "description": "Three of the watch, still in uniform.",
-      "kind": "fight",
-      "background": "barbies",
-      "fight": {
-        "kind": "mob",
-        "stats": {
-          "hp": 13,
-          "atk": 2,
-          "spd": 3,
-          "skill": 1,
-          "crit": 0.05
-        },
-        "loot": [
-          {
-            "gearId": "sashed-trousers",
-            "weight": 2
-          },
-          {
-            "gearId": "buckled-jerkin",
-            "weight": 3
-          },
-          {
-            "gearId": "bedsheet-wraith",
-            "weight": 2
-          },
-          {
-            "gearId": "twin-bladed-axe",
-            "weight": 3
-          }
-        ],
-        "goldReward": [
-          8,
-          20
-        ],
-        "xpReward": 38,
-        "formations": {
-          "weak": [
-            {
-              "id": "village-watch-0",
-              "name": "Village Watch",
-              "sprite": "barbies/barbies-09",
-              "x": 0.08,
-              "y": 1
-            },
-            {
-              "id": "village-watch-1",
-              "name": "Village Watch",
-              "sprite": "barbies/barbies-09",
-              "x": 0.25,
-              "y": 1
-            },
-            {
-              "id": "village-watch-2",
-              "name": "Village Watch",
-              "sprite": "barbies/barbies-09",
-              "x": 0.42,
-              "y": 1
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "the-wayside-chapel",
-      "name": "The Wayside Chapel",
-      "description": "They have been praying about you all week.",
-      "kind": "fight",
-      "background": "monks",
-      "fight": {
-        "kind": "mob",
-        "stats": {
-          "hp": 14,
-          "atk": 2,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.05
-        },
-        "loot": [
-          {
-            "gearId": "sashed-trousers",
-            "weight": 2
-          },
-          {
-            "gearId": "buckled-jerkin",
-            "weight": 3
-          },
-          {
-            "gearId": "coin-purse",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          8,
-          20
-        ],
-        "xpReward": 38,
-        "formations": {
-          "weak": [
-            {
-              "id": "hedge-priest-0",
-              "name": "Holy Shit",
-              "sprite": "monks/monks-10",
-              "x": 0.08,
-              "y": 1
-            },
-            {
-              "id": "hedge-priest-1",
-              "name": "Holy Shit",
-              "sprite": "monks/monks-02",
-              "x": 0.25,
-              "y": 1
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "the-toll-gate",
-      "name": "The Toll Gate",
-      "description": "A full patrol, drawn up across the road.",
-      "kind": "fight",
-      "background": "cops",
-      "fight": {
-        "kind": "mob",
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 68,
-        "formations": {
-          "weak": [
-            {
-              "id": "cops-umtfwuh5v7",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-10",
-              "role": "tank",
-              "x": 0.0797080502962856,
-              "y": 0.9113092159308729,
-              "scale": 1.1,
-              "weight": 1.4
-            },
-            {
-              "id": "cops-umtfwujmt8",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-09",
-              "role": "dps",
-              "x": 0.41270414799826566,
-              "y": 0.9444123284753704,
-              "weight": 1.4
-            },
-            {
-              "id": "cops-umtfwunnp10",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-08",
-              "role": "healer",
-              "x": 0.8266367972250325,
-              "y": 0.9794626829342502,
-              "weight": 1.4
-            }
-          ],
-          "seasoned": [
-            {
-              "id": "cops-umtfws3531",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-08",
-              "role": "healer",
-              "x": 0.6925133689839572,
-              "y": 0.9580430218760458,
-              "scale": 1.05,
-              "weight": 5.3
-            },
-            {
-              "id": "cops-umtfws6mh2",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-06",
-              "role": "dps",
-              "x": 0.45664113311172133,
-              "y": 0.8295250555268202,
-              "weight": 5.3
-            },
-            {
-              "id": "cops-umtfws93o3",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-09",
-              "role": "dps",
-              "x": 0.10745772510478392,
-              "y": 0.9346761189034594,
-              "weight": 5.3
-            },
-            {
-              "id": "cops-umtfwshga4",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-10",
-              "role": "tank",
-              "x": 0,
-              "y": 0.9814099248486323,
-              "weight": 5.3
-            },
-            {
-              "id": "cops-umtfwsmbu5",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-09",
-              "role": "dps",
-              "x": 0.35489232548056077,
-              "y": 1,
-              "weight": 5.3
-            }
-          ],
-          "elite": [
-            {
-              "id": "cops-umtfws3531-loads0",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-08",
-              "role": "healer",
-              "x": 0.6925133689839572,
-              "y": 0.9580430218760458,
-              "scale": 1.05,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfws93o3-loads2",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-09",
-              "role": "dps",
-              "x": 0.10745772510478392,
-              "y": 0.9346761189034594,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfwshga4-loads3",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-10",
-              "role": "tank",
-              "x": 0,
-              "y": 0.9814099248486323,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfwv8sd15",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-06",
-              "role": "dps",
-              "x": 0.428891458303223,
-              "y": 0.8996257644445796,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfww2wg17",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-05",
-              "role": "tank",
-              "x": 0.32714265067206244,
-              "y": 0.9911461344205434,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfwwdij18",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-03",
-              "role": "dps",
-              "x": 0.8983234571469866,
-              "y": 0.9911461344205434,
-              "weight": 1.5
-            },
-            {
-              "id": "cops-umtfwwoem19",
-              "name": "Woop WOOP - SOUND OF DA POLICE",
-              "sprite": "cops/cops-02",
-              "role": "healer",
-              "x": 0.6717011128775835,
-              "y": 0.8431557489274957,
-              "weight": 1.5
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "the-muster-field",
-      "name": "The Muster Field",
-      "description": "Two serjeants and whoever they armed.",
-      "kind": "fight",
-      "fight": {
-        "kind": "mob",
-        "stats": {
-          "hp": 20,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.07
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "miner-s-lamp-helm",
-            "weight": 2
-          },
-          {
-            "gearId": "hunting-spear",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          11,
-          27
-        ],
-        "xpReward": 50,
-        "formations": {
-          "weak": [
-            {
-              "id": "militia-serjeant-0",
-              "name": "Women of the Night",
-              "sprite": "villagers/villagers-06",
-              "x": 0.08,
-              "y": 1
-            },
-            {
-              "id": "militia-serjeant-1",
-              "name": "Women of the Night",
-              "sprite": "villagers/villagers-14",
-              "x": 0.25,
-              "y": 1
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "the-reliquary",
-      "name": "The Reliquary",
-      "description": "Something worth taking, left in reach.",
-      "kind": "buff"
-    },
-    {
-      "id": "the-empty-road",
-      "name": "The Empty Road",
-      "description": "Nothing here but the walking.",
-      "kind": "clear"
-    }
-  ],
-  "path": [
-    {
-      "left": "the-watch-house",
-      "up": "the-empty-road",
-      "right": "the-reliquary"
-    },
-    {
-      "left": "the-reliquary",
-      "up": "the-wayside-chapel",
-      "right": "the-empty-road"
-    },
-    {
-      "left": "the-muster-field",
-      "up": "the-reliquary",
-      "right": "the-toll-gate"
-    },
-    {
-      "left": "the-toll-gate",
-      "up": "the-muster-field",
-      "right": "the-wayside-chapel"
-    }
-  ],
   "boss": {
     "id": "the-long-hall",
-    "name": "The Long Hall",
-    "description": "The one who came to stop this is up.",
     "kind": "fight",
+    "name": "The Long Hall",
     "fight": {
       "kind": "boss",
-      "stats": {
-        "hp": 48,
-        "atk": 6,
-        "spd": 5,
-        "skill": 4,
-        "crit": 0.12
-      },
       "loot": [
         {
           "gearId": "heralds-tassets",
@@ -480,31 +28,463 @@
           "weight": 2
         }
       ],
-      "goldReward": [
-        14,
-        34
-      ],
+      "stats": {
+        "hp": 48,
+        "atk": 6,
+        "spd": 5,
+        "crit": 0.12,
+        "skill": 4
+      },
       "xpReward": 62,
       "formations": {
         "weak": [
           {
+            "x": 0.37257240204429304,
+            "y": 0.9088301107349819,
             "id": "hero-of-the-vale-0",
             "name": "Hero of the Vale",
-            "sprite": "heroic-guards/heroic-guards-03",
-            "x": 0.08,
-            "y": 1
+            "role": "tank",
+            "scale": 2,
+            "sprite": "heroic-guards/heroic-guards-03"
+          }
+        ],
+        "apocalyptic": [
+          {
+            "x": 0.36603066439522997,
+            "y": 0.9528946009524356,
+            "id": "umujpm26rno",
+            "name": "king-boss-01",
+            "role": "dps",
+            "scale": 1.7,
+            "sprite": "king-boss/king-boss-01"
           }
         ]
-      }
+      },
+      "goldReward": [
+        14,
+        34
+      ]
     },
+    "background": "guards",
+    "description": "The one who came to stop this is up.",
     "hpMultiplier": 5,
     "atkMultiplier": 1
   },
+  "name": "The Long Road",
+  "path": [
+    {
+      "up": "the-wayside-chapel",
+      "left": "the-wayside-chapel",
+      "right": "the-wayside-chapel"
+    },
+    {
+      "up": "the-wayside-chapel",
+      "left": "the-wayside-chapel",
+      "right": "the-wayside-chapel"
+    },
+    {
+      "up": "the-wayside-chapel",
+      "left": "the-muster-field",
+      "right": "the-toll-gate"
+    },
+    {
+      "up": "the-muster-field",
+      "left": "the-toll-gate",
+      "right": "the-wayside-chapel"
+    }
+  ],
+  "buffs": [
+    {
+      "id": "stolen-vestments",
+      "name": "Stolen Vestments",
+      "statMods": {
+        "hp": 1,
+        "skill": 1
+      },
+      "description": "Taken off a shrine. Still warm."
+    },
+    {
+      "id": "blood-in-the-water",
+      "name": "Blood in the Water",
+      "statMods": {
+        "atk": 1,
+        "crit": 0.05
+      },
+      "description": "The first scream carries. The rest come easier."
+    },
+    {
+      "id": "unhallowed-ground",
+      "name": "Unhallowed Ground",
+      "statMods": {
+        "hp": 6,
+        "spd": 1
+      },
+      "description": "Something under the chapel agrees with you."
+    },
+    {
+      "id": "tithe-of-teeth",
+      "name": "Tithe of Teeth",
+      "statMods": {
+        "atk": 1,
+        "skill": 1
+      },
+      "description": "Paid in what the village had left."
+    }
+  ],
+  "rooms": [
+    {
+      "id": "the-wayside-chapel",
+      "kind": "fight",
+      "name": "The Wayside Chapel",
+      "fight": {
+        "kind": "mob",
+        "loot": [
+          {
+            "gearId": "sashed-trousers",
+            "weight": 2
+          },
+          {
+            "gearId": "buckled-jerkin",
+            "weight": 3
+          },
+          {
+            "gearId": "coin-purse",
+            "weight": 2
+          }
+        ],
+        "stats": {
+          "hp": 14,
+          "atk": 2,
+          "spd": 3,
+          "crit": 0.05,
+          "skill": 3
+        },
+        "xpReward": 38,
+        "formations": {
+          "weak": [
+            {
+              "x": 0.09781942078364565,
+              "y": 0.8041769464685294,
+              "id": "hedge-priest-0",
+              "name": "Holy Shit",
+              "sprite": "monks/monks-10"
+            },
+            {
+              "x": 0.5426575809199319,
+              "y": 0.8243731711515291,
+              "id": "hedge-priest-1",
+              "name": "Holy Shit",
+              "sprite": "monks/monks-02"
+            }
+          ],
+          "apocalyptic": [
+            {
+              "x": 0.48814310051107324,
+              "y": 0.800504905617075,
+              "id": "umujpkd7rqo",
+              "name": "monk-boss-hq-01",
+              "role": "dps",
+              "scale": 1.55,
+              "sprite": "monk-boss-hq/monk-boss-hq-01"
+            }
+          ]
+        },
+        "goldReward": [
+          8,
+          20
+        ]
+      },
+      "background": "monks",
+      "description": "They have been praying about you all week."
+    },
+    {
+      "id": "the-toll-gate",
+      "kind": "fight",
+      "name": "The Toll Gate",
+      "fight": {
+        "kind": "mob",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "xpReward": 68,
+        "formations": {
+          "weak": [
+            {
+              "x": 0.0797080502962856,
+              "y": 0.9113092159308729,
+              "id": "cops-umtfwuh5v7",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "tank",
+              "scale": 1.1,
+              "sprite": "cops/cops-10",
+              "weight": 1.4
+            },
+            {
+              "x": 0.41270414799826566,
+              "y": 0.9444123284753704,
+              "id": "cops-umtfwujmt8",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-09",
+              "weight": 1.4
+            },
+            {
+              "x": 0.8266367972250325,
+              "y": 0.9794626829342502,
+              "id": "cops-umtfwunnp10",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "healer",
+              "sprite": "cops/cops-08",
+              "weight": 1.4
+            }
+          ],
+          "elite": [
+            {
+              "x": 0.6925133689839572,
+              "y": 0.9580430218760458,
+              "id": "cops-umtfws3531-loads0",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "healer",
+              "scale": 1.05,
+              "sprite": "cops/cops-08",
+              "weight": 1.5
+            },
+            {
+              "x": 0.10745772510478392,
+              "y": 0.9346761189034594,
+              "id": "cops-umtfws93o3-loads2",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-09",
+              "weight": 1.5
+            },
+            {
+              "x": 0,
+              "y": 0.9814099248486323,
+              "id": "cops-umtfwshga4-loads3",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "tank",
+              "sprite": "cops/cops-10",
+              "weight": 1.5
+            },
+            {
+              "x": 0.428891458303223,
+              "y": 0.8996257644445796,
+              "id": "cops-umtfwv8sd15",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-06",
+              "weight": 1.5
+            },
+            {
+              "x": 0.32714265067206244,
+              "y": 0.9911461344205434,
+              "id": "cops-umtfww2wg17",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "tank",
+              "sprite": "cops/cops-05",
+              "weight": 1.5
+            },
+            {
+              "x": 0.8983234571469866,
+              "y": 0.9911461344205434,
+              "id": "cops-umtfwwdij18",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-03",
+              "weight": 1.5
+            },
+            {
+              "x": 0.6717011128775835,
+              "y": 0.8431557489274957,
+              "id": "cops-umtfwwoem19",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "healer",
+              "sprite": "cops/cops-02",
+              "weight": 1.5
+            }
+          ],
+          "seasoned": [
+            {
+              "x": 0.6925133689839572,
+              "y": 0.9580430218760458,
+              "id": "cops-umtfws3531",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "healer",
+              "scale": 1.05,
+              "sprite": "cops/cops-08",
+              "weight": 5.3
+            },
+            {
+              "x": 0.45664113311172133,
+              "y": 0.8295250555268202,
+              "id": "cops-umtfws6mh2",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-06",
+              "weight": 5.3
+            },
+            {
+              "x": 0.10745772510478392,
+              "y": 0.9346761189034594,
+              "id": "cops-umtfws93o3",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-09",
+              "weight": 5.3
+            },
+            {
+              "x": 0,
+              "y": 0.9814099248486323,
+              "id": "cops-umtfwshga4",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "tank",
+              "sprite": "cops/cops-10",
+              "weight": 5.3
+            },
+            {
+              "x": 0.35489232548056077,
+              "y": 1,
+              "id": "cops-umtfwsmbu5",
+              "name": "Woop WOOP - SOUND OF DA POLICE",
+              "role": "dps",
+              "sprite": "cops/cops-09",
+              "weight": 5.3
+            }
+          ],
+          "apocalyptic": [
+            {
+              "x": 0.3769335604770017,
+              "y": 0.9473865396752539,
+              "id": "umujpkv47li",
+              "name": "cops-boss-01",
+              "role": "dps",
+              "scale": 1.7,
+              "sprite": "cops-boss/cops-boss-01"
+            }
+          ]
+        },
+        "goldReward": [
+          11,
+          27
+        ]
+      },
+      "background": "cops",
+      "description": "A full patrol, drawn up across the road."
+    },
+    {
+      "id": "the-muster-field",
+      "kind": "fight",
+      "name": "The Muster Field",
+      "fight": {
+        "kind": "mob",
+        "loot": [
+          {
+            "gearId": "plated-greaves",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "miner-s-lamp-helm",
+            "weight": 2
+          },
+          {
+            "gearId": "hunting-spear",
+            "weight": 3
+          },
+          {
+            "gearId": "parrying-dirk",
+            "weight": 2
+          }
+        ],
+        "stats": {
+          "hp": 20,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.07,
+          "skill": 2
+        },
+        "xpReward": 50,
+        "formations": {
+          "weak": [
+            {
+              "x": 0.08,
+              "y": 1,
+              "id": "militia-serjeant-0",
+              "name": "Women of the Night",
+              "sprite": "villagers/villagers-06"
+            },
+            {
+              "x": 0.25,
+              "y": 1,
+              "id": "militia-serjeant-1",
+              "name": "Women of the Night",
+              "sprite": "villagers/villagers-14"
+            }
+          ],
+          "apocalyptic": [
+            {
+              "x": 0.25045996592844977,
+              "y": 0.9675827643582535,
+              "id": "umujpmgtkxf",
+              "name": "lady-boss-01",
+              "role": "dps",
+              "scale": 1.45,
+              "sprite": "lady-boss/lady-boss-01"
+            },
+            {
+              "x": 0.7062010221465077,
+              "y": 0.9932870503184348,
+              "id": "umujpmjnzlt",
+              "name": "lady-boss-2-01",
+              "role": "dps",
+              "scale": 1.45,
+              "sprite": "lady-boss-2/lady-boss-2-01"
+            }
+          ]
+        },
+        "goldReward": [
+          11,
+          27
+        ]
+      },
+      "background": "poors",
+      "description": "Two serjeants and whoever they armed."
+    }
+  ],
+  "_comment": "The first raid. The PATH is authored: every round names what is behind Left, Ahead and Right, and the number of rounds is the length of that list. Two runs of this raid are now identical - that is the trade for being able to say what a night looks like before it happens. The audience still cannot see behind a door until it opens, so a chat vote is as blind as it ever was. Edit rooms and the path in the admin panel's Raids tab. NOTE: saving from the admin rewrites this file from the validated object, which drops underscore-prefixed keys - this comment included.",
+  "flavorText": "Four doors between you and the one who came to stop this.",
   "completionXp": 320,
+  "joinWindowMs": 30000,
+  "_boss_comment": "Measured with scripts/difficulty. At initiativeWeight 8 and 5.0x HP: a party of 6 wins 2%, 12 wins 70%, 25 wins 100%. A raid boss should need a raid. initiativeWeight is what makes a lone boss a threat at all - initiative is drawn from every combatant at once, so without it six players out-act one boss six to one and no amount of HP fixes that.",
   "completionGold": [
     90,
     180
   ],
-  "flavorText": "Four doors between you and the one who came to stop this.",
-  "_boss_comment": "Measured with scripts/difficulty. At initiativeWeight 8 and 5.0x HP: a party of 6 wins 2%, 12 wins 70%, 25 wins 100%. A raid boss should need a raid. initiativeWeight is what makes a lone boss a threat at all - initiative is drawn from every combatant at once, so without it six players out-act one boss six to one and no amount of HP fixes that."
+  "recommendedLevel": 6
 }

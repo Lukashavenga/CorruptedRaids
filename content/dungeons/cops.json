@@ -1,12 +1,6 @@
 {
+  "id": "cops",
   "kind": "mob",
-  "stats": {
-    "hp": 20,
-    "atk": 3,
-    "spd": 3,
-    "skill": 2,
-    "crit": 0.07
-  },
   "loot": [
     {
       "gearId": "plated-greaves",
@@ -29,605 +23,23 @@
       "weight": 2
     }
   ],
-  "goldReward": [
-    11,
-    27
-  ],
+  "name": "Woop Woop - Dats the Sound of Da Police",
+  "stats": {
+    "hp": 20,
+    "atk": 3,
+    "spd": 3,
+    "crit": 0.07,
+    "skill": 2
+  },
   "xpReward": 50,
+  "background": "cops",
+  "flavorText": "A garrison town. They stopped waiting for you to come to them.",
   "formations": {
     "weak": [
       {
-        "id": "militia-serjeant-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "cops-umtfwuh5v7",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "tank",
         "x": 0.0797080502962856,
         "y": 0.9113092159308729,
-        "scale": 1.1,
-        "weight": 1.4,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwuh5v7",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -646,23 +58,24 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "scale": 1.1,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
+        "weight": 1.4,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwujmt8",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "dps",
         "x": 0.41270414799826566,
         "y": 0.9444123284753704,
-        "weight": 1.4,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwujmt8",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -681,23 +94,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 1.4,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwunnp10",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
-        "role": "healer",
         "x": 0.8266367972250325,
         "y": 0.9794626829342502,
-        "weight": 1.4,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwunnp10",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -716,602 +129,25 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "weight": 1.4,
         "xpReward": 68
       }
     ],
     "seasoned": [
       {
-        "id": "militia-serjeant-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "cops-umtfws3531",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
-        "role": "healer",
         "x": 0.6925133689839572,
         "y": 0.9580430218760458,
-        "scale": 1.05,
-        "weight": 5.3,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfws3531",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -1330,23 +166,24 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "weight": 5.3,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfws6mh2",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-06",
-        "role": "dps",
         "x": 0.45664113311172133,
         "y": 0.8295250555268202,
-        "weight": 5.3,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfws6mh2",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -1365,23 +202,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
+        "weight": 5.3,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfws93o3",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "dps",
         "x": 0.10745772510478392,
         "y": 0.9346761189034594,
-        "weight": 5.3,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfws93o3",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -1400,23 +237,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 5.3,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwshga4",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "tank",
         "x": 0,
         "y": 0.9814099248486323,
-        "weight": 5.3,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwshga4",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -1435,23 +272,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
+        "weight": 5.3,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwsmbu5",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "dps",
         "x": 0.35489232548056077,
         "y": 1,
-        "weight": 5.3,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwsmbu5",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -1470,602 +307,25 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 5.3,
         "xpReward": 68
       }
     ],
     "elite": [
       {
-        "id": "militia-serjeant-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "militia-serjeant-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.08,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.25,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.42,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.59,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.76,
-        "y": 0.86
-      },
-      {
-        "id": "militia-serjeant-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.93,
-        "y": 0.86
-      },
-      {
-        "id": "knight-errant-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 1,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.08,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.25,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.42,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.59,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.76,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "knight-errant-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.86,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "cops-umtfws3531-loads0",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
-        "role": "healer",
         "x": 0.6925133689839572,
         "y": 0.9580430218760458,
-        "scale": 1.05,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfws3531-loads0",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2084,23 +344,24 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfws93o3-loads2",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "dps",
         "x": 0.10745772510478392,
         "y": 0.9346761189034594,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfws93o3-loads2",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2119,23 +380,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwshga4-loads3",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "tank",
         "x": 0,
         "y": 0.9814099248486323,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwshga4-loads3",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2154,23 +415,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwv8sd15",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-06",
-        "role": "dps",
         "x": 0.428891458303223,
         "y": 0.8996257644445796,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwv8sd15",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2189,23 +450,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfww2wg17",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-05",
-        "role": "tank",
         "x": 0.32714265067206244,
         "y": 0.9911461344205434,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfww2wg17",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2224,23 +485,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-05",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwwdij18",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-03",
-        "role": "dps",
         "x": 0.8983234571469866,
         "y": 0.9911461344205434,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwwdij18",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2259,23 +520,23 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-03",
+        "weight": 1.5,
         "xpReward": 68
       },
       {
-        "id": "cops-umtfwwoem19",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-02",
-        "role": "healer",
         "x": 0.6717011128775835,
         "y": 0.8431557489274957,
-        "weight": 1.5,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "cops-umtfwwoem19",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2294,639 +555,60 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-02",
+        "weight": 1.5,
         "xpReward": 68
       }
     ],
     "brutal": [
       {
-        "id": "brutal-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
-      },
-      {
-        "id": "brutal-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
-      },
-      {
-        "id": "brutal-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
-      },
-      {
-        "id": "brutal-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
-      },
-      {
-        "id": "brutal-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
-      },
-      {
-        "id": "brutal-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
-      },
-      {
-        "id": "brutal-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.708,
-        "y": 1
-      },
-      {
-        "id": "brutal-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 1
-      },
-      {
-        "id": "brutal-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "brutal-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.096,
-        "y": 0.945
-      },
-      {
-        "id": "brutal-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.207,
-        "y": 0.945
-      },
-      {
-        "id": "brutal-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.318,
-        "y": 0.945
-      },
-      {
-        "id": "brutal-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.874,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "brutal-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "healer"
-      },
-      {
-        "id": "brutal-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "brutal-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
         "id": "brutal-24",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
         "role": "dps",
-        "x": 0.708,
-        "y": 0.89,
         "scale": 1.05,
         "stats": {
           "hp": 17,
           "atk": 3,
           "spd": 3,
-          "skill": 2,
-          "crit": 0.06
+          "crit": 0.06,
+          "skill": 2
         },
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
+        "sprite": "cops/cops-08",
         "xpReward": 68
       },
       {
-        "id": "brutal-25",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "tank",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "brutal-25",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2945,22 +627,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
         "xpReward": 68
       },
       {
-        "id": "brutal-26",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "dps",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "brutal-26",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -2979,22 +661,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
         "xpReward": 68
       },
       {
-        "id": "brutal-27",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-06",
-        "role": "healer",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "brutal-27",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3013,22 +695,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
         "xpReward": 68
       },
       {
-        "id": "brutal-28",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-05",
-        "role": "dps",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "brutal-28",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3047,22 +729,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-05",
         "xpReward": 68
       },
       {
-        "id": "brutal-29",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-03",
-        "role": "tank",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "brutal-29",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3081,643 +763,94 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-03",
+        "xpReward": 68
+      },
+      {
+        "x": 0.374,
+        "y": 0.89,
+        "id": "brutal-24-grow0",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "xpReward": 68
+      },
+      {
+        "x": 0.207,
+        "y": 0.89,
+        "id": "brutal-24-grow1",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
         "xpReward": 68
       }
     ],
     "infernal": [
       {
-        "id": "infernal-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
-      },
-      {
-        "id": "infernal-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
-      },
-      {
-        "id": "infernal-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
-      },
-      {
-        "id": "infernal-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
-      },
-      {
-        "id": "infernal-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
-      },
-      {
-        "id": "infernal-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
-      },
-      {
-        "id": "infernal-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.708,
-        "y": 1
-      },
-      {
-        "id": "infernal-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
         "x": 0.819,
-        "y": 1
-      },
-      {
-        "id": "infernal-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "infernal-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.096,
-        "y": 0.945
-      },
-      {
-        "id": "infernal-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.207,
-        "y": 0.945
-      },
-      {
-        "id": "infernal-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.318,
-        "y": 0.945
-      },
-      {
-        "id": "infernal-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "infernal-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "infernal-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "infernal-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62
-      },
-      {
-        "id": "infernal-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.874,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "healer"
-      },
-      {
-        "id": "infernal-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-24",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
-        "role": "dps",
-        "x": 0.708,
-        "y": 0.89,
-        "scale": 1.05,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "xpReward": 68
-      },
-      {
         "id": "infernal-25",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "tank",
-        "x": 0.819,
-        "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3736,22 +869,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
         "xpReward": 68
       },
       {
-        "id": "infernal-26",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "dps",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "infernal-26",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3770,22 +903,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
         "xpReward": 68
       },
       {
-        "id": "infernal-27",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-06",
-        "role": "healer",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "infernal-27",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3804,22 +937,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
         "xpReward": 68
       },
       {
-        "id": "infernal-28",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-05",
-        "role": "dps",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "infernal-28",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3838,22 +971,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-05",
         "xpReward": 68
       },
       {
-        "id": "infernal-29",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-03",
-        "role": "tank",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "infernal-29",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3872,22 +1005,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-03",
         "xpReward": 68
       },
       {
-        "id": "infernal-30",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-02",
-        "role": "dps",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "infernal-30",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -3906,721 +1039,161 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-02",
         "xpReward": 68
       },
       {
-        "id": "infernal-31",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.541,
+        "x": 0.6945,
         "y": 0.835,
-        "role": "tank"
+        "id": "infernal-25-grow0",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "xpReward": 68
       },
       {
-        "id": "infernal-32",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.652,
+        "x": 0.5617,
         "y": 0.835,
-        "role": "dps"
+        "id": "infernal-25-grow1",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "xpReward": 68
       },
       {
-        "id": "infernal-33",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.763,
+        "x": 0.8273,
         "y": 0.835,
-        "role": "healer"
-      },
-      {
-        "id": "infernal-34",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.874,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-35",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-36",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.04,
-        "y": 0.78,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-37",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.337,
-        "y": 0.78,
-        "role": "tank"
-      },
-      {
-        "id": "infernal-38",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.633,
-        "y": 0.78,
-        "role": "dps"
-      },
-      {
-        "id": "infernal-39",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.78,
-        "role": "healer"
+        "id": "infernal-25-grow2",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "xpReward": 68
       }
     ],
     "apocalyptic": [
       {
-        "id": "apocalyptic-0",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.04,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-1",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.151,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-2",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.263,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-3",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.374,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-4",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.485,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-5",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.596,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-6",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
         "x": 0.708,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-7",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.819,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-8",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 1
-      },
-      {
-        "id": "apocalyptic-9",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.096,
-        "y": 0.945
-      },
-      {
-        "id": "apocalyptic-10",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.207,
-        "y": 0.945,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-11",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.318,
-        "y": 0.945,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-12",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.429,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-13",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.541,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-14",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.652,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-15",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.763,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "healer"
-      },
-      {
-        "id": "apocalyptic-16",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.874,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-17",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.93,
-        "y": 0.945,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-18",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.04,
         "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-19",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.151,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-20",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.263,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-21",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.374,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "healer"
-      },
-      {
-        "id": "apocalyptic-22",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.485,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-23",
-        "name": "Knight Errant",
-        "sprite": "heroic-guards/heroic-guards-02",
-        "x": 0.596,
-        "y": 0.89,
-        "stats": {
-          "hp": 24,
-          "atk": 4,
-          "spd": 3,
-          "skill": 3,
-          "crit": 0.08
-        },
-        "loot": [
-          {
-            "gearId": "plated-greaves",
-            "weight": 2
-          },
-          {
-            "gearId": "knight-s-cuirass",
-            "weight": 3
-          },
-          {
-            "gearId": "poacher-s-cap",
-            "weight": 2
-          },
-          {
-            "gearId": "cleaver-greatsword",
-            "weight": 3
-          },
-          {
-            "gearId": "parrying-dirk",
-            "weight": 2
-          }
-        ],
-        "goldReward": [
-          14,
-          34
-        ],
-        "xpReward": 62,
-        "role": "tank"
-      },
-      {
         "id": "apocalyptic-24",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-08",
         "role": "dps",
-        "x": 0.708,
-        "y": 0.89,
         "scale": 1.05,
         "stats": {
           "hp": 17,
           "atk": 3,
           "spd": 3,
-          "skill": 2,
-          "crit": 0.06
+          "crit": 0.06,
+          "skill": 2
         },
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
+        "sprite": "cops/cops-08",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-25",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-09",
-        "role": "tank",
         "x": 0.819,
         "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-25",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4639,22 +1212,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-26",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-10",
-        "role": "dps",
         "x": 0.93,
         "y": 0.89,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-26",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4673,22 +1246,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-27",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-06",
-        "role": "healer",
         "x": 0.096,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-27",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4707,22 +1280,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "healer",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-28",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-05",
-        "role": "dps",
         "x": 0.207,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-28",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4741,22 +1314,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-05",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-29",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-03",
-        "role": "tank",
         "x": 0.318,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-29",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4775,22 +1348,22 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-03",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-30",
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "sprite": "cops/cops-02",
-        "role": "dps",
         "x": 0.429,
         "y": 0.835,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "skill": 2,
-          "crit": 0.06
-        },
+        "id": "apocalyptic-30",
         "loot": [
           {
             "gearId": "patched-leggings",
@@ -4809,100 +1382,143 @@
             "weight": 3
           }
         ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-02",
         "xpReward": 68
       },
       {
-        "id": "apocalyptic-31",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.541,
+        "x": 0.6945,
         "y": 0.835,
-        "role": "tank"
+        "id": "apocalyptic-24-grow0",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "xpReward": 68
       },
       {
-        "id": "apocalyptic-32",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.652,
+        "x": 0.5617,
         "y": 0.835,
-        "role": "dps"
+        "id": "apocalyptic-24-grow1",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "xpReward": 68
       },
       {
-        "id": "apocalyptic-33",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.763,
+        "x": 0.8273,
         "y": 0.835,
-        "role": "healer"
-      },
-      {
-        "id": "apocalyptic-34",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.874,
-        "y": 0.835,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-35",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.835,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-36",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.04,
-        "y": 0.78,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-37",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.337,
-        "y": 0.78,
-        "role": "tank"
-      },
-      {
-        "id": "apocalyptic-38",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-14",
-        "x": 0.633,
-        "y": 0.78,
-        "role": "dps"
-      },
-      {
-        "id": "apocalyptic-39",
-        "name": "Women of the Night",
-        "sprite": "villagers/villagers-06",
-        "x": 0.93,
-        "y": 0.78,
-        "role": "healer"
+        "id": "apocalyptic-24-grow2",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "xpReward": 68
       }
     ]
   },
-  "id": "cops",
-  "name": "Woop Woop - Dats the Sound of Da Police",
-  "joinWindowMs": 30000,
-  "recommendedLevel": 12,
-  "scalesWithPartySize": true,
-  "background": "cops",
-  "completionXp": 260,
-  "completionGold": [
-    60,
-    110
+  "goldReward": [
+    11,
+    27
   ],
-  "flavorText": "A garrison town. They stopped waiting for you to come to them.",
+  "completionXp": 260,
+  "joinWindowMs": 30000,
   "bandStatScale": {
     "weak": 0.145,
     "seasoned": 2.771,
     "elite": 9.461,
-    "brutal": 10.642,
-    "infernal": 11.837,
-    "apocalyptic": 16.174
-  }
+    "brutal": 43.333,
+    "infernal": 48.195,
+    "apocalyptic": 119.996
+  },
+  "completionGold": [
+    60,
+    110
+  ],
+  "recommendedLevel": 12,
+  "scalesWithPartySize": true
 }

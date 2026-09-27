@@ -28,15 +28,33 @@
  *     barbie                3    6    6    8   11   10
  *     cops                  3    5    7    6    6    7
  *
+ * BUT "MORE BODIES" IS THE PROXY, NOT THE RULE. The first version of this
+ * failed on body count alone, and the raid immediately proved that wrong: the
+ * top level of three raid rooms and the boss is ONE unit where the level below
+ * has two or three - a king-boss sprite at scale 1.7, a role, placed by hand.
+ * That is a boss encounter, it is a shape the engine supports, and a check
+ * that calls it a mistake is a check that tells you to delete your boss
+ * fights.
+ *
+ * So what is actually compared is POWER - every unit the level fields, priced
+ * with `ratePoints`, the same scorer §5 uses for party strength and gear, and
+ * expanded at that level's own reference party so the band multiplier is in
+ * the number. A level that fields fewer bodies but hits harder is a boss and
+ * is reported as one. A level that fields no more bodies AND no more power is
+ * the real failure: it is not a level, it is a copy of the one below it.
+ *
  * WHAT IT READS. The repo's `content/` by default, because a check in the
  * verification chain has to be offline and deterministic. Content actually
  * lives in Supabase now and the hosted admin panel edits it there, so
  * `--live` reads the store instead - that is the copy the game plays, and the
- * one worth checking before a stream.
+ * one worth checking before a stream. `npm run pull:content` reconciles them.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ContentRegistry } from "../src/engine/content/loader.js";
+import { ratePoints } from "../src/engine/partyStrength.js";
+import { unitStats } from "../src/engine/squad.js";
 import { PARTY_BANDS } from "../src/engine/types.js";
 import type { FightDefinition, PartyBand } from "../src/engine/types.js";
 
@@ -69,6 +87,9 @@ function fightsFrom(dungeons: unknown[], raids: unknown[]): Subject[] {
   return out;
 }
 
+/** The registry, so power can be priced with the real balance and gear. */
+let content: ContentRegistry;
+
 function fromDisk(): Subject[] {
   const read = (dir: string): unknown[] => {
     const path = join(ROOT, "content", dir);
@@ -77,7 +98,17 @@ function fromDisk(): Subject[] {
       .filter((f) => f.endsWith(".json"))
       .map((f) => JSON.parse(readFileSync(join(path, f), "utf-8")) as unknown);
   };
-  return fightsFrom(read("dungeons"), read("raids"));
+  const dungeons = read("dungeons");
+  const raids = read("raids");
+  content = new ContentRegistry();
+  content.loadObjects({
+    gear: read("gear"),
+    consumables: read("consumables"),
+    dungeons,
+    raids,
+    balance: JSON.parse(readFileSync(join(ROOT, "content", "balance.json"), "utf-8")) as unknown,
+  });
+  return fightsFrom(dungeons, raids);
 }
 
 async function fromStore(): Promise<Subject[]> {
@@ -89,16 +120,62 @@ async function fromStore(): Promise<Subject[]> {
   }
   const dungeons: unknown[] = [];
   const raids: unknown[] = [];
+  const gear: unknown[] = [];
+  const consumables: unknown[] = [];
+  let balance: unknown;
   for (const row of rows) {
     if (row.path.startsWith("dungeons/")) dungeons.push(row.data);
     else if (row.path.startsWith("raids/")) raids.push(row.data);
+    else if (row.path.startsWith("gear/")) gear.push(row.data);
+    else if (row.path.startsWith("consumables/")) consumables.push(row.data);
+    else if (row.path === "balance.json") balance = row.data;
   }
+  content = new ContentRegistry();
+  content.loadObjects({ gear, consumables, dungeons, raids, balance });
   return fightsFrom(dungeons, raids);
 }
 
 const subjects = LIVE ? await fromStore() : fromDisk();
 
 const level = (band: PartyBand): string => `L${PARTY_BANDS.indexOf(band) + 1}`;
+
+/**
+ * What the author DREW, priced - with no band multiplier anywhere near it.
+ *
+ * The first attempt priced the expanded fight, and that was measuring the
+ * wrong thing: `bandStatScale` is solved per band to hit a target win rate, so
+ * it rises at every level by construction, and every comparison passed. It
+ * exempted a level from the rule using the very number that is supposed to be
+ * independent of the layout.
+ *
+ * So this prices the authored units alone - base stats, the unit's own
+ * overrides, its role scaling - which is exactly the thing the author controls
+ * in the Dungeons tab and exactly what the count rule is about.
+ */
+function authoredPower(fight: FightDefinition, band: PartyBand): number {
+  const units = fight.formations?.[band] ?? [];
+  return units.reduce((sum, unit) => sum + ratePoints(unitStats(fight.stats, unit.role, unit.stats), content.balance), 0);
+}
+
+/**
+ * Units drawn bigger than life, which is how this content marks a boss.
+ *
+ * There is no `boss` flag on a unit - `scale` is the only signal, and it is a
+ * SPRITE SIZE. That distinction is the whole point of reporting it: a level
+ * whose units are scaled up but carry no stat overrides is one ordinary body
+ * wearing a king's portrait, and it will measure like one.
+ */
+function drawnBig(fight: FightDefinition, band: PartyBand): boolean {
+  const units = fight.formations?.[band] ?? [];
+  return units.length > 0 && units.every((u) => (u as { scale?: number }).scale !== undefined && ((u as { scale?: number }).scale ?? 1) > 1);
+}
+
+/** 1.2k, 340 - the table is for reading, and exact digits do not help. */
+function short(n: number): string {
+  if (n >= 10000) return `${Math.round(n / 1000)}k`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(Math.round(n));
+}
 
 const problems: string[] = [];
 const warnings: string[] = [];
@@ -123,6 +200,7 @@ for (const { label, fight } of subjects) {
   }
 
   let previous = 0;
+  let previousPower = 0;
   let previousBand: PartyBand | null = null;
 
   for (const [i, count] of counts.entries()) {
@@ -141,14 +219,31 @@ for (const { label, fight } of subjects) {
       continue;
     }
 
+    const power = authoredPower(fight, band);
+
     if (previousBand && count <= previous) {
-      const how = count === previous ? `matches ${level(previousBand)}` : `is smaller than ${level(previousBand)}`;
-      problems.push(
-        `${label} ${level(band)} ${how} (${previous} -> ${count}) - squadFor turns the count ramp off across that boundary.`,
-      );
+      const how = count === previous ? "matches" : "is smaller than";
+      if (power > previousPower) {
+        // Fewer bodies, genuinely harder ones: a boss, and the count ramp
+        // being off across this boundary is correct - you do not want to
+        // interpolate from three guards to half a king.
+        warnings.push(
+          `${label} ${level(band)} ${how} ${level(previousBand)} in bodies (${previous} -> ${count}) but hits harder (${short(previousPower)} -> ${short(power)}) - reads as a boss.`,
+        );
+      } else if (drawnBig(fight, band)) {
+        problems.push(
+          `${label} ${level(band)} ${how} ${level(previousBand)} in bodies (${previous} -> ${count}) and is WEAKER (${short(previousPower)} -> ${short(power)}). ` +
+            `Its units are scaled up, but scale is a sprite size - give them stats, or it is one ordinary body wearing a king's portrait.`,
+        );
+      } else {
+        problems.push(
+          `${label} ${level(band)} ${how} ${level(previousBand)} in bodies (${previous} -> ${count}) and is no stronger (${short(previousPower)} -> ${short(power)}).`,
+        );
+      }
     }
 
     previous = count;
+    previousPower = power;
     previousBand = band;
   }
 
@@ -165,7 +260,7 @@ for (const warning of warnings) console.log(`  note  ${warning}`);
 
 if (problems.length > 0) {
   console.error("");
-  console.error("Levels must grow:");
+  console.error("A level must field more bodies than the one below, or hit harder:");
   for (const problem of problems) console.error(`  FAIL  ${problem}`);
   console.error("");
   console.error("Add bodies to the level named, in the admin panel's Dungeons tab - one");
