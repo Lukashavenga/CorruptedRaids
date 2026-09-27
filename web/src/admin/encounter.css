@@ -868,3 +868,23 @@
   color: var(--danger);
   font-size: 12px;
 }
+
+/* A layout whose pressure was authored above the slider's scale. It gets a
+   readout and a button rather than a control, because a range input pinned at
+   its maximum writes that maximum back the moment anyone touches it. */
+.enc-pressure-over {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.enc-pressure-over strong {
+  font-size: 18px;
+  color: #e6e9f0;
+}
+
+.enc-pressure-fix {
+  font-size: 11.5px;
+  padding: 4px 10px;
+}

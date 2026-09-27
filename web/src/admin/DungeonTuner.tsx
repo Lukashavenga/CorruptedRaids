@@ -13,6 +13,31 @@ import { adminFetch } from "../adminKey.js";
 import { writeContent } from "./backend.js";
 
 /**
+ * What the pressure dial can say, and why it is not what it used to say.
+ *
+ * It ran 0.5 to 16. Measured on monks at Level 3 against twelve viewers, one
+ * action a turn each: 1.0x wins 57%, 1.1x wins 44%, 1.25x wins 26%, 1.5x wins
+ * 10%, 2.0x wins 1%, and everything above that is 0%. So roughly nine tenths
+ * of that slider's travel gave the same answer - everybody dies - and the part
+ * that tuned anything was a few pixels wide, which is how a dial ends up being
+ * dragged to 2.8 by somebody reasonably assuming the middle meant "medium".
+ *
+ * 2.0 is the end of the scale because the measurement says there is nothing
+ * past it. Steps of 0.05 because 0.1 is a 13-point swing in win rate here.
+ *
+ * CONTENT AUTHORED ABOVE IT IS SHOWN, NOT CLAMPED. poors' Level 1 sits at 2.8x
+ * and a raid room at 5.3x. An `<input type="range">` renders an out-of-range
+ * value pinned at its maximum and then writes that maximum back the first time
+ * anybody touches it, so a slider that cannot draw a number would quietly
+ * destroy it. The over-range case gets a readout and an explicit button
+ * instead.
+ */
+const PRESSURE_MIN = 0.5;
+const PRESSURE_MAX = 2;
+/** Past here, measured, most parties lose outright. Worth saying out loud. */
+const PRESSURE_CAUTION = 1.5;
+
+/**
  * Which stats get a slider, and the range each is worth dragging over.
  *
  * Tucked behind Settings because, measured, five of the six cannot change a
@@ -132,6 +157,13 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
   const pressure = units.length
     ? units.reduce((sum, u) => sum + (u.weight ?? 1), 0) / units.length
     : 1;
+
+  /** Sets every unit in this layout, which is what the one dial means. */
+  const setPressure = (weight: number) => setUnits(units.map((u) => ({ ...u, weight })));
+
+  // Content authored above the scale. Shown rather than clamped - see the note
+  // on PRESSURE_MAX.
+  const overPressured = pressure > PRESSURE_MAX + 0.001;
 
   return (
     <div className="enc">
@@ -326,25 +358,51 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
 
           <h2 className="enc-h">
             Fight pressure
-            <span className="enc-help" title="How often this squad acts, against one action for an ordinary fighter. The only lever that reaches far enough to decide a fight.">
+            <span
+              className="enc-help"
+              title="How often this squad acts, against one action for an ordinary fighter. It reaches further than any other lever, which is exactly why its useful range is narrow."
+            >
               ?
             </span>
           </h2>
-          <div className="enc-pressure">
-            <span>Calm</span>
-            <strong>{pressure.toFixed(1)}x</strong>
-            <span>Brutal</span>
-          </div>
-          <input
-            type="range"
-            min={0.5}
-            max={16}
-            step={0.1}
-            value={pressure}
-            disabled={units.length === 0}
-            onChange={(e) => setUnits(units.map((u) => ({ ...u, weight: Number(e.target.value) })))}
-          />
-          <p className="admin-hint">Higher pressure makes this squad act more frequently.</p>
+          {overPressured ? (
+            <div className="enc-pressure-over">
+              <strong>{pressure.toFixed(1)}x</strong>
+              <p className="admin-warn">
+                Set above this slider&apos;s range. Measured, a squad acting twice as often as
+                everyone else wins essentially every fight, so the scale stops at {PRESSURE_MAX}x
+                rather than pretending the rest of it tunes anything.
+              </p>
+              <button type="button" className="enc-pressure-fix" onClick={() => setPressure(PRESSURE_MAX)}>
+                Bring into range ({PRESSURE_MAX.toFixed(1)}x)
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="enc-pressure">
+                <span>Calm</span>
+                <strong>{pressure.toFixed(2)}x</strong>
+                <span>Wipe</span>
+              </div>
+              <input
+                type="range"
+                min={PRESSURE_MIN}
+                max={PRESSURE_MAX}
+                step={0.05}
+                value={pressure}
+                disabled={units.length === 0}
+                onChange={(e) => setPressure(Number(e.target.value))}
+              />
+              {pressure > PRESSURE_CAUTION && (
+                <p className="admin-warn">Past {PRESSURE_CAUTION}x most parties lose this fight outright.</p>
+              )}
+              <p className="admin-hint">
+                1.0x is one action a turn, the same as anybody else. Measured on monks at Level 3
+                against twelve viewers: 1.0x wins 57%, 1.1x wins 44%, 1.25x wins 26%, 1.5x wins
+                10%, 2.0x wins 1%. Move bodies first - this is the last tenth.
+              </p>
+            </>
+          )}
         </aside>
 
         {/* --- middle: what it looks like -------------------------------- */}

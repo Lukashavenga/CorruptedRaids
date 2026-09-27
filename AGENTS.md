@@ -526,6 +526,54 @@ findable: two endpoints answering the same question differently. Any raid
 tuning done through the meter before 2026-09-27 was done against the weak
 layout and is worth re-reading.
 
+### How far each lever reaches
+
+Measured on monks at Level 3 against twelve viewers, 400 samples a row:
+
+| lever | bodies | win |
+|---|---|---|
+| as authored | 22 | 57% |
+| +1 body | 23 | 55% (inside the noise) |
+| +25% bodies (+6) | 28 | 9% |
+| fight pressure 1.1x | 22 | 44% |
+| fight pressure 1.25x | 22 | 26% |
+| fight pressure 1.5x | 22 | 10% |
+| fight pressure 2.0x | 22 | 1% |
+| bandStatScale x1.05 | 22 | 27% |
+| bandStatScale x1.1 | 22 | 12% |
+
+**Bodies are the only lever with usable resolution.** One is inside the noise,
+six is a 48-point swing - a dial you can turn. Pressure and the stat curve are
+both cliffs: a 5% nudge to `bandStatScale` costs 30 points of win rate, which
+is why `author-bands.ts` solves it rather than anybody dragging it.
+
+The pressure dial in the admin used to run 0.5 to 16, so about nine tenths of
+its travel said the same thing - everybody dies - and the part that tuned
+anything was a few pixels wide. It now runs 0.5 to 2 in steps of 0.05, and
+content authored above that (poors' Level 1 at 2.8x, a raid room at 5.3x) is
+SHOWN with a button rather than clamped: a range input renders an out-of-range
+value pinned at its maximum and writes that maximum back the moment anyone
+touches it, so a slider that cannot draw a number would quietly destroy it.
+
+### Every level must field more bodies than the one below
+
+`npm run check:formations` enforces it, and unlike the progression simulator it
+FAILS THE BUILD, because this is the engine's precondition rather than a matter
+of taste. `squadFor` interpolates a fight's body count across a level boundary
+- at the floor of Level 3 you field as many bodies as Level 2 had, at the
+ceiling you field all of Level 3 - and that ramp exists because the step it
+replaced was measured as savage (BARBIEVILLE: one extra joiner took a party
+from the weak layout to the whole seasoned one, 85% more enemy HP for one more
+person, 73% win at seven players down to 33% at ten).
+
+But the ramp is guarded: `if (prev.length >= units.length) return units`. A
+level that does not GROW turns the smoothing off and restores the exact cliff
+it was built to prevent.
+
+`--live` (or `npm run check:formations:live`) reads the Supabase store instead
+of `content/` on disk. That is the copy the game plays and the two have drifted
+apart, so check it before a stream.
+
 ### Two simulators, two questions
 
 `npm run simulate` asks **is the engine correct** - aggro pulls, healers heal, a
@@ -726,8 +774,13 @@ sit ON the artwork where a shadow alone loses against a torch flame.
 Run all of these before calling anything done:
 
 ```bash
-npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd run build:web && npm.cmd run check:text && npm.cmd run simulate
+npm.cmd run typecheck && npx.cmd tsc --noEmit -p web/tsconfig.json && npm.cmd run build:web && npm.cmd run check:text && npm.cmd run simulate && npm.cmd run check:formations
 ```
+
+**`check:formations` is RED as of 2026-09-27 and that is the finding, not a
+broken check.** Every dungeon has at least one level that does not grow on the
+one below it, which silently disables the count ramp across that boundary - see
+§6 and the backlog entry in §10. Fix the content, not the check.
 
 `npm run serve` then hosts every page on `http://localhost:8787`. The admin
 panel is ungated there on purpose - it is reached over loopback and its writes
@@ -773,6 +826,31 @@ x13.63, infernal x33.60, which measured at 25 runs as elite 100% win, brutal
 The cost is that a ratcheted band can land harder than its target, and it took
 bodies out of the top three bands of four dungeons to bring them back - see
 `--keep-layouts` for the other trade.
+
+**No dungeon's levels grow all the way up.** `npm run check:formations`,
+2026-09-27, against the live store:
+
+                              L1   L2   L3   L4   L5   L6
+    poors                      6   11   16   16   18   26
+    lady-of-knight             5   38   40   40   40   40
+    monks                     13   19   22   21   25    -
+    barbie                     3    6    6    8   11   10
+    cops                       3    5    7    6    6    7
+
+Three of them field FEWER bodies at some level than the level below (monks L4,
+barbie L6, cops L4); the rest have levels that merely match, which makes them
+levels that are not levels - only the stat multiplier separates them.
+`lady-of-knight` is the loud one: five of its six levels are the same forty
+bodies. `monks` has no Level 6 at all and falls back to Level 5.
+
+The live store has also picked up stray `apocalyptic` formations on three raid
+rooms holding FEWER units than their `weak` layouts (1-2 against 2-3), and the
+`the-watch-house` room that exists on disk is not in the store at all. Both
+look like accidents of editing rather than decisions; confirm before fixing.
+
+Fixing this is drawing bodies, then re-solving with `author-bands.ts` - the
+layout and the stat curve are solved together, so a changed layout invalidates
+the old curve.
 
 **The ladder is out of order.** Still true at 25 trials, and the band ratchet
 barely moved it, because it is a different problem: not how one dungeon scales

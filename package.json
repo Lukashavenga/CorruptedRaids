@@ -31,6 +31,8 @@
     "preview": "wrangler dev",
     "publish:web": "tsx scripts/publish-web.ts && npm run check:hosted",
     "check:hosted": "tsx scripts/check-hosted.ts",
+    "check:formations": "tsx scripts/check-formations.ts",
+    "check:formations:live": "tsx --env-file-if-exists=.env scripts/check-formations.ts --live",
     "push:content": "tsx --env-file-if-exists=.env scripts/push-content.ts",
     "push:sprites": "tsx --env-file-if-exists=.env scripts/push-sprites.ts"
   },
