@@ -161,20 +161,32 @@ async function main(): Promise<number> {
   }
 
   // --- 2. the schema --------------------------------------------------------
-  console.log("\n2. Schema  (sql/001_roster.sql)");
+  console.log("\n2. Schema  (sql/*.sql)");
   const rest = async (path: string, key: string) =>
     fetch(`${origin}/rest/v1${path}`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
 
   let reachable = true;
-  for (const table of ["characters", "roster_snapshots"]) {
+  // Every table a page writes to, with the migration that creates it. This
+  // listed only the roster's two for a long time, and sql/002 was missing from
+  // the setup checklist as well - so the bug report form shipped against a
+  // table nobody had been told to create, and the first person to find out was
+  // somebody trying to report a different bug.
+  const TABLES: [table: string, migration: string][] = [
+    ["characters", "sql/001_roster.sql"],
+    ["roster_snapshots", "sql/001_roster.sql"],
+    ["bug_reports", "sql/002_bug_reports.sql"],
+    ["content_files", "sql/003_content.sql"],
+  ];
+  for (const [table, migration] of TABLES) {
     try {
-      const res = await rest(`/${table}?select=id&limit=1`, serviceKey);
+      // `select=*` rather than a named column: these tables do not share one.
+      const res = await rest(`/${table}?select=*&limit=1`, serviceKey);
       if (res.status === 200) {
         pass(`table "${table}"`);
       } else if (res.status === 404) {
-        fail(`table "${table}" does not exist`, "run sql/001_roster.sql in the Supabase SQL editor (DEPLOY.md §1.2)");
+        fail(`table "${table}" does not exist`, `run ${migration} in the Supabase SQL editor (DEPLOY.md §1.2)`);
       } else if (res.status === 401) {
         fail("the service key was refused", "re-copy it from Settings -> API Keys. It may have been rotated.");
       } else {

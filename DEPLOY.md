@@ -58,7 +58,9 @@ from inside this repo - they all need an account you own.
 2. Run `sql/001_roster.sql` in its SQL editor. It creates `characters` and
    `roster_snapshots`, enables RLS, and adds the one policy viewers get
    (read their own character - see the file for why there's no write policy).
-   Then `sql/003_content.sql` (content, with history) and `sql/004_sprites.sql`
+   Then `sql/002_bug_reports.sql` (the loadout's bug report form writes
+   here - without it, filing a report fails with "Could not find the table
+   'public.bug_reports'"), `sql/003_content.sql` (content, with history) and `sql/004_sprites.sql`
    (the public `sprites` bucket for erased art, and public read of exactly
    `placements.json` and `sprites.json`, which every page needs to draw a
    character). Any erases made on disk before 004 go up once with
