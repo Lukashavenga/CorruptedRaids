@@ -40,6 +40,7 @@ import {
 } from "./auth.js";
 import {
   checkChatBot,
+  inRotation,
   parseChatLine,
   pickRun,
   redeemKind,
@@ -1339,7 +1340,9 @@ const server = createServer((req, res) => {
         return;
       }
 
-      const ids = (kind === "raid" ? content.listRaids() : content.listDungeons()).map((d) => d.id);
+      // Only what is in rotation. A raid switched off in the admin panel is
+      // still openable by hand, but chat's points never land on it.
+      const ids = inRotation(kind === "raid" ? content.listRaids() : content.listDungeons());
       const id = pickRun(ids, lastRedeemed[kind], Math.random);
       if (!id) {
         res.writeHead(200, { "Content-Type": "application/json" });

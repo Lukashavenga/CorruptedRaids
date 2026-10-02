@@ -749,6 +749,16 @@ export interface RaidDoor {
 export interface RaidDefinition {
   id: string;
   name: string;
+  /**
+   * Whether this raid is in rotation. Absent means yes.
+   *
+   * `false` is "still being built, or rested": a redeem will not roll it and
+   * players do not see it in the bestiary, but the operator can still open it
+   * by hand - that is how a raid gets watched once before chat is let at it.
+   * Stored only when false, the same way gear's `enabled` is, so every raid
+   * written before this existed stays active without being touched.
+   */
+  enabled?: boolean;
   recommendedLevel: number;
   joinWindowMs: number;
   /**

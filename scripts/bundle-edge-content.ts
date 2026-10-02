@@ -112,9 +112,13 @@ function buildBestiary(): BestiaryPlace[] {
     const r = raw as {
       id: string;
       name: string;
+      enabled?: boolean;
       rooms?: { id: string; name: string; fight?: { formations?: Record<string, unknown> } }[];
       boss?: { id: string; name: string; fight?: { formations?: Record<string, unknown> } };
     };
+    // A raid that is switched off is one nobody can meet yet. Listing its
+    // rooms would publish a half-built night to every player's bestiary.
+    if (r.enabled === false) continue;
     // The boss is not in `rooms` - it is never drawn, it is arrived at - so it
     // is appended by hand or the one body everybody looks up is the one
     // missing.

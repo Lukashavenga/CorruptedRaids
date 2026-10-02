@@ -290,7 +290,7 @@ export async function deleteContent(
   id: string,
   force: boolean,
 ): Promise<{ ok: boolean; message?: string; references?: { file: string }[] }> {
-  if ((await backendMode()) === "hosted") throw new NeedsLocalPanel("Deleting a dungeon");
+  if ((await backendMode()) === "hosted") throw new NeedsLocalPanel(`Deleting a ${kind}`);
   const res = await adminFetch("/content/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

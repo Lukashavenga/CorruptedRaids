@@ -17,7 +17,7 @@ import { SIM_VIEWERS } from "../src/engine/sim.js";
 import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
 import { PathVote } from "../src/state/pathVote.js";
-import { parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
+import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
 import { grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 
@@ -575,6 +575,13 @@ console.log(
   assert.equal(seen.size, ids.length, "every dungeon should be reachable by a redeem");
   assert.equal(pickRun(["only"], "only", Math.random), "only", "one dungeon may repeat - there is nothing else");
   assert.equal(pickRun([], null, Math.random), null);
+
+  // A raid switched off is never rolled, and one that never said is active.
+  assert.deepEqual(
+    inRotation([{ id: "live" }, { id: "resting", enabled: false }, { id: "explicit", enabled: true }]),
+    ["live", "explicit"],
+  );
+  assert.ok(inRotation(content.listDungeons()).length === content.listDungeons().length);
   console.log("Chat: lines parse to join/vote only, and redeems roll without repeating.");
 }
 

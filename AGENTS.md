@@ -162,6 +162,17 @@ Only the party may vote - the door decides what they fight, so it is theirs.
 Twenty seconds rather than fifteen is stream delay: viewers see the doors
 several seconds late.
 
+**A raid is active or it is not, and new ones start off.** `enabled: false`
+on a raid takes it out of rotation: a redeem never rolls it (`inRotation` in
+`src/server/chat.ts`) and the bestiary does not list it, but the operator can
+still open it by hand - that is how a raid gets watched once before chat is let
+at it. Absent means active, so nothing written before the flag existed changed.
+The Raids tab creates, duplicates and deletes raids; a new or duplicated one is
+saved inactive, and the switch refuses to turn on over an empty boss room,
+because an active raid with nobody in its last room is a night that ends in a
+fight against no one. Delete is local-only like every other delete; hosted, set
+it inactive instead.
+
 The admin's Raids tab edits both halves: the rooms, and the path that strings
 them together. A room the path still points at cannot simply be deleted - the
 doors that led there are repointed, because dropping the step would silently

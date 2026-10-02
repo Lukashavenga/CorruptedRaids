@@ -9,7 +9,7 @@ export interface SimControlsProps {
   partySize: number;
   /** Everything openable, so this offers a choice rather than a hardcoded id. */
   dungeons: { id: string; name: string; recommendedLevel: number }[];
-  raids: { id: string; name: string; recommendedLevel: number }[];
+  raids: { id: string; name: string; recommendedLevel: number; enabled?: boolean }[];
   /** True while a raid is offering doors — enables the path buttons. */
   choosing: boolean;
 }
@@ -134,7 +134,7 @@ export function SimControls({
         <select value={raidId} disabled={busy || state !== "idle"} onChange={(e) => setRaidId(e.target.value)}>
           {raids.map((r) => (
             <option key={r.id} value={r.id}>
-              {r.name} ({r.recommendedLevel})
+              {r.name} ({r.recommendedLevel}){r.enabled === false ? " - inactive" : ""}
             </option>
           ))}
         </select>

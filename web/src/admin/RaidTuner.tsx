@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   DoorKind,
   EnemyUnit,
@@ -19,7 +19,7 @@ import { DifficultyMeter, type Composition } from "./DifficultyMeter.js";
 import { useDraftDifficulty } from "./DraftDifficulty.js";
 import { RoleIcon } from "../components/RoleIcon.js";
 import "./encounter.css";
-import { writeContent } from "./backend.js";
+import { deleteContent, writeContent } from "./backend.js";
 import { StrengthBadge, StrengthPicker } from "./Strength.js";
 
 /** What a role is called on the authoring screens. Matches DungeonTuner. */
@@ -52,6 +52,61 @@ function blankFight(): FightDefinition {
     xpReward: 38,
     formations: { weak: [] },
   };
+}
+
+/**
+ * The line a new room is revealed with until its author writes a better one.
+ *
+ * Not empty, because the loader refuses an empty one - so "+ Empty" made a
+ * room that could be added, edited and then not saved, with the refusal
+ * arriving a screen away from the field that caused it.
+ */
+const STARTER_LINE: Record<DoorKind, string> = {
+  fight: "Something is waiting here.",
+  buff: "A shrine, still lit.",
+  clear: "Nothing here but the way on.",
+};
+
+/**
+ * A raid to start from: one passage, one round, and a boss room with nobody
+ * in it yet.
+ *
+ * The smallest thing the loader will accept, because a raid has to be SAVED to
+ * exist in the picker at all and a draft that cannot be saved cannot be
+ * started. It is created switched off, and cannot be switched on until the
+ * boss has a body - an active raid with an empty boss room is a night that
+ * ends in a fight against nobody.
+ *
+ * Boons are copied from the raid on screen. There is no boon editor yet, and a
+ * raid with none cannot have a shrine room at all.
+ */
+function blankRaid(id: string, name: string, from: RaidDefinition | null): RaidDefinition {
+  return {
+    id,
+    name,
+    enabled: false,
+    recommendedLevel: from?.recommendedLevel ?? 6,
+    joinWindowMs: from?.joinWindowMs ?? 30000,
+    path: [{ left: "first-passage", up: "first-passage", right: "first-passage" }],
+    buffs: structuredClone(from?.buffs ?? []),
+    rooms: [{ id: "first-passage", name: "First Passage", description: STARTER_LINE.clear, kind: "clear" }],
+    boss: {
+      id: "the-boss",
+      name: "The Boss",
+      description: "It has been waiting.",
+      kind: "fight",
+      fight: { ...blankFight(), kind: "boss" },
+      hpMultiplier: 5,
+      atkMultiplier: 1,
+    },
+    completionXp: from?.completionXp ?? 320,
+    completionGold: from?.completionGold ?? [60, 120],
+  };
+}
+
+/** Has the boss room got anybody in it, at any level? */
+function bossIsStaffed(raid: RaidDefinition): boolean {
+  return Object.values(raid.boss.fight.formations ?? {}).some((units) => (units?.length ?? 0) > 0);
 }
 
 function slug(name: string): string {
@@ -94,8 +149,19 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
   useEffect(() => {
     if (selected) setDraft(structuredClone(selected));
   }, [selected]);
+  /**
+   * A raid just created, whose id is selected before the reload that lists it
+   * has landed. Without this the effect below sees an id it does not know and
+   * snaps the picker back to the first raid - so "New" appeared to do nothing.
+   */
+  const pendingId = useRef<string | null>(null);
   useEffect(() => {
-    if (!raids.some((r) => r.id === id)) setId(raids[0]?.id ?? "");
+    if (raids.some((r) => r.id === id)) {
+      if (pendingId.current === id) pendingId.current = null;
+      return;
+    }
+    if (pendingId.current === id) return;
+    setId(raids[0]?.id ?? "");
   }, [raids, id]);
   // Selecting a raid should not leave a room id from the previous one selected.
   useEffect(() => {
@@ -122,7 +188,72 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
   // screen rather than to whatever was last written to disk.
   const difficulty = useDraftDifficulty(room?.fight ?? null);
 
-  if (!draft) return <p className="admin-hint">No raids loaded. Add one to content/raids/.</p>;
+  /** An id no raid has yet, from a name. */
+  const freeId = (name: string): string => {
+    const base = slug(name);
+    let next = base;
+    let n = 2;
+    while (raids.some((r) => r.id === next)) next = `${base}-${n++}`;
+    return next;
+  };
+
+  /**
+   * Create a raid and select it. Written straight away rather than held as an
+   * unsaved draft: the picker lists what is SAVED, so a raid that exists only
+   * in this component could not be switched back to after looking at another.
+   */
+  const create = async (fresh: RaidDefinition, what: string) => {
+    try {
+      await writeContent("raid", fresh.id, fresh);
+      setStatus(what);
+      pendingId.current = fresh.id;
+      onSaved();
+      setId(fresh.id);
+    } catch (err) {
+      setStatus(`Rejected: ${(err as Error).message}`);
+    }
+  };
+
+  const newRaid = () => {
+    const name = window.prompt("Name the new raid");
+    if (!name?.trim()) return;
+    const fresh = blankRaid(freeId(name), name.trim(), draft);
+    void create(fresh, `Created ${fresh.name}. It is inactive until you switch it on.`);
+  };
+
+  if (!draft) {
+    return (
+      <p className="admin-hint">
+        No raids yet.{" "}
+        <button type="button" onClick={newRaid}>
+          + New raid
+        </button>
+      </p>
+    );
+  }
+
+  const duplicateRaid = () => {
+    const name = `${draft.name} copy`;
+    // A copy starts inactive whatever the original was: it is the same night
+    // twice until somebody changes it, and the redeem would roll both.
+    const fresh: RaidDefinition = { ...structuredClone(draft), id: freeId(name), name, enabled: false };
+    void create(fresh, `Created ${fresh.name}, inactive.`);
+  };
+
+  const deleteRaid = async () => {
+    if (!window.confirm(`Delete "${draft.name}" (${draft.id})? This cannot be undone.`)) return;
+    try {
+      const body = await deleteContent("raid", draft.id, false);
+      setStatus(body.ok ? `Deleted ${draft.name}.` : `Rejected: ${body.message}`);
+      if (body.ok) onSaved();
+    } catch (err) {
+      setStatus(`Not deleted: ${(err as Error).message} Switch it to inactive instead.`);
+    }
+  };
+
+  const active = draft.enabled !== false;
+  const staffed = bossIsStaffed(draft);
+  const activeCount = raids.filter((r) => r.enabled !== false).length;
 
   const patch = (next: Partial<RaidDefinition>) => setDraft({ ...draft, ...next });
 
@@ -155,7 +286,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
     const next: RaidRoom = {
       id: base,
       name,
-      description: "",
+      description: STARTER_LINE[kind],
       kind,
       ...(kind === "fight" ? { fight: blankFight() } : {}),
     };
@@ -280,10 +411,35 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
           <select value={id} onChange={(e) => setId(e.target.value)}>
             {raids.map((r) => (
               <option key={r.id} value={r.id}>
+                {r.enabled === false ? "○ " : "● "}
                 {r.name}
               </option>
             ))}
           </select>
+        </label>
+        <button type="button" onClick={newRaid} title="Start a new raid">
+          + New
+        </button>
+        <button type="button" onClick={duplicateRaid} title="Copy this raid as a starting point">
+          Duplicate
+        </button>
+        {/* Active is the one switch that decides whether chat can land on this
+            raid. It cannot be turned on over an empty boss room - see blankRaid. */}
+        <label
+          className={`raid-active ${active ? "is-on" : ""}`}
+          title={
+            staffed || active
+              ? "Active raids can be rolled by a redeem. Inactive ones can only be opened by you."
+              : "Put at least one unit in the boss room first."
+          }
+        >
+          <input
+            type="checkbox"
+            checked={active}
+            disabled={!active && !staffed}
+            onChange={(e) => patch({ enabled: e.target.checked ? undefined : false })}
+          />
+          {active ? "Active" : "Inactive"}
         </label>
         {/* No slider: the number of rounds IS the length of the path, and two
             numbers that have to agree are one number too many. */}
@@ -291,10 +447,46 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
           {draft.path.length} {draft.path.length === 1 ? "round" : "rounds"}, then the boss
         </span>
         <span className="enc-bar-spacer" />
+        <button type="button" className="raid-delete" onClick={() => void deleteRaid()}>
+          Delete
+        </button>
         <button type="button" className="enc-save" onClick={save} disabled={!dirty}>
-          {dirty ? "Save to JSON" : "No changes"}
+          {dirty ? "Save Raid" : "No changes"}
         </button>
       </header>
+
+      {/* The raid itself, as opposed to its rooms. It had no fields at all
+          before - a raid's name could only be changed by editing the file. */}
+      <div className="raid-meta">
+        <label className="raid-field">
+          Raid name
+          <input value={draft.name} onChange={(e) => patch({ name: e.target.value })} />
+        </label>
+        <label className="raid-field raid-field-narrow">
+          Suggested level
+          <input
+            type="number"
+            min={1}
+            value={draft.recommendedLevel}
+            onChange={(e) => patch({ recommendedLevel: Math.max(1, Number(e.target.value) || 1) })}
+          />
+        </label>
+        <label className="raid-field raid-field-narrow">
+          Join window (s)
+          <input
+            type="number"
+            min={5}
+            value={Math.round(draft.joinWindowMs / 1000)}
+            onChange={(e) => patch({ joinWindowMs: Math.max(5, Number(e.target.value) || 5) * 1000 })}
+          />
+        </label>
+        <span className="raid-meta-note">
+          {activeCount === 0
+            ? "No raid is active - a raid redeem will refund."
+            : `${activeCount} of ${raids.length} active. A redeem rolls one of those.`}
+          {!staffed && " This raid's boss room is empty."}
+        </span>
+      </div>
 
       <div className="enc-body">
         {/* --- left: the rooms themselves --------------------------------- */}

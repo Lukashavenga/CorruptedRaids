@@ -452,9 +452,14 @@ export function validateRaidDefinition(raw: unknown, file: string): RaidDefiniti
   const bossId = requireString(boss, "id", file);
   if (seen.has(bossId)) fail(file, `boss id "${bossId}" collides with a room id in raid "${id}"`);
 
+  if (obj.enabled !== undefined && typeof obj.enabled !== "boolean") {
+    fail(file, `"enabled" must be true or false`);
+  }
+
   return {
     id,
     name,
+    ...(obj.enabled === false ? { enabled: false } : {}),
     recommendedLevel: requireNumber(obj, "recommendedLevel", file),
     joinWindowMs: requireNumber(obj, "joinWindowMs", file),
     path,

@@ -180,6 +180,17 @@ export function redeemRole(role: string | undefined): "tank" | "healer" | "dps" 
 }
 
 /**
+ * The ids a redeem may roll: everything not switched off.
+ *
+ * Only raids carry `enabled` today, and a dungeon has no such field, so it
+ * always passes - written against the shape rather than the kind so the day a
+ * dungeon can be rested too, this is already right.
+ */
+export function inRotation(runs: readonly { id: string; enabled?: boolean }[]): string[] {
+  return runs.filter((run) => run.enabled !== false).map((run) => run.id);
+}
+
+/**
  * Which run a redeem opens: any of them, except the one that just ran.
  *
  * Uniform, and deliberately not weighted by how hard a place is or who is in
