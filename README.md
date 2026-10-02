@@ -78,8 +78,9 @@ curl -X POST http://localhost:8787/command -H "Content-Type: application/json" -
 
 `open_dungeon` opens a join window; viewers arrive as `join_dungeon` commands
 (`sim_join` fakes them); `start_dungeon` locks the roster and resolves the
-fight. If nobody starts it, the window times out and starts itself. These are
-stand-ins for a channel-point redeem.
+fight. If nobody starts it, the window times out and starts itself. On stream
+the same thing arrives as a channel-point redeem (`POST /redeem`, which opens a
+random dungeon) and `!join` in chat (`POST /chat`) - see DEPLOY.md step 7.
 
 ## Content
 

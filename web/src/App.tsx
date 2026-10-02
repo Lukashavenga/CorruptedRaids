@@ -42,6 +42,7 @@ export function App(): JSX.Element {
   useScenePreload(catalog);
   const playback = useCombatPlayback(lastResult, updateSeq);
   const joinSecondsLeft = useCountdown(snapshot?.joinDeadline ?? null);
+  const voteSecondsLeft = useCountdown(snapshot?.choiceDeadline ?? null);
   const stageScale = useStageScale();
   const { placements } = usePlacements();
 
@@ -361,6 +362,8 @@ export function App(): JSX.Element {
           doors={raid.doors}
           buffs={raid.buffs}
           bossPending={raid.bossPending}
+          vote={snapshot.vote}
+          secondsLeft={voteSecondsLeft}
         />
       )}
 

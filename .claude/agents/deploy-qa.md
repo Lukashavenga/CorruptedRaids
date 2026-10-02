@@ -21,11 +21,12 @@ hosting model is **local-first, except one piece**:
   `localhost:8787` and are never exposed to the internet.
 - `content/` (dungeons, gear, raids, balance) is JSON files in this repo,
   edited through the local admin panel.
-- `!join` / chat / Bits / channel points are meant to be driven by
-  Streamer.bot hitting `POST localhost:8787/command` — that integration (P5)
-  is **not built yet**, and neither is the EventSub listener (P6). Do not
-  flag their absence as a bug; DEPLOY.md should say they're not built, not
-  invent steps for them.
+- `!join`, raid door votes and channel-point redeems are driven by
+  Streamer.bot hitting `POST localhost:8787/chat` and `/redeem` behind
+  `CHAT_SECRET` (`src/server/chat.ts`). The server side is built and tested;
+  the two scripts in `docs/streamerbot/` are untested inside Streamer.bot and
+  DEPLOY.md must keep saying so until someone has run them. Bits and subs are
+  not wired - do not flag their absence as a bug.
 - **The Loadout** (`web/loadout.html`, one of three Vite entry points that all
   build into `overlay/` — see `web/vite.config.ts`) is the **only hosted
   piece**: a static build on Cloudflare Pages that talks directly to

@@ -3,8 +3,11 @@ import type { GameEngine, DispatchResult, StateSnapshot } from "../engine/state/
 import type { GameCommand } from "../engine/commands/types.js";
 import { StateMachine } from "./StateMachine.js";
 import { advanceRound } from "../engine/raid.js";
+import type { PathDirection } from "../engine/types.js";
+import { PathVote, type VoteTally } from "./pathVote.js";
 import {
   DUNGEON_STATE_CONFIG,
+  CHOICE_WINDOW_MS,
   DEFAULT_JOIN_WINDOW_MS,
   BOSS_REVEAL_MS,
   ROOM_REVEAL_MS,
@@ -23,7 +26,23 @@ export interface DungeonSnapshot {
    * Null outside the `gathering` state.
    */
   joinDeadline: number | null;
+  /**
+   * When chat's door vote closes, as an epoch ms timestamp. Null outside
+   * `choosing`, and null at the boss's door, where there is nothing to pick.
+   */
+  choiceDeadline: number | null;
+  /** Chat's vote so far for the doors on screen. Null whenever no vote is open. */
+  vote: VoteTally | null;
 }
+
+/**
+ * How often a burst of votes may redraw the overlay.
+ *
+ * Every vote changes the tally and every change is a whole snapshot down every
+ * SSE connection. Forty viewers typing !left inside one second should be one
+ * or two of those, not forty.
+ */
+const VOTE_BROADCAST_MS = 250;
 
 export interface DungeonUpdate {
   snapshot: DungeonSnapshot;
@@ -46,6 +65,9 @@ export class DungeonController extends EventEmitter {
   private readonly fsm: StateMachine<StateId, DungeonEvent>;
   private dispatching = false;
   private joinDeadline: number | null = null;
+  private choiceDeadline: number | null = null;
+  private readonly vote = new PathVote();
+  private voteFlush: ReturnType<typeof setTimeout> | undefined;
 
   constructor(engine: GameEngine) {
     super();
@@ -54,6 +76,11 @@ export class DungeonController extends EventEmitter {
 
     this.fsm.on("transition", ({ to, event }: { to: StateId; event: DungeonEvent }) => {
       if (to !== "gathering") this.joinDeadline = null;
+      // Set on EVERY entry, the self-transition included, because the timer it
+      // describes is re-armed on every entry too.
+      this.choiceDeadline = to === "choosing" ? Date.now() + CHOICE_WINDOW_MS : null;
+      // A run that ended mid-vote must not hand its tally to the next raid.
+      if (to === "idle") this.clearVote();
 
       // The join window timing out is the one transition that has to *do*
       // something rather than just be announced: it starts the fight the
@@ -73,6 +100,12 @@ export class DungeonController extends EventEmitter {
         const result = this.engine.dispatch({ type: "reset_dungeon" });
         this.fsm.send("runReset");
         this.emit("update", { snapshot: this.getSnapshot(), result } satisfies DungeonUpdate);
+        return;
+      }
+
+      // Chat's vote window has closed: open the door it picked.
+      if (event === "choiceWindowElapsed") {
+        this.openVotedDoor();
         return;
       }
 
@@ -164,6 +197,11 @@ export class DungeonController extends EventEmitter {
 
       if (command.type === "choose_path") {
         const result = this.engine.dispatch(command);
+        // A door has opened, so the vote for it is spent - whoever opened it.
+        // Cleared on the DOOR rather than on entering `choosing`: the operator
+        // may open one early, and the next round must not start with this
+        // round's tally.
+        if (result.ok) this.clearVote();
         if (result.ok && result.door) {
           if (result.door.kind === "fight") {
             // Show the room, THEN fight it. The timer's event is redirected so
@@ -261,6 +299,50 @@ export class DungeonController extends EventEmitter {
     } finally {
       this.dispatching = false;
     }
+  }
+
+  /**
+   * One viewer's vote for a door. Returns false when no vote is open, so the
+   * caller can tell a counted vote from a line typed at the wrong moment.
+   *
+   * Anyone in chat may vote, not only the party. The party is who is risking
+   * something, but a raid is the one part of a run where a viewer who missed
+   * the join window can still do anything at all, and shutting them out of it
+   * makes the stream something they watch rather than something they are in.
+   */
+  castVote(viewerId: string, direction: PathDirection): boolean {
+    if (this.fsm.state !== "choosing" || this.engine.raidRun?.bossPending) return false;
+    this.vote.cast(viewerId, direction);
+    if (!this.voteFlush) {
+      this.voteFlush = setTimeout(() => {
+        this.voteFlush = undefined;
+        this.emit("update", { snapshot: this.getSnapshot(), result: null } satisfies DungeonUpdate);
+      }, VOTE_BROADCAST_MS);
+    }
+    return true;
+  }
+
+  private clearVote(): void {
+    this.vote.reset();
+    if (this.voteFlush) clearTimeout(this.voteFlush);
+    this.voteFlush = undefined;
+  }
+
+  /**
+   * The vote window ran out: open the leading door.
+   *
+   * Goes through `this.dispatch` as a plain `choose_path`, deliberately. The
+   * operator clicking a door and chat voting for one are then the same command
+   * down the same path - the reveal, the fight and the overlay cannot tell
+   * them apart, which is the whole promise of the command seam.
+   */
+  private openVotedDoor(): void {
+    const run = this.engine.raidRun;
+    if (!run || run.bossPending) return;
+    const open = run.doors.filter((d) => !d.opened).map((d) => d.direction);
+    const pick = this.vote.winner(open, Math.random);
+    if (!pick) return;
+    this.dispatch({ type: "choose_path", direction: pick.direction });
   }
 
   /**
@@ -365,14 +447,18 @@ export class DungeonController extends EventEmitter {
   }
 
   getSnapshot(): DungeonSnapshot {
+    const voting = this.fsm.state === "choosing" && !this.engine.raidRun?.bossPending;
     return {
       engine: this.engine.getStateSnapshot(),
       state: this.fsm.state,
       joinDeadline: this.fsm.state === "gathering" ? this.joinDeadline : null,
+      choiceDeadline: voting ? this.choiceDeadline : null,
+      vote: voting ? this.vote.tally() : null,
     };
   }
 
   dispose(): void {
+    this.clearVote();
     this.fsm.dispose();
   }
 }

@@ -149,6 +149,18 @@ Two ordering rules, both bugs found the hard way:
   at all. `fightPlaying` is a self-transition that re-arms the hold once the
   replay length is known.
 
+**Chat's vote opens the door, on a timer.** `choosing` holds for
+`CHOICE_WINDOW_MS` (20s) and then opens whichever door has the most votes - a
+tie is broken at random among the tied doors, and a window nobody voted in
+opens one at random, because a stream cannot stall on a decision nobody makes.
+The vote lives on `DungeonController` (`src/state/pathVote.ts`), not in the
+server: it used to be a tally in the HTTP layer that the operator read and
+then clicked for, and a thing the state machine acts on has to be where the
+simulator can reach it. The timer dispatches an ordinary `choose_path`, so an
+operator clicking a door early and chat voting for one are the same command.
+Anyone in chat may vote, not only the party. Twenty seconds rather than
+fifteen is stream delay: viewers see the doors several seconds late.
+
 The admin's Raids tab edits both halves: the rooms, and the path that strings
 them together. A room the path still points at cannot simply be deleted - the
 doors that led there are repointed, because dropping the step would silently
@@ -322,6 +334,7 @@ in a `.ts` file is a bug report waiting to happen.
     GET  /state /character /placements /ratings /content /events
     GET  /difficulty                                    (admin)
     POST /command /placements /sprite /sprite/revert
+    POST /chat /redeem                                  (chat bot)
     POST /difficulty /difficulty/measure /difficulty/solve   (admin)
     POST /content/write /content/delete /content/rename
 
@@ -354,6 +367,15 @@ difficulty of a fight nobody is looking at.
 > Chat reaches the game through `POST /chat` (`src/server/chat.ts`) behind
 > CHAT_SECRET, which parses a line into one of a fixed, tiny set - a
 > compromised bot can impersonate a viewer but cannot reach `grant_gear`.
+>
+> `POST /redeem` is behind the same secret and is the one bot-reachable thing
+> that STARTS a run, which is otherwise the operator's alone. It is its own
+> endpoint so the bot never holds ADMIN_SECRET. It takes a KIND (`dungeon` or
+> `raid`), never an id: the server rolls which one, skipping whichever ran
+> last, so a doctored redeem cannot aim the stream. Every refusal answers
+> `refund: true` and the bot gives the channel points back. Probed
+> 2026-10-02: 401 without the header, 401 with a wrong one, 400 for an id in
+> the reward field, 200 `refund: true` while a run is open.
 
 ---
 

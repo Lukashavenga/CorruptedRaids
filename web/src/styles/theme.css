@@ -1297,6 +1297,13 @@ body {
   color: var(--accent);
 }
 
+/* The vote clock, pushed to the far end of the row from the round label. */
+.raid-clock {
+  margin-left: auto;
+  order: 2;
+  color: var(--accent);
+}
+
 /* The boons carried so far. Four rounds of accumulation is the only thing that
    makes a raid different from four dungeons, so it has to be visible. */
 .raid-buffs {
@@ -1345,6 +1352,17 @@ body {
   font-size: var(--fs);
   line-height: 18px;
   color: var(--ink);
+}
+
+/* The door chat is currently sending the party through. Says who is winning
+   without saying what is behind it - the vote stays blind. */
+.raid-door.is-leading {
+  border-color: var(--accent);
+}
+
+.raid-door-votes {
+  margin-left: 4px;
+  color: var(--accent);
 }
 
 /* Opened doors colour by what was behind them: green for a boon, red for an

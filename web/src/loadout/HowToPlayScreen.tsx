@@ -89,7 +89,7 @@ export function HowToPlayScreen({ balance }: { balance: BalanceConfig }): JSX.El
           <dd>{commands.join}</dd>
         </div>
         <div>
-          <dt>!left !up !right</dt>
+          <dt>!left !ahead !right</dt>
           <dd>{commands.path}</dd>
         </div>
       </dl>

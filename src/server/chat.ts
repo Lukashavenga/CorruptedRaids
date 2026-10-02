@@ -41,10 +41,22 @@ import type { PathDirection } from "../engine/types.js";
  * into one of a fixed, tiny set, and `requestedBy` is built from the reported
  * id server-side — so a compromised bot can impersonate a viewer but cannot
  * reach `grant_gear`, `reset_roster` or anything else that runs the show.
+ *
+ * A REDEEM is the one thing here that starts a run, which is otherwise the
+ * operator's alone. It gets its own endpoint (`POST /redeem`) rather than the
+ * bot being handed ADMIN_SECRET to call `open_dungeon` with: that key also
+ * grants gear and wipes the roster, and a bot is a program somebody else wrote
+ * holding a config file. What a redeem can do is fixed - open one run, chosen
+ * here, when nothing is running - and that is the whole of it.
  */
 
 /** Ids are namespaced by platform on both sides of the game — see AGENTS.md §3. */
 const ID_PREFIX = "twitch:";
+
+/** `twitch:<id>`, the one spelling of a viewer every part of the game shares. */
+export function viewerId(userId: string): string {
+  return `${ID_PREFIX}${userId}`;
+}
 
 /** Chat can reach exactly these. Everything else needs the operator. */
 export type ChatCommand =
@@ -115,7 +127,7 @@ export function parseChatLine(line: ChatLine): ChatCommand | null {
   const [word, ...rest] = text.slice(1).toLowerCase().split(/\s+/);
   if (!word) return null;
 
-  const requestedBy = `${ID_PREFIX}${line.userId}`;
+  const requestedBy = viewerId(line.userId);
 
   if (word === "join") {
     const role = rest[0] && ROLES.has(rest[0]) ? (rest[0] as "tank" | "healer" | "dps") : undefined;
@@ -139,42 +151,46 @@ export function parseChatLine(line: ChatLine): ChatCommand | null {
 }
 
 /**
- * A running tally of chat's door vote.
+ * A channel-point redeem, as the bot reports it.
  *
- * DELIBERATELY NOT WIRED TO THE STATE MACHINE. `choosing` has no timer — it
- * waits for the operator's `choose_path` — so a vote that resolved itself
- * would mean adding a vote window to the FSM and a fourth way for a raid to
- * advance. That is a real feature with a real design in it (how long is the
- * window? what happens on a tie? can chat be overruled?) and not something to
- * bolt on behind a tally.
- *
- * So this counts, and the operator still opens the door. Chat's vote is
- * visible and it decides what a reasonable streamer clicks, which is most of
- * the value and none of the risk. The overlay reads it from /state.
- *
- * One vote per viewer, last one wins — changing your mind mid-vote is normal
- * chat behaviour, and counting every line would let one person spam a door.
+ * `reward` is the KIND of run being bought, never an id. Which dungeon opens
+ * is this server's roll, not the bot's choice - so a compromised bot, or a
+ * viewer with a doctored redeem, cannot aim the stream at one place all night.
  */
-export class PathVote {
-  private votes = new Map<string, PathDirection>();
+export interface Redeem {
+  userId: string;
+  userName?: string;
+  /** Defaults to "dungeon". */
+  reward?: string;
+  /** The role the redeemer walks in as, if the reward asked. */
+  role?: string;
+}
 
-  cast(viewerId: string, direction: PathDirection): void {
-    this.votes.set(viewerId, direction);
-  }
+export const REDEEM_KINDS = ["dungeon", "raid"] as const;
+export type RedeemKind = (typeof REDEEM_KINDS)[number];
 
-  /** Cleared whenever a door actually opens, so a round starts from zero. */
-  reset(): void {
-    this.votes.clear();
-  }
+export function redeemKind(reward: string | undefined): RedeemKind | null {
+  const wanted = (reward ?? "dungeon").trim().toLowerCase();
+  return (REDEEM_KINDS as readonly string[]).includes(wanted) ? (wanted as RedeemKind) : null;
+}
 
-  tally(): { left: number; up: number; right: number; total: number; leader: PathDirection | null } {
-    const counts: Record<PathDirection, number> = { left: 0, up: 0, right: 0 };
-    for (const direction of this.votes.values()) counts[direction] += 1;
-    const total = this.votes.size;
-    const ranked = (Object.entries(counts) as [PathDirection, number][]).sort((a, b) => b[1] - a[1]);
-    // A tie has no leader rather than an arbitrary one — the overlay should
-    // show a tie as a tie, and the operator breaks it.
-    const leader = total > 0 && ranked[0]![1] > (ranked[1]?.[1] ?? 0) ? ranked[0]![0] : null;
-    return { ...counts, total, leader };
-  }
+export function redeemRole(role: string | undefined): "tank" | "healer" | "dps" | undefined {
+  const wanted = role?.trim().toLowerCase();
+  return wanted && ROLES.has(wanted) ? (wanted as "tank" | "healer" | "dps") : undefined;
+}
+
+/**
+ * Which run a redeem opens: any of them, except the one that just ran.
+ *
+ * Uniform, and deliberately not weighted by how hard a place is or who is in
+ * chat - the party's own strength already picks the LEVEL they meet there
+ * (AGENTS.md section 2), so the place is free to be a surprise. Skipping the
+ * last one is the single rule: five dungeons rolled fairly repeat one time in
+ * five, and the same scene twice running reads as broken rather than as
+ * random. With one candidate there is nothing to skip and it simply opens.
+ */
+export function pickRun(ids: readonly string[], last: string | null, rng: () => number): string | null {
+  if (ids.length === 0) return null;
+  const fresh = ids.length > 1 ? ids.filter((id) => id !== last) : ids;
+  return fresh[Math.floor(rng() * fresh.length)] ?? fresh[0]!;
 }

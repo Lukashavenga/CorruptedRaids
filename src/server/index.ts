@@ -38,7 +38,17 @@ import {
   sessionCookie,
   sessionViewer,
 } from "./auth.js";
-import { PathVote, checkChatBot, parseChatLine, type ChatLine } from "./chat.js";
+import {
+  checkChatBot,
+  parseChatLine,
+  pickRun,
+  redeemKind,
+  redeemRole,
+  viewerId,
+  type ChatLine,
+  type Redeem,
+  type RedeemKind,
+} from "./chat.js";
 import type { EnemyDefinition, FightDefinition } from "../engine/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -64,12 +74,12 @@ const PLACEMENTS_FILE = join(CONTENT_DIR, "placements.json");
 let supabasePlacements: unknown = null;
 
 /**
- * Chat's door vote for the round in progress.
+ * The run each kind of redeem opened last, so the next roll can skip it.
  *
  * In the process, like the FSM and the roster — see the ONE MACHINE note in
- * AGENTS.md §3. A second instance would be a second vote behind the same URL.
+ * AGENTS.md §3. Forgotten on restart, which costs one possible repeat.
  */
-const pathVote = new PathVote();
+const lastRedeemed: Record<RedeemKind, string | null> = { dungeon: null, raid: null };
 
 function readPlacements(): string {
   try {
@@ -403,10 +413,9 @@ const server = createServer((req, res) => {
 
   if (req.method === "GET" && url.pathname === "/state") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    // The vote rides along with the snapshot rather than getting its own
-    // endpoint: the overlay already polls this and a tally that arrives a beat
-    // after the doors it belongs to is worse than no tally.
-    res.end(JSON.stringify({ ...raid.getSnapshot(), vote: pathVote.tally() }));
+    // Chat's door vote is part of the snapshot itself now (`vote`,
+    // `choiceDeadline`), so this and the SSE stream cannot disagree about it.
+    res.end(JSON.stringify(raid.getSnapshot()));
     return;
   }
 
@@ -1279,15 +1288,97 @@ const server = createServer((req, res) => {
       }
 
       if (parsed.kind === "vote") {
-        pathVote.cast(line.userId, parsed.direction);
+        // False when no doors are up. `!left` typed during a fight is
+        // conversation, not an error, and answers like any other line that
+        // was not for us.
+        const counted = raid.castVote(line.userId, parsed.direction);
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ ok: true, handled: true, vote: pathVote.tally() }));
+        res.end(JSON.stringify({ ok: true, handled: counted, vote: raid.getSnapshot().vote }));
         return;
       }
 
       const result = raid.dispatch(parsed.command);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ...result, handled: true }));
+    });
+    return;
+  }
+
+  /**
+   * A channel-point redeem: open a run, picked at random, and put the viewer
+   * who paid for it in the party.
+   *
+   * Behind CHAT_SECRET, not ADMIN_SECRET - see the trust note in chat.ts for
+   * why the bot is not simply given the operator's key.
+   *
+   * `refund` is the contract with the bot. Channel points are the viewer's,
+   * and a redeem that arrives while a fight is on screen has bought nothing:
+   * the bot reads `refund: true` and hands them back. It is true for every
+   * refusal here, because every refusal means no run opened.
+   */
+  if (req.method === "POST" && url.pathname === "/redeem") {
+    const bot = checkChatBot(req);
+    if (!bot.ok) {
+      res.writeHead(bot.status, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: false, message: bot.message }));
+      return;
+    }
+    readBody(req, (body) => {
+      const redeem = body as Redeem | null;
+      const kind = redeem ? redeemKind(redeem.reward) : null;
+      if (!redeem || typeof redeem.userId !== "string" || !redeem.userId || !kind) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            ok: false,
+            refund: true,
+            message: 'Expected { userId, userName?, reward?: "dungeon" | "raid", role? }',
+          }),
+        );
+        return;
+      }
+
+      const ids = (kind === "raid" ? content.listRaids() : content.listDungeons()).map((d) => d.id);
+      const id = pickRun(ids, lastRedeemed[kind], Math.random);
+      if (!id) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, refund: true, message: `There is no ${kind} to open.` }));
+        return;
+      }
+
+      const opened = raid.dispatch(
+        kind === "raid" ? { type: "open_raid", raidId: id } : { type: "open_dungeon", dungeonId: id },
+      );
+      if (!opened.ok) {
+        // Almost always "a run is already in progress".
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, refund: true, message: opened.message }));
+        return;
+      }
+      lastRedeemed[kind] = id;
+
+      // Whoever paid is in. Making them also type !join inside the window they
+      // just bought is how the person who started the dungeon misses it.
+      const role = redeemRole(redeem.role);
+      const joined = raid.dispatch({
+        type: "join_dungeon",
+        requestedBy: viewerId(redeem.userId),
+        displayName: redeem.userName?.trim() || redeem.userId,
+        ...(role ? { role } : {}),
+      });
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          ok: true,
+          refund: false,
+          kind,
+          opened: id,
+          message: opened.message,
+          joined: joined.ok,
+          joinDeadline: raid.getSnapshot().joinDeadline,
+        }),
+      );
     });
     return;
   }
@@ -1304,13 +1395,6 @@ const server = createServer((req, res) => {
       if (!isViewerCommand(command.type)) {
         if (denyNonAdmin(req, res)) return;
         const result = raid.dispatch(command);
-        // A door has opened, so chat's vote for it is spent. Cleared here
-        // rather than on entering `choosing` because a raid re-enters that
-        // state on its own timer and the reset has to follow the DOOR, not
-        // the state — otherwise round two opens with round one's tally.
-        if (result.ok && (command.type === "choose_path" || command.type === "reset_dungeon")) {
-          pathVote.reset();
-        }
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(result));
         return;

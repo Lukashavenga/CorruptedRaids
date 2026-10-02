@@ -16,6 +16,8 @@ import { mulberry32 } from "../src/engine/rng.js";
 import { SIM_VIEWERS } from "../src/engine/sim.js";
 import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
+import { PathVote } from "../src/state/pathVote.js";
+import { parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
 import { grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 
@@ -467,6 +469,107 @@ console.log(
     `only ${bossesFought}/${RUNS} raids reached the boss — most runs should get there`,
   );
   console.log(`Raids: ${finished}/${RUNS} runs terminated, ${bossesFought} reached the boss.`);
+
+  // --- chat's vote opens the door ---------------------------------------------
+  //
+  // The vote used to be a tally the operator read and then clicked for. It
+  // decides now, on a timer, so the thing to prove is that the door which
+  // opens is the one chat picked - for every direction, since an off-by-one in
+  // a three-way count is invisible in any single run.
+  for (const wanted of directions) {
+    const voteEngine = new GameEngine(raidContent, Math.random);
+    const controller = new DungeonController(voteEngine);
+    controller.dispatch({ type: "open_raid", raidId: raidDef.id });
+    controller.dispatch({ type: "sim_join", count: 12 });
+
+    assert.equal(controller.castVote("early", wanted), false, "a vote before the doors are up is not counted");
+    controller.dispatch({ type: "start_dungeon" });
+    assert.equal(controller.state, "choosing");
+    assert.ok(controller.getSnapshot().choiceDeadline, "an open vote says when it closes");
+
+    const others = directions.filter((d) => d !== wanted);
+    controller.castVote("a", wanted);
+    controller.castVote("b", wanted);
+    controller.castVote("c", others[0]!);
+    // One viewer, one vote: a change of mind MOVES it rather than adding one.
+    controller.castVote("d", others[1]!);
+    controller.castVote("d", wanted);
+    const tally = controller.getSnapshot().vote;
+    assert.equal(tally?.total, 4, "four viewers voted, however many lines they typed");
+    assert.equal(tally?.leader, wanted);
+
+    assert.ok(controller.forceTimerElapsed(), "the choice window has a timer to run out");
+    assert.equal(controller.state, "reveal", "the window closing opens a door");
+    const opened = controller.getSnapshot().engine.raid?.doors.filter((d) => d.opened) ?? [];
+    assert.deepEqual(
+      opened.map((d) => d.direction),
+      [wanted],
+      `chat voted ${wanted} and a different door opened`,
+    );
+    assert.equal(controller.getSnapshot().vote, null, "the tally does not outlive the door it opened");
+    controller.dispose();
+  }
+
+  // Nobody voting must not stall the stream: the window still opens a door.
+  {
+    const quietEngine = new GameEngine(raidContent, Math.random);
+    const controller = new DungeonController(quietEngine);
+    controller.dispatch({ type: "open_raid", raidId: raidDef.id });
+    controller.dispatch({ type: "sim_join", count: 12 });
+    controller.dispatch({ type: "start_dungeon" });
+    controller.forceTimerElapsed();
+    assert.equal(controller.state, "reveal", "a silent chat still gets a door opened");
+    controller.dispose();
+  }
+
+  // A tie is broken among the TIED doors, never by opening the third.
+  {
+    const vote = new PathVote();
+    vote.cast("a", "left");
+    vote.cast("b", "right");
+    for (let i = 0; i < 200; i += 1) {
+      const pick = vote.winner(directions, Math.random);
+      assert.ok(pick && pick.direction !== "up", "a left/right tie opened the door nobody voted for");
+      assert.equal(pick.decidedBy, "tie");
+    }
+    assert.equal(vote.tally().leader, null, "a tie has no leader to highlight");
+  }
+  console.log("Raids: chat's vote opens the door it picked, and silence does not stall.");
+}
+
+// --- chat lines and redeems ---------------------------------------------------
+{
+  const join = parseChatLine({ userId: "42", userName: "Ada", message: "!join healer" });
+  assert.ok(join?.kind === "join" && join.command.type === "join_dungeon");
+  assert.equal(join.command.requestedBy, "twitch:42", "a viewer is twitch:<id> everywhere");
+  assert.equal(join.command.role, "healer");
+
+  // The middle door is LABELLED Ahead, so that is what people type.
+  const ahead = parseChatLine({ userId: "42", message: "!ahead" });
+  assert.ok(ahead?.kind === "vote" && ahead.direction === "up");
+  assert.equal(parseChatLine({ userId: "42", message: "left is the best door" }), null);
+  // Whatever a chat line says, it cannot become an operator command.
+  assert.equal(parseChatLine({ userId: "42", message: "!grant_gear rare-sword" }), null);
+
+  // A redeem buys a KIND of run. An id in that field is refused, not honoured.
+  assert.equal(redeemKind(undefined), "dungeon");
+  assert.equal(redeemKind("Raid"), "raid");
+  assert.equal(redeemKind("lady-of-knight"), null);
+
+  const ids = ["a", "b", "c", "d", "e"];
+  let last: string | null = null;
+  const seen = new Set<string>();
+  for (let i = 0; i < 400; i += 1) {
+    const next = pickRun(ids, last, Math.random);
+    assert.ok(next, "a non-empty list always opens something");
+    assert.notEqual(next, last, "the same dungeon opened twice running");
+    seen.add(next);
+    last = next;
+  }
+  assert.equal(seen.size, ids.length, "every dungeon should be reachable by a redeem");
+  assert.equal(pickRun(["only"], "only", Math.random), "only", "one dungeon may repeat - there is nothing else");
+  assert.equal(pickRun([], null, Math.random), null);
+  console.log("Chat: lines parse to join/vote only, and redeems roll without repeating.");
 }
 
 // --- reset returns to idle ---------------------------------------------------

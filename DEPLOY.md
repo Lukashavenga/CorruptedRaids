@@ -10,7 +10,7 @@ where OBS and Streamer.bot already are:
 | Game server | `localhost:8787` | - |
 | Overlay | OBS browser source -> `http://localhost:8787/?sim=0` | - |
 | Admin panel | localhost. **Never exposed.** | - |
-| `!join`, Bits, channel points | Streamer.bot -> `POST http://localhost:8787/command` (P5, **not built yet**) | - |
+| `!join`, door votes, channel points | Streamer.bot -> `POST http://localhost:8787/chat` and `/redeem` (see step 7) | - |
 | `content/` | files in the repo | - |
 | **Loadout** | the only hosted piece | free tier |
 
@@ -388,12 +388,49 @@ broadcast. Size it **450 × 320** to match `STAGE_W`/`STAGE_H`
 (`web/src/stage.ts`); at that size the overlay renders pixel-for-pixel with no
 scaling.
 
-### 7. Chat and channel points - not yet
+### 7. Chat and channel points
 
-`!join`, `!left/!up/!right` and channel-point/Bits redemptions all depend on
-Streamer.bot hitting `POST localhost:8787/command` (P5) and the EventSub
-listener (P6). Neither is built. There is nothing to configure here yet;
-until then, joins happen through the admin panel or the sim harness.
+The game never talks to Twitch. Streamer.bot does, and forwards two things to
+the game over localhost, both carrying `CHAT_SECRET` as `X-Chat-Secret`:
+
+| Viewer does | Streamer.bot sends | What happens |
+|---|---|---|
+| redeems "Start a dungeon" | `POST /redeem` | a random dungeon opens, the redeemer is in the party |
+| types `!join` / `!join tank` | `POST /chat` | they join the open run |
+| types `!left` `!ahead` `!right` | `POST /chat` | one vote for a raid door; the leader opens after 20s |
+
+Setup, once:
+
+1. Put a long random value in `.env` as `CHAT_SECRET` and restart the game.
+2. In Streamer.bot, **Global Variables > Persisted**: add `crChatSecret` with
+   the same value.
+3. **Platforms > Twitch > Channel Point Rewards**: create the reward here, not
+   on the Twitch dashboard - Twitch only lets the app that made a reward
+   refund it. Leave "skip queue" off.
+4. New action, trigger **Twitch > Channel Reward > Reward Redemption**, one
+   sub-action **Execute C# Code**: paste `docs/streamerbot/redeem-run.cs`.
+5. New action, trigger **Twitch > Chat > Message**, one sub-action **Execute C#
+   Code**: paste `docs/streamerbot/forward-chat.cs`.
+
+A second reward for raids is the same action with `Reward = "raid"`.
+
+A redeem that arrives while a run is on screen answers `refund: true` and the
+script cancels the redemption, which returns the points. Bits and subs are not
+wired to anything.
+
+Checking it without Twitch - this is what the endpoints were tested with:
+
+```bash
+curl -X POST http://localhost:8787/redeem -H "Content-Type: application/json" -H "X-Chat-Secret: $CHAT_SECRET" -d '{"userId":"1001","userName":"Someone"}'
+```
+
+```bash
+curl -X POST http://localhost:8787/chat -H "Content-Type: application/json" -H "X-Chat-Secret: $CHAT_SECRET" -d '{"userId":"1002","userName":"Other","message":"!join healer"}'
+```
+
+**The two `.cs` files have not been run inside Streamer.bot.** The endpoints
+they call are tested; the scripts are written against Streamer.bot's
+documented `args` and `CPH` methods and want one real redeem to confirm.
 
 ---
 

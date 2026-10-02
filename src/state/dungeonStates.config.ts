@@ -13,6 +13,7 @@ import type { StateMachineConfig } from "./StateMachine.js";
  *
  *   gathering --raidStarted------> choosing    (three doors, one gets picked)
  *   choosing ---pathChosen-------> reveal      (EVERY door: the room is shown)
+ *   choosing ---choiceWindowElapsed-> choosing (chat's vote closes; the controller opens the winner)
  *   reveal -----roomEntered------> combat      (the room held enemies)
  *   reveal -----revealElapsed----> choosing    (a boon or an empty corridor: next round)
  *   combat -----roundSurvived----> reveal      (door fight won, rounds remain)
@@ -62,6 +63,10 @@ export const DUNGEON_EVENTS = [
   "raidWindowElapsed",
   "raidStarted",
   "pathChosen",
+  // The vote window on a door choice has run out. A self-transition: the
+  // machine stays put and the controller opens whichever door chat picked,
+  // which is what actually leaves the state.
+  "choiceWindowElapsed",
   // The revealed room's fight begins. Distinct from revealElapsed because the
   // same state has to be able to end in either a fight or the next round.
   "roomEntered",
@@ -125,12 +130,17 @@ export const ROOM_REVEAL_MS = 4200;
 export const BOSS_REVEAL_MS = 5200;
 
 /**
- * How long a raid waits for a path to be chosen before picking one itself.
+ * How long chat has to vote for a door before the leading one opens.
  *
- * A stream cannot stall on a decision nobody makes. The auto-pick is random,
- * which is also the honest outcome of "nobody chose".
+ * A stream cannot stall on a decision nobody makes, so a window nobody voted
+ * in opens a door at random - the honest outcome of "nobody chose".
+ *
+ * Twenty seconds rather than the fifteen this was first written as, and the
+ * difference is stream delay: a viewer sees the doors several seconds after
+ * the server put them up, so the window they actually get is this number minus
+ * their latency. Fifteen left a normal-latency viewer under ten.
  */
-export const CHOICE_WINDOW_MS = 15000;
+export const CHOICE_WINDOW_MS = 20000;
 
 export const DUNGEON_STATE_CONFIG: StateMachineConfig<StateId, DungeonEvent> = {
   initial: "idle",
@@ -152,7 +162,7 @@ export const DUNGEON_STATE_CONFIG: StateMachineConfig<StateId, DungeonEvent> = {
     // boss dying, or the party wiping, ends the run.
     // Every door reveals its room first, so there is only one exit from a
     // choice. `pathCleared` is gone with the second exit it existed for.
-    choosing: { pathChosen: "reveal", runReset: "idle" },
+    choosing: { pathChosen: "reveal", choiceWindowElapsed: "choosing", runReset: "idle" },
     // The self-transition on pathChosen is how the party walks up to the boss
     // room: afterRound() re-enters the reveal with a new room and a new timer.
     reveal: { revealElapsed: "choosing", pathChosen: "reveal", roomEntered: "combat", runReset: "idle" },
@@ -177,6 +187,9 @@ export const DUNGEON_STATE_CONFIG: StateMachineConfig<StateId, DungeonEvent> = {
   },
   timers: {
     gathering: { afterMs: DEFAULT_JOIN_WINDOW_MS, event: "joinWindowElapsed" },
+    // The vote window. If the door somehow fails to open, the self-transition
+    // re-arms this and the round tries again rather than wedging.
+    choosing: { afterMs: CHOICE_WINDOW_MS, event: "choiceWindowElapsed" },
     // Only ever reached via `fightPlaying`, which always overrides both the
     // delay and the event. The default is a backstop so a raid cannot wedge in
     // `combat` if a replay length ever came back as nonsense.
