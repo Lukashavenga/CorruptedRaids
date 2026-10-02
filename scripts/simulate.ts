@@ -488,12 +488,18 @@ console.log(
     assert.ok(controller.getSnapshot().choiceDeadline, "an open vote says when it closes");
 
     const others = directions.filter((d) => d !== wanted);
-    controller.castVote("a", wanted);
-    controller.castVote("b", wanted);
-    controller.castVote("c", others[0]!);
+    const [a, b, c, d] = voteEngine.party.map((member) => member.id) as [string, string, string, string];
+    // The door is the party's to choose. Someone watching does not get a say,
+    // and must not be able to swing it by outnumbering the people at risk.
+    for (let i = 0; i < 20; i += 1) {
+      assert.equal(controller.castVote(`twitch:spectator-${i}`, others[0]!), false, "a spectator's vote was counted");
+    }
+    controller.castVote(a, wanted);
+    controller.castVote(b, wanted);
+    controller.castVote(c, others[0]!);
     // One viewer, one vote: a change of mind MOVES it rather than adding one.
-    controller.castVote("d", others[1]!);
-    controller.castVote("d", wanted);
+    controller.castVote(d, others[1]!);
+    controller.castVote(d, wanted);
     const tally = controller.getSnapshot().vote;
     assert.equal(tally?.total, 4, "four viewers voted, however many lines they typed");
     assert.equal(tally?.leader, wanted);
@@ -570,6 +576,73 @@ console.log(
   assert.equal(pickRun(["only"], "only", Math.random), "only", "one dungeon may repeat - there is nothing else");
   assert.equal(pickRun([], null, Math.random), null);
   console.log("Chat: lines parse to join/vote only, and redeems roll without repeating.");
+}
+
+// --- everyone who turns up is paid --------------------------------------------
+//
+// The promise to a viewer, as the streamer put it: XP for attending, more for
+// surviving, and a chance at gear whether you lived or not. Each clause is a
+// separate branch in the resolver and none of them was asserted, so any one
+// could be dropped by a refactor and nothing would have gone red.
+{
+  const rewardRng = mulberry32(2026);
+  const paid = {
+    survivor: { n: 0, xp: 0, loot: 0 },
+    casualty: { n: 0, xp: 0, loot: 0 },
+    loser: { n: 0, xp: 0, loot: 0 },
+  };
+  let mixedWins = 0;
+
+  for (const dungeon of content.listDungeons()) {
+    for (let run = 0; run < 40; run += 1) {
+      const rewardEngine = new GameEngine(content, rewardRng);
+      rewardEngine.dispatch({ type: "open_dungeon", dungeonId: dungeon.id });
+      rewardEngine.dispatch({ type: "sim_join", count: 12, dress: true });
+      const combat = rewardEngine.dispatch({ type: "start_dungeon" }).combat;
+      assert.ok(combat, `${dungeon.id} did not resolve a fight`);
+
+      const won = combat.outcome === "victory";
+      const looted = new Set(combat.events.flatMap((e) => (e.type === "loot" ? [e.characterId] : [])));
+      const xpOf = new Map(combat.events.flatMap((e) => (e.type === "reward" ? [[e.characterId, e.xp] as const] : [])));
+      const members = combat.combatants.filter((c) => c.side === "party");
+
+      for (const member of members) {
+        const xp = xpOf.get(member.id);
+        assert.ok(xp !== undefined && xp > 0, `${member.name} attended ${dungeon.id} and was paid no XP`);
+        const survived = combat.survivorIds.includes(member.id);
+        const bucket = !won ? paid.loser : survived ? paid.survivor : paid.casualty;
+        bucket.n += 1;
+        bucket.xp += xp;
+        if (looted.has(member.id)) bucket.loot += 1;
+      }
+
+      // Inside ONE fight, so the comparison is against the same enemies.
+      if (won && combat.survivorIds.length < members.length) {
+        mixedWins += 1;
+        const alive = xpOf.get(combat.survivorIds[0]!)!;
+        const dead = xpOf.get(members.find((m) => !combat.survivorIds.includes(m.id))!.id)!;
+        assert.ok(alive > dead, `surviving ${dungeon.id} paid ${alive} xp and dying paid ${dead}`);
+      }
+    }
+  }
+
+  assert.ok(mixedWins > 0, "no run had both survivors and casualties - the comparison above never ran");
+  assert.ok(paid.survivor.loot > 0, "survivors never got gear");
+  assert.ok(paid.casualty.loot > 0, "the fallen never got gear - casualtyLootChance is not reaching them");
+  assert.ok(
+    paid.survivor.loot / paid.survivor.n > paid.casualty.loot / paid.casualty.n,
+    "dying should not be the better way to get gear",
+  );
+  // Gear is for clearing the room. A wipe pays XP and nothing else.
+  assert.equal(paid.loser.loot, 0, "a lost fight dropped gear");
+
+  const pct = (b: { n: number; loot: number }) => (b.n ? `${Math.round((b.loot / b.n) * 100)}%` : "n/a");
+  const avg = (b: { n: number; xp: number }) => (b.n ? Math.round(b.xp / b.n) : 0);
+  console.log(
+    `Rewards: survived ${avg(paid.survivor)} xp / ${pct(paid.survivor)} gear, ` +
+      `died in a win ${avg(paid.casualty)} xp / ${pct(paid.casualty)} gear, ` +
+      `lost ${avg(paid.loser)} xp / no gear.`,
+  );
 }
 
 // --- reset returns to idle ---------------------------------------------------

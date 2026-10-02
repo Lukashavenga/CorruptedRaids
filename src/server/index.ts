@@ -1288,10 +1288,11 @@ const server = createServer((req, res) => {
       }
 
       if (parsed.kind === "vote") {
-        // False when no doors are up. `!left` typed during a fight is
-        // conversation, not an error, and answers like any other line that
-        // was not for us.
-        const counted = raid.castVote(line.userId, parsed.direction);
+        // False when no doors are up, or when the voter is not in the party.
+        // `!left` typed during a fight, or by someone watching, is
+        // conversation rather than an error and answers like any other line
+        // that was not for us.
+        const counted = raid.castVote(viewerId(line.userId), parsed.direction);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, handled: counted, vote: raid.getSnapshot().vote }));
         return;

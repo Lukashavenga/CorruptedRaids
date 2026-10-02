@@ -395,7 +395,7 @@ export const en = {
       },
       raids: {
         title: "Raids",
-        body: "A raid is several rounds of doors. Chat votes !left, !ahead or !right, the door with the most votes opens, the room behind it is revealed, and whatever is in there is what you get. Boons stack for the rest of the run. The last room is the boss.",
+        body: "A raid is several rounds of doors. The party votes !left, !ahead or !right, the door with the most votes opens, the room behind it is revealed, and whatever is in there is what you get. Boons stack for the rest of the run. The last room is the boss.",
       },
       stats: {
         title: "Your four stats",

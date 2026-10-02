@@ -397,7 +397,7 @@ the game over localhost, both carrying `CHAT_SECRET` as `X-Chat-Secret`:
 |---|---|---|
 | redeems "Start a dungeon" | `POST /redeem` | a random dungeon opens, the redeemer is in the party |
 | types `!join` / `!join tank` | `POST /chat` | they join the open run |
-| types `!left` `!ahead` `!right` | `POST /chat` | one vote for a raid door; the leader opens after 20s |
+| types `!left` `!ahead` `!right` | `POST /chat` | one vote for a raid door, counted only if they joined; the leader opens after 20s |
 
 Setup, once:
 

@@ -158,8 +158,9 @@ server: it used to be a tally in the HTTP layer that the operator read and
 then clicked for, and a thing the state machine acts on has to be where the
 simulator can reach it. The timer dispatches an ordinary `choose_path`, so an
 operator clicking a door early and chat voting for one are the same command.
-Anyone in chat may vote, not only the party. Twenty seconds rather than
-fifteen is stream delay: viewers see the doors several seconds late.
+Only the party may vote - the door decides what they fight, so it is theirs.
+Twenty seconds rather than fifteen is stream delay: viewers see the doors
+several seconds late.
 
 The admin's Raids tab edits both halves: the rooms, and the path that strings
 them together. A room the path still points at cannot simply be deleted - the

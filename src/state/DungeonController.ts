@@ -305,13 +305,19 @@ export class DungeonController extends EventEmitter {
    * One viewer's vote for a door. Returns false when no vote is open, so the
    * caller can tell a counted vote from a line typed at the wrong moment.
    *
-   * Anyone in chat may vote, not only the party. The party is who is risking
-   * something, but a raid is the one part of a run where a viewer who missed
-   * the join window can still do anything at all, and shutting them out of it
-   * makes the stream something they watch rather than something they are in.
+   * THE PARTY ONLY. It first shipped open to all of chat, on the reasoning
+   * that a viewer who missed the join window should still have something to
+   * do. The streamer's call went the other way and it is the better one: the
+   * door decides what the party fights, the party is who dies behind it, and
+   * a vote that spectators can swing is a vote the people at risk do not own.
+   * It also makes joining worth more - the vote is part of what !join buys.
+   *
+   * `viewerId` is the character id (`twitch:<id>`), the same key the party is
+   * held under, so membership is a lookup rather than a second identity.
    */
   castVote(viewerId: string, direction: PathDirection): boolean {
     if (this.fsm.state !== "choosing" || this.engine.raidRun?.bossPending) return false;
+    if (!this.engine.party.some((member) => member.id === viewerId)) return false;
     this.vote.cast(viewerId, direction);
     if (!this.voteFlush) {
       this.voteFlush = setTimeout(() => {
