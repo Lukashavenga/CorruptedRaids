@@ -353,10 +353,24 @@ export interface BalanceConfig {
      * and got nothing has learned not to join"); a wipe is that, for everyone,
      * on the night the streamer picks one rung too high.
      *
-     * No gold and no loot on a loss — those are for clearing the room. Keep
+     * No gold on a loss — that is looting the bodies, and there are none. Keep
      * this well under `casualtyXpMultiplier` so winning stays the point.
      */
     defeatXpMultiplier: number;
+    /**
+     * Chance a member of a party that LOST still gets a loot roll.
+     *
+     * A loss used to drop nothing, on the rule that gear is for clearing the
+     * room. The streamer's call was that a wipe should still be able to send
+     * somebody home with something: one viewer in a wiped chat opening a chest
+     * is a reason for the rest to come back, and nobody opening one is not.
+     *
+     * A chance at the ROLL, exactly like `casualtyLootChance` - the roll then
+     * still has to pass `mobDropChance`. Keep it under `casualtyLootChance`,
+     * or losing a fight becomes a better way to get gear than dying in a won
+     * one; the simulator asserts that ordering.
+     */
+    defeatLootChance: number;
     /**
      * Extra XP for the whole party when the roles cover each other, at most.
      *
@@ -447,6 +461,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     casualtyXpMultiplier: 0.4,
     casualtyLootChance: 0.15,
     defeatXpMultiplier: 0.15,
+    defeatLootChance: 0.08,
     compositionBonusMax: 0.25,
   },
 };

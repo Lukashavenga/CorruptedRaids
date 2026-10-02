@@ -552,9 +552,18 @@ export function runCombat(
       // between a newcomer who keeps joining and one who works out that a party
       // stronger than them is a waste of their evening.
       //
-      // A LOST fight drops nothing at all. Gear is the reward for clearing the
-      // room; the consolation below is XP only, deliberately.
-      if (won && (isSurvivor || rng() < balance.rewards.casualtyLootChance)) {
+      // A LOST fight rolls too, at the smallest chance of the three. It used
+      // to drop nothing; see `defeatLootChance` for why that changed.
+      //
+      // The chance is only drawn when it is needed, so a survivor consumes no
+      // random number here and every seeded fight that is WON plays out
+      // exactly as it did before a loss could drop anything.
+      const lootChance = won
+        ? isSurvivor
+          ? 1
+          : balance.rewards.casualtyLootChance
+        : balance.rewards.defeatLootChance;
+      if (lootChance >= 1 || rng() < lootChance) {
         const gearId = rollLoot(enemies, content, balance, rng);
         if (gearId) {
           // SEALED, not dropped straight into the bag. The roll happens here
@@ -578,9 +587,9 @@ export function runCombat(
        * and a wipe is that same viewer's experience, multiplied by the whole
        * chat, on the night the streamer picks a dungeon one rung too high.
        *
-       * The consolation is XP alone and small (`defeatXpMultiplier`). Losing
-       * has to stay clearly worse than winning or the choice of what to open
-       * stops mattering; it just should not be worth *nothing*.
+       * The consolation is small (`defeatXpMultiplier`, and a slim loot roll
+       * above). Losing has to stay clearly worse than winning or the choice of
+       * what to open stops mattering; it just should not be worth *nothing*.
        */
       const share = won ? (isSurvivor ? 1 : balance.rewards.casualtyXpMultiplier) : balance.rewards.defeatXpMultiplier;
       // xpRate: see balance.ts. Levels outran gear by an order of magnitude.

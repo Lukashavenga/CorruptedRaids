@@ -84,6 +84,7 @@
     "casualtyXpMultiplier": 0.4,
     "casualtyLootChance": 0.15,
     "defeatXpMultiplier": 0.15,
+    "defeatLootChance": 0.08,
     "compositionBonusMax": 0.25
   }
 }

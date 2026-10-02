@@ -594,10 +594,13 @@ console.log(
   let mixedWins = 0;
 
   for (const dungeon of content.listDungeons()) {
-    for (let run = 0; run < 40; run += 1) {
+    for (let run = 0; run < 120; run += 1) {
       const rewardEngine = new GameEngine(content, rewardRng);
       rewardEngine.dispatch({ type: "open_dungeon", dungeonId: dungeon.id });
-      rewardEngine.dispatch({ type: "sim_join", count: 12, dress: true });
+      // Party size and gear both vary, on purpose. Twelve dressed viewers win
+      // nearly everything with nobody down, which measured 34 deaths-in-a-win
+      // across 200 runs - one chest among them, and a "9%" that was noise.
+      rewardEngine.dispatch({ type: "sim_join", count: 4 + (run % 5) * 4, dress: run % 2 === 0 });
       const combat = rewardEngine.dispatch({ type: "start_dungeon" }).combat;
       assert.ok(combat, `${dungeon.id} did not resolve a fight`);
 
@@ -633,15 +636,29 @@ console.log(
     paid.survivor.loot / paid.survivor.n > paid.casualty.loot / paid.casualty.n,
     "dying should not be the better way to get gear",
   );
-  // Gear is for clearing the room. A wipe pays XP and nothing else.
-  assert.equal(paid.loser.loot, 0, "a lost fight dropped gear");
+  // A wipe can still send somebody home with something - but rarely, and
+  // never more readily than dying in a fight the party went on to win.
+  assert.ok(paid.loser.loot > 0, "a lost fight never dropped gear - defeatLootChance is not reaching it");
+  // The ORDER is asserted on the configured chances, not on the measured
+  // rates: deaths in a won fight are rare enough (a few hundred in 600 runs)
+  // that 7% against 4% is inside the noise, and a test that fails on a
+  // reshuffled seed is one that gets deleted.
+  const { casualtyLootChance, defeatLootChance } = content.balance.rewards;
+  assert.ok(
+    defeatLootChance < casualtyLootChance && casualtyLootChance < 1,
+    "loot chances must run survived > died in a win > lost",
+  );
+  assert.ok(
+    paid.loser.loot / paid.loser.n < paid.survivor.loot / paid.survivor.n / 4,
+    "losing pays gear too readily against winning",
+  );
 
   const pct = (b: { n: number; loot: number }) => (b.n ? `${Math.round((b.loot / b.n) * 100)}%` : "n/a");
   const avg = (b: { n: number; xp: number }) => (b.n ? Math.round(b.xp / b.n) : 0);
   console.log(
     `Rewards: survived ${avg(paid.survivor)} xp / ${pct(paid.survivor)} gear, ` +
       `died in a win ${avg(paid.casualty)} xp / ${pct(paid.casualty)} gear, ` +
-      `lost ${avg(paid.loser)} xp / no gear.`,
+      `lost ${avg(paid.loser)} xp / ${pct(paid.loser)} gear.`,
   );
 }
 

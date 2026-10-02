@@ -407,7 +407,10 @@ A perfect taunt makes the healer's positioning irrelevant and the tank's build
 the only build. The leak is what keeps the other roles honest.
 
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
-`casualtyLootChance: 0.15`. A viewer who joined, died in turn two and got
+`casualtyLootChance: 0.15`. A party that LOSES earns too: `defeatXpMultiplier:
+0.15` and `defeatLootChance: 0.08`, no gold. The three loot chances must stay
+in that order (survived > died in a win > lost) and `npm run simulate` asserts
+it. A viewer who joined, died in turn two and got
 nothing has learned not to join.
 
 ---

@@ -390,7 +390,7 @@ export const en = {
         },
         loot: {
           title: "Take what is left",
-          body: "Win and you take XP, gold and gear. Lose and you still take {defeatShare}% of the XP - a bad night is still a night.",
+          body: "Win and you take XP, gold and gear. Lose and you still take {defeatShare}% of the XP and a slim chance at gear - a bad night is still a night.",
         },
       },
       raids: {
