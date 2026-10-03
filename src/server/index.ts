@@ -379,7 +379,16 @@ function serveStatic(urlPath: string): { body: Buffer; contentType: string } | n
   // loadout screen at /loadout. Both are separate Vite entry points with
   // their own bundles (see web/vite.config.ts) — they share engine types,
   // not a runtime.
-  const rel = urlPath === "/" ? "/index.html" : urlPath === "/loadout" ? "/loadout.html" : urlPath;
+  // `/3d` is the same overlay with the fight in three dimensions - a third
+  // bundle, and a short address because it is typed into OBS by hand.
+  const rel =
+    urlPath === "/"
+      ? "/index.html"
+      : urlPath === "/loadout"
+        ? "/loadout.html"
+        : urlPath === "/3d"
+          ? "/arena3d.html"
+          : urlPath;
 
   // ART IS SERVED FROM ITS SOURCE, not from the build.
   //
@@ -1561,6 +1570,7 @@ async function boot(): Promise<void> {
   server.listen(PORT, () => {
     console.log(`Dungeon engine server listening on http://localhost:${PORT}`);
     console.log(`  Overlay (add as OBS browser source): http://localhost:${PORT}/?sim=0`);
+    console.log(`  Overlay, 3D (same source, other URL):  http://localhost:${PORT}/3d?sim=0`);
     console.log(`  Loadout screen (per-viewer):          http://localhost:${PORT}/loadout`);
     console.log(`  Dispatch a command:                  POST http://localhost:${PORT}/command`);
     console.log(`  A full run is three commands:`);

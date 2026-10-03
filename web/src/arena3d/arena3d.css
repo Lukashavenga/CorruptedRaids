@@ -1,0 +1,51 @@
+/*
+ * The 3D arena's two layers.
+ *
+ * Both lie over the whole stage rather than in its grid: the scene is the
+ * backdrop AND the fight, and the fight is no longer a row.
+ */
+
+/* Where .stage-backdrop sits, and for the same reason - behind every row via a
+   negative z-index, because the stage is a grid and this is not one of its
+   rows. */
+.arena3d {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* The canvas is drawn at real pixels and laid out at stage pixels; the stage's
+   own transform then scales it back up to exactly its drawn size. */
+.arena3d canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Above the bodies, below the text - the same rung the foreground art takes,
+   for the same reason: a number may cover a figure and must never cover a
+   name or a health bar. */
+.arena3d-floats {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* A zero-size point over a body's head. The number inside is absolutely
+   positioned, so the flex centring is what puts its middle on the point. */
+.arena3d-float-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* While the party gathers the role strip stands at the top of the empty arena
+   row instead of on the party's heads: the heads are in the scene now, and the
+   row has nothing else in it. */
+.arena.is-3d .side {
+  justify-content: flex-start;
+}

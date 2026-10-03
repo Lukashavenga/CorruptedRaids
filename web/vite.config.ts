@@ -65,6 +65,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: resolve(__dirname, "index.html"),
+        // The same overlay with the fight drawn in three dimensions. Its own
+        // entry so the renderer it needs is in its bundle and no other - see
+        // web/src/arena3d/main.tsx.
+        arena3d: resolve(__dirname, "arena3d.html"),
         loadout: resolve(__dirname, "loadout.html"),
         admin: resolve(__dirname, "admin.html"),
         // The hosted operator console. Unlike admin.html this one DOES ship:

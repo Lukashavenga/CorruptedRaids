@@ -33,6 +33,31 @@ export interface PlaybackState {
   /** Both sides' opening state for the fight being replayed — the overlay builds its panels from this. */
   combatants: CombatantSnapshot[];
   outcome: CombatOutcome | null;
+  /**
+   * The move that is about to land, announced `leadMs` BEFORE it does.
+   *
+   * Everything else in this state is the result of an event - hp already
+   * changed, a number already floating - which is all a figure standing in a
+   * rank needs. A figure that has to CROSS THE FLOOR to deliver the blow needs
+   * to know who is hitting whom while there is still time to get there, and
+   * `poses` cannot say it: it marks an attacker and a victim at the same
+   * instant and never pairs them.
+   *
+   * The flat overlay ignores this. The 3D arena is choreographed from it.
+   */
+  action: PlaybackAction | null;
+}
+
+export interface PlaybackAction {
+  /** Bumps per action, so two identical blows in a row are still two. */
+  seq: number;
+  kind: "attack" | "heal" | "ability";
+  actorId: string;
+  /** The actor itself for an ability, which names nobody else. */
+  targetId: string;
+  crit: boolean;
+  /** How long from this announcement until the event lands. */
+  leadMs: number;
 }
 
 export interface FloatingNumber {
@@ -54,6 +79,7 @@ const IDLE: PlaybackState = {
   downed: {},
   combatants: [],
   outcome: null,
+  action: null,
 };
 
 const MAX_LOG_LINES = 8;
@@ -68,6 +94,15 @@ let nextFloatId = 0;
 const PULSE_DURATION_MS = 420;
 /** How long a combatant holds an attack/hit pose before relaxing back to idle. */
 const POSE_HOLD_MS = 620;
+/**
+ * How far ahead of its event a move is announced (see PlaybackState.action).
+ *
+ * Must stay under the shortest gap between two events (PACING.reward, 700) and
+ * under the 250ms the replay waits before its first one, or an announcement
+ * would be scheduled before the blow in front of it has landed.
+ */
+const ACTION_LEAD_MS = 240;
+let nextActionSeq = 0;
 
 /**
  * Per-event-type pacing, in ms. Tuning the felt speed of a fight happens here.
@@ -181,6 +216,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       downed: {},
       combatants: combat.combatants,
       outcome: null,
+      action: null,
     });
 
     /**
@@ -234,6 +270,20 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       );
     };
 
+    /**
+     * Announces a move ahead of the event that resolves it.
+     *
+     * Called from the top-level scheduling loop, so `when` is an offset from
+     * the start of the replay and `at` is given an absolute time - the one
+     * place in this file where that is the right thing to pass.
+     */
+    const announce = (when: number, action: Omit<PlaybackAction, "seq" | "leadMs">) => {
+      const leadMs = Math.min(ACTION_LEAD_MS, when);
+      at(when - leadMs, () =>
+        setPlayback((p) => ({ ...p, action: { ...action, seq: (nextActionSeq += 1), leadMs } })),
+      );
+    };
+
     const posePulse = (id: string, pose: Motion) => {
       setPlayback((p) => ({ ...p, poses: { ...p.poses, [id]: pose } }));
       // Duration alone — this runs inside an `at` callback. See `at`.
@@ -263,6 +313,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
           // behaviour and still reads correctly.
           const party = nameOf(incoming ? event.targetId : event.actorId);
           const enemy = nameOf(incoming ? event.actorId : event.targetId);
+          announce(when, { kind: "attack", actorId: event.actorId, targetId: event.targetId, crit: event.crit });
           at(when, () => {
             pushLine(
               format(incoming ? text.combatLog.attackIn : text.combatLog.attackOut, {
@@ -284,6 +335,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         case "heal": {
           delay += PACING.heal;
           const actor = nameOf(event.actorId);
+          announce(when, { kind: "heal", actorId: event.actorId, targetId: event.targetId, crit: false });
           at(when, () => {
             const isSelf = event.actorId === event.targetId;
             pushLine(
@@ -304,6 +356,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         case "ability": {
           delay += PACING.ability;
           const actor = nameOf(event.actorId);
+          announce(when, { kind: "ability", actorId: event.actorId, targetId: event.actorId, crit: false });
           at(when, () => pushLine(format(text.combatLog.ability, { actor, detail: event.detail })));
           break;
         }

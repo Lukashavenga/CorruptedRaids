@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ComponentType } from "react";
 import { useGameConnection } from "./hooks/useGameConnection.js";
 import { useContentCatalog } from "./hooks/useContentCatalog.js";
 import { useScenePreload } from "./hooks/useScenePreload.js";
@@ -25,12 +25,36 @@ import { SIDE_WIDTH, STAGE_H, STAGE_W } from "./stage.js";
 import { byFormation } from "./formation.js";
 import { castIndexOf, encounterIdOf, enemySpriteFor } from "./enemyArt.js";
 import { squadFor } from "../../src/engine/squad.js";
+import type { ArenaProps, ArenaUnit } from "./arena3d/types.js";
 import { text, format } from "../../src/text/index.js";
 
 /** Sim controls are on by default and hidden with ?sim=0 on the OBS browser-source URL. */
 const SIM_ENABLED = new URLSearchParams(window.location.search).get("sim") !== "0";
 
-export function App(): JSX.Element {
+/**
+ * How many of the party the 3D floor will stand.
+ *
+ * The flat rank caps itself by width (lineup.ts) and the floor has depth to
+ * spend, so it holds more - but not everyone. Past about forty a side the
+ * bodies stop being people and become a texture, and each one is a 512px
+ * canvas composited and uploaded.
+ */
+const ARENA_PARTY_CAP = 40;
+
+export interface AppProps {
+  /**
+   * Draws the fight, in place of the two flat ranks and the backdrop behind
+   * them.
+   *
+   * Passed in by the entry point rather than imported here, and that is the
+   * whole reason it is a prop: arena3d.html hands over a three.js scene, and
+   * an import of it in this file would put the renderer in the flat overlay's
+   * bundle too. Absent, the stage is exactly what it was.
+   */
+  Arena?: ComponentType<ArenaProps>;
+}
+
+export function App({ Arena }: AppProps = {}): JSX.Element {
   const { connected, snapshot, lastResult, updateSeq } = useGameConnection();
 
   // Sound cues, derived from snapshot transitions. Must run before the early
@@ -280,7 +304,11 @@ export function App(): JSX.Element {
   const unitFor = (combatantId: string, index: number) => {
     const entry = catalog.fightsById.get(encounterIdOf(combatantId));
     if (!entry) return undefined;
-    const squad = squadFor(entry.fight, partyCards.length);
+    // The party's STRENGTH, which is what picked the squad. This passed the
+    // headcount, which is `weak` for any party there will ever be - so a
+    // level-4 fight of eight was drawn with the three sprites and three
+    // positions of the level-1 layout, stacked. See StateSnapshot.partyStrength.
+    const squad = squadFor(entry.fight, snapshot.engine.partyStrength);
     return squad[(castIndexOf(combatantId) ?? index) % Math.max(1, squad.length)];
   };
   const placed = enemyCards.length > 0 && Boolean(unitFor(enemyCards[0]!.id, 0));
@@ -305,6 +333,47 @@ export function App(): JSX.Element {
     {} as Record<Role, RoleCount>,
   );
 
+  /**
+   * Everybody on the floor, for an arena that draws them itself.
+   *
+   * Built from the same cards the flat ranks are, so the two renderers cannot
+   * disagree about who is in the fight, what they are wearing or who is down.
+   * Empty when the flat arena would be hidden: the doors own the stage during
+   * a choice, and a floor full of people behind them is neither.
+   */
+  const arenaUnits: ArenaUnit[] =
+    Arena && showArena
+      ? [
+          ...partyCards.slice(0, ARENA_PARTY_CAP).map((c): ArenaUnit => {
+            const downed = showFight ? (playback.downed[c.id] ?? false) : false;
+            return {
+              id: c.id,
+              side: "party",
+              role: c.role,
+              character: { bodyType: c.bodyType, skinTone: c.skinTone, hair: c.hair, layers: c.layers },
+              boss: false,
+              downed,
+              pose: showFight ? ((playback.poses[c.id] ?? "idle") as Motion) : "idle",
+            };
+          }),
+          ...enemyCards.map((c, i): ArenaUnit => {
+            const unit = unitFor(c.id, i);
+            const character = enemyCharacterFor(c.id, i);
+            return {
+              id: c.id,
+              side: "enemy",
+              role: unit?.role,
+              sprite: unit?.sprite,
+              character: character ? { ...character, hair: null } : undefined,
+              boss: c.kind === "boss",
+              placed: unit ? { x: unit.x, y: unit.y, scale: unit.scale ?? 1 } : undefined,
+              downed: showFight ? (playback.downed[c.id] ?? false) : false,
+              pose: "idle",
+            };
+          }),
+        ]
+      : [];
+
   // The server flips to `results` the instant it resolves the fight, but the
   // overlay is still replaying it — showing the results banner then would
   // announce the winner before the audience has watched it happen. Hold the
@@ -318,7 +387,20 @@ export function App(): JSX.Element {
           the "here is where you are going" beat - and dimmed once the fight
           starts, so the characters read against it rather than competing with
           it. */}
-      {backgroundId && snapshot.state !== "idle" && (
+      {Arena && snapshot.state !== "idle" && (
+        <Arena
+          units={arenaUnits}
+          background={backgroundId}
+          mood={snapshot.state === "gathering" || revealed ? "full" : "fight"}
+          fighting={showFight}
+          action={showFight ? playback.action : null}
+          floats={showFight ? playback.floats : []}
+          outcome={showFight ? playback.outcome : null}
+          placements={placements}
+          scale={stageScale}
+        />
+      )}
+      {!Arena && backgroundId && snapshot.state !== "idle" && (
         <div
           className={`stage-backdrop ${snapshot.state === "gathering" || revealed ? "is-full" : ""}`}
           style={{ backgroundImage: `url(${backgroundUrl(backgroundId)})` }}
@@ -379,7 +461,17 @@ export function App(): JSX.Element {
         />
       )}
 
-      {showArena && (
+      {/* The 3D arena stands its own bodies, so the row holds only the role
+          strip - and only while there is a join window for it to describe. */}
+      {Arena && showArena && snapshot.state === "gathering" && (
+        <div className="arena is-3d">
+          <section className="side side-party">
+            <RoleRoster counts={roleCounts} gathering />
+          </section>
+        </div>
+      )}
+
+      {!Arena && showArena && (
         <div className="arena">
           <section className="side side-party">
             {snapshot.state === "gathering" && (

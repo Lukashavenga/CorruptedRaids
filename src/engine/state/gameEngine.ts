@@ -156,6 +156,19 @@ export interface StateSnapshot {
   run: DungeonRunView | null;
   /** Everyone who has joined the current run. */
   party: PartyMemberView[];
+  /**
+   * The number the fight was picked with: the party's rating with headcount
+   * folded in (`effectiveRating`), which is what `squadFor` and `expandFight`
+   * take.
+   *
+   * Here because the overlay has to find the SAME squad the engine fielded in
+   * order to draw it, and it had nothing to find it with - it passed the
+   * headcount, which `bandFor` reads as `weak` for every party that will ever
+   * exist. Eight bodies were drawn with the three sprites and three positions
+   * of the weak layout. The same mistake as GET /difficulty (AGENTS.md §6),
+   * made on the other side of the wire.
+   */
+  partyStrength: number;
   lastCombat: CombatResult | null;
   rosterSize: number;
   /** The raid in progress, if this run is a raid. */
@@ -766,6 +779,7 @@ export class GameEngine extends EventEmitter {
     return {
       run,
       party: this.party.map((c) => this.viewOf(c)),
+      partyStrength: effectiveRating(partyRating(this.party, this.content), this.party.length),
       lastCombat: this.lastCombat,
       rosterSize: this.roster.size,
       raid,
