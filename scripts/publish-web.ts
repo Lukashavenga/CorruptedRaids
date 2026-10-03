@@ -1,14 +1,15 @@
 /**
  * What gets UPLOADED, as opposed to what gets built.
  *
- * `npm run build:web` produces five pages into `overlay/` - the OBS overlay,
- * the loadout, the admin panel, the operator console and the sign-in door -
- * because they are one Vite project with five entry points, and the local game
- * server serves that whole directory at localhost:8787. All five belong there.
+ * `npm run build:web` produces six pages into `overlay/` - the OBS overlay,
+ * its 3D twin, the loadout, the admin panel, the operator console and the
+ * sign-in door - because they are one Vite project with six entry points, and
+ * the local game server serves that whole directory at localhost:8787. All six
+ * belong there.
  *
- * Only the overlay does not belong on the public internet. It is a browser
- * source for OBS and has nothing to say on the open web, so it is dropped
- * along with its entry chunk.
+ * Only the overlays do not belong on the public internet. They are browser
+ * sources for OBS and have nothing to say on the open web, so they are dropped
+ * along with every chunk only they load.
  *
  * ADMIN AND OPERATOR ARE PUBLISHED, which they were not always, and the
  * history is kept here because it is what the gate had to be built to earn:
@@ -41,7 +42,7 @@
  * the overlay page, and points `/` at the loadout so the bare domain is not a
  * 404.
  */
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { GATED_ASSET_PREFIXES, GATED_PAGES, isGated } from "../functions/gated.js";
 
@@ -94,7 +95,7 @@ function reachableFrom(entries: string[]): Set<string> {
 }
 
 const behindGate = reachableFrom(["admin.html", "operator.html"]);
-const publicFiles = reachableFrom(["index.html", "loadout.html", "signin.html"]);
+const publicFiles = reachableFrom(["index.html", "arena3d.html", "loadout.html", "signin.html"]);
 
 /** Files the loadout never loads - the ones the gate is responsible for. */
 const adminOnly = [...behindGate].filter((file) => !publicFiles.has(file));
@@ -126,30 +127,28 @@ mkdirSync(OUT, { recursive: true });
 cpSync(BUILD, OUT, { recursive: true });
 
 // The pages themselves. Without the HTML there is no way in, even for someone
-// who knows the hashed chunk name.
-const DROP_PAGES = ["index.html"];
+// who knows the hashed chunk name. Both overlays: the flat one and the 3D one
+// are the same browser source drawn two ways, and neither has anything to say
+// on the open web.
+const DROP_PAGES = ["index.html", "arena3d.html"];
 
-// ...and their entry chunks, so the bundle is not readable either. These are
-// content-hashed, hence the prefix match rather than a fixed list.
-const DROP_PREFIXES = ["index-"];
+// ...and everything ONLY they load, so the bundle is not readable either.
+//
+// Asked of the manifest rather than matched by an `index-` prefix, which is
+// what this used to do and which stopped being true the moment there were two
+// overlays: what they share is split into a chunk of its own, named after
+// neither, and a prefix match would have published the whole overlay under a
+// name nobody was looking for - along with half a megabyte of 3D renderer.
+const kept = reachableFrom(["loadout.html", "signin.html", "admin.html", "operator.html"]);
+const overlayOnly = [...reachableFrom(DROP_PAGES)].filter((file) => !kept.has(file));
 
 const dropped: string[] = [];
 
-for (const page of DROP_PAGES) {
-  const path = join(OUT, page);
+for (const file of [...DROP_PAGES, ...overlayOnly]) {
+  const path = join(OUT, file);
   if (existsSync(path)) {
     rmSync(path);
-    dropped.push(page);
-  }
-}
-
-const assets = join(OUT, "assets");
-if (existsSync(assets)) {
-  for (const file of readdirSync(assets)) {
-    if (DROP_PREFIXES.some((prefix) => file.startsWith(prefix))) {
-      rmSync(join(assets, file));
-      dropped.push(`assets/${file}`);
-    }
+    dropped.push(file);
   }
 }
 

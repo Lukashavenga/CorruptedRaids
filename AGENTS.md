@@ -26,6 +26,10 @@ They are separate entry points on purpose. The overlay is read at 1080p from
 across a room; the loadout is read on a phone. One responsive bundle serving
 both would compromise both.
 
+The overlay exists twice. `arena3d.html` (served at `/3d`) is the same surface
+with the fight drawn in three dimensions - not a fourth surface, a second
+renderer for the first one. See §4, "The 3D arena".
+
 ### The shape of a run
 
 A dungeon is **one shared fight**. Everybody who joined is in it together, at
@@ -251,6 +255,15 @@ snapshots are written to `DATA_DIR` (default `./data`, gitignored) through
 variables matter to a deployment:
 
     DATA_DIR         where the roster is kept. Point it at a volume.
+    ROSTER_STORE     "file" keeps the roster in DATA_DIR even with Supabase
+                     configured, so content comes from the store and
+                     characters do not go to it. FOR TESTING: `sim_join`
+                     creates characters, and a simulated run should be fought
+                     against production's dungeons without its fake party
+                     landing beside real viewers. The `corrupted-raids-sandbox`
+                     launch config sets it (port 8790, roster in
+                     ./data/sandbox). Content WRITES from that server's admin
+                     panel still go to the live store.
     ADMIN_SECRET     the operator's key. EVERY write on this server needs it:
                      all /content/*, /sprite*, /placements, /admin/roster/*,
                      and every show-running GameCommand - plus /difficulty on
@@ -329,7 +342,8 @@ in a `.ts` file is a bug report waiting to happen.
     src/state/        the dungeon state machine
     src/text/         all player-facing copy (en.ts) - nothing is inlined
     src/server/       one dependency-free Node http server (816 lines)
-    web/              React + Vite, three entry points, builds to overlay/
+    web/              React + Vite, one entry point per page, builds to overlay/
+                      (web/src/arena3d is the 3D overlay's scene - §4)
     content/          the JSON above
     scripts/          slicers, simulator, tuners (TS + Python)
     art/              source art; art/ui is the sliced chrome
@@ -424,6 +438,75 @@ in that order (survived > died in a win > lost) and `npm run simulate` asserts
 it. A viewer who joined, died in turn two and got
 nothing has learned not to join.
 
+### The 3D arena
+
+`/3d` (`web/arena3d.html`) is the overlay with the two flat ranks replaced by
+a three.js scene in which bodies cross the floor to hit each other. Branch
+`3d-arena`; the flat overlay at `/` is untouched and both run off one server.
+
+**It is a renderer, not a second game.** The resolver still decides the whole
+fight in one call and `useCombatPlayback` still replays the log. `App.tsx` is
+shared - same connection, banner, roster, log and bars - and takes the arena
+as a prop (`<App Arena={Arena3D} />`). A prop rather than an import, and that
+is the whole reason: an import would put half a megabyte of renderer in the
+flat overlay's bundle. Measured after the split: `index` 0.4 kB of its own,
+`arena3d` 488 kB, the shared `App` chunk 23 kB.
+
+**The replay announces a move before it lands.** Everything else in
+`PlaybackState` is the RESULT of an event, which is all a figure twitching in
+a rank needs. A body that has to cross the floor needs to know who is hitting
+whom while there is still time to get there, so `PlaybackState.action` is set
+`ACTION_LEAD_MS` (240) before each attack, heal and ability. The attacker
+leaves on the announcement and arrives on the event, which is why the number
+rises as the blow lands rather than before it. The flat overlay ignores the
+field.
+
+**The scene is the painting, folded.** There are no models and no level
+geometry. Each backdrop is projected through one reference camera onto a floor
+and a wall standing at the back of it (`stageGeometry.ts`); from that camera
+the two reassemble into the picture as drawn, and as the camera drifts they
+part, which is the parallax. Every scene therefore needs two numbers - where
+its ground meets its wall, and how near the front the ground stays ground -
+and they are in `FLOORS`, read off the art by eye. A new background without an
+entry gets a default and will look slightly wrong until it has one. The camera
+moves only a little, on purpose: a real orbit smears every painted lamp-post
+that stands on the floor strip.
+
+**Bodies are the 2D art, stood up.** Enemy drawings are used as they are.
+Characters are composited onto a canvas by `composeCharacter.ts`, which is
+CharacterSprite's rules restated for a 2D context because WebGL cannot sample
+a stack of DOM images. That is a second compositor and a real cost: change a
+layering rule in one and the other has to follow.
+
+**Shadows are contact patches, and cast shadows were built first.** A shadow
+map worked and was measurably on screen (3.5% of the frame) and not visibly
+there: the camera looks across the floor at about fifteen degrees, so a cast
+silhouette is a sliver that lies behind the body casting it. A soft patch
+under the feet is what a low camera can see, and it tightens as a body rises,
+which is the cue that a hop went up.
+
+**Scheduled on the render clock, not on timers.** A hidden OBS source stops
+`requestAnimationFrame`; a `setTimeout` would go on landing blows in a scene
+nobody is drawing. Everything due is queued and run from the frame loop, and a
+frame that arrives more than 400ms late applies its blows without their
+effects - the alternative was forty slashes on the first frame back.
+WebGL context loss and restore was forced by hand and the scene came back
+whole (2026-10-03).
+
+**What it does not do yet.** Everybody without the healer role closes to
+melee, whatever they are holding - the engine has no notion of a ranged
+weapon. The floor holds forty of the party (`ARENA_PARTY_CAP`); the rest are
+in the fight and in the roster and not on the floor. There are no per-body
+health bars.
+
+**The overlay was drawing the wrong squad, and this found it.** `App.tsx`
+looked up each enemy's sprite and position with `squadFor(fight, headcount)`.
+`squadFor` takes the party's STRENGTH; a headcount is `weak` for every party
+that will ever exist, so a level-4 fight of eight was drawn with the three
+sprites and three positions of the level-1 layout, stacked. The same mistake
+as `GET /difficulty` (§6), on the other side of the wire. `StateSnapshot` now
+carries `partyStrength` and both overlays use it.
+
 ---
 
 ## 5. The balance model
@@ -439,30 +522,79 @@ Why: a total means one geared veteran drags twenty newcomers into a fight
 scaled for the veteran, and they all die. An average means the fight matches
 *the room*, and a strong player carries rather than condemns.
 
-Headcount is then folded back in **logarithmically**, because it does matter -
-just not linearly:
+**Headcount does not pick the level.** It matters, and it is priced somewhere
+else:
 
 ```ts
-export const CROWD_PIVOT = 10;   // 10 players is the neutral case
-export const CROWD_WEIGHT = 0.55;
-export const CROWD_FLOOR = 0.5;  // log2 heads for -infinity below the pivot
-export function crowdFactor(n) {
-  return Math.max(CROWD_FLOOR, 1 + CROWD_WEIGHT * Math.log2(Math.max(1, n) / CROWD_PIVOT));
+export function effectiveRating(rating: number, partySize: number): number {
+  void partySize;
+  return Math.max(0, Math.round(rating));
 }
 ```
 
-**Why the floor:** the curve was unclamped and went NEGATIVE below the pivot -
-measured, a party of one scored -0.83 and a party of three 0.04, so
-`effectiveRating` clamped both to zero and any group under about four was rated
-as though it owned nothing at all. Three fully-kitted regulars met the same
-layout as three naked newcomers.
+This section used to say headcount was folded into the rating
+logarithmically, and for a while the code did exactly that - it multiplied the
+rating by `crowdFactor` and handed the product to `bandFor`, so turnout chose
+the level. That was survivable while the levels were nearly the same fight and
+stopped being survivable when they had teeth: a chat of twelve in mid gear was
+inflated a whole level and met a fight priced for ten level-25 characters in
+the best gear in the game. Measured at the time: 5-20% win at every dungeon,
+for an ordinary night.
 
-**Why logarithmic and not linear:** Lanchester's square law. Combat strength
-scales with the *square* of headcount, because a bigger side both deals more
-damage and loses its damage more slowly. Priced linearly, 30 players are not
-3× a party of 10 - they are closer to 9×, and every fight above ~15 joins
-becomes free. The log curve turns the headcount ratio into a slope instead of
-a cliff.
+So turnout goes through `partyScaling` in `content/balance.json` instead,
+which scales the ENEMY and is continuous where a level is a step:
+
+    enemy hp    +5% per member past five          (hpPerExtraMember)
+    enemy atk   +65% per DOUBLING of the party    (atkPerDoubling)
+    both        clamped to 0.4x .. 6x
+
+A party of 51 meets x3.3 health and x3.18 attack; a party of one meets x0.8
+and x0.4. A bigger crowd fights a tougher version of the fight its gear
+earned, not a different fight. Attack is sub-linear on purpose - see the
+`_comment` on that block for the sweep that set it.
+
+`crowdFactor` is still exported and still the right shape for anything that
+wants to weigh turnout (the progression report prints it). It no longer
+decides which room the party walks into.
+
+### How a level is picked, end to end
+
+1. Each member's power is `ratePoints` of their stats after gear and spent
+   points. That is their Corruption.
+2. The party's rating is the MEAN of those, times the composition factor.
+3. `bandFor` looks the rating up in `BAND_THRESHOLDS` and the fight fields the
+   layout authored for that level, or the nearest authored level below it.
+4. Inside a level two things ramp rather than step: the body count climbs from
+   the previous level's across the first 35% of the level (`squadFor`), and the
+   stat multiplier slides from the previous level's to this one's across its
+   whole width (`expandFight`).
+
+It is re-read on every join during the gathering window - which is why the
+banner's level can change as people arrive - and fixed when the fight starts.
+Raid rooms use the same rating and the same thresholds.
+
+**Measured, 2026-10-03: one level-150 character among fifty naked level-1s.**
+Against the live store, 60 fights a dungeon. The veteran rates 4,408, a
+newcomer 34-51, and the room averages 130 - the bottom of Level 2. They met the
+Level 1 squad plus at most one body, scaled for 51 heads, and won 100% at all
+five dungeons with 97-100% of the newcomers alive. The same fifty WITHOUT the
+veteran also win 100%, at Level 1. So the average does what it is for - a
+strong player lifts a weak room one level rather than condemning it - and its
+cost is that the strong player sees content far below their own.
+
+That veteran ALONE rated 2,468 (all-DPS, so x0.56), drew Level 5, and lost all
+300 fights. One data point, and a glass cannon - points auto-spent on attack
+and speed leave 28 health - but worth knowing before anyone promises that a
+high level can solo.
+
+**The sim cannot reach Level 3, and that is the sim.** `sim_join` rolls its
+viewers at character level 1-10 in random gear with one in five naked
+(`src/engine/sim.ts`). Measured on one run as they were added: 5, 25, 100, 200
+and 300 of them rate 161, 154, 148, 150 and 151, and the strongest single one
+is 390 - under the Level 3 line by itself. Adding hundreds moves the enemy's
+numbers and never the level. Until the sim can dress a party at a chosen
+level, Levels 3-6 are reachable only through the admin's meter and
+`author-bands.ts`, not on the overlay.
 
 ### One scorer for two jobs
 
@@ -474,7 +606,8 @@ matchmaker:
 export function ratePoints(stats: Stats, balance: BalanceConfig): number {
   const mitigation = Math.min(0.8, mitigationFraction(stats.skill, balance));
   const effectiveHp = stats.hp / (1 - mitigation);
-  const offence = stats.atk * (1 + stats.crit) * (stats.spd / DEFAULT_CONTEXT.baseSpd);
+  const speedFactor = (2 * stats.spd) / (stats.spd + DEFAULT_CONTEXT.baseSpd);
+  const offence = stats.atk * (1 + stats.crit) * speedFactor;
   return Math.round(effectiveHp * 0.5 + offence * 12 + stats.skill * 5);
 }
 ```
@@ -494,21 +627,37 @@ rather than to infinity: being fast is worth at most twice as many turns.
 ### Composition
 
     ROLE_IMPORTANCE = { tank: 0.4, healer: 0.4, dps: 0.2 }
+    IDEAL_SHARE     = { tank: 1/6, healer: 1/6, dps: 4/6 }
     COMPOSITION_FLOOR = 0.45
 
 Tank and healer outweigh headcount because their contribution is *party-wide*:
 one healer changes every player's survival, one more DPS changes one player's
 output. The floor stops an all-DPS mob from being rated at zero.
 
+Each role scores its importance once it reaches its ideal share, so the factor
+is `0.45 + 0.55 x (what is covered)`: a party with a sixth tanks and a sixth
+healers gets the full 1.0, an all-DPS one gets 0.56, and nothing scores below
+0.45.
+
 ### Thresholds
 
-    ENTRY_RATING = 165          // 10 naked players at Corruption 1 - the floor
-    BAND_THRESHOLDS = { weak: 0, seasoned: 400, elite: 1200,
-                        brutal: 2000, infernal: 3400, apocalyptic: 6000 }
+    ENTRY_RATING = 45           // 10 naked players at level 1 - the floor
+    BAND_THRESHOLDS = { weak: 0, seasoned: 110, elite: 430,
+                        brutal: 940, infernal: 1640, apocalyptic: 2960 }
 
 `ENTRY_RATING` is measured, not chosen: it is what a squad of ten with nothing
 equipped actually scores. It is the anchor everything else sits relative to, so
 if you change `ratePoints()`, re-measure it.
+
+Each threshold is what a reference party of ten actually rates
+(`BAND_SAMPLE_PARTY`): level 1 naked, level 10 in typical gear, then level 25,
+50, 100 and 200 in the best gear they can wear. Ten in all of them, so the
+levels differ by how EQUIPPED a party is and not by turnout.
+
+**These numbers were wrong here for a long time** - this section listed
+165 and 0/400/1200/2000/3400/6000 after every number had been re-scaled to
+level 1 (§2.6) and the code had moved. `src/engine/squad.ts` is the source; if
+the two disagree again, the file is right.
 
 ---
 
@@ -855,6 +1004,9 @@ sit ON the artwork where a shadow alone loses against a torch flame.
   it. A comment restating the line below it is noise; a comment recording the
   thing that made the line necessary is why the file stays maintainable.
 - **No new dependencies without a reason you can state.** The server has zero.
+  `three` is in `web/` for the 3D overlay and the reason is that a depth
+  buffer, a camera and a shader pipeline are not things to write by hand; it
+  is imported only under `web/src/arena3d` and must stay that way.
 - **Container queries over media queries** for panel-internal layout - a panel
   should respond to its own width, not the window's.
 - **CSS transform is not a layout box.** A scaled element still occupies its
@@ -879,7 +1031,8 @@ broken check.** Every dungeon has at least one level that does not grow on the
 one below it, which silently disables the count ramp across that boundary - see
 §6 and the backlog entry in §10. Fix the content, not the check.
 
-`npm run serve` then hosts every page on `http://localhost:8787`. The admin
+`npm run serve` then hosts every page on `http://localhost:8787` (the 3D
+overlay at `/3d`). The admin
 panel is ungated there on purpose - it is reached over loopback and its writes
 carry `ADMIN_SECRET`. Hosted, `functions/_middleware.ts` refuses it without a
 verified operator sign-in; see DEPLOY.md.
@@ -1128,7 +1281,7 @@ tree, the way §3's Layout block is kept in sync with `src/`.
     tsconfig*.json      engine TypeScript config
 
     src/               the engine - see §3's Layout block for the breakdown
-    web/               React + Vite, three entry points - see web/package.json
+    web/               React + Vite, one entry point per page - see web/package.json
                        and web/vite.config.ts. web/src/ is components, hooks
                        and per-page apps; web/public/ is runtime-served art,
                        managed by the slicers, not hand-edited.
