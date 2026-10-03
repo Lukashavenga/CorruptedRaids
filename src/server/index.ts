@@ -184,8 +184,19 @@ const DATA_DIR = process.env.DATA_DIR ?? join(ROOT, "data");
  * is tied to one host, and losing it loses every character AND every snapshot
  * taken to protect them.
  */
-const rosterStore: RosterStore = SupabaseRosterStore.fromEnv() ?? new FileRosterStore(DATA_DIR);
-const storeName = SupabaseRosterStore.fromEnv() ? "Supabase" : `file (${DATA_DIR})`;
+/**
+ * `ROSTER_STORE=file` keeps the roster on disk even when Supabase is set up.
+ *
+ * Content and characters were one switch - configure Supabase and you got
+ * both - and testing wants them apart. A simulated run has to be fought
+ * against the dungeons the game actually plays, which are the store's and have
+ * drifted a long way from `content/`; and `sim_join` CREATES characters, which
+ * must not land in the roster real viewers are in. With this set the server
+ * reads production's fights and writes its fake party to `DATA_DIR`.
+ */
+const supabaseRoster = process.env.ROSTER_STORE === "file" ? null : SupabaseRosterStore.fromEnv();
+const rosterStore: RosterStore = supabaseRoster ?? new FileRosterStore(DATA_DIR);
+const storeName = supabaseRoster ? "Supabase" : `file (${DATA_DIR})`;
 
 /**
  * Does this gear id still exist?

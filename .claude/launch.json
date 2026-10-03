@@ -16,6 +16,22 @@
       }
     },
     {
+      "name": "corrupted-raids-sandbox",
+      "runtimeExecutable": "npx.cmd",
+      "runtimeArgs": [
+        "tsx",
+        "--env-file-if-exists=.env",
+        "src/server/index.ts"
+      ],
+      "port": 8790,
+      "env": {
+        "PORT": "8790",
+        "ADMIN_SECRET": "devkey",
+        "ROSTER_STORE": "file",
+        "DATA_DIR": "./data/sandbox"
+      }
+    },
+    {
       "name": "loadout-dev",
       "runtimeExecutable": "npm.cmd",
       "runtimeArgs": [
