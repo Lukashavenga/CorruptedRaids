@@ -1121,3 +1121,87 @@
   background: rgba(141, 151, 173, 0.18);
   color: var(--muted);
 }
+
+/* --- raid: the order to build one in ----------------------------------------
+ *
+ * Three numbered lines above the three columns they describe. Quiet, because
+ * it is read once and then it is in the way.
+ */
+.raid-guide {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 0 12px 8px 30px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.raid-guide li {
+  flex: 1;
+  padding-left: 2px;
+}
+
+.raid-guide strong {
+  color: #e6e9f0;
+}
+
+/* What is stopping a save. Loud, and next to the button it disables: the
+   server's own refusal lands in the status bar, a screen away from the cause. */
+.raid-problems {
+  margin: 0 12px 8px;
+  padding: 8px 12px 8px 28px;
+  border: 1px solid var(--danger, #bc5960);
+  border-radius: 6px;
+  background: rgba(188, 89, 96, 0.1);
+  color: #f0b4b8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* A door whose room no longer exists. */
+.raid-door-pick.is-missing {
+  border-left-color: var(--danger, #bc5960);
+  color: var(--danger, #bc5960);
+}
+
+.raid-door-pick.is-missing select {
+  outline: 1px solid var(--danger, #bc5960);
+}
+
+.raid-rooms .enc-squad-x:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Five small numbers in a row: a boon is read as one line of stats. */
+.raid-boon-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.raid-boon-stats input {
+  width: 100%;
+}
+
+.raid-add-boon {
+  margin-top: 6px;
+}
+
+/* A text-weight button, for stepping from a shrine to the boon it gives. */
+.raid-linkbtn {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: #e6e9f0;
+  cursor: pointer;
+}
+
+.raid-linkbtn:hover {
+  border-color: var(--primary);
+}

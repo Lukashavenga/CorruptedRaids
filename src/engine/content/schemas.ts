@@ -20,6 +20,7 @@ import type {
   GearVisual,
   LootEntry,
   PartyBand,
+  RaidBuff,
   RaidDefinition,
   RaidRoom,
   RaidStep,
@@ -363,12 +364,26 @@ export function validateRaidDefinition(raw: unknown, file: string): RaidDefiniti
   const name = requireString(obj, "name", file);
 
   if (!Array.isArray(obj.buffs)) fail(file, `"buffs" must be an array`);
-  for (const b of obj.buffs) {
-    requireString(b, "id", file);
-    requireString(b, "name", file);
-    requireString(b, "description", file);
+  // `statMods` went unchecked for as long as boons could only be written by
+  // hand. `buffTotals` walks it with Object.entries, so a boon saved without
+  // one loaded cleanly and threw at the first fight after the party claimed
+  // it. Absent now means "changes nothing", and a stat that does not exist is
+  // refused here rather than silently added to nobody.
+  const buffs: RaidBuff[] = obj.buffs.map((b: any, i: number) => {
+    if (typeof b !== "object" || b === null) fail(file, `raid "${id}" buffs[${i}] must be an object`);
+    return {
+      id: requireString(b, "id", file),
+      name: requireString(b, "name", file),
+      description: requireString(b, "description", file),
+      statMods: optionalPartialStats(b, "statMods", file),
+    };
+  });
+  const buffIds: string[] = buffs.map((b) => b.id);
+  // A shrine names its boon by id, so two boons sharing one is a shrine that
+  // gives whichever happens to be first.
+  for (const [i, buffId] of buffIds.entries()) {
+    if (buffIds.indexOf(buffId) !== i) fail(file, `duplicate buff id "${buffId}" in raid "${id}"`);
   }
-  const buffIds: string[] = obj.buffs.map((b: any) => b.id);
 
   if (!Array.isArray(obj.rooms) || obj.rooms.length === 0) {
     fail(file, `"rooms" must be a non-empty array - a raid with no rooms has nothing behind its doors`);
@@ -463,7 +478,7 @@ export function validateRaidDefinition(raw: unknown, file: string): RaidDefiniti
     recommendedLevel: requireNumber(obj, "recommendedLevel", file),
     joinWindowMs: requireNumber(obj, "joinWindowMs", file),
     path,
-    buffs: obj.buffs,
+    buffs,
     rooms,
     boss: {
       id: bossId,

@@ -72,6 +72,12 @@
   color: var(--health, #5ca75d);
 }
 
+/* A refusal was drawn in the same green as a save, so "Rejected: ..." read as
+   good news at a glance. */
+.admin-status.is-error {
+  color: var(--danger, #bc5960);
+}
+
 .admin-body {
   display: grid;
   /* Placement controls, the character, then the gear item that art belongs to.

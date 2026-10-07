@@ -462,7 +462,11 @@ export function AdminApp(): JSX.Element {
             }}
           />
         </label>
-        <span className="admin-status">{status}</span>
+        {/* Every screen here reports through one string, and every failure it
+            reports opens with one of these words. */}
+        <span className={`admin-status ${/^(Rejected|Not |NOT |SPRITE NOT|Solve stopped)/.test(status) ? "is-error" : ""}`}>
+          {status}
+        </span>
       </header>
 
       {tab === "gear" && (

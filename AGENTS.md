@@ -182,6 +182,24 @@ them together. A room the path still points at cannot simply be deleted - the
 doors that led there are repointed, because dropping the step would silently
 change how long the raid is.
 
+**The path is a list of room ids, so anything that changes an id has to walk
+it.** Renaming a room's id in the tab used to leave its doors on the old one,
+and the raid then could not be saved - `path[0].up points at "first-passage",
+which is not one of its rooms` - with nothing on screen to explain it, because
+a dropdown whose value matches none of its options draws the first option. The
+rename follows the path now, a door with no room says so, and the tab lists
+what would be refused (`raidProblems`, one line per `fail` in the loader)
+before Save rather than after.
+
+**A boon is what a shrine gives, and the tab calls them two things.** A `buff`
+room is a Shrine on the authoring screens; a boon (`RaidBuff`) is a flat stat
+bonus on every party member for the rest of the run, boss included. Boons are
+edited in the Raids tab beside the rooms. A shrine either names one or gives
+whichever the party has not taken, in list order. Two edges the engine leaves
+open, neither fixed: a shrine that NAMES a boon gives it again on a second
+visit (`openDoor` does not consult `claimed`), and a shrine with nothing left
+to give grants nothing while the reveal still shows the last boon found.
+
 ### 6. Four stats, and every role wants exactly two
 
     Tank    HP + Skill      soak it and shrug it off
@@ -263,7 +281,10 @@ variables matter to a deployment:
                      landing beside real viewers. The `corrupted-raids-sandbox`
                      launch config sets it (port 8790, roster in
                      ./data/sandbox). Content WRITES from that server's admin
-                     panel still go to the live store.
+                     panel still go to the live store. To try an admin SAVE
+                     without touching it, `corrupted-raids-offline` (port
+                     8791) loads no .env at all and writes to content/ on
+                     disk.
     ADMIN_SECRET     the operator's key. EVERY write on this server needs it:
                      all /content/*, /sprite*, /placements, /admin/roster/*,
                      and every show-running GameCommand - plus /difficulty on
