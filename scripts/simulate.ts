@@ -541,6 +541,81 @@ console.log(
     assert.equal(vote.tally().leader, null, "a tie has no leader to highlight");
   }
   console.log("Raids: chat's vote opens the door it picked, and silence does not stall.");
+
+  // --- a boon is given once, and a spent shrine says so -------------------------
+  //
+  // Two faults that were one bookkeeping gap. A shrine that NAMED its boon gave
+  // it on every visit, so the same shrine behind doors in two rounds stacked;
+  // and a shrine with nothing left granted nothing while the reveal named the
+  // last boon found anywhere, so the party was told it had gained something it
+  // had not. Neither showed in a run of the shipped raid, which has no shrine
+  // at all - hence a raid built here to have every case.
+  {
+    const base = raidDef;
+    const shrineContent = new ContentRegistry();
+    shrineContent.loadGearDir(join(CONTENT_DIR, "gear"));
+    shrineContent.loadBalance(join(CONTENT_DIR, "balance.json"));
+    shrineContent.loadObjects({
+      raids: [
+        {
+          ...base,
+          id: "shrine-test",
+          buffs: [
+            { id: "first", name: "First", description: "The first one.", statMods: { hp: 1 } },
+            { id: "second", name: "Second", description: "The second one.", statMods: { atk: 1 } },
+          ],
+          rooms: [
+            { id: "named", name: "Named", description: "It names its boon.", kind: "buff", buffId: "first" },
+            { id: "open", name: "Open", description: "It gives what is left.", kind: "buff" },
+            { id: "hall", name: "Hall", description: "Nothing.", kind: "clear" },
+          ],
+          path: Array.from({ length: 4 }, () => ({ left: "named", up: "open", right: "hall" })),
+        },
+      ],
+    });
+
+    /** Open these doors in order; report what each reveal claimed and what was held after. */
+    const walk = (route: readonly ("left" | "up" | "right")[]) => {
+      const engine = new GameEngine(shrineContent, Math.random);
+      const controller = new DungeonController(engine);
+      controller.dispatch({ type: "open_raid", raidId: "shrine-test" });
+      controller.dispatch({ type: "sim_join", count: 5 });
+      controller.dispatch({ type: "start_dungeon" });
+      return route.map((direction) => {
+        for (let step = 0; step < 10 && controller.state !== "choosing"; step += 1) controller.forceTimerElapsed();
+        assert.equal(controller.state, "choosing", "the shrine raid should be offering doors");
+        const result = controller.dispatch({ type: "choose_path", direction });
+        const raid = controller.getSnapshot().engine.raid;
+        return {
+          message: result.message,
+          revealed: raid?.revealed?.buff?.id ?? null,
+          held: raid?.buffs.map((b) => b.id) ?? [],
+        };
+      });
+    };
+
+    // The same named shrine, twice.
+    const twice = walk(["left", "left"]);
+    assert.deepEqual(twice[0]!.held, ["first"]);
+    assert.equal(twice[0]!.revealed, "first");
+    assert.deepEqual(twice[1]!.held, ["first"], "a named shrine gave its boon a second time");
+    assert.equal(twice[1]!.revealed, null, "a spent shrine was revealed as giving a boon");
+    assert.notEqual(twice[1]!.message, twice[0]!.message, "a spent shrine announced the boon it no longer had");
+
+    // Open shrines hand out what is left, in order, and then run dry.
+    const dry = walk(["up", "up", "up"]);
+    assert.deepEqual(dry.map((d) => d.revealed), ["first", "second", null]);
+    assert.deepEqual(dry[2]!.held, ["first", "second"]);
+
+    // A named shrine whose boon an open one already gave has nothing either.
+    const taken = walk(["up", "left", "up"]);
+    assert.deepEqual(taken.map((d) => d.revealed), ["first", null, "second"]);
+
+    // And an empty corridor is not a shrine: it reveals no boon after one was found.
+    const hall = walk(["left", "right"]);
+    assert.equal(hall[1]!.revealed, null);
+    console.log("Raids: a boon is given once, and a shrine with nothing left says so.");
+  }
 }
 
 // --- chat lines and redeems ---------------------------------------------------

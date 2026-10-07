@@ -42,7 +42,7 @@ import {
 } from "../character.js";
 import { xpToNextLevel } from "../stats.js";
 import { runCombat } from "../combat/resolver.js";
-import { advanceRound, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
+import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
 import { text, format } from "../../text/index.js";
 
@@ -212,7 +212,11 @@ export interface RevealedRoomView {
   background?: string;
   /** Empty for a buff or an empty corridor. */
   enemies: { id: string; name: string; kind: string; maxHp: number }[];
-  /** Set when the room holds a boon — which one the party just picked up. */
+  /**
+   * The boon this room just gave the party. Absent on a shrine that had
+   * nothing left - its boon already taken, or every boon in the raid claimed -
+   * and the overlay says that rather than naming an earlier one.
+   */
   buff?: { id: string; name: string; description: string };
   /** True for the last room. The overlay bills it differently. */
   boss: boolean;
@@ -418,9 +422,13 @@ export class GameEngine extends EventEmitter {
         // the audience no idea what the party had just walked into — the whole
         // point of choosing a direction is finding out what was down it.
         const room = roomFor(def, door.roomId);
+        // A shrine names what THIS door gave, and says so when it gave nothing.
+        const boon = door.kind === "buff" ? boonGranted(run, def) : undefined;
         const detail =
           door.kind === "buff"
-            ? format(text.raid.buffFound, { name: run.buffs[run.buffs.length - 1]?.name ?? "" })
+            ? boon
+              ? format(text.raid.buffFound, { name: boon.name })
+              : text.raid.roomBoonSpent
             : door.kind === "fight"
               ? format(text.raid.roomAhead, { name: room?.name ?? def.name })
               : text.raid.clear;
@@ -825,7 +833,7 @@ export class GameEngine extends EventEmitter {
         })
       : [];
 
-    const buff = room.kind === "buff" ? run.buffs[run.buffs.length - 1] : undefined;
+    const buff = room.kind === "buff" ? boonGranted(run, def) : undefined;
     return {
       id: room.id,
       name: room.name,

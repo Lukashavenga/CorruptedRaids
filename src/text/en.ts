@@ -525,8 +525,12 @@ export const en = {
     roomHolds: "{count} waiting",
     /** A revealed room with nothing in it. */
     roomEmpty: "Nothing here",
-    /** A revealed room holding a boon. */
-    roomBoon: "A boon",
+    /**
+     * A revealed shrine with nothing left to give. It read "A boon" as a
+     * fallback for a boon with no name, which cannot load; the only way to
+     * reach it was a shrine that gave nothing, announced as if it had.
+     */
+    roomBoonSpent: "Already taken",
     bossAhead: "Something large is waiting.",
     bossBanner: "{name}",
     roundLabel: "Round {round}/{rounds}",

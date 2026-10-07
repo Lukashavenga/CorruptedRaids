@@ -6,7 +6,7 @@ export interface RoomRevealProps {
   kind: DoorKind;
   /** How many bodies are standing in there. Zero for a boon or an empty corridor. */
   enemyCount: number;
-  /** The boon this room held, if it held one. */
+  /** The boon this room gave. Absent on a shrine that had nothing left. */
   buff?: { name: string; description: string } | undefined;
   /** The last room. Billed differently — nobody chose it. */
   boss: boolean;
@@ -15,7 +15,7 @@ export interface RoomRevealProps {
 /** What the room holds, in two or three words. */
 function holds(kind: DoorKind, enemyCount: number, buff?: { name: string }): string {
   if (kind === "fight") return format(text.raid.roomHolds, { count: enemyCount });
-  if (kind === "buff") return buff?.name ?? text.raid.roomBoon;
+  if (kind === "buff") return buff?.name ?? text.raid.roomBoonSpent;
   return text.raid.roomEmpty;
 }
 
