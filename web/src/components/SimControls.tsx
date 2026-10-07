@@ -3,6 +3,7 @@ import { text } from "../../../src/text/index.js";
 import type { GameCommand } from "../../../src/engine/commands/types.js";
 import type { StateId } from "../../../src/state/dungeonStates.config.js";
 import { AdminAuthError, adminFetch, getAdminKey, setAdminKey } from "../adminKey.js";
+import { loadLocalGame } from "../localGameLink.js";
 
 export interface SimControlsProps {
   state: StateId;
@@ -84,6 +85,12 @@ export function SimControls({
     // "there was no key" and "the key was wrong" look the same.
     const hadKey = getAdminKey() !== "";
     try {
+      // A standalone build is its own server: the command goes to the game in
+      // this page, and there is no key because there is nobody to refuse it.
+      if (loadLocalGame) {
+        setMessage((await loadLocalGame()).dispatch(command).message);
+        return;
+      }
       const res = await adminFetch("/command", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,29 +198,34 @@ export function SimControls({
           </button>
         ))}
         {/* In the last row rather than a row of its own: it is typed once a
-            tab, and the strip already takes more room than the stage. */}
-        <label className="sim-key">
-          <span className="sim-title">{text.sim.key}</span>
-          <input
-            type="password"
-            value={adminKey}
-            placeholder={text.sim.keyPlaceholder}
-            autoComplete="off"
-            spellCheck={false}
-            onChange={(e) => {
-              setKey(e.target.value);
-              setAdminKey(e.target.value);
-              // Whatever was said about the last key is no longer about this one.
-              setMessage(null);
-            }}
-          />
-        </label>
+            tab, and the strip already takes more room than the stage. Absent
+            from a standalone build, which has no server to show it to. */}
+        {!loadLocalGame && (
+          <label className="sim-key">
+            <span className="sim-title">{text.sim.key}</span>
+            <input
+              type="password"
+              value={adminKey}
+              placeholder={text.sim.keyPlaceholder}
+              autoComplete="off"
+              spellCheck={false}
+              onChange={(e) => {
+                setKey(e.target.value);
+                setAdminKey(e.target.value);
+                // Whatever was said about the last key is no longer about this one.
+                setMessage(null);
+              }}
+            />
+          </label>
+        )}
       </div>
 
       {/* With no key nothing here can work, so that is what the line says
           until there is one - ahead of the standing hint, behind any answer
           the server actually gave. */}
-      <div className="sim-hint">{message ?? (adminKey ? text.sim.hint : text.sim.keyMissing)}</div>
+      <div className="sim-hint">
+        {message ?? (loadLocalGame ? text.sim.standalone : adminKey ? text.sim.hint : text.sim.keyMissing)}
+      </div>
     </div>
   );
 }

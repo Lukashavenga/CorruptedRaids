@@ -1,5 +1,6 @@
 import type { BodyType, GearDefinition, GearSlot } from "../../src/engine/types.js";
 import { DEFAULT_PLACEMENT, type Placement, type PlacementFile } from "../../src/character/layers.js";
+import { publicUrl } from "./localGameLink.js";
 
 /**
  * Which sliced-art folder each gear slot draws from.
@@ -78,7 +79,7 @@ function artUrl(key: string): string {
   const erased = manifest[key];
   if (erased && STORAGE_BASE.startsWith("http")) return STORAGE_BASE + erased.file;
   const v = spriteVersion > 0 ? `?v=${spriteVersion}` : "";
-  return `/art/sprites/${key}.png${v}`;
+  return publicUrl(`/art/sprites/${key}.png${v}`);
 }
 
 export function spriteUrl(folder: string, id: string): string {
@@ -96,12 +97,12 @@ export function enemySpriteUrl(path: string): string {
 
 /** The scene a fight happens in. */
 export function backgroundUrl(id: string): string {
-  return `/art/backgrounds/${id}.png`;
+  return publicUrl(`/art/backgrounds/${id}.png`);
 }
 
 /** Art drawn in front of the characters, before a fight starts. */
 export function foregroundUrl(id: string): string {
-  return `/art/foregrounds/${id}.png`;
+  return publicUrl(`/art/foregrounds/${id}.png`);
 }
 
 /** The fist cut from this body, drawn over a held weapon. */

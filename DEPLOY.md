@@ -12,7 +12,8 @@ where OBS and Streamer.bot already are:
 | Admin panel | localhost. **Never exposed.** | - |
 | `!join`, door votes, channel points | Streamer.bot -> `POST http://localhost:8787/chat` and `/redeem` (see step 7) | - |
 | `content/` | files in the repo | - |
-| **Loadout** | the only hosted piece | free tier |
+| **Loadout** | the only hosted piece of the live game | free tier |
+| Sim | GitHub Pages - the overlay with the engine inside it, for testing | free |
 
 This removes the whole class of problem the earlier "host everything on
 Fly.io" plan was built around: no deploys of the game process, no volume, no
@@ -433,6 +434,53 @@ curl -X POST http://localhost:8787/chat -H "Content-Type: application/json" -H "
 **The two `.cs` files have not been run inside Streamer.bot.** The endpoints
 they call are tested; the scripts are written against Streamer.bot's
 documented `args` and `CPH` methods and want one real redeem to confirm.
+
+---
+
+## The sim on GitHub Pages
+
+A place to open the overlay and press the sim buttons without starting
+anything: `https://<owner>.github.io/<repo>/`, and the 3D arena at
+`.../arena3d.html`.
+
+It is NOT the game server put on the internet, which the top of this file
+still says does not belong there. Pages serves files; there is nothing running
+behind it. The build that goes up (`npm run build:sim`) has the engine inside
+the page - AGENTS.md §3, "The standalone overlay" - so each visitor's tab is a
+separate, private game that is gone on reload. Nothing a sim run hands out is
+saved anywhere, no character is written to Supabase, and nobody opening the
+page can reach the live roster, because the page holds no key that could.
+
+`.github/workflows/pages.yml` builds it on every pull request and publishes it
+on every push to `main`. One-time setup: **Settings → Pages → Source: GitHub
+Actions**.
+
+What it fights is `content/` as committed, not the content store - dungeons
+there are not readable with a public key. After editing fights in the hosted
+admin, `npm run pull:content` and a commit are what bring them here.
+
+Three repository variables (Settings → Secrets and variables → Actions →
+Variables), all optional:
+
+| Variable | What it does |
+|---|---|
+| `VITE_SUPABASE_URL` | with the key below, placements and the erased-sprite manifest are read live from the store, as on every other surface. Unset, the page draws the art and placements in the repo - so sprites erased in the admin show un-erased. |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | the PUBLISHABLE key, never the secret one. It is compiled into the bundle, as it is for the loadout. |
+| `PAGES_BASE` | `/` if this moves to a custom domain. Defaults to `/<repo>/`. |
+
+To see locally exactly what Pages will serve, base path included:
+
+```bash
+npm.cmd run build:sim
+```
+
+```bash
+npm.cmd run preview:sim --prefix web
+```
+
+with `PAGES_BASE=/CorruptedRaids/` set for both (the `corrupted-raids-pages`
+launch config sets it for the second). `npm run dev:sim` is the same game with
+hot reload and no base path.
 
 ---
 

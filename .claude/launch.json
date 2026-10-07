@@ -46,6 +46,29 @@
       }
     },
     {
+      "name": "corrupted-raids-sim",
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": [
+        "run",
+        "dev:sim"
+      ],
+      "port": 5174
+    },
+    {
+      "name": "corrupted-raids-pages",
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": [
+        "run",
+        "preview:sim",
+        "--prefix",
+        "web"
+      ],
+      "port": 5175,
+      "env": {
+        "PAGES_BASE": "/CorruptedRaids/"
+      }
+    },
+    {
       "name": "loadout-dev",
       "runtimeExecutable": "npm.cmd",
       "runtimeArgs": [

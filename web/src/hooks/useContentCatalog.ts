@@ -8,6 +8,7 @@ import type {
   ShopView,
 } from "../../../src/engine/types.js";
 import { DEFAULT_BALANCE, type BalanceConfig } from "../../../src/engine/balance.js";
+import { loadLocalGame } from "../localGameLink.js";
 
 /** One body in the bestiary index. Stats are its own, before any scaling. */
 export interface BestiaryBody {
@@ -136,8 +137,14 @@ export function useContentCatalog(source = "/content"): ContentCatalog {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(source)
-      .then((r) => r.json())
+    // `/content` is the game server's answer. A standalone build is its own
+    // game server, so it asks itself; any other source is a file and is
+    // fetched as one.
+    const answer =
+      loadLocalGame && source === "/content"
+        ? loadLocalGame().then((game) => game.content())
+        : fetch(source).then((r) => r.json());
+    answer
       .then(
         (data: {
           gear: GearDefinition[];

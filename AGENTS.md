@@ -30,6 +30,10 @@ The overlay exists twice. `arena3d.html` (served at `/3d`) is the same surface
 with the fight drawn in three dimensions - not a fourth surface, a second
 renderer for the first one. See §4, "The 3D arena".
 
+It can also be BUILT a second way: `npm run build:sim` produces both overlays
+with the game engine inside the page, for a static host with no server behind
+it. That is what GitHub Pages serves. See §3, "The standalone overlay".
+
 ### The shape of a run
 
 A dungeon is **one shared fight**. Everybody who joined is in it together, at
@@ -265,6 +269,57 @@ Nothing mutates state except by dispatching one of these. This is the seam
 Twitch plugs into later: chat commands, channel-point redeems and the admin
 panel all become the same union, and the engine cannot tell them apart. **If
 you add a way to change state, add a command - do not reach into the engine.**
+
+### The standalone overlay
+
+`npm run build:sim` (`vite build --mode standalone`, into `.pages/`) is the
+overlay with the game IN the page: the real `ContentRegistry`, `GameEngine`
+and `DungeonController`, constructed in the browser by
+`web/src/standalone/localGame.ts` exactly as `src/server/index.ts` constructs
+them. `.github/workflows/pages.yml` publishes it to GitHub Pages on every push
+to `main`.
+
+It exists because the sim strip is the fastest way to look at a fight, and it
+needed a running server and its admin key to do anything. A static host cannot
+run that server - no process, no timers, no held-open stream - so the state
+machine moved into the tab instead. That was possible only because the engine
+never knew it was behind HTTP: nothing under `src/engine` or `src/state`
+changed for this.
+
+**It is the same game, minus everything the server adds.** No roster store, so
+characters live in the engine's Map and a reload is an empty roster - a sim
+party levels and loots while the tab is open and none of it is kept, which is
+the point. No auth, because every command is the operator's. No chat, redeems,
+loadout or admin.
+
+**It fights `content/` as committed, not the store.** The server loads
+Supabase first; this cannot, because dungeons are not readable with a public
+key. The two have drifted before (§6, `check:formations --live`), so a fight
+that looks wrong here may simply be the repo's older copy - `npm run
+pull:content`, commit, and the next deploy has the store's.
+
+Three things make it work, and each is one place:
+
+- **`web/src/localGameLink.ts` is the whole seam.** `loadLocalGame` is null in
+  every ordinary build, and the four things that talk to a server - the
+  connection, the sim strip's commands, `/content`, placements - each test it
+  first. It is written as a build-time constant on purpose: the bundler drops
+  the import and the engine behind it, so the ordinary overlay does not carry
+  218 kB of game to serve a branch it cannot take. Checked after the split:
+  `overlay/` has no `localGame` chunk and `App` is still 23.6 kB.
+- **The Node imports are aliased, in that mode only.** The engine extends
+  `node:events` and the loader imports `node:fs`; `web/vite.config.ts` points
+  them at `web/src/standalone/` for this one build. In every other mode an
+  engine import from the browser still fails, which is the rule
+  `web/tsconfig.json` describes and should keep describing.
+- **Runtime paths go through `publicUrl`.** A project site is served under
+  `/<repo>/`. Vite rewrites the paths it can see; `"/art/sprites/" + id` it
+  cannot, so `sprites.ts`, `roleArt.ts` and `build.ts` ask. The loadout's
+  `/art/ui/...` literals were left alone - it is not built in this mode.
+
+A snapshot crosses from the game to React through `JSON.parse(JSON.stringify())`,
+as it would have over SSE. Without it React holds the engine's live objects,
+which the next command mutates in place.
 
 ### Content is data
 
@@ -1069,6 +1124,12 @@ verified operator sign-in; see DEPLOY.md.
 `npm run simulate:progression` is not in that chain - it asserts nothing and is
 for reading, not passing. Run it whenever you change balance or content.
 
+`npm run build:sim` is not in it either, and the Pages workflow runs it on
+every pull request instead. Run it by hand after touching anything the overlay
+fetches or any import under `src/engine` or `src/state`: it is the only build
+in which that code has to survive a browser. `npm run dev:sim` serves it with
+hot reload on port 5174.
+
 **Green.** `simulate` used to fail one assertion - *"a balanced party should
 bring meaningfully more people home (8% vs 0%)"* - from `cops.json` in the
 seasoned band. That was authored tuning rather than a code fault and it has
@@ -1317,6 +1378,9 @@ tree, the way §3's Layout block is kept in sync with `src/`.
     content/           the game's data (gear/dungeons/consumables/raids +
                        balance.json/shop.json/placements.json) - §3
     data/              runtime roster/save data. Gitignored. Not source.
+    .pages/            BUILD OUTPUT of `npm run build:sim` - the standalone
+                       overlay GitHub Pages serves (§3). Gitignored.
+    .github/workflows/ the one workflow, which builds and publishes it
     overlay/            BUILD OUTPUT of `npm run build:web`. Never edit by
                        hand, never audit by hand - `web/` is the source of
                        truth for everything in here.

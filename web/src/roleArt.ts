@@ -1,4 +1,5 @@
 import type { Role } from "../../src/engine/types.js";
+import { publicUrl } from "./localGameLink.js";
 
 /**
  * The role icon sprite sheet (art/Roles.png, copied into web/public/art/).
@@ -17,7 +18,7 @@ import type { Role } from "../../src/engine/types.js";
  * creation screen when that exists. It is defined here so the sheet's layout
  * is documented in one place, but nothing renders it today.
  */
-export const ROLE_SHEET_URL = "/art/Roles.png";
+export const ROLE_SHEET_URL = publicUrl("/art/Roles.png");
 
 /** Grid dimensions of the sheet, in cells. */
 export const SHEET_COLUMNS = 4;

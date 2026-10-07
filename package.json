@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit && tsc -p functions/tsconfig.json",
     "dev:web": "npm run dev --prefix web",
     "build:web": "npm run build --prefix web",
+    "dev:sim": "npm run dev:sim --prefix web",
+    "build:sim": "npm run build:sim --prefix web",
     "install:web": "npm install --prefix web",
     "gen:font": "python scripts/build-font.py",
     "check:text": "python scripts/check-text-fits.py",

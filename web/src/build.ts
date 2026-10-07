@@ -14,6 +14,8 @@
  * every alpha build for nothing. A missing file shows as a broken image in
  * the header, which is loud enough to catch before it reaches anyone.
  */
+import { publicUrl } from "./localGameLink.js";
+
 export type ReleaseStage = "alpha" | "beta" | "release";
 
 export const STAGE: ReleaseStage = "alpha";
@@ -33,7 +35,7 @@ const LOGO_BY_STAGE: Record<ReleaseStage, string> = {
   release: "/art/logo.png",
 };
 
-export const LOGO_SRC = LOGO_BY_STAGE[STAGE];
+export const LOGO_SRC = publicUrl(LOGO_BY_STAGE[STAGE]);
 
 /**
  * What build someone is actually looking at.

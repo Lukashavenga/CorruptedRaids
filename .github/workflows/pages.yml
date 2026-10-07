@@ -1,0 +1,78 @@
+# The standalone overlay, published to GitHub Pages.
+#
+# What goes up is `npm run build:sim`: the two overlay pages with the game
+# engine inside them, because Pages serves files and nothing else - there is no
+# game server here and cannot be one. See "The sim on GitHub Pages" in
+# DEPLOY.md for what that build is and is not.
+#
+# A pull request runs the build and stops. That is the only check this build
+# gets that a Windows machine cannot give it: Pages and this runner are both
+# case-sensitive about paths, and the machine the code is written on is not.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+
+      # The root install is here for `zod` and the Node types: the build
+      # bundles the engine from ../src and typechecks it. Scripts are skipped
+      # because the only ones in that tree fetch the Supabase and Cloudflare
+      # CLIs, which this job never runs.
+      - run: npm ci --ignore-scripts
+      - run: npm ci --prefix web
+
+      - run: npm run build:sim
+        env:
+          # A project site is served under /<repo>/. Set the PAGES_BASE
+          # repository variable to "/" if this ever moves to a custom domain.
+          PAGES_BASE: ${{ vars.PAGES_BASE || format('/{0}/', github.event.repository.name) }}
+          # Optional. With both set, the page reads placements and the
+          # erased-sprite manifest live from the content store, as every other
+          # surface does. Without them it draws the art and placements in this
+          # repository. The PUBLISHABLE key only - it is compiled into the
+          # bundle, exactly as it is for the loadout.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .pages
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # One deploy at a time, and a newer one waits rather than cancelling the
+    # one in flight - a half-finished Pages deploy is not a state to leave in.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
