@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlacementFile } from "../../../src/character/layers.js";
 import { adminFetch } from "../adminKey.js";
 import { fetchLiveArt } from "../liveArt.js";
+import { loadLocalGame } from "../localGameLink.js";
 import { setSpriteManifest } from "../sprites.js";
 
 /**
@@ -106,6 +107,15 @@ export function usePlacements(source?: PlacementSource): {
     const load = async (): Promise<PlacementFile> => {
       const fromStore = await live;
       if (fromStore?.placements) return fromStore.placements;
+      // A standalone build carries the file with its game. Asking a server
+      // that is not there would 404 its way down to the same answer.
+      if (loadLocalGame) {
+        try {
+          return (await loadLocalGame()).placements;
+        } catch {
+          return {};
+        }
+      }
       for (const url of ["/placements", "/placements.json"]) {
         try {
           const res = await fetch(url);

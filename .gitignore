@@ -47,3 +47,7 @@ web/vite.config.ts.timestamp-*
 # Generated alongside the character function copies (scripts/bundle-edge-content.ts).
 supabase/functions/operator/_engine.js
 supabase/functions/operator/_content.json
+
+# The standalone overlay built for GitHub Pages (`npm run build:sim`). Build
+# output, same rule as overlay/.
+.pages/

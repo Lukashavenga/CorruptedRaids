@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { DungeonSnapshot } from "../../../src/state/DungeonController.js";
 import type { DispatchResult } from "../../../src/engine/state/gameEngine.js";
+import { loadLocalGame } from "../localGameLink.js";
 
 export interface GameConnectionState {
   connected: boolean;
@@ -26,6 +27,29 @@ export function useGameConnection(): GameConnectionState {
   });
 
   useEffect(() => {
+    // A standalone build has no server to listen to; the game is in the page.
+    // Same messages in the same order, so everything downstream of this hook
+    // is unaware of the difference - see web/src/localGameLink.ts.
+    if (loadLocalGame) {
+      let stop: (() => void) | undefined;
+      let cancelled = false;
+      loadLocalGame().then(
+        (game) => {
+          if (cancelled) return;
+          stop = game.subscribe(({ snapshot, result }) => {
+            setState((s) => ({ connected: true, snapshot, lastResult: result, updateSeq: s.updateSeq + 1 }));
+          });
+        },
+        // Content that fails validation lands here. The stage goes on saying
+        // "disconnected", which is true, and the console says why.
+        (err: unknown) => console.error("The standalone game could not start:", err),
+      );
+      return () => {
+        cancelled = true;
+        stop?.();
+      };
+    }
+
     const source = new EventSource("/events");
 
     source.addEventListener("open", () => {

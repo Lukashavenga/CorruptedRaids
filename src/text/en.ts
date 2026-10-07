@@ -550,6 +550,10 @@ export const en = {
     startDungeon: "Start Dungeon",
     reset: "Reset",
     hint: "Testing harness - the real path is Twitch redeems dispatching the same commands.",
+    // The build with the game inside it (web/src/standalone). Said up front
+    // because a sim party levels and loots like a real one while the tab is
+    // open, and none of it is going anywhere.
+    standalone: "Running in this browser - nothing is saved, and a reload starts over.",
     key: "Key",
     keyPlaceholder: "admin key",
     keyMissing: "Enter the admin key to use these controls.",

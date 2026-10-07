@@ -35,70 +35,109 @@ function buildId(): string {
   }
 }
 
+/**
+ * What a page is allowed to be, per mode.
+ *
+ * `--mode standalone` builds the overlay with the game INSIDE it, for a static
+ * host with no game server behind it (GitHub Pages - see DEPLOY.md). Three
+ * things differ, and all three are here rather than spread around:
+ *
+ *   - Only the two overlays are built. The loadout, admin, operator and
+ *     sign-in pages need Supabase and a gate this host cannot provide.
+ *   - `node:events`, `node:fs` and `node:path` resolve to browser stand-ins
+ *     (web/src/standalone). This is the one build that breaks the rule in
+ *     web/tsconfig.json about value imports from `../src` having no Node
+ *     runtime dependencies, because it imports the engine itself; the aliases
+ *     are what make that legal, and they exist in no other mode so an
+ *     accidental engine import anywhere else still fails loudly.
+ *   - `base` comes from PAGES_BASE. A project site is served under
+ *     `/<repo>/`, and the workflow knows the repo's name; nothing here should.
+ *
+ * Every other mode is exactly the build it was.
+ */
+const STANDALONE_INPUT = {
+  index: resolve(__dirname, "index.html"),
+  arena3d: resolve(__dirname, "arena3d.html"),
+};
+
+const STANDALONE_ALIAS = {
+  "node:events": resolve(__dirname, "src/standalone/events.ts"),
+  "node:fs": resolve(__dirname, "src/standalone/nodeStubs.ts"),
+  "node:path": resolve(__dirname, "src/standalone/nodeStubs.ts"),
+};
+
 // Builds straight into ../overlay, which src/server/index.ts already
 // serves as static files — see the root README for the dev/build flow.
-export default defineConfig({
-  plugins: [react()],
-  define: {
-    __BUILD_ID__: JSON.stringify(buildId()),
-  },
-  build: {
-    outDir: "../overlay",
-    emptyOutDir: true,
-    // Emitted so scripts/publish-web.ts can prove, against the real output,
-    // that every chunk only the admin and operator pages import is covered by
-    // functions/gated.ts. Without it that coverage is an assumption about how
-    // Vite names things, and an assumption there means a bundle served in the
-    // clear with nothing to notice.
-    manifest: true,
-    // One page per surface, one bundle per page: the OBS overlay, the
-    // per-viewer loadout screen (AGENTS.md §2.6 wants these to be distinct
-    // surfaces, not routes inside one app), the admin tool, the operator
-    // console and the sign-in door. They share engine types at build time and
-    // nothing at runtime.
-    //
-    // admin is bundled rather than dev-only because it edits content the game
-    // reads and has to be usable against a built server. It used to carry a
-    // note here that it must be put behind auth before being deployed
-    // anywhere public; that is now functions/_middleware.ts, which refuses to
-    // serve this bundle without a verified operator sign-in.
-    rollupOptions: {
-      input: {
-        index: resolve(__dirname, "index.html"),
-        // The same overlay with the fight drawn in three dimensions. Its own
-        // entry so the renderer it needs is in its bundle and no other - see
-        // web/src/arena3d/main.tsx.
-        arena3d: resolve(__dirname, "arena3d.html"),
-        loadout: resolve(__dirname, "loadout.html"),
-        admin: resolve(__dirname, "admin.html"),
-        // The hosted operator console. Unlike admin.html this one DOES ship:
-        // it talks to Supabase rather than the game server, so it works with
-        // no game process behind it. See scripts/publish-web.ts.
-        operator: resolve(__dirname, "operator.html"),
-        // The public door to both of the above. It has to be its own entry
-        // because functions/_middleware.ts refuses to serve their bundles to
-        // anyone who has not signed in yet, and a sign-in screen inside one of
-        // them would be behind the lock it opens.
-        signin: resolve(__dirname, "signin.html"),
+export default defineConfig(({ mode }) => {
+  const standalone = mode === "standalone";
+  return {
+    plugins: [react()],
+    base: standalone ? (process.env.PAGES_BASE ?? "/") : "/",
+    resolve: standalone ? { alias: STANDALONE_ALIAS } : undefined,
+    define: {
+      __BUILD_ID__: JSON.stringify(buildId()),
+    },
+    build: {
+      outDir: standalone ? "../.pages" : "../overlay",
+      emptyOutDir: true,
+      // Emitted so scripts/publish-web.ts can prove, against the real output,
+      // that every chunk only the admin and operator pages import is covered by
+      // functions/gated.ts. Without it that coverage is an assumption about how
+      // Vite names things, and an assumption there means a bundle served in the
+      // clear with nothing to notice.
+      //
+      // Not for the standalone build: nothing is gated there, so nothing reads
+      // it, and it would only be published.
+      manifest: !standalone,
+      // One page per surface, one bundle per page: the OBS overlay, the
+      // per-viewer loadout screen (AGENTS.md §2.6 wants these to be distinct
+      // surfaces, not routes inside one app), the admin tool, the operator
+      // console and the sign-in door. They share engine types at build time and
+      // nothing at runtime.
+      //
+      // admin is bundled rather than dev-only because it edits content the game
+      // reads and has to be usable against a built server. It used to carry a
+      // note here that it must be put behind auth before being deployed
+      // anywhere public; that is now functions/_middleware.ts, which refuses to
+      // serve this bundle without a verified operator sign-in.
+      rollupOptions: {
+        input: standalone ? STANDALONE_INPUT : {
+          index: resolve(__dirname, "index.html"),
+          // The same overlay with the fight drawn in three dimensions. Its own
+          // entry so the renderer it needs is in its bundle and no other - see
+          // web/src/arena3d/main.tsx.
+          arena3d: resolve(__dirname, "arena3d.html"),
+          loadout: resolve(__dirname, "loadout.html"),
+          admin: resolve(__dirname, "admin.html"),
+          // The hosted operator console. Unlike admin.html this one DOES ship:
+          // it talks to Supabase rather than the game server, so it works with
+          // no game process behind it. See scripts/publish-web.ts.
+          operator: resolve(__dirname, "operator.html"),
+          // The public door to both of the above. It has to be its own entry
+          // because functions/_middleware.ts refuses to serve their bundles to
+          // anyone who has not signed in yet, and a sign-in screen inside one of
+          // them would be behind the lock it opens.
+          signin: resolve(__dirname, "signin.html"),
+        },
       },
     },
-  },
-  server: {
-    // Needed because web/ imports shared rig/text/state config from ../src
-    // (see the root README's "The overlay" section) — Vite's dev server
-    // otherwise refuses to serve files outside its project root.
-    fs: { allow: [".."] },
-    proxy: {
-      "/state": "http://localhost:8787",
-      "/content": "http://localhost:8787",
-      "/events": "http://localhost:8787",
-      "/command": "http://localhost:8787",
-      "/character": "http://localhost:8787",
-      "/placements": "http://localhost:8787",
-      "/sprite": "http://localhost:8787",
-      "/sprite/revert": "http://localhost:8787",
-      "/difficulty": "http://localhost:8787",
-      "/content/write": "http://localhost:8787",
+    server: {
+      // Needed because web/ imports shared rig/text/state config from ../src
+      // (see the root README's "The overlay" section) — Vite's dev server
+      // otherwise refuses to serve files outside its project root.
+      fs: { allow: [".."] },
+      proxy: {
+        "/state": "http://localhost:8787",
+        "/content": "http://localhost:8787",
+        "/events": "http://localhost:8787",
+        "/command": "http://localhost:8787",
+        "/character": "http://localhost:8787",
+        "/placements": "http://localhost:8787",
+        "/sprite": "http://localhost:8787",
+        "/sprite/revert": "http://localhost:8787",
+        "/difficulty": "http://localhost:8787",
+        "/content/write": "http://localhost:8787",
+      },
     },
-  },
+  };
 });

@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "dev:sim": "vite --mode standalone --port 5174 --strictPort",
+    "build:sim": "tsc --noEmit -p tsconfig.json && vite build --mode standalone",
+    "preview:sim": "vite preview --mode standalone --port 5175 --strictPort",
     "preview": "vite preview"
   },
   "dependencies": {
