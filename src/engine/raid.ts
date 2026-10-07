@@ -57,9 +57,16 @@ export function roomFor(def: RaidDefinition, roomId: string): RaidRoom | undefin
  * table — the variety was the point, and it is what has been traded away so
  * that a streamer can say what a night looks like before it happens.
  *
- * `claimed` still matters for one thing: a buff room that names no particular
- * boon hands out whichever the party has not taken yet, so the same shrine
- * authored twice does not give the same thing twice.
+ * `claimed` decides what a shrine still has to give. One that names no boon
+ * hands out whichever the party has not taken yet; one that names a boon
+ * hands out that boon, ONCE. Either way a door with nothing left to give
+ * carries no `buffId`, and that absence is what the reveal reads to say so.
+ *
+ * The named case used to skip the check - `room.buffId ?? available[0]?.id` -
+ * which was harmless while doors were rolled and stopped being harmless when
+ * the path was authored: the same shrine behind doors in two rounds stacked
+ * its boon twice, in a run whose `claimed` list exists to prevent exactly
+ * that.
  */
 export function doorsForRound(def: RaidDefinition, round: number, claimed: string[]): RaidDoor[] {
   const step = def.path[round - 1];
@@ -76,7 +83,13 @@ export function doorsForRound(def: RaidDefinition, round: number, claimed: strin
 
     const door: RaidDoor = { direction, kind: room.kind, roomId: room.id, opened: false };
     if (room.kind === "buff") {
-      door.buffId = room.buffId ?? available[0]?.id;
+      const boon =
+        room.buffId === undefined
+          ? available[0]?.id
+          : available.some((b) => b.id === room.buffId)
+            ? room.buffId
+            : undefined;
+      if (boon !== undefined) door.buffId = boon;
     }
     return door;
   });
@@ -119,12 +132,33 @@ export function openDoor(
   run.pendingRoomId = door.roomId || null;
   if (door.kind === "buff" && door.buffId) {
     const buff = def.buffs.find((b) => b.id === door.buffId);
-    if (buff) {
+    // Checked again here, not only when the doors were laid out: this is the
+    // line that adds to the party's stats, so it is the one that must not be
+    // reachable twice for one boon whatever built the door.
+    if (buff && !run.claimed.includes(buff.id)) {
       run.buffs.push(buff);
       run.claimed.push(buff.id);
+    } else {
+      delete door.buffId;
     }
   }
   return door;
+}
+
+/**
+ * The boon the room now on screen gave the party, or undefined if it gave
+ * none.
+ *
+ * Read off the DOOR that was opened. The reveal used to take the last entry
+ * in `run.buffs`, which is "the most recent boon found anywhere" - so a shrine
+ * with nothing left was announced under the name of whatever an earlier one
+ * had given, and the party was told it had gained something it had not.
+ */
+export function boonGranted(run: RaidRun, def: RaidDefinition): RaidBuff | undefined {
+  if (!run.pendingRoomId) return undefined;
+  const door = run.doors.find((d) => d.opened && d.roomId === run.pendingRoomId);
+  if (!door?.buffId) return undefined;
+  return def.buffs.find((b) => b.id === door.buffId);
 }
 
 /**

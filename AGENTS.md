@@ -195,10 +195,18 @@ before Save rather than after.
 room is a Shrine on the authoring screens; a boon (`RaidBuff`) is a flat stat
 bonus on every party member for the rest of the run, boss included. Boons are
 edited in the Raids tab beside the rooms. A shrine either names one or gives
-whichever the party has not taken, in list order. Two edges the engine leaves
-open, neither fixed: a shrine that NAMES a boon gives it again on a second
-visit (`openDoor` does not consult `claimed`), and a shrine with nothing left
-to give grants nothing while the reveal still shows the last boon found.
+whichever the party has not taken, in list order.
+
+**A boon is given once a run, whichever shrine gives it, and a shrine with
+nothing left says so.** Both halves were broken and both were the same gap. A
+shrine that NAMED its boon skipped the `claimed` check, so one shrine behind
+doors in two rounds stacked its boon twice; and the reveal read the last entry
+of `run.buffs` rather than what the opened door gave, so a spent shrine was
+announced under the name of whatever an earlier one had handed out. A door now
+carries a `buffId` only when it has something to give, `boonGranted` reads the
+reveal off that door, and the overlay shows "Already taken". `npm run
+simulate` builds a raid with every case, because the shipped one has no shrine
+in it and could never have caught either.
 
 ### 6. Four stats, and every role wants exactly two
 

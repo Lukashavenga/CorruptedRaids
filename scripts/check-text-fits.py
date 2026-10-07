@@ -162,6 +162,7 @@ CASES = [
     # shows up rather than on stream.
     ("room.name",         16, ROOM),
     ("room.holds",        16, "16 waiting"),
+    ("room.holds.spent",  16, "Already taken"),
     ("room.line",         16, ROOM_LINE),
 ]
 

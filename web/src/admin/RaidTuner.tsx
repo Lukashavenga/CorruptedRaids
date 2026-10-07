@@ -1060,7 +1060,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                   {room.kind === "buff"
                     ? room.buffId === undefined
                       ? "A shrine gives the party a boon and moves on - no fight. This one gives whichever boon they have not taken yet, top of the Boons list first, so it is worth visiting more than once."
-                      : "A shrine gives the party a boon and moves on - no fight. This one always gives the boon picked above."
+                      : "A shrine gives the party a boon and moves on - no fight. This one gives the boon picked above, once: put it behind doors in two rounds and a party that opens both finds the second empty."
                     : "An empty room is a free passage. Nothing to lay out."}
                 </p>
               )}
