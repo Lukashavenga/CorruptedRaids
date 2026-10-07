@@ -1550,6 +1550,34 @@ body[data-sim-backdrop="clear"] {
   max-width: 220px;
 }
 
+/* The operator key. Pushed to the far end of its row so it reads as belonging
+   to the whole strip rather than to the backdrop buttons it shares a line
+   with. */
+.sim-key {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.sim-controls .sim-key input {
+  width: 120px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  color: var(--ink);
+  /* The system face, not the bitmap one: a password field draws dots, and the
+     pixel font has no glyph for them. */
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.sim-controls .sim-key input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 /*
  * An enemy line that was laid out by hand rather than packed automatically.
  *

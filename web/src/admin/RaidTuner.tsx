@@ -5,10 +5,12 @@ import type {
   FightDefinition,
   PartyBand,
   PathDirection,
+  RaidBuff,
   RaidDefinition,
   RaidRoom,
   RaidStep,
   Role,
+  StatKey,
 } from "../../../src/engine/types.js";
 import { DOOR_KINDS, PARTY_BANDS, PATH_DIRECTIONS, ROLES } from "../../../src/engine/types.js";
 import { BAND_SAMPLE_PARTY } from "../../../src/engine/squad.js";
@@ -29,11 +31,41 @@ const ROLE_LABEL: Record<Role, string> = {
   healer: "Support",
 };
 
+/**
+ * A buff room is a SHRINE here, and a boon is what it gives.
+ *
+ * It was labelled "Boon", which made one word mean two things - the room on
+ * the path and the bonus the raid defines - on a screen that listed the first
+ * and had nowhere to see the second. New buff rooms were already named
+ * "New Shrine"; the label now agrees with them.
+ */
 const KIND_LABEL: Record<DoorKind, string> = {
   fight: "Fight",
-  buff: "Boon",
+  buff: "Shrine",
   clear: "Empty",
 };
+
+/** A boon's stats, in the order and the words the loadout uses. */
+const BOON_STATS: { key: StatKey; label: string }[] = [
+  { key: "hp", label: "Health" },
+  { key: "atk", label: "Attack" },
+  { key: "spd", label: "Speed" },
+  { key: "skill", label: "Skill" },
+  { key: "crit", label: "Crit %" },
+];
+
+/** What a boon does, in a line: "+1 Attack, +5% Crit". */
+function boonSummary(boon: RaidBuff): string {
+  const parts = BOON_STATS.flatMap(({ key, label }) => {
+    const value = boon.statMods?.[key];
+    if (!value) return [];
+    const sign = value > 0 ? "+" : "";
+    // Crit is stored as a fraction and read as a percentage everywhere a
+    // player sees it.
+    return key === "crit" ? [`${sign}${Math.round(value * 100)}% Crit`] : [`${sign}${value} ${label}`];
+  });
+  return parts.length > 0 ? parts.join(", ") : "does nothing yet";
+}
 
 /** What the overlay calls each door, so the editor says the same words. */
 const DIRECTION_LABEL: Record<PathDirection, string> = {
@@ -77,8 +109,8 @@ const STARTER_LINE: Record<DoorKind, string> = {
  * boss has a body - an active raid with an empty boss room is a night that
  * ends in a fight against nobody.
  *
- * Boons are copied from the raid on screen. There is no boon editor yet, and a
- * raid with none cannot have a shrine room at all.
+ * Boons are copied from the raid on screen, as a set to start editing from
+ * rather than an empty list: a raid with none cannot have a shrine at all.
  */
 function blankRaid(id: string, name: string, from: RaidDefinition | null): RaidDefinition {
   return {
@@ -104,39 +136,159 @@ function blankRaid(id: string, name: string, from: RaidDefinition | null): RaidD
   };
 }
 
+/** A boon to start from. Gives nothing until its author says what. */
+function blankBoon(existing: RaidBuff[]): RaidBuff {
+  let id = "new-boon";
+  let n = 2;
+  while (existing.some((b) => b.id === id)) id = `new-boon-${n++}`;
+  return { id, name: "New Boon", description: "Something in here is on your side.", statMods: {} };
+}
+
 /** Has the boss room got anybody in it, at any level? */
 function bossIsStaffed(raid: RaidDefinition): boolean {
   return Object.values(raid.boss.fight.formations ?? {}).some((units) => (units?.length ?? 0) > 0);
 }
 
+/** A name as an id, or "" when nothing in it can be one. */
+function slugOrEmpty(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function slug(name: string): string {
+  return slugOrEmpty(name) || `room-${Date.now().toString(36)}`;
+}
+
+/**
+ * An id, typed freely and applied when the field is left.
+ *
+ * It used to be slugged on every keystroke, which strips a trailing hyphen -
+ * so the hyphen in "toll-gate" vanished as it was typed and a two-word id
+ * could only be entered by going back and inserting it - and emptying the
+ * field to retype it produced "room-" plus a timestamp. Nothing about an id
+ * needs to be true until the author has finished typing it.
+ */
+function IdField({
+  value,
+  taken,
+  onCommit,
+}: {
+  value: string;
+  taken: (id: string) => boolean;
+  onCommit: (id: string) => void;
+}): JSX.Element {
+  const [typed, setTyped] = useState(value);
+  const [refused, setRefused] = useState<string | null>(null);
+  useEffect(() => {
+    setTyped(value);
+    setRefused(null);
+  }, [value]);
+
+  const commit = () => {
+    const clean = slugOrEmpty(typed);
+    if (!clean || clean === value) {
+      setTyped(value);
+      return;
+    }
+    if (taken(clean)) {
+      setTyped(value);
+      setRefused(`"${clean}" is already used in this raid.`);
+      return;
+    }
+    onCommit(clean);
+  };
+
   return (
-    name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || `room-${Date.now().toString(36)}`
+    <label className="raid-field" title="What the saved file calls this room. Doors on the path follow a rename.">
+      id
+      <input
+        value={typed}
+        spellCheck={false}
+        onChange={(e) => {
+          setTyped(e.target.value);
+          setRefused(null);
+        }}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+        }}
+      />
+      {refused && <small className="admin-warn">{refused}</small>}
+    </label>
   );
 }
 
 /**
- * Author a raid's rooms.
+ * Everything that would make the server refuse this raid, in the author's
+ * words.
  *
- * A raid used to be three weights and a nameless pool of fights: you could say
- * "fights are 50% likely" but not which fight, and a fight had no name, no
- * description and no scene. There was nothing to add, nothing to name, and
- * nothing for the overlay to reveal when a door opened. A room is the unit an
- * author actually thinks in — a place, what waits there, and how often the
- * party finds it — so it is the unit this screen edits.
+ * Each line mirrors one `fail` in validateRaidDefinition and nothing else: it
+ * exists so the refusal is on screen BEFORE Save and names a round and a door,
+ * where the loader's own message says `path[0].up points at "first-passage"`
+ * and arrives in the status bar a screen away from the dropdown that caused
+ * it. The server is still the judge; this only stops the author finding out by
+ * being turned down.
+ */
+function raidProblems(raid: RaidDefinition): string[] {
+  const out: string[] = [];
+  if (!raid.name) out.push("The raid needs a name.");
+  if (raid.rooms.length === 0) out.push("Add at least one room - the doors have nothing to open onto.");
+  if (raid.path.length === 0) out.push("Add at least one round to the path.");
+
+  const boonIds = raid.buffs.map((b) => b.id);
+  for (const b of raid.buffs) {
+    if (!b.name) out.push("A boon has no name.");
+    if (!b.description) out.push(`Boon "${b.name || b.id}" needs a line of description.`);
+  }
+
+  const roomIds = new Set(raid.rooms.map((r) => r.id));
+  for (const r of [...raid.rooms, raid.boss]) {
+    if (!r.name) out.push(`A room (${r.id}) has no name.`);
+    if (!r.description) out.push(`"${r.name || r.id}" needs a revealed line.`);
+  }
+  for (const r of raid.rooms) {
+    if (r.kind !== "buff") continue;
+    if (r.buffId !== undefined && !boonIds.includes(r.buffId)) {
+      out.push(`Shrine "${r.name}" gives a boon that no longer exists - pick another.`);
+    }
+    if (r.buffId === undefined && boonIds.length === 0) {
+      out.push(`Shrine "${r.name}" has nothing to give - this raid has no boons yet.`);
+    }
+  }
+  if (roomIds.has(raid.boss.id)) out.push(`The boss room shares its id ("${raid.boss.id}") with another room.`);
+
+  raid.path.forEach((step, i) => {
+    for (const dir of PATH_DIRECTIONS) {
+      if (!roomIds.has(step[dir])) {
+        out.push(`Round ${i + 1}, ${DIRECTION_LABEL[dir]}: this door leads to a room that no longer exists - pick one.`);
+      }
+    }
+  });
+  return out;
+}
+
+/**
+ * Author a raid: its rooms, its boons, and the path that strings them together.
  *
- * The path is still drawn per round rather than scripted. That is what makes
- * the choice a choice: two runs of the same raid differ, and an author tunes
- * the odds of meeting a room rather than writing round three. Weight 0 is the
- * way to park a room without deleting the work.
+ * Three lists and they are all one raid. ROOMS are the places a door can open
+ * onto - an empty passage, a shrine, a fight. BOONS are what a shrine gives:
+ * a bonus the whole party keeps for the rest of the run. THE PATH says which
+ * room is behind Left, Ahead and Right in each round, and the boss comes after
+ * the last one.
+ *
+ * This comment described weights and rolled doors for a while after the path
+ * became authored (AGENTS.md 2.5), and so did the screen: boons could be
+ * handed out but not seen or edited, and a room renamed here kept its old id
+ * on the path, which the server then refused to save.
  */
 export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.Element {
   const [id, setId] = useState(raids[0]?.id ?? "");
   const [draft, setDraft] = useState<RaidDefinition | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
+  /** The boon being edited. A boon and a room are never both selected. */
+  const [boonId, setBoonId] = useState<string | null>(null);
   const [band, setBand] = useState<PartyBand>("weak");
   const [group, setGroup] = useState<string>(Object.keys(ENEMY_SPRITES)[0] ?? "");
   const [adding, setAdding] = useState(false);
@@ -166,6 +318,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
   // Selecting a raid should not leave a room id from the previous one selected.
   useEffect(() => {
     setRoomId(null);
+    setBoonId(null);
     setSelectedUnit(null);
   }, [id]);
 
@@ -183,6 +336,18 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
     draft && roomId === BOSS
       ? draft.boss
       : (draft?.rooms.find((r) => r.id === roomId) ?? undefined);
+  const boon: RaidBuff | undefined = draft?.buffs.find((b) => b.id === boonId);
+
+  const selectRoom = (next: string | null) => {
+    setRoomId(next);
+    setBoonId(null);
+    setSelectedUnit(null);
+  };
+  const selectBoon = (next: string | null) => {
+    setBoonId(next);
+    setRoomId(null);
+    setSelectedUnit(null);
+  };
 
   // Measured live against the DRAFT, so the reading belongs to the numbers on
   // screen rather than to whatever was last written to disk.
@@ -290,39 +455,92 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
       kind,
       ...(kind === "fight" ? { fight: blankFight() } : {}),
     };
-    patch({ rooms: [...draft.rooms, next] });
-    setRoomId(next.id);
+    // A shrine in a raid with no boons is refused on save, so the first one
+    // arrives with a boon to give rather than as a room that cannot be kept.
+    const buffs = kind === "buff" && draft.buffs.length === 0 ? [blankBoon(draft.buffs)] : draft.buffs;
+    patch({ rooms: [...draft.rooms, next], buffs });
+    selectRoom(next.id);
     setBand("weak");
   };
+
+  // --- boons ---------------------------------------------------------------
+  const addBoon = () => {
+    const next = blankBoon(draft.buffs);
+    patch({ buffs: [...draft.buffs, next] });
+    selectBoon(next.id);
+  };
+
+  const patchBoon = (next: Partial<RaidBuff>) =>
+    patch({ buffs: draft.buffs.map((b) => (b.id === boonId ? { ...b, ...next } : b)) });
+
+  /** Zero is "does not touch this stat", and is stored as the key's absence. */
+  const setBoonStat = (key: StatKey, value: number) => {
+    if (!boon) return;
+    const statMods = { ...boon.statMods };
+    if (value) statMods[key] = value;
+    else delete statMods[key];
+    patchBoon({ statMods });
+  };
+
+  const removeBoon = (target: RaidBuff) => {
+    // A shrine still naming it would make the raid unloadable, so those fall
+    // back to giving whichever boon is next - the same repair removeRoom makes
+    // to the path.
+    patch({
+      buffs: draft.buffs.filter((b) => b.id !== target.id),
+      rooms: draft.rooms.map((r) => {
+        if (r.buffId !== target.id) return r;
+        const { buffId: _gone, ...rest } = r;
+        return rest;
+      }),
+    });
+    if (boonId === target.id) setBoonId(null);
+  };
+
+  /** Shrines that give this boon by name. */
+  const shrinesGiving = (target: RaidBuff) => draft.rooms.filter((r) => r.kind === "buff" && r.buffId === target.id);
 
   const duplicateRoom = (source: RaidRoom) => {
     let base = `${source.id}-copy`;
     let n = 1;
-    while (draft.rooms.some((r) => r.id === base)) base = `${source.id}-copy-${n++}`;
+    while (draft.rooms.some((r) => r.id === base) || base === draft.boss.id) base = `${source.id}-copy-${n++}`;
     const copy: RaidRoom = structuredClone({ ...source, id: base, name: `${source.name} (copy)` });
     patch({ rooms: [...draft.rooms, copy] });
-    setRoomId(copy.id);
+    selectRoom(copy.id);
   };
 
   /**
-   * Rename a room's id, keeping it unique.
+   * Rename a room's id, and every door that leads to it.
    *
    * Editable, and shown, because the id is generated from the room's name at
    * the moment it is created — so a room named after the fact keeps an id like
-   * "new-room" forever otherwise. It is also what the file is read and diffed
-   * by, so an author who cares about their content wants to set it. A rename
-   * is safe: a door stores an id only for the length of a live run, and a room
-   * cannot be renamed mid-run from here.
+   * "new-room" forever otherwise.
+   *
+   * THE PATH HAS TO FOLLOW. This only renamed the room, on the reasoning that
+   * "a door stores an id only for the length of a live run" - true when doors
+   * were rolled, and false since the path was authored, because the path is a
+   * list of room ids. A renamed room left its doors pointing at the old id;
+   * the server refused the raid ('path[0].up points at "first-passage", which
+   * is not one of its rooms') and the screen gave no sign of why, because a
+   * dropdown whose value matches no option draws its first option instead.
    */
-  const renameId = (next: string) => {
-    // Slugged on the way in: an id ends up in a filename-shaped position and
-    // in every door that points at this room, so it is not a free-text field
-    // even though it is typed like one.
-    const clean = slug(next);
-    if (draft.rooms.some((r) => r.id === clean && r.id !== roomId) || clean === draft.boss.id) return;
-    patch({ rooms: draft.rooms.map((r) => (r.id === roomId ? { ...r, id: clean } : r)) });
+  const renameId = (clean: string) => {
+    const from = roomId;
+    patch({
+      rooms: draft.rooms.map((r) => (r.id === from ? { ...r, id: clean } : r)),
+      path: draft.path.map(
+        (step) =>
+          Object.fromEntries(PATH_DIRECTIONS.map((d) => [d, step[d] === from ? clean : step[d]])) as RaidStep,
+      ),
+    });
     setRoomId(clean);
   };
+
+  /** Is this id spoken for by something other than the room being renamed? */
+  const idTaken = (clean: string) =>
+    roomId === BOSS
+      ? draft.rooms.some((r) => r.id === clean)
+      : draft.rooms.some((r) => r.id === clean && r.id !== roomId) || clean === draft.boss.id;
 
   const removeRoom = (target: RaidRoom) => {
     // Deleting a room the path still points at would make the raid unloadable,
@@ -340,6 +558,18 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
     patch({ rooms, path });
     if (roomId === target.id) setRoomId(null);
   };
+
+  const problems = raidProblems(draft);
+  /**
+   * Rounds whose shrine gives "whichever boon is next". Each can be taken once
+   * a run, so a party that picks the shrine every round needs this many boons.
+   */
+  const openShrineRounds = draft.path.filter((step) =>
+    PATH_DIRECTIONS.some((d) => {
+      const r = draft.rooms.find((x) => x.id === step[d]);
+      return r?.kind === "buff" && r.buffId === undefined;
+    }),
+  ).length;
 
   // --- the path ------------------------------------------------------------
   const setDoor = (index: number, direction: PathDirection, target: string) =>
@@ -450,8 +680,14 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
         <button type="button" className="raid-delete" onClick={() => void deleteRaid()}>
           Delete
         </button>
-        <button type="button" className="enc-save" onClick={save} disabled={!dirty}>
-          {dirty ? "Save Raid" : "No changes"}
+        <button
+          type="button"
+          className="enc-save"
+          onClick={save}
+          disabled={!dirty || problems.length > 0}
+          title={problems[0] ?? ""}
+        >
+          {problems.length > 0 ? "Cannot save yet" : dirty ? "Save Raid" : "No changes"}
         </button>
       </header>
 
@@ -488,6 +724,31 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
         </span>
       </div>
 
+      {/* The order to build one in. The three columns are three lists that
+          only make a raid together, and nothing on the screen said so. */}
+      <ol className="raid-guide">
+        <li>
+          <strong>Rooms</strong> - make the places a door can open onto: an empty passage, a shrine
+          that gives a boon, or a fight.
+        </li>
+        <li>
+          <strong>The path</strong> - for each round, choose which room is behind Left, Ahead and
+          Right. Chat picks one door a round and sees only that room.
+        </li>
+        <li>
+          <strong>The boss</strong> - put at least one unit in the boss room, then switch the raid
+          to Active.
+        </li>
+      </ol>
+
+      {problems.length > 0 && (
+        <ul className="raid-problems">
+          {problems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+
       <div className="enc-body">
         {/* --- left: the rooms themselves --------------------------------- */}
         <aside className="enc-col enc-left">
@@ -510,14 +771,15 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               <li
                 key={r.id}
                 className={`kind-${r.kind} ${r.id === roomId ? "is-selected" : ""} ${doorsTo(r.id) === 0 ? "is-parked" : ""}`}
-                onClick={() => {
-                  setRoomId(r.id);
-                  setSelectedUnit(null);
-                }}
+                onClick={() => selectRoom(r.id)}
               >
                 <span className="raid-room-name">
                   {r.name}
-                  <small>{KIND_LABEL[r.kind]}</small>
+                  <small>
+                    {KIND_LABEL[r.kind]}
+                    {r.kind === "buff" &&
+                      ` - gives ${draft.buffs.find((b) => b.id === r.buffId)?.name ?? "the next boon"}`}
+                  </small>
                 </span>
                 {/* How many doors lead here. "0" is the useful one: a room
                     nothing points at is work the party will never see. */}
@@ -535,10 +797,13 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                 >
                   ⧉
                 </button>
+                {/* The last room cannot go: a raid with none is refused, and
+                    the path would have nowhere left to point. */}
                 <button
                   type="button"
                   className="enc-squad-x"
-                  title="Delete"
+                  title={draft.rooms.length === 1 ? "A raid needs at least one room" : "Delete"}
+                  disabled={draft.rooms.length === 1}
                   onClick={(e) => {
                     e.stopPropagation();
                     removeRoom(r);
@@ -555,10 +820,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                 party meets it. It is never drawn, so it shows no odds. */}
             <li
               className={`kind-fight is-boss ${roomId === BOSS ? "is-selected" : ""}`}
-              onClick={() => {
-                setRoomId(BOSS);
-                setSelectedUnit(null);
-              }}
+              onClick={() => selectRoom(BOSS)}
             >
               <span className="raid-room-name">
                 {draft.boss.name}
@@ -575,15 +837,120 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
           {draft.rooms.length === 0 && (
             <p className="admin-warn">Add a room before building the path.</p>
           )}
+
+          {/* --- boons ---------------------------------------------------- */}
+          <h2 className="enc-h">Boons</h2>
+          <div className="enc-row">
+            <strong>What a shrine gives</strong>
+            <span className="enc-count">{draft.buffs.length}</span>
+          </div>
+          <p className="admin-hint">
+            A bonus the whole party keeps for the rest of the raid. Each can be taken once a run.
+          </p>
+          <ul className="raid-rooms">
+            {draft.buffs.map((b) => (
+              <li
+                key={b.id}
+                className={`kind-buff ${b.id === boonId ? "is-selected" : ""}`}
+                onClick={() => selectBoon(b.id)}
+              >
+                <span className="raid-room-name">
+                  {b.name}
+                  <small>{boonSummary(b)}</small>
+                </span>
+                <button
+                  type="button"
+                  className="enc-squad-x"
+                  title="Delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeBoon(b);
+                  }}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+            {draft.buffs.length === 0 && <li className="admin-hint">No boons, so no shrines.</li>}
+          </ul>
+          <button type="button" className="enc-add raid-add-boon" onClick={addBoon}>
+            + Boon
+          </button>
+          {openShrineRounds > draft.buffs.length && (
+            <p className="admin-hint">
+              {openShrineRounds} rounds offer a shrine that gives the next boon, and there are{" "}
+              {draft.buffs.length}. A party that takes every one finds the last empty.
+            </p>
+          )}
         </aside>
 
         {/* --- main: the selected room ------------------------------------ */}
         <main className="enc-col enc-main">
-          {!room && (
+          {!room && !boon && (
             <p className="admin-hint">
-              Pick a room to edit it, or add one. Each room is a place with a name and a line - that
-              is what the overlay reveals when a door opens onto it.
+              Pick a room or a boon on the left to edit it, or add one. A room is a place with a name
+              and a line - that is what the overlay reveals when a door opens onto it.
             </p>
+          )}
+
+          {boon && (
+            <>
+              <div className="enc-title">
+                <input
+                  className="raid-room-title"
+                  value={boon.name}
+                  onChange={(e) => patchBoon({ name: e.target.value })}
+                  placeholder="Boon name"
+                />
+              </div>
+              <p className="admin-hint">
+                A boon. The party gets it by opening a door onto a shrine, and it stays on every
+                member until the raid ends - through the boss.
+              </p>
+
+              <label className="raid-field">
+                Description
+                <input
+                  value={boon.description}
+                  onChange={(e) => patchBoon({ description: e.target.value })}
+                  placeholder="One line, shown with the name when it is found."
+                />
+              </label>
+
+              <div className="raid-boon-stats">
+                {BOON_STATS.map(({ key, label }) => (
+                  <label key={key} className="raid-field">
+                    {label}
+                    <input
+                      type="number"
+                      step={1}
+                      // Crit is a fraction in the file and a percentage on
+                      // every screen a person reads.
+                      value={key === "crit" ? Math.round((boon.statMods?.crit ?? 0) * 100) : (boon.statMods?.[key] ?? 0)}
+                      onChange={(e) => {
+                        const n = Number(e.target.value) || 0;
+                        setBoonStat(key, key === "crit" ? n / 100 : n);
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+              <p className="admin-hint">
+                Added to each party member, and boons stack. Keep them small: a new character has
+                about ten health, so +1 is a real bonus and +6 is a large one. Leave a stat at 0 to
+                not touch it.
+              </p>
+
+              <p className="admin-hint">
+                {shrinesGiving(boon).length > 0
+                  ? `Given by: ${shrinesGiving(boon)
+                      .map((r) => r.name)
+                      .join(", ")}.`
+                  : draft.rooms.some((r) => r.kind === "buff" && r.buffId === undefined)
+                    ? "No shrine names this one, but a shrine set to give the next boon can still hand it out."
+                    : "No shrine gives this yet. Add a shrine, or pick this boon on one."}
+              </p>
+            </>
           )}
 
           {room && (
@@ -598,14 +965,11 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               </div>
 
               <div className="raid-fieldrow">
-                <label className="raid-field">
-                  id
-                  <input
-                    value={room.id}
-                    onChange={(e) => (roomId === BOSS ? patchRoom({ id: slug(e.target.value) }) : renameId(e.target.value))}
-                    spellCheck={false}
-                  />
-                </label>
+                <IdField
+                  value={room.id}
+                  taken={idTaken}
+                  onCommit={(clean) => (roomId === BOSS ? patchRoom({ id: clean }) : renameId(clean))}
+                />
               </div>
 
               <label className="raid-field">
@@ -635,7 +999,7 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
 
                 {room.kind === "buff" && (
                   <label className="raid-field">
-                    Boon
+                    Boon it gives
                     <select
                       value={room.buffId ?? ""}
                       onChange={(e) => patchRoom({ buffId: e.target.value || undefined })}
@@ -643,10 +1007,16 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                       {/* Empty means "any the party has not claimed yet",
                           which is what keeps one shrine useful for a whole run
                           instead of being spent after a single visit. */}
-                      <option value="">any unclaimed</option>
+                      <option value="">the next boon the party has not taken</option>
+                      {/* A boon deleted out from under this shrine. Listed so
+                          the dropdown shows what is stored instead of quietly
+                          drawing a different choice. */}
+                      {room.buffId !== undefined && !draft.buffs.some((b) => b.id === room.buffId) && (
+                        <option value={room.buffId}>missing boon - pick another</option>
+                      )}
                       {draft.buffs.map((b) => (
                         <option key={b.id} value={b.id}>
-                          {b.name}
+                          {b.name} ({boonSummary(b)})
                         </option>
                       ))}
                     </select>
@@ -688,9 +1058,18 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
               {!room.fight && (
                 <p className="admin-hint">
                   {room.kind === "buff"
-                    ? "A boon room hands out a buff and moves on - there is nothing to lay out."
+                    ? room.buffId === undefined
+                      ? "A shrine gives the party a boon and moves on - no fight. This one gives whichever boon they have not taken yet, top of the Boons list first, so it is worth visiting more than once."
+                      : "A shrine gives the party a boon and moves on - no fight. This one always gives the boon picked above."
                     : "An empty room is a free passage. Nothing to lay out."}
                 </p>
+              )}
+              {/* From the shrine to the thing it gives. Only when it names one:
+                  a shrine giving "the next boon" has no single boon to open. */}
+              {room.kind === "buff" && draft.buffs.some((b) => b.id === room.buffId) && (
+                <button type="button" className="raid-linkbtn" onClick={() => selectBoon(room.buffId ?? null)}>
+                  Edit this boon
+                </button>
               )}
 
               {room.fight && (
@@ -885,7 +1264,8 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
 
           <h2 className="enc-h">The path</h2>
           <p className="admin-hint">
-            Every door, every round. Chat still cannot see behind one until it opens.
+            Which room is behind each door, round by round. Chat votes for a door without seeing
+            what is behind it.
           </p>
 
           <ol className="raid-steps">
@@ -905,16 +1285,28 @@ export function RaidTuner({ raids, onSaved, setStatus }: RaidTunerProps): JSX.El
                   >
                     ↓
                   </button>
-                  <button type="button" onClick={() => removeStep(i)} title="Remove round">
+                  <button
+                    type="button"
+                    onClick={() => removeStep(i)}
+                    disabled={draft.path.length === 1}
+                    title={draft.path.length === 1 ? "A raid needs at least one round" : "Remove round"}
+                  >
                     ×
                   </button>
                 </div>
                 {PATH_DIRECTIONS.map((dir) => {
                   const target = draft.rooms.find((r) => r.id === step[dir]);
                   return (
-                    <label key={dir} className={`raid-door-pick kind-${target?.kind ?? "clear"}`}>
+                    <label
+                      key={dir}
+                      className={`raid-door-pick ${target ? `kind-${target.kind}` : "is-missing"}`}
+                    >
                       <span>{DIRECTION_LABEL[dir]}</span>
                       <select value={step[dir]} onChange={(e) => setDoor(i, dir, e.target.value)}>
+                        {/* A door whose room is gone. Without an option of its
+                            own the browser draws the first room in the list,
+                            which is how a broken path looked like a whole one. */}
+                        {!target && <option value={step[dir]}>no room - pick one</option>}
                         {draft.rooms.map((r) => (
                           <option key={r.id} value={r.id}>
                             {r.name} · {KIND_LABEL[r.kind]}
