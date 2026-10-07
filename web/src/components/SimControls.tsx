@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { text } from "../../../src/text/index.js";
 import type { GameCommand } from "../../../src/engine/commands/types.js";
 import type { StateId } from "../../../src/state/dungeonStates.config.js";
-import { adminFetch } from "../adminKey.js";
+import { AdminAuthError, adminFetch, getAdminKey, setAdminKey } from "../adminKey.js";
 
 export interface SimControlsProps {
   state: StateId;
@@ -34,6 +34,18 @@ export function SimControls({
   const [message, setMessage] = useState<string | null>(null);
   const [dungeonId, setDungeonId] = useState("");
   const [raidId, setRaidId] = useState("");
+
+  /**
+   * The operator key, entered here.
+   *
+   * Every button on this strip is an operator command and the server refuses
+   * them without the key (src/server/auth.ts). The only place to type it was
+   * the admin page, which keeps it in this tab's session storage - so on an
+   * overlay opened by itself every button answered 401 and there was nothing
+   * on the screen to do about it. Same storage, same key: entering it in
+   * either place serves both.
+   */
+  const [adminKey, setKey] = useState(getAdminKey);
 
   /**
    * How the working surface is lit.
@@ -68,6 +80,9 @@ export function SimControls({
 
   const send = useCallback(async (command: GameCommand) => {
     setBusy(true);
+    // Read before the request: a refusal clears the stored key, and afterwards
+    // "there was no key" and "the key was wrong" look the same.
+    const hadKey = getAdminKey() !== "";
     try {
       const res = await adminFetch("/command", {
         method: "POST",
@@ -77,7 +92,17 @@ export function SimControls({
       const body = (await res.json()) as { ok: boolean; message: string };
       setMessage(body.message);
     } catch (err) {
-      setMessage((err as Error).message);
+      if (err instanceof AdminAuthError) {
+        // adminFetch has already forgotten a key the server refused. The field
+        // has to forget it too, or it goes on showing dots for a key that is
+        // no longer being sent.
+        setKey(getAdminKey());
+        setMessage(
+          err.status === 503 ? text.sim.keyUnset : hadKey ? text.sim.keyRefused : text.sim.keyMissing,
+        );
+      } else {
+        setMessage((err as Error).message);
+      }
     } finally {
       setBusy(false);
     }
@@ -165,9 +190,30 @@ export function SimControls({
             {text.sim.backdropMode[mode]}
           </button>
         ))}
+        {/* In the last row rather than a row of its own: it is typed once a
+            tab, and the strip already takes more room than the stage. */}
+        <label className="sim-key">
+          <span className="sim-title">{text.sim.key}</span>
+          <input
+            type="password"
+            value={adminKey}
+            placeholder={text.sim.keyPlaceholder}
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(e) => {
+              setKey(e.target.value);
+              setAdminKey(e.target.value);
+              // Whatever was said about the last key is no longer about this one.
+              setMessage(null);
+            }}
+          />
+        </label>
       </div>
 
-      <div className="sim-hint">{message ?? text.sim.hint}</div>
+      {/* With no key nothing here can work, so that is what the line says
+          until there is one - ahead of the standing hint, behind any answer
+          the server actually gave. */}
+      <div className="sim-hint">{message ?? (adminKey ? text.sim.hint : text.sim.keyMissing)}</div>
     </div>
   );
 }

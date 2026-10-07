@@ -546,6 +546,11 @@ export const en = {
     startDungeon: "Start Dungeon",
     reset: "Reset",
     hint: "Testing harness - the real path is Twitch redeems dispatching the same commands.",
+    key: "Key",
+    keyPlaceholder: "admin key",
+    keyMissing: "Enter the admin key to use these controls.",
+    keyRefused: "The server refused that admin key.",
+    keyUnset: "This server has no ADMIN_SECRET set, so it refuses every command.",
   },
 
   errors: {
