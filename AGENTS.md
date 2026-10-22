@@ -1097,6 +1097,9 @@ sit ON the artwork where a shadow alone loses against a torch flame.
   original size, which is how the sim controls ended up under the stage. If you
   scale something, reserve the scaled size.
 - `tsx` has **no watch mode** here: changes under `src/` need a server restart.
+- **The server saves the roster on SIGHUP as well as SIGINT and SIGTERM.**
+  SIGHUP is the console window being closed, which is how a game started from
+  `start-stream.cmd` usually ends.
 - Use `npm.cmd` / `npx.cmd` on Windows. The execution policy is deliberately
   left alone.
 
@@ -1367,6 +1370,12 @@ tree, the way §3's Layout block is kept in sync with `src/`.
     DEPLOY.md          how to ship it
     Dockerfile, fly.toml, .dockerignore, .env.example
                        deployment config - see DEPLOY.md
+    start-stream.cmd   what the streamer double-clicks. Installs on a first run
+                       and hands over to scripts/start-stream.ts, which fills
+                       any missing secret in .env, rebuilds overlay/ if its
+                       sources are newer, and starts the server exactly as
+                       `npm run serve` does. It prints no secret - that window
+                       is one scene away from being on stream.
     package.json       the engine's own scripts/deps (zero runtime deps)
     tsconfig*.json      engine TypeScript config
 

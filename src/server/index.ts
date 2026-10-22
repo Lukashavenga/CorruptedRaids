@@ -1601,7 +1601,9 @@ async function boot(): Promise<void> {
  * is already serialised.
  */
 let closing = false;
-for (const signal of ["SIGINT", "SIGTERM"] as const) {
+// SIGHUP is the terminal going away - on Windows, the X on the console window,
+// which is how a game started by start-stream.cmd is most likely to be stopped.
+for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
   process.on(signal, () => {
     if (closing) return;
     closing = true;

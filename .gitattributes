@@ -1,0 +1,3 @@
+# Batch files are read line by line by cmd.exe, which wants CRLF whatever the
+# machine that last committed them uses.
+*.cmd text eol=crlf
