@@ -69,7 +69,9 @@
     "xpRate": 0.25
   },
   "economy": {
+    "_comment": "recycleRate is what SHOP-BOUGHT gear sells back for (1 = full refund, so trying an item costs nothing). lootRecycleRate is everything else - chest drops, the starter kit, operator grants, and any item owned before gear remembered where it came from. See src/engine/balance.ts.",
     "recycleRate": 1,
+    "lootRecycleRate": 0.1,
     "valueByRarity": {
       "common": 20,
       "uncommon": 45,
@@ -80,11 +82,13 @@
     "startingGold": 60
   },
   "rewards": {
+    "_comment": "THE DROP-RATE DIAL is survivorLootChance / casualtyLootChance / defeatLootChance: the chance a member gets a loot roll at all, which then has to pass mobDropChance (a fight with a boss always passes). Cut 2026-10-26 from 1 / 0.15 / 0.08 to roughly a quarter, at the streamer's request: drops per viewer per run went from 0.30-0.62 to 0.08-0.15 across the five dungeons (`npm run simulate:progression` section 2), about 6 items a night of twelve runs to about 1. Scale all three together; the order survived > died in a win > lost is asserted by `npm run simulate`.",
     "mobDropChance": 0.6,
+    "survivorLootChance": 0.25,
     "casualtyXpMultiplier": 0.4,
-    "casualtyLootChance": 0.15,
+    "casualtyLootChance": 0.05,
     "defeatXpMultiplier": 0.15,
-    "defeatLootChance": 0.08,
+    "defeatLootChance": 0.025,
     "compositionBonusMax": 0.25
   }
 }

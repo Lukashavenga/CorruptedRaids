@@ -1,4 +1,4 @@
-import type { GearSlot, Rarity, Role, StatKey } from "../engine/types.js";
+import type { GearSlot, GearSource, Rarity, Role, StatKey } from "../engine/types.js";
 import type { StateId } from "../state/dungeonStates.config.js";
 
 /**
@@ -186,6 +186,13 @@ export const en = {
       epic: "Epic",
       legendary: "Legendary",
     } satisfies Record<Rarity, string>,
+    /* Where an owned item came from. Shown beside its rarity in the bag,
+       because it decides the recycle price and nothing else on screen says
+       why two copies of one sword sell for different amounts. */
+    source: {
+      shop: "Bought",
+      loot: "Found",
+    } satisfies Record<GearSource, string>,
     equip: "Equip",
     unequip: "Unequip",
     equipped: "Equipped.",
@@ -422,7 +429,7 @@ export const en = {
       },
       gear: {
         title: "Gear",
-        body: "Gear moves Health, Damage, Skill and Speed, and some of it moves one down to move another up. Scrap what you will not wear - it pays out, and the bags are not endless.",
+        body: "Gear moves Health, Damage, Skill and Speed, and some of it moves one down to move another up. Scrap what you will not wear: gear you bought sells back in full, gear you found is worth a little, and the bags are not endless.",
       },
       commands: {
         title: "Chat commands",
@@ -499,7 +506,9 @@ export const en = {
     recycle: "Recycle",
     recycleFor: "Recycle · {gold}g",
     recycled: "Recycled for {gold}g.",
-    recycleHint: "Recycling destroys the item. Equipped gear must be unequipped first.",
+    recycleHint: "Recycling destroys the item. Bought gear refunds in full; found gear is scrap. Equipped gear must be unequipped first.",
+    /* A bag cell's tooltip while scrapping: the name, and what it pays. */
+    scrapCell: "{name} · {gold}g",
     /* Bulk recycling. Clearing twenty pieces of junk one confirm at a time is
        the most tedious thing on this page, so the bag has a mode for it. */
     recycleMany: "Scrap",

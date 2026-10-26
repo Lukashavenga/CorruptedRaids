@@ -4,6 +4,7 @@ import type {
   Character,
   CharacterAppearance,
   GearInstance,
+  GearSource,
   GearSlot,
   Role,
   SealedChest,
@@ -100,9 +101,14 @@ export function deriveCharacterStats(character: Character, content: ContentRegis
   return clampStats(stats);
 }
 
-/** Adds a new gear instance to inventory and returns it (does not equip). */
-export function grantGear(character: Character, gearId: string): GearInstance {
-  const instance: GearInstance = { instanceId: nextInstanceId(gearId), gearId };
+/**
+ * Adds a new gear instance to inventory and returns it (does not equip).
+ *
+ * `source` defaults to "loot" because only one route is a purchase: buyGear
+ * says so, and every other way to come by an item sells back at the low rate.
+ */
+export function grantGear(character: Character, gearId: string, source: GearSource = "loot"): GearInstance {
+  const instance: GearInstance = { instanceId: nextInstanceId(gearId), gearId, source };
   character.inventory.push(instance);
   return instance;
 }
@@ -280,7 +286,7 @@ export function recycleGear(character: Character, instanceId: string, content: C
     return { ok: false, reason: equipped ? "Unequip it first" : "You don't own that item" };
   }
   const instance = character.inventory[idx]!;
-  const gold = content.recycleValue(instance.gearId);
+  const gold = content.recycleValue(instance.gearId, instance.source);
   character.inventory.splice(idx, 1);
   character.gold += gold;
   return { ok: true, gold };
@@ -292,7 +298,7 @@ export function buyGear(character: Character, gearId: string, content: ContentRe
   const cost = content.gearValue(gearId);
   if (character.gold < cost) return { ok: false, reason: `Costs ${cost}g - you have ${character.gold}g` };
   character.gold -= cost;
-  grantGear(character, gearId);
+  grantGear(character, gearId, "shop");
   return { ok: true, cost };
 }
 

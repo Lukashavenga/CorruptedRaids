@@ -1,4 +1,4 @@
-import type { Character, GearSlot, SealedChest } from "../types.js";
+import type { Character, GearInstance, GearSlot, SealedChest } from "../types.js";
 import { GEAR_SLOTS } from "../types.js";
 
 /**
@@ -171,13 +171,21 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
   }
 
   const num = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
-  const instances = (v: unknown) =>
-    Array.isArray(v)
-      ? v.filter(
-          (g): g is { instanceId: string; gearId: string } =>
-            isRecord(g) && typeof g.instanceId === "string" && typeof g.gearId === "string",
-        )
-      : [];
+  // Rebuilt rather than passed through, so inventory and equipment read an
+  // instance the same way. `source` is the field this has to remember: the
+  // equipment branch once rebuilt `{ instanceId, gearId }` and nothing else,
+  // so a bought sword that was worn across a save came back as loot and sold
+  // for a tenth. Anything but "shop" is left off, which reads as loot.
+  const instance = (g: unknown): GearInstance | null =>
+    isRecord(g) && typeof g.instanceId === "string" && typeof g.gearId === "string"
+      ? {
+          instanceId: g.instanceId,
+          gearId: g.gearId,
+          ...(g.source === "shop" || g.source === "loot" ? { source: g.source } : {}),
+        }
+      : null;
+  const instances = (v: unknown): GearInstance[] =>
+    Array.isArray(v) ? v.map(instance).filter((g): g is GearInstance => g !== null) : [];
   const sealedChests = (v: unknown): SealedChest[] =>
     Array.isArray(v)
       ? v
@@ -199,9 +207,8 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
   const equipment: Character["equipment"] = {};
   if (isRecord(raw.equipment)) {
     for (const [slot, g] of Object.entries(raw.equipment)) {
-      if (isRecord(g) && typeof g.instanceId === "string" && typeof g.gearId === "string") {
-        equipment[slot as keyof Character["equipment"]] = { instanceId: g.instanceId, gearId: g.gearId };
-      }
+      const worn = instance(g);
+      if (worn) equipment[slot as keyof Character["equipment"]] = worn;
     }
   }
 

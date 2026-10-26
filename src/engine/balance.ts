@@ -311,8 +311,28 @@ export interface BalanceConfig {
      * pays `gearValue * rate`, so at 1 the round trip is exactly break-even.
      * (The loop to watch for is the one named in content/shop.json: a
      * grantGold consumable priced below its own payout.)
+     *
+     * This is the rate for gear BOUGHT FROM THE SHOP only. Everything else
+     * pays `lootRecycleRate` - see there.
      */
     recycleRate: number;
+    /**
+     * Fraction of an item's value returned when recycling gear that was NOT
+     * bought: chest drops, the starter kit, anything the operator granted.
+     *
+     * Low on purpose, and the streamer's call. At the shop rate a drop was
+     * gold - a rare in a chest was 110g whether anyone wanted it or not - so
+     * the bag was a wallet and loot competed with the shop instead of
+     * feeding it. A found item is now worth wearing or nearly nothing.
+     *
+     * The split is by ORIGIN (`GearInstance.source`), not by item: the same
+     * sword pays the shop rate if you bought it and this if it dropped, so
+     * buying something to try it stays free. Gear owned before the field
+     * existed has no source and is paid at this rate - nothing in an old
+     * instance can show it was bought, and guessing generously is a guess
+     * that prints gold.
+     */
+    lootRecycleRate: number;
     /** Default gold value per rarity, used when a gear item doesn't set its own `value`. */
     valueByRarity: Record<Rarity, number>;
     /**
@@ -327,8 +347,27 @@ export interface BalanceConfig {
   };
 
   rewards: {
-    /** Drop chance for a mob's loot table. Bosses always drop. */
+    /**
+     * Drop chance for a fight's merged loot table, once a member has a roll.
+     * A fight with a boss in it always drops - but only for a member who got
+     * a roll, which the three chances below decide.
+     */
     mobDropChance: number;
+    /**
+     * Chance a SURVIVOR of a won fight gets a loot roll at all.
+     *
+     * Was an unconditional 1, which put about one item in every second
+     * viewer's hands every run (0.30-0.62 per viewer per run across the five
+     * dungeons, and a chest for every survivor of a boss fight). Over a night
+     * of twelve runs that is six chests a head, and gear stopped being an
+     * event. Cut at the streamer's request to roughly a quarter of that.
+     *
+     * This and the two chances below are the drop-rate dial: scale all three
+     * together and the ORDER holds - survived > died in a win > lost, which
+     * the simulator asserts. Loot tables only decide WHICH item, never how
+     * often, so they are not the place to turn drops down.
+     */
+    survivorLootChance: number;
     /** Casualties keep XP but forfeit gear (§2.1) — this scales the XP they keep. */
     /**
      * Share of XP a casualty still earns.
@@ -340,7 +379,10 @@ export interface BalanceConfig {
      * is only whether they get anything for turning up.
      */
     casualtyXpMultiplier: number;
-    /** Chance a casualty still takes something home. Small, deliberately. */
+    /**
+     * Chance a casualty of a won fight still gets a loot roll. Small,
+     * deliberately, and under `survivorLootChance`.
+     */
     casualtyLootChance: number;
     /**
      * Share of XP the whole party earns from a fight it LOST.
@@ -453,15 +495,17 @@ export const DEFAULT_BALANCE: BalanceConfig = {
   },
   economy: {
     recycleRate: 1,
+    lootRecycleRate: 0.1,
     valueByRarity: { common: 20, uncommon: 45, rare: 110, epic: 260, legendary: 600 },
     startingGold: 60,
   },
   rewards: {
     mobDropChance: 0.6,
+    survivorLootChance: 0.25,
     casualtyXpMultiplier: 0.4,
-    casualtyLootChance: 0.15,
+    casualtyLootChance: 0.05,
     defeatXpMultiplier: 0.15,
-    defeatLootChance: 0.08,
+    defeatLootChance: 0.025,
     compositionBonusMax: 0.25,
   },
 };

@@ -149,7 +149,7 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
                     ? toggleMark(item.instanceId)
                     : setSelectedId(selectedId === item.instanceId ? null : item.instanceId)
                 }
-                title={def.name}
+                title={recycling ? format(text.shop.scrapCell, { name: def.name, gold: item.recycleValue }) : def.name}
                 aria-label={def.name}
                 aria-pressed={recycling ? isMarked : selectedId === item.instanceId}
               >
@@ -211,6 +211,10 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
             <span className="slot-name">{selected.def.name}</span>
             <span className="bag-sub">
               {text.gear.slot[selected.def.slot]} · {text.gear.rarity[selected.def.rarity]}
+              {/* Guarded although the type says it is always there: the hosted
+                  loadout and its Edge Function deploy separately, and one
+                  built before `source` existed sends none. */}
+              {selected.item.source && ` · ${text.gear.source[selected.item.source]}`}
             </span>
             <span className="slot-mods">{statLine(selected.def)}</span>
           </div>

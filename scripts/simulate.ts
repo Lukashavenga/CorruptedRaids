@@ -284,7 +284,9 @@ Party strength: a naked ten scores ${entry}; every band's sample party lands in 
 // a shop is a place where a bad number becomes free gold.
 for (const entry of content.shopView().gear) {
   const value = content.gearValue(entry.id);
-  const back = content.recycleValue(entry.id);
+  // The shop rate: this loop is about buying and selling back, and only a
+  // bought item is paid at it.
+  const back = content.recycleValue(entry.id, "shop");
   // `<=`, not `<`.
   //
   // What prints gold is a recycle paying MORE than the item costs; that is the
@@ -299,6 +301,23 @@ for (const entry of content.shopView().gear) {
     back <= value,
     `recycling "${entry.id}" pays ${back}g but it only costs ${value}g, which prints gold`,
   );
+}
+// Found gear sells for less than bought gear, never more. If the two rates
+// ever crossed, the cheapest way to fund the shop would be to never use it.
+{
+  const { recycleRate, lootRecycleRate } = content.balance.economy;
+  assert.ok(
+    lootRecycleRate > 0 && lootRecycleRate <= recycleRate,
+    `lootRecycleRate ${lootRecycleRate} must sit in (0, recycleRate ${recycleRate}]`,
+  );
+  for (const def of content.listGear()) {
+    assert.ok(
+      content.recycleValue(def.id, "loot") <= content.recycleValue(def.id, "shop"),
+      `found "${def.id}" sells for more than a bought one`,
+    );
+    // An instance from before `source` existed is paid as loot, not as shop.
+    assert.equal(content.recycleValue(def.id), content.recycleValue(def.id, "loot"));
+  }
 }
 for (const entry of content.shopView().consumables) {
   const def = content.getConsumable(entry.id);
@@ -725,9 +744,9 @@ console.log(
   // rates: deaths in a won fight are rare enough (a few hundred in 600 runs)
   // that 7% against 4% is inside the noise, and a test that fails on a
   // reshuffled seed is one that gets deleted.
-  const { casualtyLootChance, defeatLootChance } = content.balance.rewards;
+  const { survivorLootChance, casualtyLootChance, defeatLootChance } = content.balance.rewards;
   assert.ok(
-    defeatLootChance < casualtyLootChance && casualtyLootChance < 1,
+    defeatLootChance < casualtyLootChance && casualtyLootChance < survivorLootChance && survivorLootChance <= 1,
     "loot chances must run survived > died in a win > lost",
   );
   assert.ok(
