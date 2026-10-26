@@ -141,7 +141,7 @@ body {
 
 /* Root layout — see App.tsx and stage.ts.
  *
- * A FIXED 450x250 surface, not a responsive one: this ships as an OBS browser
+ * A FIXED 518x320 surface (stage.ts), not a responsive one: this ships as an OBS browser
  * source at a size the streamer sets once. The frame centres it and App scales
  * it by a whole number (1 in OBS), so the design can be reasoned about in exact
  * pixels.
@@ -1060,8 +1060,8 @@ body {
 
 /* --- party roster ----------------------------------------------------------
  *
- * The "find yourself" grid. Six columns of names, each filled by that
- * character's health. Capped at three rows in PartyRoster.tsx, because this
+ * The "find yourself" grid. Three columns of names, each filled by that
+ * character's health and badged with their role. Capped at three rows in PartyRoster.tsx, because this
  * sits above the fight on a 250px stage and everything it takes comes out of
  * the characters.
  */
@@ -1096,7 +1096,17 @@ body {
   background: rgba(7, 12, 29, 0.72);
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* Badge then name, from the left: centred, the badges stopped lining up
+     down a column as soon as two names differed in length. */
+  justify-content: flex-start;
+  gap: 1px;
+}
+
+/* Above the health fill, like the name. */
+.roster-role {
+  position: relative;
+  flex: none;
+  margin-left: 2px;
 }
 
 /* Health as the chip's fill. Anchored left so it drains the way a bar does,
@@ -1425,8 +1435,8 @@ body {
 
 /* --- the scene -------------------------------------------------------------
  *
- * Backgrounds are 16:9 and the stage is 450x320 (1.41), so `cover` fills it by
- * matching the HEIGHT and cropping roughly 21% off the width — see STAGE_H in
+ * Backgrounds are 16:9 and the stage is 518x320 (1.62), so `cover` fills it by
+ * matching the HEIGHT and cropping roughly 9% off the width — see STAGE_H in
  * stage.ts for why the stage stopped matching the art. It sits behind every other row via a negative
  * z-index rather than by document order, because the stage is a grid and the
  * backdrop is not one of its rows.

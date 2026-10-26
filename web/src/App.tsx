@@ -229,6 +229,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   const rosterEntries = partyCards.map((c) => ({
     id: c.id,
     name: c.name,
+    role: c.role,
     hp: c.hp,
     maxHp: c.maxHp,
     downed: showFight ? (playback.downed[c.id] ?? false) : false,

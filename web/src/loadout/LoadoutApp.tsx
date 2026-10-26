@@ -93,11 +93,20 @@ export function LoadoutApp(): JSX.Element {
   // The nav drawer is a phone-and-laptop affordance; at desktop width the nav
   // is always on screen and an "open" flag left over from a narrower window
   // would keep a scrim over the page nobody could see the cause of.
+  //
+  // Closed on crossing INTO desktop width, not on every resize. It was every
+  // resize, and a phone resizes constantly: the address bar sliding in or out
+  // as the page moves, the keyboard, a rotation. The drawer closed in the same
+  // breath it opened, and on a phone the menu could not be brought up at all.
+  // 1340px is the desktop breakpoint in loadout-responsive.css.
   useEffect(() => {
     if (!menuOpen) return;
-    const close = () => setMenuOpen(false);
-    window.addEventListener("resize", close);
-    return () => window.removeEventListener("resize", close);
+    const desktop = window.matchMedia("(min-width: 1340px)");
+    const close = () => {
+      if (desktop.matches) setMenuOpen(false);
+    };
+    desktop.addEventListener("change", close);
+    return () => desktop.removeEventListener("change", close);
   }, [menuOpen]);
 
   const run = async (command: Parameters<typeof dispatch>[0]) => {

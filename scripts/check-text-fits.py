@@ -28,8 +28,8 @@ FONT = ROOT / "web" / "public" / "fonts" / "corrupted.ttf"
 if not FONT.exists():
     sys.exit(f"missing {FONT} — run: npm run gen:font")
 
-# stage.ts: STAGE_W 450 minus STAGE_PAD 6 each side.
-BUDGET = 450 - 12
+# stage.ts: STAGE_W 518 minus STAGE_PAD 6 each side.
+BUDGET = 518 - 12
 
 
 def _longest_dungeon_name():

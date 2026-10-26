@@ -1,8 +1,12 @@
+import type { Role } from "../../../src/engine/types.js";
 import { text, format } from "../../../src/text/index.js";
+import { RoleIcon } from "./RoleIcon.js";
 
 export interface RosterEntry {
   id: string;
   name: string;
+  /** Party members only; a chip without one simply has no badge. */
+  role?: Role;
   hp: number;
   maxHp: number;
   downed: boolean;
@@ -12,17 +16,18 @@ export interface RosterEntry {
  * How many names fit, and in how many columns.
  *
  * COLUMNS is the dial between long names and many names, and 438px is 438px:
- * two gives 217px a chip and five gives 86, which is about ten characters of
- * the 16px font and is why names are clamped to ten. Two was chosen — the
- * names are the point, and a truncated name is a name that failed at its one
- * job.
+ * two gives 217px a chip, three 145 and five 86 - about ten characters of the
+ * 16px font. It was two, on the reasoning that a truncated name has failed at
+ * its one job; but at 217px a chip was mostly empty, and only five names fit
+ * where a party is often twenty. Three keeps about fifteen characters beside
+ * the role badge, which is nearly every Twitch name, and shows eight.
  *
  * MAX_ROWS is bounded by the stage's height, not by taste. Each row costs 19px
  * that the arena does not get, and the arena has to hold a 122px figure and a
  * 150px boss. At the 320px stage, three rows leaves it 151. A fourth would
  * leave 132 and put the boss's head through the ceiling — see STAGE_H.
  */
-const COLUMNS = 2;
+const COLUMNS = 3;
 const MAX_ROWS = 3;
 /**
  * One cell short of full, so the "+N" chip has somewhere to go.
@@ -32,6 +37,9 @@ const MAX_ROWS = 3;
  * with heads and figures without.
  */
 const MAX_NAMES = COLUMNS * MAX_ROWS - 1;
+
+/** The role badge, sized to sit inside a 17px chip's 15px interior. */
+const ROLE_BADGE = 13;
 
 /**
  * Every viewer in the party, as a grid of names filled by their health.
@@ -62,6 +70,17 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
                 gradient on the chip, so it can animate its width smoothly
                 without the label inheriting the transition. */}
             <span className="roster-fill" style={{ width: `${pct}%` }} aria-hidden="true" />
+            {/* The role, so a chat can see at a glance whether its healers are
+                the ones going down. The "dead" row of the sheet for the downed,
+                which says it without relying on the strike-through alone. */}
+            {e.role && (
+              <RoleIcon
+                role={e.role}
+                variant={e.downed ? "dead" : "combat"}
+                size={ROLE_BADGE}
+                className="roster-role"
+              />
+            )}
             <span className="roster-name">{e.name}</span>
           </li>
         );

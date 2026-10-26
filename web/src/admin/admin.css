@@ -814,7 +814,7 @@
    three are shown stacked rather than as separate thumbnails. */
 .scene-preview {
   position: relative;
-  aspect-ratio: 450 / 250;
+  aspect-ratio: 518 / 320;
   border: 1px solid var(--ink-faint);
   border-radius: 4px;
   overflow: hidden;
@@ -893,13 +893,14 @@
 }
 
 /*
- * The battlefield. Locked to the overlay's 450x250 so a squad that fits here
- * fits on stream — laying out against any other shape would be laying out
- * against a lie.
+ * The battlefield. Locked to the overlay's shape (STAGE_W x STAGE_H in
+ * stage.ts) so a squad that fits here fits on stream — laying out against any
+ * other shape would be laying out against a lie. It said 450x250 for a long
+ * time after the stage had grown to 320, which was exactly that lie.
  */
 .formation-stage {
   position: relative;
-  aspect-ratio: 450 / 250;
+  aspect-ratio: 518 / 320;
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;

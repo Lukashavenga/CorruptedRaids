@@ -31,8 +31,18 @@
  * its edges, and the fight stops losing its heads.
  *
  * The OBS browser source has to be resized to match, once.
+ *
+ * 518 WIDE, WAS 450. Fifteen percent more, asked for so the overlay could sit
+ * larger and tight to the top of the stream - which the per-dungeon
+ * `showBackground: false` is for. The height is untouched: every number above
+ * is a vertical budget, and none of them is helped by width. What width buys
+ * is room across: the banner and log fit larger type, each rank has 34px more
+ * to spread into, a roster chip gains about two characters, and the 16:9
+ * backdrops crop 9% of their width instead of 21%. Formation positions are
+ * fractions of the enemy half, so an authored squad spreads with it rather
+ * than moving. Resize the OBS source to 518x320.
  */
-export const STAGE_W = 450;
+export const STAGE_W = 518;
 export const STAGE_H = 320;
 
 /** Outer padding inside the stage. */

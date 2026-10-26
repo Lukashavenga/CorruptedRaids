@@ -299,6 +299,9 @@ export function validateDungeonDefinition(raw: unknown, file: string): DungeonDe
       fail(file, `"${key}" must be a string if present`);
     }
   }
+  if (obj.showBackground !== undefined && typeof obj.showBackground !== "boolean") {
+    fail(file, `"showBackground" must be a boolean if present`);
+  }
   return {
     ...validateFight(obj, file, `dungeon "${id}"`),
     id,
@@ -307,6 +310,9 @@ export function validateDungeonDefinition(raw: unknown, file: string): DungeonDe
     recommendedLevel,
     scalesWithPartySize: obj.scalesWithPartySize ?? true,
     background: obj.background,
+    // Only when off: absent means shown, and a file that never turned it off
+    // should not grow a `true` it did not ask for.
+    ...(obj.showBackground === false ? { showBackground: false } : {}),
     completionXp: requireNumber(obj, "completionXp", file),
     completionGold: requireRange(obj, "completionGold", file),
     flavorText: obj.flavorText === undefined ? undefined : String(obj.flavorText),
