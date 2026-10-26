@@ -78,8 +78,14 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   const layersFor = useMemo(() => {
     return (member: PartyMemberView): Partial<Record<GearSlot, string>> => {
       const out: Partial<Record<GearSlot, string>> = {};
+      // Slots the player hid on the loadout. Left out of the layers rather
+      // than passed down as a prop, so both renderers honour it from one place:
+      // each masks hair and body from the layers it is handed, and a helmet
+      // that is not a layer leaves the hair under it drawn. `?? []` because a
+      // snapshot from an older server has no list.
+      const hidden = new Set<string>(member.hiddenSlots ?? []);
       for (const [slot, equipped] of Object.entries(member.equipment)) {
-        if (!equipped) continue;
+        if (!equipped || hidden.has(slot)) continue;
         const sprite = spriteForGear(catalog.gearById.get(equipped.gearId), member.appearance.bodyType);
         if (sprite) out[slot as GearSlot] = sprite;
       }
@@ -381,13 +387,31 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   const displayState =
     snapshot.state === "results" && playback.isReplaying && playback.outcome === null ? "combat" : snapshot.state;
 
+  const controls = SIM_ENABLED ? (
+    <SimControls
+      state={snapshot.state}
+      partySize={party.length}
+      dungeons={catalog.dungeons}
+      raids={catalog.raids}
+      choosing={choosing && !(raid?.bossPending ?? false)}
+    />
+  ) : undefined;
+
+  // No run, no overlay. Between runs the stage used to hold the logo and
+  // "Awaiting the next run..." on stream for as long as nothing was happening,
+  // which is most of a night. Cooldown goes with idle: it is a 2.5s beat after
+  // the results have already been read, and keeping it would flash "Catching a
+  // breath..." between the result and an empty stage. The sim strip stays -
+  // it is how a run gets opened by hand.
+  if (snapshot.state === "idle" || snapshot.state === "cooldown") return frame(<></>, controls);
+
   return frame(
     <>
       {/* The scene. Shown at full strength while the party gathers - that is
           the "here is where you are going" beat - and dimmed once the fight
           starts, so the characters read against it rather than competing with
           it. */}
-      {Arena && snapshot.state !== "idle" && (
+      {Arena && (
         <Arena
           units={arenaUnits}
           background={backgroundId}
@@ -400,7 +424,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
           scale={stageScale}
         />
       )}
-      {!Arena && backgroundId && snapshot.state !== "idle" && (
+      {!Arena && backgroundId && (
         <div
           className={`stage-backdrop ${snapshot.state === "gathering" || revealed ? "is-full" : ""}`}
           style={{ backgroundImage: `url(${backgroundUrl(backgroundId)})` }}
@@ -616,14 +640,6 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
         <EnemyHealth units={enemyUnits} label={revealed?.name ?? run?.name ?? raid?.name ?? ""} />
       )}
     </>,
-    SIM_ENABLED ? (
-      <SimControls
-        state={snapshot.state}
-        partySize={party.length}
-        dungeons={catalog.dungeons}
-        raids={catalog.raids}
-        choosing={choosing && !(raid?.bossPending ?? false)}
-      />
-    ) : undefined,
+    controls,
   );
 }

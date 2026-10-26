@@ -140,7 +140,7 @@ export class DungeonController extends EventEmitter {
           return;
         }
         const result = this.engine.dispatch({ type: "start_dungeon" });
-        this.fsm.send("combatResolved", { timerOverrideMs: replayDurationMs(result.combat?.events.length ?? 0) });
+        this.fsm.send("combatResolved", { timerOverrideMs: replayDurationMs(result.combat) });
         this.emit("update", { snapshot: this.getSnapshot(), result } satisfies DungeonUpdate);
         return;
       }
@@ -232,7 +232,7 @@ export class DungeonController extends EventEmitter {
         // the fight rather than re-opening a choice that is long over.
         this.fsm.send("roomEntered");
         this.fsm.send("combatResolved", {
-          timerOverrideMs: replayDurationMs(result.combat?.events.length ?? 0),
+          timerOverrideMs: replayDurationMs(result.combat),
         });
         this.emit("update", { snapshot: this.getSnapshot(), result } satisfies DungeonUpdate);
         return result;
@@ -274,7 +274,7 @@ export class DungeonController extends EventEmitter {
         if (result.ok) {
           this.fsm.send("runStarted");
           this.fsm.send("combatResolved", {
-            timerOverrideMs: replayDurationMs(result.combat?.events.length ?? 0),
+            timerOverrideMs: replayDurationMs(result.combat),
           });
         }
         this.emit("update", { snapshot: this.getSnapshot(), result } satisfies DungeonUpdate);
@@ -399,7 +399,7 @@ export class DungeonController extends EventEmitter {
   private enterRevealedRoom(): void {
     const boss = this.engine.raidRun?.bossPending ?? false;
     const result = this.engine.dispatch(boss ? { type: "start_boss" } : { type: "enter_room" });
-    const holdMs = replayDurationMs(result.combat?.events.length ?? 0);
+    const holdMs = replayDurationMs(result.combat);
 
     if (boss || !result.combat || result.combat.outcome !== "victory") {
       // The boss ends the run either way, and a wipe ends it anywhere.

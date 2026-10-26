@@ -38,6 +38,7 @@ import {
   grantXp,
   respec,
   setAppearance,
+  setHiddenSlots,
   setRole,
   unequipGear,
 } from "../character.js";
@@ -92,6 +93,8 @@ export interface PartyMemberView {
   stats: Stats;
   appearance: CharacterAppearance;
   equipment: Record<string, { instanceId: string; gearId: string; gearName: string } | null>;
+  /** Equipped but not drawn - the overlay leaves these layers off the figure. */
+  hiddenSlots: GearSlot[];
 }
 
 export interface DungeonRunView {
@@ -136,6 +139,8 @@ export interface CharacterView {
   appearance: CharacterAppearance;
   /** False until the player has been through the appearance picker once. */
   appearanceChosen: boolean;
+  /** Equipped slots the player has chosen not to have drawn. */
+  hiddenSlots: GearSlot[];
   equipment: Partial<Record<GearSlot, { instanceId: string; gearId: string } | null>>;
   /**
    * `source` is always present here, unlike on GearInstance: an instance
@@ -567,6 +572,14 @@ export class GameEngine extends EventEmitter {
         return { ok: result.ok, message: result.ok ? text.loadout.appearanceSet : result.reason ?? "" };
       }
 
+      case "set_hidden_slots": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        if (!Array.isArray(command.slots)) return { ok: false, message: "slots must be a list" };
+        const result = setHiddenSlots(character, command.slots);
+        return { ok: result.ok, message: result.ok ? text.loadout.hiddenSlotsSet : result.reason ?? "" };
+      }
+
       case "ensure_character": {
         const existing = this.roster.get(command.requestedBy);
         if (existing) return { ok: true, message: format(text.loadout.characterReady, { name: existing.name }) };
@@ -738,6 +751,7 @@ export class GameEngine extends EventEmitter {
       stats: deriveCharacterStats(character, this.content),
       appearance: character.appearance,
       equipment,
+      hiddenSlots: [...(character.hiddenSlots ?? [])],
     };
   }
 
@@ -893,6 +907,7 @@ export class GameEngine extends EventEmitter {
       stats: deriveCharacterStats(character, this.content),
       appearance: character.appearance,
       appearanceChosen: character.appearanceChosen === true,
+      hiddenSlots: [...(character.hiddenSlots ?? [])],
       equipment,
       inventory: character.inventory.map((i) => ({
         instanceId: i.instanceId,

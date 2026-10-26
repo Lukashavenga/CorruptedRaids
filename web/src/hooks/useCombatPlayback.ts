@@ -3,6 +3,9 @@ import type { DispatchResult } from "../../../src/engine/state/gameEngine.js";
 import type { CombatOutcome, CombatantSnapshot } from "../../../src/engine/types.js";
 import type { Motion } from "../../../src/character/layers.js";
 import { text, format } from "../../../src/text/index.js";
+// Shared with the server, which holds `results` for exactly these beats.
+// Pacing, summarising and the fight budget are all decided there.
+import { replayBeats, REPLAY_LEAD_IN_MS, type ReplayBeat } from "../../../src/state/replayPacing.js";
 
 export interface LogLine {
   id: number;
@@ -97,35 +100,31 @@ const POSE_HOLD_MS = 620;
 /**
  * How far ahead of its event a move is announced (see PlaybackState.action).
  *
- * Must stay under the shortest gap between two events (PACING.reward, 700) and
- * under the 250ms the replay waits before its first one, or an announcement
- * would be scheduled before the blow in front of it has landed.
+ * Must stay under the shortest gap between two beats (MIN_ATTACK_BEAT_MS, 400,
+ * once a long fight is compressed) and under the 250ms the replay waits before
+ * its first one, or an announcement would be scheduled before the blow in
+ * front of it has landed.
  */
 const ACTION_LEAD_MS = 240;
 let nextActionSeq = 0;
 
-/**
- * Per-event-type pacing, in ms. Tuning the felt speed of a fight happens here.
- *
- * Roughly doubled from the first pass. The old timings resolved a fight fast,
- * but on a 450x250 overlay a viewer is reading a line of text AND watching for
- * their own name in the roster AND tracking two health bars — and every line
- * was gone before any of that could land. A raid that takes longer to watch is
- * the point; the spectacle is the product, not the throughput.
- *
- * `down` and `outcome` get the longest holds because they are the beats an
- * audience reacts to.
- */
-const PACING = {
-  attack: 750,
-  heal: 800,
-  ability: 1100,
-  down: 1400,
-  loot: 950,
-  reward: 700,
-  levelUp: 1200,
-  outcome: 1600,
-} as const;
+/** The log line for a beat that stands for several events - a big party's tail (replayPacing.ts). */
+function summaryLine(beat: Exclude<ReplayBeat, { kind: "event" }>): [string, LogLine["cls"]] {
+  switch (beat.kind) {
+    case "rewardGroup":
+      return [
+        format(beat.survived ? text.combatLog.rewardStanding : text.combatLog.rewardFallen, {
+          count: beat.count,
+          xp: beat.xp,
+        }),
+        undefined,
+      ];
+    case "lootRest":
+      return [format(text.combatLog.lootRest, { count: beat.count }), "loot"];
+    case "levelGroup":
+      return [format(text.combatLog.levelGroup, { count: beat.count }), "levelup"];
+  }
+}
 
 /**
  * The server resolves a whole fight instantly and hands over the complete
@@ -292,17 +291,22 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       );
     };
 
-    let delay = 250;
-    for (const event of combat.events) {
+    let delay = REPLAY_LEAD_IN_MS;
+    // The beats, not the raw log: `tick` is already gone, a long fight's beats
+    // are already shortened, and a big party's rewards are already grouped.
+    // Each beat's `ms` is its whole cost, so the replay ends exactly when the
+    // server's hold says it does.
+    for (const beat of replayBeats(combat)) {
       const when = delay;
+      delay += beat.ms;
+      if (beat.kind !== "event") {
+        const [line, cls] = summaryLine(beat);
+        at(when, () => pushLine(line, cls));
+        continue;
+      }
+      const event = beat.event;
       switch (event.type) {
-        // `tick` is structural bookkeeping, not something the audience needs
-        // a log line for — it costs no time and prints nothing.
-        case "tick":
-          break;
-
         case "attack": {
-          delay += PACING.attack;
           // Party name left, enemy name right, whoever swung — the sides they
           // are standing on. Which of them is being hit is carried by the
           // template, which puts the damage next to the one losing it.
@@ -333,7 +337,6 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "heal": {
-          delay += PACING.heal;
           const actor = nameOf(event.actorId);
           announce(when, { kind: "heal", actorId: event.actorId, targetId: event.targetId, crit: false });
           at(when, () => {
@@ -354,7 +357,6 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "ability": {
-          delay += PACING.ability;
           const actor = nameOf(event.actorId);
           announce(when, { kind: "ability", actorId: event.actorId, targetId: event.actorId, crit: false });
           at(when, () => pushLine(format(text.combatLog.ability, { actor, detail: event.detail })));
@@ -362,7 +364,6 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "down": {
-          delay += PACING.down;
           const who = nameOf(event.combatantId);
           at(when, () => {
             pushLine(format(text.combatLog.down, { who }), "down");
@@ -376,28 +377,24 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "loot":
-          delay += PACING.loot;
           at(when, () =>
             pushLine(format(text.combatLog.loot, { who: nameOf(event.characterId), gearName: event.gearName }), "loot"),
           );
           break;
 
         case "reward":
-          delay += PACING.reward;
           at(when, () =>
             pushLine(format(text.combatLog.reward, { who: nameOf(event.characterId), xp: event.xp, gold: event.gold })),
           );
           break;
 
         case "levelUp":
-          delay += PACING.levelUp;
           at(when, () =>
             pushLine(format(text.combatLog.levelUp, { who: nameOf(event.characterId), level: event.newLevel }), "levelup"),
           );
           break;
 
         case "outcome": {
-          delay += PACING.outcome;
           const won = event.outcome === "victory";
           at(when, () => {
             pushLine(won ? text.combatLog.victory : text.combatLog.defeat, "outcome");

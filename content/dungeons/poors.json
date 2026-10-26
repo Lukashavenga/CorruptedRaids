@@ -1100,7 +1100,7 @@
     13
   ],
   "completionXp": 20,
-  "joinWindowMs": 20000,
+  "joinWindowMs": 60000,
   "bandStatScale": {
     "weak": 0.994,
     "seasoned": 16.618,
