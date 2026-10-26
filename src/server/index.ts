@@ -234,29 +234,32 @@ const raid = new DungeonController(engine);
  */
 const SAVE_DEBOUNCE_MS = 1500;
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
-let saving = false;
-let saveAgain = false;
+let saveChain: Promise<void> = Promise.resolve();
 
-async function flushRoster(): Promise<void> {
-  // One writer at a time. Without this, two overlapping saves can finish out
-  // of order and leave the OLDER roster on disk — the classic write-behind
-  // bug, and a silent one.
-  if (saving) {
-    saveAgain = true;
-    return;
-  }
-  saving = true;
-  try {
-    await rosterStore.save(engine.roster.snapshot());
-  } catch (err) {
-    console.error(`[roster] save failed: ${(err as Error).message}`);
-  } finally {
-    saving = false;
-    if (saveAgain) {
-      saveAgain = false;
-      await flushRoster();
+/**
+ * Writes the roster, and resolves once a save that includes the caller's
+ * changes has finished.
+ *
+ * One writer at a time: two overlapping saves can finish out of order and
+ * leave the OLDER roster stored — the classic write-behind bug, and a silent
+ * one. So saves are chained, and each call's promise is the save queued after
+ * everything before it.
+ *
+ * It used to be a pair of flags instead, and a call that found a save already
+ * running returned AT ONCE, having only asked for another save afterwards. So
+ * `await flushRoster()` could resolve before the caller's change was written:
+ * a roster snapshot could miss it, shutdown could exit with it unsaved, and
+ * the run lock below could not tell when a fight's payout was actually stored.
+ */
+function flushRoster(): Promise<void> {
+  saveChain = saveChain.then(async () => {
+    try {
+      await rosterStore.save(engine.roster.snapshot());
+    } catch (err) {
+      console.error(`[roster] save failed: ${(err as Error).message}`);
     }
-  }
+  });
+  return saveChain;
 }
 
 function scheduleSave(): void {
@@ -327,32 +330,73 @@ function broadcast(event: string, data: unknown): void {
 }
 
 /**
- * Who the loadout must not let edit right now.
- *
- * Anything past the join window is locked: once the party is fixed, a viewer
- * changing their gear on their phone would make the fight on screen disagree
- * with the character. `gathering` is deliberately NOT locked — that is exactly
- * when someone should be putting their kit on.
+ * The states in which a run is under way: the party is fixed, and this server
+ * may still write their characters. Nothing is pulled from the store in these
+ * (see refreshFromStore). `gathering` is deliberately not one of them - that
+ * is exactly when someone should be putting their kit on.
  */
 const LOCKED_STATES = new Set(["combat", "results", "choosing", "reveal"]);
 let lockedIds: string[] = [];
+let lockChain: Promise<void> = Promise.resolve();
+
+/**
+ * Whether the payout of the fight now in `results` has reached the store.
+ *
+ * The loadout lock exists so a viewer's edit is not overwritten by this
+ * server's next save of their character. A run's last fight is decided and
+ * paid out in the dispatch that starts it; `results` is the replay, which now
+ * runs a minute or more, and nothing changes the party during it. So the lock
+ * ends when the payout is SAVED, not when the replay does. Holding it to the
+ * end of `results` locked a regular out of the loadout for most of a stream:
+ * a minute's join window, then minutes of replay, then the next redeem.
+ *
+ * A raid is still locked between rounds (`choosing`, `reveal`, `combat`):
+ * every room pays out again, and an edit made between rooms would be written
+ * over by the next room's save.
+ */
+let payoutSaved = true;
+let lastState = "";
+
+function lockedPartyIds(snapshot: DungeonSnapshot): string[] {
+  if (!LOCKED_STATES.has(snapshot.state)) return [];
+  if (snapshot.state === "results" && payoutSaved) return [];
+  return snapshot.engine.party.map((p: { id: string }) => p.id);
+}
+
+/** Called on every update: on arriving in `results`, save now and unlock after. */
+function trackPayout(snapshot: DungeonSnapshot): void {
+  if (snapshot.state === "results" && lastState !== "results") {
+    payoutSaved = false;
+    void flushRoster().then(() => {
+      payoutSaved = true;
+      syncRunLock(raid.getSnapshot());
+    });
+  }
+  lastState = snapshot.state;
+}
 
 function syncRunLock(snapshot: DungeonSnapshot): void {
   if (!rosterStore.setInRun) return;
-  const ids = LOCKED_STATES.has(snapshot.state)
-    ? snapshot.engine.party.map((p: { id: string }) => p.id)
-    : [];
+  const ids = lockedPartyIds(snapshot);
   // Only on a real change: this fires on every dispatch, and a fight is
   // hundreds of them.
   if (ids.length === lockedIds.length && ids.every((id, i) => id === lockedIds[i])) return;
 
   const released = lockedIds.filter((id: string) => !ids.includes(id));
   lockedIds = ids;
-  // Release first. If both calls cannot happen, the safe failure is a
-  // character that is editable when it should not be, not one locked forever
-  // because a run ended while the network was down.
-  if (released.length > 0) void rosterStore.setInRun(released, false).catch(warnLock);
-  if (ids.length > 0) void rosterStore.setInRun(ids, true).catch(warnLock);
+  const store = rosterStore.setInRun.bind(rosterStore);
+  // Queued, not fired. The release now follows the lock by the length of one
+  // save rather than a whole replay, and two independent requests that close
+  // together can land in either order - a release that overtook its lock
+  // would leave the party locked until their next run.
+  //
+  // Release first within a change. If both calls cannot happen, the safe
+  // failure is a character that is editable when it should not be, not one
+  // locked forever because a run ended while the network was down.
+  lockChain = lockChain.then(async () => {
+    if (released.length > 0) await store(released, false).catch(warnLock);
+    if (ids.length > 0) await store(ids, true).catch(warnLock);
+  });
 }
 
 function warnLock(err: Error): void {
@@ -432,6 +476,7 @@ raid.on("update", ({ snapshot, result }: DungeonUpdate) => {
   // the one event that fires for all of them. Cheaper than hooking each
   // mutation, and it cannot be forgotten when a new command is added.
   scheduleSave();
+  trackPayout(snapshot);
   syncRunLock(snapshot);
 });
 
@@ -1641,6 +1686,15 @@ async function boot(): Promise<void> {
     // problem someone fixes in five minutes; a stream that silently discards
     // every character is one they discover the next day.
     await rosterStore.save(stored);
+
+    // Nothing is in a run yet, so any in-run flag in the store was left by a
+    // server that stopped mid-run. Not fatal: the worst case is the old
+    // behaviour, a viewer locked out until their next fight.
+    if (rosterStore.clearRunLocks) {
+      await rosterStore.clearRunLocks().catch((e: Error) =>
+        console.warn(`[roster] could not clear leftover run locks: ${e.message}`),
+      );
+    }
   } catch (err) {
     const message = (err as Error).message;
     // A failed WRITE is fatal; a failed READ is not.

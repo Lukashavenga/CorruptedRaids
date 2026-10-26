@@ -61,6 +61,15 @@ export interface RosterStore {
   setInRun?(ids: string[], inRun: boolean): Promise<void>;
 
   /**
+   * Releases every in-run flag, whoever set it. Called at boot: a server that
+   * stopped mid-run - the console closed at the end of a stream, a crash -
+   * left its party flagged, and only this server ever clears the flag, for
+   * the ids it locked itself. Those viewers were refused every loadout edit
+   * until they happened to fight again.
+   */
+  clearRunLocks?(): Promise<void>;
+
+  /**
    * Picks up characters another writer has changed since this server last
    * read or wrote them.
    *

@@ -250,6 +250,15 @@ const patch = received.find((r) => r.method === "PATCH")!;
 assert.match(patch.path, /id=in\./, "in_run uses a single ranged PATCH, not a write per character");
 console.log("in_run flagged via one PATCH");
 
+// A server that stopped mid-run left its party flagged; the next boot clears
+// every flag, not just ones it remembers setting.
+received.length = 0;
+await store.clearRunLocks();
+assert.ok([...table.values()].every((r) => r.in_run === false), "clearRunLocks releases every flagged row");
+const clear = received.find((r) => r.method === "PATCH")!;
+assert.match(decodeURIComponent(clear.path), /in_run=eq\.true/, "...in one PATCH filtered to the flagged rows");
+console.log("leftover run locks cleared in one PATCH");
+
 // --- never deletes implicitly ------------------------------------------------
 received.length = 0;
 await store.save([alice]);                    // bob and sim are gone from memory

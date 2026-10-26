@@ -213,6 +213,14 @@ export class SupabaseRosterStore implements RosterStore {
     });
   }
 
+  async clearRunLocks(): Promise<void> {
+    await this.call(`/characters?in_run=eq.true`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ in_run: false }),
+    });
+  }
+
   /** Explicit removal. Nothing calls this implicitly — see the class note. */
   async forget(id: string): Promise<void> {
     await this.call(`/characters?id=eq.${encodeURIComponent(id)}`, {
