@@ -335,6 +335,7 @@ export const en = {
     skinHeading: "Skin",
     bodyType: { male: "Male", female: "Female" },
     appearanceSet: "Appearance updated.",
+    hiddenSlotsSet: "Hidden pieces updated.",
 
     /* The socket picker: what is in the bag that fits the slot just clicked. */
     fitsSlot: "Fits {slot}",
@@ -439,11 +440,11 @@ export const en = {
      */
     settings: {
       title: "Settings",
-      lead: "Yours, on this device. Nothing here changes the game.",
+      lead: "How you look and feel. Nothing here changes your stats.",
       display: {
         title: "Display",
         hiddenSlots: "Hidden pieces",
-        hiddenSlotsHint: "Gear you own and wear, but do not want drawn on your character.",
+        hiddenSlotsHint: "Gear you wear but do not want drawn - here and in fights on stream. Its stats still count.",
         showAll: "Show everything",
         noneHidden: "Nothing hidden.",
         hiddenCount: "{count} hidden",

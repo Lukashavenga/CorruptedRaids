@@ -249,6 +249,24 @@ export function setAppearance(character: Character, appearance: CharacterAppeara
 }
 
 /**
+ * Sets which equipped slots are not drawn. Replaces the whole list rather than
+ * toggling one, so a repeated or reordered request lands in the same state.
+ *
+ * Refuses an unknown slot rather than dropping it: this arrives from a phone,
+ * and a typo silently ignored is a "hide" button that does nothing.
+ */
+export function setHiddenSlots(character: Character, slots: readonly string[]): MutationResult {
+  const unknown = slots.filter((s) => !(GEAR_SLOTS as readonly string[]).includes(s));
+  if (unknown.length > 0) return { ok: false, reason: `Not a slot: ${unknown.join(", ")}` };
+  // Kept in GEAR_SLOTS order, so the same set always serialises the same way
+  // and a save does not mistake a reorder for a change.
+  const hidden = GEAR_SLOTS.filter((slot) => slots.includes(slot));
+  if (hidden.length > 0) character.hiddenSlots = hidden;
+  else delete character.hiddenSlots;
+  return { ok: true };
+}
+
+/**
  * Recycles an owned, UNEQUIPPED gear instance for gold.
  *
  * Equipped items are refused rather than auto-unequipped: silently stripping

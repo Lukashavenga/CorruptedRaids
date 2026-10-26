@@ -1,4 +1,5 @@
-import type { Character, SealedChest } from "../types.js";
+import type { Character, GearSlot, SealedChest } from "../types.js";
+import { GEAR_SLOTS } from "../types.js";
 
 /**
  * Where the roster lives between runs.
@@ -238,7 +239,16 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
     // back - so the loadout offered character creation again to anyone who had
     // fought since the game started saving to Supabase.
     ...(raw.appearanceChosen === true ? { appearanceChosen: true } : {}),
+    // The same trap, closed the day the field was added: anything left off
+    // this list is wiped by the server's next save of the character.
+    ...hiddenSlotsOf(raw.hiddenSlots),
   };
+}
+
+function hiddenSlotsOf(v: unknown): { hiddenSlots?: GearSlot[] } {
+  if (!Array.isArray(v)) return {};
+  const hidden = GEAR_SLOTS.filter((slot) => v.includes(slot));
+  return hidden.length > 0 ? { hiddenSlots: hidden } : {};
 }
 
 /**

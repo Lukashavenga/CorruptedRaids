@@ -228,17 +228,16 @@ console.log("key order alone did not count as an edit");
 // that has been through character creation, which must survive the trip.
 table.set("twitch:333", {
   id: "twitch:333", twitch_id: "333",
-  data: { ...character("twitch:333", 3), appearanceChosen: true },
+  data: { ...character("twitch:333", 3), appearanceChosen: true, hiddenSlots: ["head"] },
   updated_at: later(new Date().toISOString()),
 });
 pulled = await store.pull(["twitch:333"], live, installing);
 assert.deepEqual(pulled.installed, ["twitch:333"], "a character only the loadout knows is pulled in");
 assert.equal(memory.get("twitch:333")!.appearanceChosen, true, "a pull keeps appearanceChosen");
-assert.equal(
-  (await store.load()).find((c) => c.id === "twitch:333")?.appearanceChosen,
-  true,
-  "a load keeps appearanceChosen - without it the loadout re-offers character creation",
-);
+assert.deepEqual(memory.get("twitch:333")!.hiddenSlots, ["head"], "a pull keeps hiddenSlots");
+const reloaded = (await store.load()).find((c) => c.id === "twitch:333");
+assert.equal(reloaded?.appearanceChosen, true, "a load keeps appearanceChosen - without it the loadout re-offers character creation");
+assert.deepEqual(reloaded?.hiddenSlots, ["head"], "a load keeps hiddenSlots - without it a hidden helmet reappears on stream");
 table.delete("twitch:333");
 table.delete("twitch:444");
 console.log("a loadout-only character was pulled in");

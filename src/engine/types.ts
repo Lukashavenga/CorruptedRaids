@@ -972,6 +972,17 @@ export interface Character {
    * added is offered the screen once. That is correct: none of them chose.
    */
   appearanceChosen?: boolean;
+  /**
+   * Equipped slots the player does not want drawn - a helmet's stats without
+   * losing the face they picked.
+   *
+   * On the character rather than in the loadout's browser storage, where it
+   * lived first, because the stream is where people look: a helmet hidden on
+   * your own phone and drawn on everyone else's screen was the bug. Cosmetic
+   * only - the gear stays equipped and every stat still counts, so nothing the
+   * resolver reads depends on it. Absent means nothing is hidden.
+   */
+  hiddenSlots?: GearSlot[];
 }
 
 export type Side = "party" | "enemy";
