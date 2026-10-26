@@ -14,7 +14,7 @@
     "build:web": "npm run build --prefix web",
     "dev:sim": "npm run dev:sim --prefix web",
     "build:sim": "npm run build:sim --prefix web",
-    "install:web": "npm install --prefix web",
+    "install:web": "cd web && npm install",
     "gen:font": "python scripts/build-font.py",
     "check:text": "python scripts/check-text-fits.py",
     "slice": "python scripts/slice-sheets.py && python scripts/extract-hands.py && python scripts/slice-encounters.py",

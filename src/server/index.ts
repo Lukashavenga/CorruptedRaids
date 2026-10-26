@@ -172,8 +172,12 @@ console.log(
  * A file today; the same interface is what Supabase implements when this is
  * hosted. `DATA_DIR` is the one thing a deployment has to point at a volume —
  * everything else the server writes is content, which is in the repo.
+ *
+ * `||`, not `??`: .env.example ships `DATA_DIR=` empty, and --env-file reads
+ * that as "" rather than unset. With `??` the roster was written to a
+ * directory named "" - it failed to load at boot and failed every save.
  */
-const DATA_DIR = process.env.DATA_DIR ?? join(ROOT, "data");
+const DATA_DIR = process.env.DATA_DIR || join(ROOT, "data");
 
 /**
  * Supabase when it is configured, a file otherwise.
