@@ -89,6 +89,7 @@ export function LoadoutApp(): JSX.Element {
   const [page, setPage] = useState<Page>("loadout");
   const [menuOpen, setMenuOpen] = useState(false);
   const { placements } = usePlacements();
+  const { hiddenSlots, toggleHidden } = useHiddenSlots(viewer?.id ?? "", character, dispatch);
 
   // The nav drawer is a phone-and-laptop affordance; at desktop width the nav
   // is always on screen and an "open" flag left over from a narrower window
@@ -164,16 +165,6 @@ export function LoadoutApp(): JSX.Element {
       setBusy(false);
     }
   };
-
-  // Hidden gear is part of the appearance now, so the overlay draws it too -
-  // see useHiddenSlots for why it stopped being a browser preference.
-  const { hiddenSlots, toggleHidden } = useHiddenSlots(character, async (appearance) => {
-    const body = await run({ type: "set_appearance", requestedBy: viewer?.id ?? "", appearance });
-    // `=== true`, not `!== false`: a reply with no verdict at all (a proxy's
-    // error page) must not count as saved, or the old local copy is dropped
-    // with nothing to replace it.
-    return body?.ok === true;
-  });
 
   // Nothing is known yet — not even whether we are signed in. Showing the
   // sign-in prompt here would flash it at somebody who is already signed in.

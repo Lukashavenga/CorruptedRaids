@@ -239,12 +239,7 @@ export function setRole(character: Character, role: Role): MutationResult {
 }
 
 export function setAppearance(character: Character, appearance: CharacterAppearance): MutationResult {
-  // The rest of an appearance is ids the art resolves or fails to; this one
-  // is a list a phone sends, so it is cut down to slots that exist, once
-  // each, rather than stored as whatever arrived.
-  const hiddenSlots = cleanHiddenSlots(appearance.hiddenSlots);
-  const { hiddenSlots: _sent, ...rest } = appearance;
-  character.appearance = hiddenSlots.length > 0 ? { ...rest, hiddenSlots } : rest;
+  character.appearance = appearance;
   // Saving a look IS the act of choosing one, so this is the only place the
   // flag is set. It is deliberately not set anywhere else: a character that
   // has never been through the picker must keep reading as unchosen no matter
@@ -253,10 +248,22 @@ export function setAppearance(character: Character, appearance: CharacterAppeara
   return { ok: true };
 }
 
-/** Known slots only, each once, in slot order. Anything else is dropped. */
-export function cleanHiddenSlots(raw: unknown): GearSlot[] {
-  if (!Array.isArray(raw)) return [];
-  return GEAR_SLOTS.filter((slot) => raw.includes(slot));
+/**
+ * Sets which equipped slots are not drawn. Replaces the whole list rather than
+ * toggling one, so a repeated or reordered request lands in the same state.
+ *
+ * Refuses an unknown slot rather than dropping it: this arrives from a phone,
+ * and a typo silently ignored is a "hide" button that does nothing.
+ */
+export function setHiddenSlots(character: Character, slots: readonly string[]): MutationResult {
+  const unknown = slots.filter((s) => !(GEAR_SLOTS as readonly string[]).includes(s));
+  if (unknown.length > 0) return { ok: false, reason: `Not a slot: ${unknown.join(", ")}` };
+  // Kept in GEAR_SLOTS order, so the same set always serialises the same way
+  // and a save does not mistake a reorder for a change.
+  const hidden = GEAR_SLOTS.filter((slot) => slots.includes(slot));
+  if (hidden.length > 0) character.hiddenSlots = hidden;
+  else delete character.hiddenSlots;
+  return { ok: true };
 }
 
 /**

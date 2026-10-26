@@ -1,5 +1,5 @@
 import type { Character } from "../types.js";
-import { parseRoster, type RosterStore, type SnapshotInfo } from "./rosterStore.js";
+import { parseRoster, type PullResult, type RosterStore, type SnapshotInfo } from "./rosterStore.js";
 
 /**
  * Characters in Supabase Postgres, shared with the hosted loadout.
@@ -22,6 +22,13 @@ import { parseRoster, type RosterStore, type SnapshotInfo } from "./rosterStore.
  * the server has not touched is never overwritten, because that row is never
  * in the request.
  *
+ * That only protects a character the server has NOT touched. One that edits
+ * their gear and then fights was a different story: the server's copy was the
+ * one read at boot, so the fight used the old gear and its save wrote the old
+ * gear back. `pull` is the other half - the server re-reads a character when
+ * they join and while the join window is open, so the copy it fights with and
+ * saves from is the one the viewer last edited.
+ *
  * It also never DELETES. A character missing from the in-memory roster is far
  * more likely to be a local reset than a real deletion, and the cost of being
  * wrong is asymmetric: a stale row is untidy, a deleted one is somebody's
@@ -36,6 +43,11 @@ export class SupabaseRosterStore implements RosterStore {
   private readonly base: string;
   /** id -> the JSON last written for it, so a save can tell what actually moved. */
   private readonly written = new Map<string, string>();
+  /**
+   * id -> the row's `updated_at` (epoch ms) as this store last saw it, so a
+   * pull fetches whole rows only for characters somebody else has written.
+   */
+  private readonly stamps = new Map<string, number>();
 
   constructor(
     url: string,
@@ -77,15 +89,17 @@ export class SupabaseRosterStore implements RosterStore {
     // running a while will pass it. Silently loading the first thousand
     // characters and dropping the rest would look exactly like working.
     const page = 1000;
-    const rows: { id: string; data: unknown }[] = [];
+    const rows: { id: string; data: unknown; updated_at?: string }[] = [];
     for (let from = 0; ; from += page) {
-      const res = await this.call(`/characters?select=id,data&order=id.asc`, {
+      const res = await this.call(`/characters?select=id,data,updated_at&order=id.asc`, {
         headers: { Range: `${from}-${from + page - 1}`, "Range-Unit": "items" },
       });
-      const batch = (await res.json()) as { id: string; data: unknown }[];
+      const batch = (await res.json()) as { id: string; data: unknown; updated_at?: string }[];
       rows.push(...batch);
       if (batch.length < page) break;
     }
+    this.stamps.clear();
+    for (const r of rows) if (r.updated_at) this.stamps.set(r.id, Date.parse(r.updated_at));
 
     const characters = parseRoster(
       { version: 1, characters: rows.map((r) => r.data) },
@@ -119,7 +133,67 @@ export class SupabaseRosterStore implements RosterStore {
 
     // Only after the write succeeds. Recording it first would mean a failed
     // save quietly marked those characters clean and the next one skipped them.
-    for (const row of changed) this.written.set(row.id, JSON.stringify(row.data));
+    for (const row of changed) {
+      this.written.set(row.id, JSON.stringify(row.data));
+      this.stamps.set(row.id, Date.parse(row.updated_at));
+    }
+  }
+
+  async pull(
+    ids: readonly string[],
+    live: (id: string) => Character | undefined,
+    install: (fresh: Character) => boolean,
+  ): Promise<PullResult> {
+    const result: PullResult = { installed: [], conflicts: [] };
+    const wanted = [...new Set(ids)];
+    if (wanted.length === 0) return result;
+
+    // Two steps, so the join window can poll a whole party every few seconds:
+    // `updated_at` alone first, and the full row only for characters written
+    // since this store last saw them - by the loadout, normally.
+    const stamped = (await (
+      await this.call(`/characters?select=id,updated_at&id=in.(${inList(wanted)})`)
+    ).json()) as { id: string; updated_at: string }[];
+    const moved = stamped.filter((r) => Date.parse(r.updated_at) !== this.stamps.get(r.id)).map((r) => r.id);
+    if (moved.length === 0) return result;
+
+    const rows = (await (
+      await this.call(`/characters?select=id,data,updated_at&id=in.(${inList(moved)})`)
+    ).json()) as { id: string; data: unknown; updated_at: string }[];
+
+    // Synchronous from here on, so nothing can change a live copy between
+    // checking that it is untouched and replacing it.
+    for (const row of rows) {
+      const [fresh] = parseRoster({ version: 1, characters: [row.data] }, (m) =>
+        console.warn(`[roster:supabase] ${m}`),
+      );
+      if (!fresh) continue;
+      const at = Date.parse(row.updated_at);
+      const baseline = this.written.get(fresh.id);
+
+      // This store's own save, read back: nothing new.
+      if (baseline !== undefined && canonical(fresh) === canonical(JSON.parse(baseline))) {
+        this.stamps.set(fresh.id, at);
+        continue;
+      }
+
+      // Both sides moved since the last save. The server's change is a fight's
+      // rewards, and its save is at most a debounce away, so it wins - as it
+      // always did. Not stamped, so the next pull looks again.
+      const mine = live(fresh.id);
+      const untouched =
+        mine === undefined || (baseline !== undefined && canonical(mine) === canonical(JSON.parse(baseline)));
+      if (!untouched) {
+        result.conflicts.push(fresh.id);
+        continue;
+      }
+
+      if (!install(fresh)) continue;
+      this.written.set(fresh.id, JSON.stringify(fresh));
+      this.stamps.set(fresh.id, at);
+      result.installed.push(fresh.id);
+    }
+    return result;
   }
 
   /**
@@ -132,31 +206,19 @@ export class SupabaseRosterStore implements RosterStore {
    */
   async setInRun(ids: string[], inRun: boolean): Promise<void> {
     if (ids.length === 0) return;
-    const list = ids.map((id) => `"${id.replace(/"/g, '""')}"`).join(",");
-    await this.call(`/characters?id=in.(${encodeURIComponent(list)})`, {
+    await this.call(`/characters?id=in.(${inList(ids)})`, {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({ in_run: inRun }),
     });
   }
 
-  async reload(id: string, inMemory: Character | undefined): Promise<Character | null> {
-    // Dirty means this process changed it and has not saved: the stored row
-    // is older than memory, whatever the phone did.
-    if (inMemory && this.written.get(id) !== JSON.stringify(inMemory)) return null;
-
-    const res = await this.call(`/characters?id=eq.${encodeURIComponent(id)}&select=id,data`);
-    const rows = (await res.json()) as { id: string; data: unknown }[];
-    if (rows.length === 0) return null;
-    const [character] = parseRoster(
-      { version: 1, characters: [rows[0]!.data] },
-      (m) => console.warn(`[roster:supabase] ${m}`),
-    );
-    if (!character) return null;
-    // What was just read is what is stored, so it is clean: the next save
-    // must not write it straight back.
-    this.written.set(id, JSON.stringify(character));
-    return character;
+  async clearRunLocks(): Promise<void> {
+    await this.call(`/characters?in_run=eq.true`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ in_run: false }),
+    });
   }
 
   /** Explicit removal. Nothing calls this implicitly — see the class note. */
@@ -224,6 +286,25 @@ export class SupabaseRosterStore implements RosterStore {
  */
 function twitchIdOf(viewerId: string): string | null {
   return viewerId.startsWith("twitch:") ? viewerId.slice("twitch:".length) : null;
+}
+
+/** Ids for a PostgREST `in.(...)` filter, quoted and URL-encoded. */
+function inList(ids: readonly string[]): string {
+  return encodeURIComponent(ids.map((id) => `"${id.replace(/"/g, '""')}"`).join(","));
+}
+
+/**
+ * JSON with every object's keys sorted, for comparing two characters by
+ * content. Plain JSON.stringify follows insertion order, and the engine
+ * equipping into a slot that was emptied earlier reorders `equipment` without
+ * changing it - which would read as an edit on one side or the other.
+ */
+function canonical(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    v && typeof v === "object" && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v as Record<string, unknown>).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v,
+  );
 }
 
 function slug(s: string): string {

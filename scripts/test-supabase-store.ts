@@ -47,9 +47,17 @@ const server = createServer((req, res) => {
 
     if (path.startsWith("/rest/v1/characters")) {
       if (req.method === "GET") {
-        const one = /id=eq\.([^&]+)/.exec(path);
-        const rows = one ? [table.get(decodeURIComponent(one[1]!))].filter(Boolean) : [...table.values()];
-        return json(rows.map((r) => ({ id: r!.id, data: r!.data })));
+        // Honours the two parts of a query the store relies on: an `id=in.(...)`
+        // filter, and whether `data` was selected - a pull that only asked for
+        // `updated_at` must not be handed whole rows it did not pay for.
+        const decoded = decodeURIComponent(path);
+        const only = /id=in\.\(([^)]*)\)/.exec(decoded)?.[1]?.split(",").map((s) => s.replace(/^"|"$/g, ""));
+        const wantsData = /select=[^&]*data/.test(decoded);
+        return json(
+          [...table.values()]
+            .filter((r) => !only || only.includes(String(r.id)))
+            .map((r) => ({ id: r.id, updated_at: r.updated_at, ...(wantsData ? { data: r.data } : {}) })),
+        );
       }
       if (req.method === "POST") {
         for (const row of body as Record<string, unknown>[]) table.set(String(row.id), row);
@@ -142,49 +150,98 @@ assert.equal(
 console.log("save wrote only [twitch:111]; the phone's edit to twitch:222 survived");
 line();
 
-// --- reload: the join takes the phone's copy ---------------------------------
-// The server loaded Bob at boot and has not touched him since, so his copy in
-// memory is clean and the stored one - the phone's - is the newer. A join
-// takes it, or he fights in the gear he took off and the next save puts it
-// back on him.
-const reloaded = await store.reload("twitch:222", bob);
-assert.equal(reloaded?.gold, 9999, "reload returns the phone's edit for a clean character");
-received.length = 0;
-await store.save([alice, reloaded!, sim]);
-assert.equal(received.length, 0, "what reload read is not written straight back");
-console.log("reload took the phone's copy of twitch:222, and the next save left it alone");
-
-// Alice has a change the server has not saved yet. That is newer than the
-// stored row, so reload must decline rather than throw the change away.
-alice.gold = 12;
-assert.equal(await store.reload("twitch:111", alice), null, "reload declines a character with unsaved changes");
-alice.gold = 11;
-console.log("reload declined twitch:111 while it held an unsaved change");
-
-// A viewer who made their character on the loadout after the server booted:
-// nothing in memory, a row in the table.
-table.set("twitch:333", {
-  id: "twitch:333",
-  twitch_id: "333",
-  data: {
-    ...character("twitch:333", 60),
-    appearanceChosen: true,
-    appearance: { bodyType: "female", skinTone: "sand", hair: null, hiddenSlots: ["head", "nonsense", "head"] },
-  },
-});
-const created = await store.reload("twitch:333", undefined);
-assert.ok(created, "reload finds a character created elsewhere after boot");
-assert.equal(created.appearanceChosen, true, "appearanceChosen survives a parse - it used to be dropped");
-assert.deepEqual(created.appearance.hiddenSlots, ["head"], "hidden slots survive, cleaned to real slots once each");
-assert.equal(await store.reload("twitch:404", undefined), null, "nobody stored is null, not an error");
-table.delete("twitch:333");
-console.log("reload found a character made on the loadout after boot, flags intact");
-line();
-
 // --- upsert semantics --------------------------------------------------------
 assert.match(writes[0]!.prefer, /merge-duplicates/, "writes upsert rather than insert");
 assert.match(writes[0]!.prefer, /return=minimal/, "does not ask for every row back");
 console.log("upsert headers correct");
+
+// --- pull: the other half of the same property ------------------------------
+// The save above only protects Bob while the server leaves him alone. Once he
+// fights, the server saves him - from the copy it read at boot. So it has to
+// PULL his edit first, and then its save must not send it straight back.
+line();
+const later = (iso: unknown) => new Date(Date.parse(String(iso)) + 1000).toISOString();
+const phoneEdit = (id: string, patch: Partial<Character>) => {
+  const row = table.get(id)!;
+  row.data = { ...(row.data as Character), ...patch };
+  row.updated_at = later(row.updated_at);   // the loadout stamps every write
+};
+const memory = new Map<string, Character>([[alice.id, alice], [bob.id, bob], [sim.id, sim]]);
+const live = (id: string) => memory.get(id);
+const installing = (fresh: Character) => {
+  memory.set(fresh.id, fresh);
+  return true;
+};
+
+// The 9999 edit above is still waiting; its row just never had a fresh stamp.
+table.get("twitch:222")!.updated_at = later(table.get("twitch:222")!.updated_at);
+let pulled = await store.pull(["twitch:222"], live, installing);
+assert.deepEqual(pulled.installed, ["twitch:222"], "a loadout edit to an untouched character is pulled");
+assert.equal(memory.get("twitch:222")!.gold, 9999, "the server now holds the edited copy");
+received.length = 0;
+await store.save([...memory.values()]);
+assert.ok(!received.some((r) => r.method === "POST"), "the pulled edit is the new baseline: saving sends nothing");
+console.log("pull picked up the phone edit, and the next save did not send it back");
+
+// Nobody wrote anything: one cheap request, and no whole rows.
+received.length = 0;
+pulled = await store.pull(["twitch:111", "twitch:222", "sim:harness"], live, installing);
+assert.deepEqual(pulled.installed, []);
+assert.equal(received.length, 1, "an idle pull is a single request");
+assert.ok(!/data/.test(decodeURIComponent(received[0]!.path)), "...that asks for updated_at only, not data");
+console.log("an idle pull fetched timestamps only");
+
+// Both sides moved: the server's change is a fight's rewards, so it is kept.
+phoneEdit("twitch:111", { gold: 5000 });
+memory.get("twitch:111")!.gold = 12;                    // unsaved, on the server
+let offered = 0;
+pulled = await store.pull(["twitch:111"], live, (f) => (offered++, installing(f)));
+assert.deepEqual(pulled.conflicts, ["twitch:111"], "a character changed on both sides is a conflict");
+assert.equal(offered, 0, "...and is never offered to install");
+assert.equal(memory.get("twitch:111")!.gold, 12, "...so the server's change stands");
+await store.save([...memory.values()]);
+assert.equal((table.get("twitch:111")!.data as Character).gold, 12, "and the save writes it, as before");
+console.log("a conflict kept the server's copy");
+
+// A fight started while the rows were in flight: the server declines. Not
+// adopted, so the edit is offered again next time rather than forgotten.
+phoneEdit("twitch:222", { gold: 1234 });
+pulled = await store.pull(["twitch:222"], live, () => false);
+assert.deepEqual(pulled.installed, [], "a declined edit is not installed");
+pulled = await store.pull(["twitch:222"], live, installing);
+assert.deepEqual(pulled.installed, ["twitch:222"], "...and is offered again on the next pull");
+assert.equal(memory.get("twitch:222")!.gold, 1234);
+console.log("a declined edit came back on the next pull");
+
+// Same character, keys in a different order: not an edit on either side.
+const carol = character("twitch:444", 5);
+carol.equipment = { mainHand: { instanceId: "a", gearId: "rusty-dagger" }, offHand: { instanceId: "b", gearId: "pitch-torch" } };
+memory.set(carol.id, carol);
+await store.save([carol]);
+carol.equipment = { offHand: carol.equipment.offHand!, mainHand: carol.equipment.mainHand! };
+phoneEdit("twitch:444", { gold: 77 });
+pulled = await store.pull(["twitch:444"], live, installing);
+assert.deepEqual(pulled.installed, ["twitch:444"], "reordered keys are not mistaken for an unsaved change");
+console.log("key order alone did not count as an edit");
+
+// A character the loadout created after boot, that the server never had - and
+// that has been through character creation, which must survive the trip.
+table.set("twitch:333", {
+  id: "twitch:333", twitch_id: "333",
+  data: { ...character("twitch:333", 3), appearanceChosen: true, hiddenSlots: ["head"] },
+  updated_at: later(new Date().toISOString()),
+});
+pulled = await store.pull(["twitch:333"], live, installing);
+assert.deepEqual(pulled.installed, ["twitch:333"], "a character only the loadout knows is pulled in");
+assert.equal(memory.get("twitch:333")!.appearanceChosen, true, "a pull keeps appearanceChosen");
+assert.deepEqual(memory.get("twitch:333")!.hiddenSlots, ["head"], "a pull keeps hiddenSlots");
+const reloaded = (await store.load()).find((c) => c.id === "twitch:333");
+assert.equal(reloaded?.appearanceChosen, true, "a load keeps appearanceChosen - without it the loadout re-offers character creation");
+assert.deepEqual(reloaded?.hiddenSlots, ["head"], "a load keeps hiddenSlots - without it a hidden helmet reappears on stream");
+table.delete("twitch:333");
+table.delete("twitch:444");
+console.log("a loadout-only character was pulled in");
+line();
 
 // --- in_run flag -------------------------------------------------------------
 await store.setInRun(["twitch:111", "twitch:222"], true);
@@ -192,6 +249,15 @@ assert.equal(table.get("twitch:111")!.in_run, true, "in_run set for the party");
 const patch = received.find((r) => r.method === "PATCH")!;
 assert.match(patch.path, /id=in\./, "in_run uses a single ranged PATCH, not a write per character");
 console.log("in_run flagged via one PATCH");
+
+// A server that stopped mid-run left its party flagged; the next boot clears
+// every flag, not just ones it remembers setting.
+received.length = 0;
+await store.clearRunLocks();
+assert.ok([...table.values()].every((r) => r.in_run === false), "clearRunLocks releases every flagged row");
+const clear = received.find((r) => r.method === "PATCH")!;
+assert.match(decodeURIComponent(clear.path), /in_run=eq\.true/, "...in one PATCH filtered to the flagged rows");
+console.log("leftover run locks cleared in one PATCH");
 
 // --- never deletes implicitly ------------------------------------------------
 received.length = 0;

@@ -116,9 +116,14 @@ const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
  * nuisance that prompts someone to set the variable properly. Silently
  * accepting unsigned sessions would be the alternative, and that is not a
  * trade worth making.
+ *
+ * `||`, not `??`: .env.example ships `SESSION_SECRET=` empty, which
+ * --env-file reads as "". With `??` that empty string WAS the key - sessions
+ * signed with nothing, forgeable by anyone - while the warning below, which
+ * tests for a falsy value, said the fallback was in use.
  */
 const SESSION_SECRET =
-  process.env.SESSION_SECRET ?? process.env.ADMIN_SECRET ?? randomBytes(32).toString("hex");
+  process.env.SESSION_SECRET || process.env.ADMIN_SECRET || randomBytes(32).toString("hex");
 
 if (!process.env.SESSION_SECRET && !process.env.ADMIN_SECRET) {
   console.warn("[auth] No SESSION_SECRET or ADMIN_SECRET - sessions will not survive a restart.");

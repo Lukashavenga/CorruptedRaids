@@ -154,6 +154,17 @@ export const en = {
     loot: "{who} loots {gearName}!",
     reward: "{who} +{xp}xp +{gold}g",
     levelUp: "{who} corrupts to {level}",
+    /*
+     * A big party's tail, one line per group instead of one per member (see
+     * SUMMARISE_PAST in src/state/replayPacing.ts). No gold on the reward
+     * lines: it is rolled per member, so there is no one number to print.
+     * `levelGroup` is only ever two or more - one member levelling still gets
+     * their own `levelUp` line.
+     */
+    rewardStanding: "{count} standing +{xp}xp",
+    rewardFallen: "{count} fallen +{xp}xp",
+    lootRest: "+{count} more loot",
+    levelGroup: "{count} corrupt further",
     victory: "The village falls.",
     defeat: "Driven off.",
   },
@@ -333,6 +344,7 @@ export const en = {
     skinHeading: "Skin",
     bodyType: { male: "Male", female: "Female" },
     appearanceSet: "Appearance updated.",
+    hiddenSlotsSet: "Hidden pieces updated.",
 
     /* The socket picker: what is in the bag that fits the slot just clicked. */
     fitsSlot: "Fits {slot}",
@@ -437,11 +449,11 @@ export const en = {
      */
     settings: {
       title: "Settings",
-      lead: "How your character looks and how this page behaves. Nothing here changes a fight.",
+      lead: "How you look and feel. Nothing here changes your stats.",
       display: {
         title: "Display",
         hiddenSlots: "Hidden pieces",
-        hiddenSlotsHint: "Gear you wear and still get the stats from, but do not want drawn - here or on stream.",
+        hiddenSlotsHint: "Gear you wear but do not want drawn - here and in fights on stream. Its stats still count.",
         showAll: "Show everything",
         noneHidden: "Nothing hidden.",
         hiddenCount: "{count} hidden",

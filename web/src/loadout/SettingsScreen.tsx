@@ -16,10 +16,10 @@ export interface SettingsScreenProps {
 /**
  * Per-viewer preferences.
  *
- * Haptics are stored in THIS BROWSER: they are about this phone and mean
- * nothing anywhere else. Hidden gear is not - it is saved on the character, as
- * part of its appearance, because the overlay has to draw it too (see
- * useHiddenSlots). The resolver still never reads it.
+ * Hidden pieces and the respec are on the character; haptics stay in this
+ * browser. Hidden pieces moved because the stream is where people look - see
+ * useHiddenSlots. They are still cosmetic: the resolver reads nothing that
+ * depends on them.
  *
  * Deliberately small. There are three things a player can actually decide
  * right now, and inventing a screen of plausible-looking toggles that do

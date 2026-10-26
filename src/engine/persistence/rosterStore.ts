@@ -1,5 +1,5 @@
-import type { Character, SealedChest } from "../types.js";
-import { cleanHiddenSlots } from "../character.js";
+import type { Character, GearSlot, SealedChest } from "../types.js";
+import { GEAR_SLOTS } from "../types.js";
 
 /**
  * Where the roster lives between runs.
@@ -61,20 +61,40 @@ export interface RosterStore {
   setInRun?(ids: string[], inRun: boolean): Promise<void>;
 
   /**
-   * One character as stored NOW, for a server that loaded the roster hours
-   * ago - or null when there is nothing newer to take.
-   *
-   * OPTIONAL for the same reason as `setInRun`: it only means something when
-   * another writer exists. The server reads the roster once, at boot, and the
-   * hosted loadout goes on writing to it all stream. Without this, gear
-   * equipped on a phone mid-stream never reached a fight, and the server's
-   * save after that fight put the old gear back over it.
-   *
-   * Null as well when `inMemory` holds changes this store has not written:
-   * those are the server's, newer than anything stored, and must not be
-   * thrown away for the stored copy.
+   * Releases every in-run flag, whoever set it. Called at boot: a server that
+   * stopped mid-run - the console closed at the end of a stream, a crash -
+   * left its party flagged, and only this server ever clears the flag, for
+   * the ids it locked itself. Those viewers were refused every loadout edit
+   * until they happened to fight again.
    */
-  reload?(id: string, inMemory: Character | undefined): Promise<Character | null>;
+  clearRunLocks?(): Promise<void>;
+
+  /**
+   * Picks up characters another writer has changed since this server last
+   * read or wrote them.
+   *
+   * OPTIONAL for the same reason as `setInRun`: only a store with a second
+   * writer has anything to pull. Without it the server reads the roster once at
+   * boot, so a viewer's loadout edit never reached a fight - and the server's
+   * next save of that character wrote its stale copy back over the edit.
+   *
+   * `live` is the server's own copy. A fresh row is offered to `install` only
+   * when that copy has not changed since it was last read or saved: if both
+   * sides moved, the server's change (a fight's rewards) is kept and the row is
+   * reported as a conflict. `install` runs synchronously and says whether it
+   * took the character; only a taken one becomes the new baseline.
+   */
+  pull?(
+    ids: readonly string[],
+    live: (id: string) => Character | undefined,
+    install: (fresh: Character) => boolean,
+  ): Promise<PullResult>;
+}
+
+export interface PullResult {
+  installed: string[];
+  /** Changed on both sides since the last save; the server's copy was kept. */
+  conflicts: string[];
 }
 
 export interface SnapshotInfo {
@@ -193,7 +213,6 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
   }
 
   const appearance = isRecord(raw.appearance) ? raw.appearance : {};
-  const hiddenSlots = cleanHiddenSlots(appearance.hiddenSlots);
 
   return {
     id,
@@ -222,14 +241,23 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
       bodyType: appearance.bodyType === "female" ? "female" : "male",
       skinTone: typeof appearance.skinTone === "string" ? appearance.skinTone : "sand",
       hair: typeof appearance.hair === "string" ? appearance.hair : null,
-      ...(hiddenSlots.length > 0 ? { hiddenSlots } : {}),
     },
-    // Kept, and it was not: this function rebuilt the character field by
-    // field and the flag was not one of the fields. A character the server
-    // loaded, fought and saved came back without it, and the loadout then
-    // sent its owner through character creation again.
+    // Copied explicitly, like every field above, because this rebuilds a
+    // character rather than trusting the row. It was missing: every character
+    // the server loaded lost it, and the server's next save of them wrote that
+    // back - so the loadout offered character creation again to anyone who had
+    // fought since the game started saving to Supabase.
     ...(raw.appearanceChosen === true ? { appearanceChosen: true } : {}),
+    // The same trap, closed the day the field was added: anything left off
+    // this list is wiped by the server's next save of the character.
+    ...hiddenSlotsOf(raw.hiddenSlots),
   };
+}
+
+function hiddenSlotsOf(v: unknown): { hiddenSlots?: GearSlot[] } {
+  if (!Array.isArray(v)) return {};
+  const hidden = GEAR_SLOTS.filter((slot) => v.includes(slot));
+  return hidden.length > 0 ? { hiddenSlots: hidden } : {};
 }
 
 /**

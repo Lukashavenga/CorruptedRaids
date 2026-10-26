@@ -109,13 +109,14 @@ export class Roster {
   }
 
   /**
-   * Installs one character, replacing any held under its id.
+   * Swaps in a fresher copy of one character, from storage.
    *
-   * For the stored copy of somebody who changed it elsewhere - the hosted
-   * loadout - since this roster was hydrated. Not a way to create one: that is
-   * `ensure`, which is what gives a new character its starting state.
+   * Safe because nothing holds a Character across dispatches: a party is a
+   * list of ids looked up here on every read (GameEngine.party), so the next
+   * read finds the new object. Only the server calls this, and never while a
+   * fight is running - see refreshFromStore in src/server/index.ts.
    */
-  put(character: Character): void {
+  replace(character: Character): void {
     this.characters.set(character.id, character);
   }
 

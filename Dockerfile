@@ -25,7 +25,9 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund
 COPY web/package.json web/package-lock.json* ./web/
-RUN npm install --prefix web --no-audit --no-fund
+# From inside web/: `--prefix web` from the root also installs the root
+# package into web/ and records it in web/package.json.
+RUN cd web && npm install --no-audit --no-fund
 
 COPY . .
 

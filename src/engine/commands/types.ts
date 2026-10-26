@@ -74,6 +74,8 @@ export type GameCommand =
   | { type: "respec"; requestedBy: string }
   | { type: "set_role"; requestedBy: string; role: Role }
   | { type: "set_appearance"; requestedBy: string; appearance: CharacterAppearance }
+  /** Which equipped slots are not drawn - on the loadout and on stream. Cosmetic; stats are unchanged. */
+  | { type: "set_hidden_slots"; requestedBy: string; slots: GearSlot[] }
   /** Creates a character for a viewer who doesn't have one yet, outside a dungeon run. */
   | { type: "ensure_character"; requestedBy: string; displayName?: string; role?: Role }
 

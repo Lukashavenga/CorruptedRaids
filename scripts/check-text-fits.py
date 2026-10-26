@@ -152,6 +152,12 @@ CASES = [
     ("log.reward",        32, f"{ACTOR} +120xp +45g"),
     ("figure.level",      16, "Corruption 12"),
     ("log.levelUp",       32, f"{ACTOR} corrupts to 12"),
+    # A big party's tail (replayPacing.ts). Three-digit counts, because these
+    # lines only exist for parties too big to name one by one.
+    ("log.rewardStanding", 32, "100 standing +120xp"),
+    ("log.rewardFallen",  32, "100 fallen +120xp"),
+    ("log.lootRest",      32, "+100 more loot"),
+    ("log.levelGroup",    32, "100 corrupt further"),
     ("log.victory",       32, "The village falls."),
     # The enemy-health strip under the arena: the fight's name plus a count,
     # at 16px. Three digits because a raided stream fields that many.
