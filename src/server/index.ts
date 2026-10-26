@@ -359,6 +359,73 @@ function warnLock(err: Error): void {
   console.warn(`[roster] could not update the in-run lock: ${err.message}`);
 }
 
+/**
+ * Picks up what viewers changed on the loadout while this server is running.
+ *
+ * The roster is read from the store once, at boot, and the hosted loadout
+ * writes to the same table from a viewer's phone. Until this existed, kit put
+ * on mid-stream never reached a fight - and that fight's save wrote the
+ * boot-time copy back over it, so the loadout lost the edit too. So a
+ * character is re-read as they join, and the whole party every few seconds
+ * while the join window is open, which is exactly when the loadout lets them
+ * change kit (LOCKED_STATES).
+ *
+ * Never rejects, and gives up waiting after PULL_TIMEOUT_MS: a slow store
+ * means a join goes ahead with the copy already here, as it always did. The
+ * pull itself carries on, and whatever it finds still lands.
+ */
+const PULL_TIMEOUT_MS = 2500;
+const PULL_EVERY_MS = 3000;
+
+function refreshFromStore(ids: string[]): Promise<void> {
+  if (!rosterStore.pull || ids.length === 0 || LOCKED_STATES.has(raid.getSnapshot().state)) {
+    return Promise.resolve();
+  }
+  const nameOf = (id: string) => engine.roster.get(id)?.name ?? id;
+  const pulled = rosterStore
+    .pull(
+      ids,
+      (id) => engine.roster.get(id),
+      (fresh) => {
+        // Asked again after the network round trip. A fight that started while
+        // the rows were in flight was decided with the old copy, and swapping
+        // it now would throw that fight's rewards away.
+        if (LOCKED_STATES.has(raid.getSnapshot().state)) return false;
+        pruneUnknownGear([fresh], gearExists, (m) => console.warn(`[roster] ${m}`));
+        engine.roster.replace(fresh);
+        return true;
+      },
+    )
+    .then(
+      ({ installed, conflicts }) => {
+        if (installed.length > 0) {
+          console.log(`[roster] loadout changes picked up: ${installed.map(nameOf).join(", ")}`);
+          // Redraw the party with the new kit. Through broadcast, not the
+          // controller: nothing was dispatched, only a character swapped.
+          broadcast("update", { snapshot: raid.getSnapshot(), result: null });
+          scheduleSave();
+        }
+        if (conflicts.length > 0) {
+          console.warn(
+            `[roster] changed on the loadout and here at once, kept this server's copy: ${conflicts.map(nameOf).join(", ")}`,
+          );
+        }
+      },
+      (err: Error) => console.warn(`[roster] could not check the loadout for changes: ${err.message}`),
+    );
+  return Promise.race([pulled, new Promise<void>((done) => setTimeout(done, PULL_TIMEOUT_MS))]);
+}
+
+let pulling = false;
+setInterval(() => {
+  const snapshot = raid.getSnapshot();
+  if (pulling || snapshot.state !== "gathering") return;
+  pulling = true;
+  void refreshFromStore(snapshot.engine.party.map((p: { id: string }) => p.id)).finally(() => {
+    pulling = false;
+  });
+}, PULL_EVERY_MS);
+
 raid.on("update", ({ snapshot, result }: DungeonUpdate) => {
   broadcast("update", { snapshot, result });
   // Every dispatch is a candidate for having changed somebody, and this is
@@ -1297,7 +1364,7 @@ const server = createServer((req, res) => {
       res.end(JSON.stringify({ ok: false, message: bot.message }));
       return;
     }
-    readBody(req, (body) => {
+    readBody(req, async (body) => {
       const line = body as ChatLine | null;
       if (!line || typeof line.userId !== "string" || typeof line.message !== "string") {
         res.writeHead(400, { "Content-Type": "application/json" });
@@ -1323,6 +1390,8 @@ const server = createServer((req, res) => {
         return;
       }
 
+      // The joiner's latest loadout edits, before they are in the party.
+      if (parsed.command.type === "join_dungeon") await refreshFromStore([parsed.command.requestedBy]);
       const result = raid.dispatch(parsed.command);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ...result, handled: true }));
@@ -1349,7 +1418,7 @@ const server = createServer((req, res) => {
       res.end(JSON.stringify({ ok: false, message: bot.message }));
       return;
     }
-    readBody(req, (body) => {
+    readBody(req, async (body) => {
       const redeem = body as Redeem | null;
       const kind = redeem ? redeemKind(redeem.reward) : null;
       if (!redeem || typeof redeem.userId !== "string" || !redeem.userId || !kind) {
@@ -1363,6 +1432,10 @@ const server = createServer((req, res) => {
         );
         return;
       }
+
+      // Before the run opens rather than between opening and joining, so the
+      // two stay one step and nothing can arrive in the gap.
+      await refreshFromStore([viewerId(redeem.userId)]);
 
       // Only what is in rotation. A raid switched off in the admin panel is
       // still openable by hand, but chat's points never land on it.
@@ -1412,12 +1485,15 @@ const server = createServer((req, res) => {
   }
 
   if (req.method === "POST" && url.pathname === "/command") {
-    readBody(req, (body) => {
+    readBody(req, async (body) => {
       const command = body as GameCommand | null;
       if (!command || typeof command.type !== "string") {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, message: "Missing command.type" }));
         return;
+      }
+      if (command.type === "join_dungeon") {
+        await refreshFromStore([sessionViewer(req) ?? command.requestedBy]);
       }
 
       if (!isViewerCommand(command.type)) {

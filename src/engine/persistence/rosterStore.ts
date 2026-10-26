@@ -58,6 +58,33 @@ export interface RosterStore {
    * everyone can see.
    */
   setInRun?(ids: string[], inRun: boolean): Promise<void>;
+
+  /**
+   * Picks up characters another writer has changed since this server last
+   * read or wrote them.
+   *
+   * OPTIONAL for the same reason as `setInRun`: only a store with a second
+   * writer has anything to pull. Without it the server reads the roster once at
+   * boot, so a viewer's loadout edit never reached a fight - and the server's
+   * next save of that character wrote its stale copy back over the edit.
+   *
+   * `live` is the server's own copy. A fresh row is offered to `install` only
+   * when that copy has not changed since it was last read or saved: if both
+   * sides moved, the server's change (a fight's rewards) is kept and the row is
+   * reported as a conflict. `install` runs synchronously and says whether it
+   * took the character; only a taken one becomes the new baseline.
+   */
+  pull?(
+    ids: readonly string[],
+    live: (id: string) => Character | undefined,
+    install: (fresh: Character) => boolean,
+  ): Promise<PullResult>;
+}
+
+export interface PullResult {
+  installed: string[];
+  /** Changed on both sides since the last save; the server's copy was kept. */
+  conflicts: string[];
 }
 
 export interface SnapshotInfo {
