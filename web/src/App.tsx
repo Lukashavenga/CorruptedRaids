@@ -78,8 +78,12 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   const layersFor = useMemo(() => {
     return (member: PartyMemberView): Partial<Record<GearSlot, string>> => {
       const out: Partial<Record<GearSlot, string>> = {};
+      // Slots the player hid in the loadout are left out here, not in each
+      // renderer: no layer is exactly what both arenas already draw for an
+      // empty slot, hair coming back from under a hidden helm included.
+      const hidden = new Set(member.appearance.hiddenSlots ?? []);
       for (const [slot, equipped] of Object.entries(member.equipment)) {
-        if (!equipped) continue;
+        if (!equipped || hidden.has(slot as GearSlot)) continue;
         const sprite = spriteForGear(catalog.gearById.get(equipped.gearId), member.appearance.bodyType);
         if (sprite) out[slot as GearSlot] = sprite;
       }

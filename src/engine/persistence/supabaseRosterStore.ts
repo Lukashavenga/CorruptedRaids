@@ -140,6 +140,25 @@ export class SupabaseRosterStore implements RosterStore {
     });
   }
 
+  async reload(id: string, inMemory: Character | undefined): Promise<Character | null> {
+    // Dirty means this process changed it and has not saved: the stored row
+    // is older than memory, whatever the phone did.
+    if (inMemory && this.written.get(id) !== JSON.stringify(inMemory)) return null;
+
+    const res = await this.call(`/characters?id=eq.${encodeURIComponent(id)}&select=id,data`);
+    const rows = (await res.json()) as { id: string; data: unknown }[];
+    if (rows.length === 0) return null;
+    const [character] = parseRoster(
+      { version: 1, characters: [rows[0]!.data] },
+      (m) => console.warn(`[roster:supabase] ${m}`),
+    );
+    if (!character) return null;
+    // What was just read is what is stored, so it is clean: the next save
+    // must not write it straight back.
+    this.written.set(id, JSON.stringify(character));
+    return character;
+  }
+
   /** Explicit removal. Nothing calls this implicitly — see the class note. */
   async forget(id: string): Promise<void> {
     await this.call(`/characters?id=eq.${encodeURIComponent(id)}`, {

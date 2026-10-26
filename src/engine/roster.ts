@@ -109,6 +109,17 @@ export class Roster {
   }
 
   /**
+   * Installs one character, replacing any held under its id.
+   *
+   * For the stored copy of somebody who changed it elsewhere - the hosted
+   * loadout - since this roster was hydrated. Not a way to create one: that is
+   * `ensure`, which is what gives a new character its starting state.
+   */
+  put(character: Character): void {
+    this.characters.set(character.id, character);
+  }
+
+  /**
    * Fills the roster from storage, replacing whatever is here.
    *
    * Called once, before the server accepts traffic. Replacing rather than

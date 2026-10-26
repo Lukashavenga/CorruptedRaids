@@ -255,6 +255,38 @@ async function flushRoster(): Promise<void> {
   }
 }
 
+/**
+ * Takes a joining viewer's character from the store if it changed there.
+ *
+ * The roster is read once, at boot, and the hosted loadout goes on writing to
+ * the same table for the whole stream. So a viewer who equipped a sword on
+ * their phone at nine o'clock fought without it at ten, and the save after
+ * that fight wrote the old character back over the sword. A viewer who made
+ * their character on the loadout after boot was worse off: `join_dungeon`
+ * found nobody in memory, created them fresh, and the save replaced the
+ * character they had chosen with a default one.
+ *
+ * At the join and nowhere else, because that is the last moment a phone edit
+ * can matter: the fight reads the character next, and from then until the
+ * run ends the loadout refuses edits (`in_run`). Only while gathering and only
+ * for someone not yet in, so a stray `!join` mid-fight reads nothing.
+ *
+ * A failed read costs freshness, not the join - the copy in memory is still a
+ * character.
+ */
+async function refreshFromStore(id: string): Promise<void> {
+  if (!rosterStore.reload) return;
+  if (raid.getSnapshot().state !== "gathering" || engine.partyIds.includes(id)) return;
+  try {
+    const stored = await rosterStore.reload(id, engine.roster.get(id));
+    if (!stored) return;
+    pruneUnknownGear([stored], gearExists, (m) => console.warn(`[roster] ${m}`));
+    engine.roster.put(stored);
+  } catch (err) {
+    console.warn(`[roster] could not refresh ${id} before joining: ${(err as Error).message}`);
+  }
+}
+
 function scheduleSave(): void {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => void flushRoster(), SAVE_DEBOUNCE_MS);
@@ -1319,9 +1351,11 @@ const server = createServer((req, res) => {
         return;
       }
 
-      const result = raid.dispatch(parsed.command);
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ ...result, handled: true }));
+      void refreshFromStore(viewerId(line.userId)).then(() => {
+        const result = raid.dispatch(parsed.command);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ...result, handled: true }));
+      });
     });
     return;
   }
@@ -1384,25 +1418,28 @@ const server = createServer((req, res) => {
       // Whoever paid is in. Making them also type !join inside the window they
       // just bought is how the person who started the dungeon misses it.
       const role = redeemRole(redeem.role);
-      const joined = raid.dispatch({
-        type: "join_dungeon",
-        requestedBy: viewerId(redeem.userId),
-        displayName: redeem.userName?.trim() || redeem.userId,
-        ...(role ? { role } : {}),
-      });
+      const redeemer = viewerId(redeem.userId);
+      void refreshFromStore(redeemer).then(() => {
+        const joined = raid.dispatch({
+          type: "join_dungeon",
+          requestedBy: redeemer,
+          displayName: redeem.userName?.trim() || redeem.userId,
+          ...(role ? { role } : {}),
+        });
 
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(
-        JSON.stringify({
-          ok: true,
-          refund: false,
-          kind,
-          opened: id,
-          message: opened.message,
-          joined: joined.ok,
-          joinDeadline: raid.getSnapshot().joinDeadline,
-        }),
-      );
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            ok: true,
+            refund: false,
+            kind,
+            opened: id,
+            message: opened.message,
+            joined: joined.ok,
+            joinDeadline: raid.getSnapshot().joinDeadline,
+          }),
+        );
+      });
     });
     return;
   }
@@ -1440,9 +1477,12 @@ const server = createServer((req, res) => {
         return;
       }
 
-      const result = raid.dispatch({ ...command, requestedBy: viewer } as GameCommand);
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(result));
+      const fresh = command.type === "join_dungeon" ? refreshFromStore(viewer) : Promise.resolve();
+      void fresh.then(() => {
+        const result = raid.dispatch({ ...command, requestedBy: viewer } as GameCommand);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result));
+      });
     });
     return;
   }

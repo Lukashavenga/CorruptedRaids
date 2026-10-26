@@ -46,7 +46,11 @@ const server = createServer((req, res) => {
     };
 
     if (path.startsWith("/rest/v1/characters")) {
-      if (req.method === "GET") return json([...table.values()].map((r) => ({ id: r.id, data: r.data })));
+      if (req.method === "GET") {
+        const one = /id=eq\.([^&]+)/.exec(path);
+        const rows = one ? [table.get(decodeURIComponent(one[1]!))].filter(Boolean) : [...table.values()];
+        return json(rows.map((r) => ({ id: r!.id, data: r!.data })));
+      }
       if (req.method === "POST") {
         for (const row of body as Record<string, unknown>[]) table.set(String(row.id), row);
         res.writeHead(201); return res.end();
@@ -136,6 +140,45 @@ assert.equal(
   "the phone edit survived the server's save",
 );
 console.log("save wrote only [twitch:111]; the phone's edit to twitch:222 survived");
+line();
+
+// --- reload: the join takes the phone's copy ---------------------------------
+// The server loaded Bob at boot and has not touched him since, so his copy in
+// memory is clean and the stored one - the phone's - is the newer. A join
+// takes it, or he fights in the gear he took off and the next save puts it
+// back on him.
+const reloaded = await store.reload("twitch:222", bob);
+assert.equal(reloaded?.gold, 9999, "reload returns the phone's edit for a clean character");
+received.length = 0;
+await store.save([alice, reloaded!, sim]);
+assert.equal(received.length, 0, "what reload read is not written straight back");
+console.log("reload took the phone's copy of twitch:222, and the next save left it alone");
+
+// Alice has a change the server has not saved yet. That is newer than the
+// stored row, so reload must decline rather than throw the change away.
+alice.gold = 12;
+assert.equal(await store.reload("twitch:111", alice), null, "reload declines a character with unsaved changes");
+alice.gold = 11;
+console.log("reload declined twitch:111 while it held an unsaved change");
+
+// A viewer who made their character on the loadout after the server booted:
+// nothing in memory, a row in the table.
+table.set("twitch:333", {
+  id: "twitch:333",
+  twitch_id: "333",
+  data: {
+    ...character("twitch:333", 60),
+    appearanceChosen: true,
+    appearance: { bodyType: "female", skinTone: "sand", hair: null, hiddenSlots: ["head", "nonsense", "head"] },
+  },
+});
+const created = await store.reload("twitch:333", undefined);
+assert.ok(created, "reload finds a character created elsewhere after boot");
+assert.equal(created.appearanceChosen, true, "appearanceChosen survives a parse - it used to be dropped");
+assert.deepEqual(created.appearance.hiddenSlots, ["head"], "hidden slots survive, cleaned to real slots once each");
+assert.equal(await store.reload("twitch:404", undefined), null, "nobody stored is null, not an error");
+table.delete("twitch:333");
+console.log("reload found a character made on the loadout after boot, flags intact");
 line();
 
 // --- upsert semantics --------------------------------------------------------

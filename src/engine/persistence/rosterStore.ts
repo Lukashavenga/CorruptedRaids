@@ -1,4 +1,5 @@
 import type { Character, SealedChest } from "../types.js";
+import { cleanHiddenSlots } from "../character.js";
 
 /**
  * Where the roster lives between runs.
@@ -58,6 +59,22 @@ export interface RosterStore {
    * everyone can see.
    */
   setInRun?(ids: string[], inRun: boolean): Promise<void>;
+
+  /**
+   * One character as stored NOW, for a server that loaded the roster hours
+   * ago - or null when there is nothing newer to take.
+   *
+   * OPTIONAL for the same reason as `setInRun`: it only means something when
+   * another writer exists. The server reads the roster once, at boot, and the
+   * hosted loadout goes on writing to it all stream. Without this, gear
+   * equipped on a phone mid-stream never reached a fight, and the server's
+   * save after that fight put the old gear back over it.
+   *
+   * Null as well when `inMemory` holds changes this store has not written:
+   * those are the server's, newer than anything stored, and must not be
+   * thrown away for the stored copy.
+   */
+  reload?(id: string, inMemory: Character | undefined): Promise<Character | null>;
 }
 
 export interface SnapshotInfo {
@@ -176,6 +193,7 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
   }
 
   const appearance = isRecord(raw.appearance) ? raw.appearance : {};
+  const hiddenSlots = cleanHiddenSlots(appearance.hiddenSlots);
 
   return {
     id,
@@ -204,7 +222,13 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
       bodyType: appearance.bodyType === "female" ? "female" : "male",
       skinTone: typeof appearance.skinTone === "string" ? appearance.skinTone : "sand",
       hair: typeof appearance.hair === "string" ? appearance.hair : null,
+      ...(hiddenSlots.length > 0 ? { hiddenSlots } : {}),
     },
+    // Kept, and it was not: this function rebuilt the character field by
+    // field and the flag was not one of the fields. A character the server
+    // loaded, fought and saved came back without it, and the loadout then
+    // sent its owner through character creation again.
+    ...(raw.appearanceChosen === true ? { appearanceChosen: true } : {}),
   };
 }
 

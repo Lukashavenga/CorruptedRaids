@@ -1,57 +1,87 @@
-import { useCallback, useEffect, useState } from "react";
-import type { GearSlot } from "../../../src/engine/types.js";
+import { useCallback, useEffect } from "react";
+import type { CharacterAppearance, GearSlot } from "../../../src/engine/types.js";
+import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 
 /**
  * Which equipped slots the player has chosen not to see.
  *
  * Cosmetic only: the item stays equipped and its stats still count. Players
- * want a helmet's armour without losing the face they picked, so this is a view
+ * want a helmet's Skill without losing the face they picked, so this is a view
  * toggle rather than an unequip.
  *
- * Kept in the browser rather than on the character on purpose. It changes
- * nothing the engine simulates, it is per-viewer taste rather than game state,
- * and routing it through a GameCommand would mean the combat resolver's inputs
- * could differ based on a display preference — which is exactly the coupling
- * the command seam exists to prevent.
- *
- * Every read and write is guarded: storage throws outright in some privacy
- * modes, and a character should still render if it does.
+ * ON THE CHARACTER, as part of its appearance. It used to live in this
+ * browser's storage, on the reasoning that it changed nothing the engine
+ * simulates - which is true, and it is still nothing the resolver reads. But
+ * the place a viewer wants to look like themselves is the overlay, on stream,
+ * and a preference kept in one phone's storage never reached it: a tester hid
+ * their helmet and wore it into every dungeon anyway.
  */
-const KEY = "corrupted.hiddenSlots";
+const LEGACY_KEY = "corrupted.hiddenSlots";
 
-function load(viewerId: string): GearSlot[] {
+/** What an earlier build kept in this browser for this viewer, if anything. */
+function legacyLocal(viewerId: string): GearSlot[] {
   try {
-    const all = JSON.parse(localStorage.getItem(KEY) ?? "{}");
-    const mine = all?.[viewerId];
+    const mine = JSON.parse(localStorage.getItem(LEGACY_KEY) ?? "{}")?.[viewerId];
     return Array.isArray(mine) ? (mine as GearSlot[]) : [];
   } catch {
     return [];
   }
 }
 
-export function useHiddenSlots(viewerId: string): {
+function forgetLegacy(viewerId: string): void {
+  try {
+    const all = JSON.parse(localStorage.getItem(LEGACY_KEY) ?? "{}");
+    delete all[viewerId];
+    localStorage.setItem(LEGACY_KEY, JSON.stringify(all));
+  } catch {
+    // Nothing to forget, or storage refuses; either way the character holds it now.
+  }
+}
+
+export function useHiddenSlots(
+  character: CharacterView | null,
+  /** Sends `set_appearance`; resolves to whether the server took it. */
+  save: (appearance: CharacterAppearance) => Promise<boolean>,
+): {
   hiddenSlots: GearSlot[];
   toggleHidden: (slot: GearSlot) => void;
 } {
-  const [hiddenSlots, setHiddenSlots] = useState<GearSlot[]>([]);
+  const hiddenSlots = character?.appearance.hiddenSlots ?? [];
 
-  useEffect(() => setHiddenSlots(load(viewerId)), [viewerId]);
+  /*
+   * Carries a choice made under the old build across, once.
+   *
+   * Only for a character that has been through creation - `set_appearance` is
+   * what marks a look as chosen, and sending it from here must not skip
+   * somebody past that screen. The local copy is dropped only once the server
+   * has it, so a refusal (mid-run, say) is tried again on the next visit.
+   */
+  const id = character?.id;
+  const chosen = character?.appearanceChosen === true;
+  const hasStored = (character?.appearance.hiddenSlots?.length ?? 0) > 0;
+  useEffect(() => {
+    if (!id || !chosen || !character) return;
+    const local = legacyLocal(id);
+    if (local.length === 0) return;
+    if (hasStored) {
+      forgetLegacy(id);
+      return;
+    }
+    void save({ ...character.appearance, hiddenSlots: local }).then((ok) => {
+      if (ok) forgetLegacy(id);
+    });
+    // Keyed on who and whether, not on the character object: every command
+    // returns a new one, and this must run once per viewer, not once per click.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, chosen, hasStored]);
 
   const toggleHidden = useCallback(
     (slot: GearSlot) => {
-      setHiddenSlots((prev) => {
-        const next = prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot];
-        try {
-          const all = JSON.parse(localStorage.getItem(KEY) ?? "{}");
-          all[viewerId] = next;
-          localStorage.setItem(KEY, JSON.stringify(all));
-        } catch {
-          // Preference is lost on reload; the character still draws correctly.
-        }
-        return next;
-      });
+      if (!character) return;
+      const next = hiddenSlots.includes(slot) ? hiddenSlots.filter((s) => s !== slot) : [...hiddenSlots, slot];
+      void save({ ...character.appearance, hiddenSlots: next });
     },
-    [viewerId],
+    [character, hiddenSlots, save],
   );
 
   return { hiddenSlots, toggleHidden };

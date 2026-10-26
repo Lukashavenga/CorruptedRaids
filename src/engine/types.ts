@@ -920,6 +920,21 @@ export interface CharacterAppearance {
    * src/character/layers.ts.
    */
   hair?: string | null;
+  /**
+   * Equipped slots the player has chosen not to SEE. Cosmetic only: the item
+   * stays worn and its stats still count, so a helmet's Skill does not cost
+   * the face somebody picked.
+   *
+   * On the character rather than in the loadout's browser storage, where it
+   * started. Stored locally it hid the helmet on the one screen nobody else
+   * looks at and nowhere else - the overlay, which is the place a viewer
+   * actually wants to look like themselves, never heard about it. It is part
+   * of the appearance because that is what it is: nothing the resolver reads.
+   *
+   * Optional, and absent means nothing hidden, so every character saved
+   * before it existed still loads.
+   */
+  hiddenSlots?: GearSlot[];
 }
 
 /**

@@ -502,6 +502,71 @@
   }
 }
 
+/* Wraps so an opened card's explanation can take a row of its own under the
+   number and the spend button, rather than squeezing between them. */
+.stat-card {
+  flex-wrap: wrap;
+}
+
+/* The icon, name and number are one button that opens the explanation.
+   Scoped under .loadout to outrank `.loadout button`, which would paint it
+   gold (AGENTS.md §7). */
+.loadout button.stat-card-about {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* A mark that says the card has more to say. Small and dim on purpose: it is
+   on all four cards all the time, and the number is what is being read. */
+.stat-card-more {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  border: 1px solid var(--rail-line);
+  border-radius: 50%;
+  font-family: var(--font-data);
+  font-size: 9px;
+  line-height: 1;
+  color: var(--ink-dim);
+  vertical-align: 1px;
+}
+
+.stat-card.is-open .stat-card-more {
+  border-color: var(--rail-lit);
+  color: var(--rail-lit);
+}
+
+.stat-card-info {
+  flex: 1 0 100%;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--rail-line);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-body);
+}
+
+.stat-card-split {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
 .stat-card-icon {
   display: flex;
   flex: none;

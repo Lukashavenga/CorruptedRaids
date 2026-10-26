@@ -3,6 +3,7 @@ import { haptic } from "./haptics.js";
 import { ALLOCATABLE_STATS, type AllocatableStat } from "../../../src/engine/types.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import { StatIcon } from "./StatIcon.js";
+import type { BalanceConfig } from "../../../src/engine/balance.js";
 import { text, format } from "../../../src/text/index.js";
 
 export interface StatAllocatorProps {
@@ -10,6 +11,20 @@ export interface StatAllocatorProps {
   onAllocate: (stat: AllocatableStat, amount: number) => void;
   onRespec: () => void;
   busy: boolean;
+  /** For the Skill explanation, whose half-way point is a tuned number. */
+  balance: BalanceConfig;
+}
+
+/**
+ * What a stat DOES, in the How to Play screen's words.
+ *
+ * Shared with that screen rather than restated, so the two cannot drift - and
+ * Skill's sentence names `skillCurveK`, which is read from the balance so it
+ * survives a retune.
+ */
+function statBlurb(stat: AllocatableStat, balance: BalanceConfig): string {
+  const stats = text.loadout.howToPlay.stats;
+  return stat === "skill" ? format(stats.skill, { k: String(balance.combat.skillCurveK) }) : stats[stat];
 }
 
 /**
@@ -21,8 +36,17 @@ export interface StatAllocatorProps {
  * stat blocks: without it, someone swapping gear can't tell whether a number
  * moved because of the item or because of a point they spent.
  */
-export function StatAllocator({ character, onAllocate, onRespec, busy }: StatAllocatorProps): JSX.Element {
+export function StatAllocator({ character, onAllocate, onRespec, busy, balance }: StatAllocatorProps): JSX.Element {
   const canSpend = character.unspentPoints > 0;
+  /*
+   * Which card has its explanation open.
+   *
+   * A tap, not a hover. The card used to answer a hover with the stat's NAME -
+   * which is already printed beside it - and a phone cannot hover at all, so
+   * half the players had no way to find out what Skill does short of the How
+   * to Play page. The explanation is on the card's `title` too, for a mouse.
+   */
+  const [open, setOpen] = useState<AllocatableStat | null>(null);
 
   /*
    * Points ARRIVING gets an animation; points being spent does not.
@@ -65,28 +89,41 @@ export function StatAllocator({ character, onAllocate, onRespec, busy }: StatAll
           const fromGear = total - base;
           const spent = character.allocated[stat];
           return (
-            <li key={stat} className="stat-card">
-              <span className="stat-card-icon">
-                <StatIcon stat={stat} />
-              </span>
+            <li key={stat} className={`stat-card ${open === stat ? "is-open" : ""}`}>
+              <button
+                type="button"
+                className="stat-card-about"
+                aria-expanded={open === stat}
+                title={statBlurb(stat, balance)}
+                onClick={() => setOpen((current) => (current === stat ? null : stat))}
+              >
+                <span className="stat-card-icon">
+                  <StatIcon stat={stat} />
+                </span>
 
-              <span className="stat-card-body">
-                <span className="stat-card-name">{text.stat[stat]}</span>
-                <span className="stat-card-value">
-                  {Math.round(total)}
-                  {fromGear !== 0 && (
-                    <span className={`stat-gear ${fromGear > 0 ? "up" : "down"}`}>
-                      {fromGear > 0 ? "+" : ""}
-                      {Math.round(fromGear)}
+                <span className="stat-card-body">
+                  <span className="stat-card-name">
+                    {text.stat[stat]}
+                    <span className="stat-card-more" aria-hidden="true">
+                      ?
+                    </span>
+                  </span>
+                  <span className="stat-card-value">
+                    {Math.round(total)}
+                    {fromGear !== 0 && (
+                      <span className={`stat-gear ${fromGear > 0 ? "up" : "down"}`}>
+                        {fromGear > 0 ? "+" : ""}
+                        {Math.round(fromGear)}
+                      </span>
+                    )}
+                  </span>
+                  {spent > 0 && (
+                    <span className="stat-card-spent">
+                      {spent === 1 ? text.loadout.spentTotalOne : format(text.loadout.spentTotal, { count: spent })}
                     </span>
                   )}
                 </span>
-                {spent > 0 && (
-                  <span className="stat-card-spent">
-                    {spent === 1 ? text.loadout.spentTotalOne : format(text.loadout.spentTotal, { count: spent })}
-                  </span>
-                )}
-              </span>
+              </button>
 
               <button
                 type="button"
@@ -98,6 +135,15 @@ export function StatAllocator({ character, onAllocate, onRespec, busy }: StatAll
               >
                 +{character.perPoint[stat]}
               </button>
+
+              {open === stat && (
+                <p className="stat-card-info">
+                  {statBlurb(stat, balance)}
+                  <span className="stat-card-split">
+                    {format(text.loadout.statSplit, { base: Math.round(base), gear: signed(Math.round(fromGear)) })}
+                  </span>
+                </p>
+              )}
             </li>
           );
         })}
@@ -110,4 +156,8 @@ export function StatAllocator({ character, onAllocate, onRespec, busy }: StatAll
       </footer>
     </section>
   );
+}
+
+function signed(n: number): string {
+  return n > 0 ? `+${n}` : String(n);
 }

@@ -16,11 +16,10 @@ export interface SettingsScreenProps {
 /**
  * Per-viewer preferences.
  *
- * Everything here except the respec is stored in THIS BROWSER, because none of
- * it is game state — the server has no opinion about whether you want your own
- * helmet drawn. Routing a display preference through a GameCommand would mean
- * the combat resolver's inputs could differ based on taste, which is the exact
- * coupling the command seam exists to prevent (see useHiddenSlots).
+ * Haptics are stored in THIS BROWSER: they are about this phone and mean
+ * nothing anywhere else. Hidden gear is not - it is saved on the character, as
+ * part of its appearance, because the overlay has to draw it too (see
+ * useHiddenSlots). The resolver still never reads it.
  *
  * Deliberately small. There are three things a player can actually decide
  * right now, and inventing a screen of plausible-looking toggles that do
