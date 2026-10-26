@@ -154,6 +154,17 @@ export const en = {
     loot: "{who} loots {gearName}!",
     reward: "{who} +{xp}xp +{gold}g",
     levelUp: "{who} corrupts to {level}",
+    /*
+     * A big party's tail, one line per group instead of one per member (see
+     * SUMMARISE_PAST in src/state/replayPacing.ts). No gold on the reward
+     * lines: it is rolled per member, so there is no one number to print.
+     * `levelGroup` is only ever two or more - one member levelling still gets
+     * their own `levelUp` line.
+     */
+    rewardStanding: "{count} standing +{xp}xp",
+    rewardFallen: "{count} fallen +{xp}xp",
+    lootRest: "+{count} more loot",
+    levelGroup: "{count} corrupt further",
     victory: "The village falls.",
     defeat: "Driven off.",
   },

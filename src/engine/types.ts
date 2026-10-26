@@ -1016,7 +1016,19 @@ export type CombatEvent =
   | { type: "heal"; actorId: string; targetId: string; amount: number; targetHpAfter: number }
   | { type: "ability"; actorId: string; abilityId: string; abilityName: string; detail: string }
   | { type: "down"; combatantId: string }
-  | { type: "loot"; characterId: string; gearId: string; gearName: string }
+  | {
+      type: "loot";
+      characterId: string;
+      gearId: string;
+      gearName: string;
+      /**
+       * Carried so the replay can decide which drops to name without a
+       * catalogue lookup. The server and the overlay must summarise a big
+       * party's loot identically (src/state/replayPacing.ts), and each looking
+       * rarity up in its own copy of the content is how they would disagree.
+       */
+      rarity: Rarity;
+    }
   | { type: "reward"; characterId: string; xp: number; gold: number }
   | { type: "levelUp"; characterId: string; newLevel: number }
   | { type: "outcome"; outcome: CombatOutcome };
