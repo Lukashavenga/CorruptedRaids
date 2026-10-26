@@ -972,6 +972,17 @@ export interface Character {
    * added is offered the screen once. That is correct: none of them chose.
    */
   appearanceChosen?: boolean;
+  /**
+   * Equipped slots the player does not want drawn - a helmet's stats without
+   * losing the face they picked.
+   *
+   * On the character rather than in the loadout's browser storage, where it
+   * lived first, because the stream is where people look: a helmet hidden on
+   * your own phone and drawn on everyone else's screen was the bug. Cosmetic
+   * only - the gear stays equipped and every stat still counts, so nothing the
+   * resolver reads depends on it. Absent means nothing is hidden.
+   */
+  hiddenSlots?: GearSlot[];
 }
 
 export type Side = "party" | "enemy";
@@ -1016,7 +1027,19 @@ export type CombatEvent =
   | { type: "heal"; actorId: string; targetId: string; amount: number; targetHpAfter: number }
   | { type: "ability"; actorId: string; abilityId: string; abilityName: string; detail: string }
   | { type: "down"; combatantId: string }
-  | { type: "loot"; characterId: string; gearId: string; gearName: string }
+  | {
+      type: "loot";
+      characterId: string;
+      gearId: string;
+      gearName: string;
+      /**
+       * Carried so the replay can decide which drops to name without a
+       * catalogue lookup. The server and the overlay must summarise a big
+       * party's loot identically (src/state/replayPacing.ts), and each looking
+       * rarity up in its own copy of the content is how they would disagree.
+       */
+      rarity: Rarity;
+    }
   | { type: "reward"; characterId: string; xp: number; gold: number }
   | { type: "levelUp"; characterId: string; newLevel: number }
   | { type: "outcome"; outcome: CombatOutcome };

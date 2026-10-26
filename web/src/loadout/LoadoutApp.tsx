@@ -90,7 +90,7 @@ export function LoadoutApp(): JSX.Element {
   const [page, setPage] = useState<Page>("loadout");
   const [menuOpen, setMenuOpen] = useState(false);
   const { placements } = usePlacements();
-  const { hiddenSlots, toggleHidden } = useHiddenSlots(viewer?.id ?? "");
+  const { hiddenSlots, toggleHidden } = useHiddenSlots(viewer?.id ?? "", character, dispatch);
 
   // The nav drawer is a phone-and-laptop affordance; at desktop width the nav
   // is always on screen and an "open" flag left over from a narrower window

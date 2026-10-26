@@ -46,6 +46,8 @@ const ALLOWED = new Set<GameCommand["type"]>([
   "respec",
   "set_role",
   "set_appearance",
+  // Cosmetic: which equipped slots are drawn. Stats are untouched.
+  "set_hidden_slots",
   "recycle_gear",
   // Mints nothing: the item was rolled when the fight resolved and this only
   // moves it from a sealed chest into the bag. Safe from a phone in a way

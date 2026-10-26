@@ -19,10 +19,18 @@ if not exist node_modules (
   call npm.cmd install
   if errorlevel 1 goto failed
 )
+rem From inside web\, not with --prefix: run from the root, npm takes the root
+rem package for something to install and writes "dungeon-engine": "file:.."
+rem into web\package.json, which then shows as a change nobody made.
 if not exist web\node_modules (
   echo First run: installing the web pages...
-  call npm.cmd install --prefix web
-  if errorlevel 1 goto failed
+  pushd web
+  call npm.cmd install
+  if errorlevel 1 (
+    popd
+    goto failed
+  )
+  popd
 )
 
 call npm.cmd run --silent stream

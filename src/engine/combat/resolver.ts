@@ -572,7 +572,8 @@ export function runCombat(
           // SealedChest — the overlay still announces that something dropped,
           // it just no longer says what.
           grantChest(character, gearId, options.lootFrom);
-          events.push({ type: "loot", characterId: character.id, gearId, gearName: content.getGear(gearId).name });
+          const gear = content.getGear(gearId);
+          events.push({ type: "loot", characterId: character.id, gearId, gearName: gear.name, rarity: gear.rarity });
         }
       }
 

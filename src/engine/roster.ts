@@ -109,6 +109,18 @@ export class Roster {
   }
 
   /**
+   * Swaps in a fresher copy of one character, from storage.
+   *
+   * Safe because nothing holds a Character across dispatches: a party is a
+   * list of ids looked up here on every read (GameEngine.party), so the next
+   * read finds the new object. Only the server calls this, and never while a
+   * fight is running - see refreshFromStore in src/server/index.ts.
+   */
+  replace(character: Character): void {
+    this.characters.set(character.id, character);
+  }
+
+  /**
    * Fills the roster from storage, replacing whatever is here.
    *
    * Called once, before the server accepts traffic. Replacing rather than

@@ -744,6 +744,40 @@ console.log(
   );
 }
 
+// --- hiding a piece changes how you look, not what you can do -----------------
+// The overlay leaves hidden slots off the figure, so the list has to reach the
+// party view; and it is cosmetic, so nothing combat reads may move with it.
+{
+  const looks = new GameEngine(content, mulberry32(7));
+  const id = "twitch:hidden-check";
+  looks.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  looks.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Hidden" });
+  const helm = looks.roster.get(id)!.inventory.find((g) => content.getGear(g.gearId).slot === "head")!;
+  looks.dispatch({ type: "equip_gear", requestedBy: id, instanceId: helm.instanceId });
+  const before = looks.getCharacterView(id)!;
+  assert.ok(before.equipment.head, "the check needs a helmet on");
+
+  const hid = looks.dispatch({ type: "set_hidden_slots", requestedBy: id, slots: ["head"] });
+  assert.ok(hid.ok, `hiding the helmet should be accepted: ${hid.message}`);
+  const after = looks.getCharacterView(id)!;
+  assert.deepEqual(after.hiddenSlots, ["head"], "the character view carries the hidden slot");
+  assert.deepEqual(after.stats, before.stats, "a hidden helmet still counts: stats are unchanged");
+  assert.equal(after.equipment.head?.instanceId, helm.instanceId, "...and it is still equipped");
+  assert.deepEqual(
+    looks.getStateSnapshot().party.find((p) => p.id === id)?.hiddenSlots,
+    ["head"],
+    "the party view carries it, which is what the overlay draws from",
+  );
+
+  const bad = looks.dispatch({ type: "set_hidden_slots", requestedBy: id, slots: ["head", "tail"] as never });
+  assert.ok(!bad.ok, "an unknown slot is refused rather than silently dropped");
+  assert.deepEqual(looks.getCharacterView(id)!.hiddenSlots, ["head"], "...and a refusal changes nothing");
+
+  looks.dispatch({ type: "set_hidden_slots", requestedBy: id, slots: [] });
+  assert.equal(looks.roster.get(id)!.hiddenSlots, undefined, "showing everything removes the field entirely");
+  console.log("Looks: a hidden helmet stays equipped and counted, and reaches the party view.");
+}
+
 // --- reset returns to idle ---------------------------------------------------
 engine.dispatch({ type: "reset_dungeon" });
 const afterReset = engine.getStateSnapshot();

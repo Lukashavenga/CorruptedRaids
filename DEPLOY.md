@@ -40,11 +40,17 @@ shop, respec, are all request/response - so it is a static site plus:
   are legal, so writes go through the function and reads go through RLS.
 
 The local game server is a second, independent client of the same tables: it
-loads the roster at boot and upserts back only the characters it changed, so a
-viewer's phone edit mid-stream is never clobbered by the server's own save
-(`npm run test:store` asserts this). It also never deletes implicitly, and it
-flags characters `in_run` while they're mid-fight so the loadout refuses edits
-until the beat is over.
+loads the roster at boot and upserts back only the characters it changed. It
+re-reads a character from the store when they join, and the whole party every
+few seconds while the join window is open, so kit put on at the loadout
+mid-stream is what the fight uses - and the save after that fight starts from
+the edited copy rather than writing the boot-time one back over it (`npm run
+test:store` asserts both halves). It never deletes implicitly, and it flags
+characters `in_run` while they're mid-fight so the loadout refuses edits until
+the beat is over.
+
+The one gap left is the last few seconds of a join window: an edit made after
+the final re-read reaches the next fight, not this one.
 
 ---
 

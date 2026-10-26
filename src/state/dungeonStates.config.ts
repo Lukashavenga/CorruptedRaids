@@ -1,4 +1,5 @@
 import type { StateMachineConfig } from "./StateMachine.js";
+import { replayLengthMs, type ReplayInput } from "./replayPacing.js";
 
 /**
  * The dungeon run lifecycle, as it appears on the stream overlay.
@@ -84,17 +85,31 @@ export type DungeonEvent = (typeof DUNGEON_EVENTS)[number];
 
 /** Fallback results-hold time if a duration can't be estimated for some reason. */
 export const DEFAULT_RESULTS_MS = 4000;
-/** Floor/ceiling clamp for the per-fight estimated results-hold time. */
+/** Floor/ceiling clamp for the per-fight results-hold time. */
 export const MIN_RESULTS_MS = 3000;
-export const MAX_RESULTS_MS = 90000;
 /**
- * Estimated on-screen time per combat-log event, for sizing the results hold.
- * Deliberately a slight OVER-estimate of the client's real pacing (see
- * PACING in web/src/hooks/useCombatPlayback.ts): holding the results state a
- * few seconds longer than the replay needs is harmless, whereas
- * under-estimating would cut a fight off mid-log.
+ * A guard against a nonsense replay length, NOT a limit on how long a fight
+ * may take to watch - anything this cuts is a fight that leaves the stage
+ * before its ending.
+ *
+ * It was 90s, which was harmless only while the hold was underestimated
+ * anyway. Measured 2026-10-22 against content/ on disk, 20 fights each: five
+ * viewers replay in 30-85s, twenty-five in 95-290s, a hundred in 4-13 minutes
+ * (a line per member for rewards and loot adds up). At 90s most fights with a
+ * real chat were cut. Fifteen minutes clears the longest of those.
  */
-export const MS_PER_EVENT = 240;
+export const MAX_RESULTS_MS = 15 * 60_000;
+/**
+ * How long the result stays up after the replay's last line, before the
+ * stage empties for cooldown.
+ *
+ * The replay's own length is exact (replayPacing.ts), and exact is not enough:
+ * the overlay starts it only once the update has crossed the wire, so it runs
+ * slightly behind this clock, and the last line gets only its own beat - a
+ * reward is 700ms - before the stage is gone. Holding a little too long costs
+ * a pause; holding too short cuts the ending, which is the part people watch.
+ */
+export const RESULTS_LINGER_MS = 3000;
 
 /** Fallback join window if a dungeon somehow doesn't specify one. */
 export const DEFAULT_JOIN_WINDOW_MS = 20000;
@@ -200,8 +215,8 @@ export const DUNGEON_STATE_CONFIG: StateMachineConfig<StateId, DungeonEvent> = {
   },
 };
 
-/** Estimates how long the client will spend replaying `eventCount` combat-log events, clamped to a sane range. */
-export function replayDurationMs(eventCount: number): number {
-  const estimate = eventCount * MS_PER_EVENT;
+/** How long to hold a fight's state while the overlay replays it, clamped to a sane range. */
+export function replayDurationMs(combat: ReplayInput | null | undefined): number {
+  const estimate = replayLengthMs(combat) + RESULTS_LINGER_MS;
   return Math.min(MAX_RESULTS_MS, Math.max(MIN_RESULTS_MS, estimate));
 }
