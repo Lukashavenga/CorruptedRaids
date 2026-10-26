@@ -487,6 +487,19 @@ export function DungeonTuner({ dungeons, onSaved, setStatus }: DungeonTunerProps
               ))}
             </select>
           </label>
+          {/* Off keeps the scene picked above: it is still what the squad was
+              placed against, so the editor keeps drawing it. Only the stream
+              goes transparent. */}
+          <label className="admin-check">
+            <input
+              type="checkbox"
+              checked={draft.showBackground !== false}
+              disabled={!draft.background}
+              onChange={(e) => patch({ showBackground: e.target.checked ? undefined : false })}
+            />
+            Show background on stream
+            <small className="admin-hint"> - off leaves the overlay transparent, so OBS shows what is behind it.</small>
+          </label>
           <label>
             Foreground
             <select

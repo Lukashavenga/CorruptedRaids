@@ -769,7 +769,8 @@ export class GameEngine extends EventEmitter {
           PARTY_BANDS.indexOf(
             bandFor(effectiveRating(partyRating(this.party, this.content), this.party.length)),
           ) + 1,
-        background: dungeon.background,
+        // Switched off is no scene at all, not a fallback to another one.
+        background: dungeon.showBackground === false ? undefined : dungeon.background,
         flavorText: dungeon.flavorText,
         enemies: this.content.expandDungeonEnemies(dungeon, effectiveRating(partyRating(this.party, this.content), this.party.length)).map((def, _i, all) => {
           const n = (seen.get(def.id) ?? 0) + 1;

@@ -106,7 +106,7 @@ never reaches the fight; the launcher warns every time it starts that way.
 Leave `ROSTER_STORE` and `ALLOW_DEV_LOGIN` unset. `npm run check:supabase`
 walks the Supabase half and stops at the first thing actually wrong.
 
-**3. Add the overlay to OBS.** A Browser Source, **450 x 320**, pointing at:
+**3. Add the overlay to OBS.** A Browser Source, **518 x 320**, pointing at:
 
 ```
 http://localhost:8787/?sim=0

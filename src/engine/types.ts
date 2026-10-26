@@ -899,6 +899,16 @@ export interface DungeonDefinition extends FightDefinition {
   scalesWithPartySize: boolean;
   /** The backdrop this fight is staged against. */
   background?: string;
+  /**
+   * False draws no backdrop on stream, so the overlay is transparent and OBS
+   * shows whatever is behind it. Absent means shown.
+   *
+   * A switch beside `background` rather than clearing it, because the scene
+   * is still what the formation was placed against - the admin keeps drawing
+   * it, and turning the backdrop back on is one click rather than finding the
+   * right picture again.
+   */
+  showBackground?: boolean;
   /** Drawn in front of the fight — railings, crates, a wall to fight behind. */
   foreground?: string;
   /** Flat completion bonus on top of per-enemy rewards, split to every survivor. */

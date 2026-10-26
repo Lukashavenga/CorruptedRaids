@@ -103,7 +103,12 @@ function buildFightIndex(
 ): ContentCatalog["fightsById"] {
   const out: ContentCatalog["fightsById"] = new Map();
   for (const d of dungeons) {
-    out.set(d.id, { fight: d, background: d.background, foreground: d.foreground });
+    // A backdrop switched off is left out HERE as well as on the run: the
+    // overlay falls back to the fight's own scene when the run names none, and
+    // for a dungeon that is this entry - so leaving it in would draw the very
+    // picture that was switched off.
+    const background = d.showBackground === false ? undefined : d.background;
+    out.set(d.id, { fight: d, background, foreground: d.foreground });
   }
   for (const raid of raids) {
     for (const room of raid.rooms) {

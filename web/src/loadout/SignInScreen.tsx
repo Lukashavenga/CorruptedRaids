@@ -1,11 +1,29 @@
 import { useState } from "react";
-import { text } from "../../../src/text/index.js";
+import { text, format } from "../../../src/text/index.js";
 import { signIn, type SessionState } from "./identity.js";
 import { LOGO_SRC } from "../build.js";
 
 export interface SignInScreenProps {
   session: SessionState;
 }
+
+/**
+ * What Twitch said, if the redirect came back with a refusal.
+ *
+ * A viewer who backs out of Twitch's consent screen lands here with the
+ * reason in the URL and, before this, a sign-in screen identical to the one
+ * they left - nothing to say whether it was them, Twitch or us.
+ */
+function returnedError(cancelled: string): string | null {
+  const params = new URLSearchParams(window.location.search || window.location.hash.replace(/^#/, ""));
+  const code = params.get("error");
+  if (!code) return null;
+  if (code === "access_denied") return cancelled;
+  return format(text.loadout.signIn.failed, { reason: params.get("error_description") ?? code });
+}
+
+/** A phone or tablet, which is where Twitch's login opens behind a passkey box. */
+const touchFirst = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches === true;
 
 /**
  * The signed-out screen.
@@ -17,7 +35,7 @@ export interface SignInScreenProps {
  */
 export function SignInScreen({ session }: SignInScreenProps): JSX.Element {
   const t = text.loadout.signIn;
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => returnedError(t.cancelled));
   const [busy, setBusy] = useState(false);
 
   const go = async () => {
@@ -47,6 +65,8 @@ export function SignInScreen({ session }: SignInScreenProps): JSX.Element {
              button that cannot work. */
           <p className="signin-note">{t.unconfigured}</p>
         )}
+
+        {session.configured && touchFirst && <p className="signin-note">{t.phoneHint}</p>}
 
         {error && <p className="signin-error">{error}</p>}
       </div>

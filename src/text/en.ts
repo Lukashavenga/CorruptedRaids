@@ -243,6 +243,12 @@ export const en = {
       twitch: "Sign in with Twitch",
       unavailable: "Twitch sign-in is not available right now.",
       cancelled: "Sign-in was cancelled.",
+      /* Shown under the button on a touch screen. Twitch's mobile login opens
+         Android's passkey picker over itself before the form is visible, and
+         a tester read "No available sign-in" as Twitch having no way in. */
+      phoneHint:
+        "On a phone, Twitch may open a passkey or Samsung Pass box first. Tap Cancel - its login is underneath: your Twitch username and password, or Google, Apple or Amazon if that is how you joined Twitch.",
+      failed: "Twitch did not sign you in: {reason}",
       unconfigured: "This build has no Supabase project set - see DEPLOY.md.",
     },
     /* Shown across the screen while a run is live: every edit is refused
@@ -262,6 +268,9 @@ export const en = {
     respec: "Refund all points",
     respecDone: "Points refunded.",
     fromGear: "{amount} from gear",
+    /* Under a stat's explanation, once a card is opened: where its number
+       came from, so a player can tell an item's share from their own. */
+    statSplit: "{base} from your role and points, {gear} from gear.",
 
     roleHeading: "Role",
     roleSet: "Role set to {role}.",

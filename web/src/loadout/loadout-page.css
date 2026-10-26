@@ -1,0 +1,22 @@
+/* =========================================================================
+   The loadout page's stylesheet: the four files, in the order they are read.
+
+   ONE IMPORT, NOT FOUR, because the order of four did not survive the build.
+   loadout.css and loadout-panels.css are also imported by the operator and
+   sign-in pages, so Vite puts them in shared chunks, and Vite 5 links a
+   shared chunk's CSS AFTER the page's own when another page has already
+   claimed it. The built loadout therefore read loadout-responsive.css first
+   and loadout.css second, and every phone override at equal specificity lost
+   to the rule it was overriding. The visible symptom was the menu: the
+   drawer's `display: block` lost to its `display: none`, so the toggle
+   opened a scrim over nothing. `npm run dev:web` serves imports in source
+   order, so none of it showed until the page was deployed.
+
+   Vite inlines `@import` into this one module, so the order below is the
+   order on the page, whatever the chunking does.
+   ========================================================================= */
+
+@import "./loadout.css";
+@import "./loadout-panels.css";
+@import "./loadout-responsive.css";
+@import "./motion.css";

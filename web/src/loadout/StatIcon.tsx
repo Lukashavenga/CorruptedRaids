@@ -1,5 +1,4 @@
 import type { AllocatableStat } from "../../../src/engine/types.js";
-import { text } from "../../../src/text/index.js";
 
 export interface StatIconProps {
   stat: AllocatableStat;
@@ -41,7 +40,9 @@ export function StatIcon({ stat, size = 22 }: StatIconProps): JSX.Element {
       // squashes four of the five.
       style={{ width: size, height: size, objectFit: "contain" }}
       alt=""
-      title={text.stat[stat]}
+      // No `title`: it said the stat's name, which is printed beside every
+      // icon, and on the stat cards it hid the card's own tooltip - the one
+      // that says what the stat does.
       draggable={false}
     />
   );
