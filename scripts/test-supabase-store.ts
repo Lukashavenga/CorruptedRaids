@@ -224,10 +224,21 @@ pulled = await store.pull(["twitch:444"], live, installing);
 assert.deepEqual(pulled.installed, ["twitch:444"], "reordered keys are not mistaken for an unsaved change");
 console.log("key order alone did not count as an edit");
 
-// A character the loadout created after boot, that the server never had.
-table.set("twitch:333", { id: "twitch:333", twitch_id: "333", data: character("twitch:333", 3), updated_at: later(new Date().toISOString()) });
+// A character the loadout created after boot, that the server never had - and
+// that has been through character creation, which must survive the trip.
+table.set("twitch:333", {
+  id: "twitch:333", twitch_id: "333",
+  data: { ...character("twitch:333", 3), appearanceChosen: true },
+  updated_at: later(new Date().toISOString()),
+});
 pulled = await store.pull(["twitch:333"], live, installing);
 assert.deepEqual(pulled.installed, ["twitch:333"], "a character only the loadout knows is pulled in");
+assert.equal(memory.get("twitch:333")!.appearanceChosen, true, "a pull keeps appearanceChosen");
+assert.equal(
+  (await store.load()).find((c) => c.id === "twitch:333")?.appearanceChosen,
+  true,
+  "a load keeps appearanceChosen - without it the loadout re-offers character creation",
+);
 table.delete("twitch:333");
 table.delete("twitch:444");
 console.log("a loadout-only character was pulled in");

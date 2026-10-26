@@ -232,6 +232,12 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
       skinTone: typeof appearance.skinTone === "string" ? appearance.skinTone : "sand",
       hair: typeof appearance.hair === "string" ? appearance.hair : null,
     },
+    // Copied explicitly, like every field above, because this rebuilds a
+    // character rather than trusting the row. It was missing: every character
+    // the server loaded lost it, and the server's next save of them wrote that
+    // back - so the loadout offered character creation again to anyone who had
+    // fought since the game started saving to Supabase.
+    ...(raw.appearanceChosen === true ? { appearanceChosen: true } : {}),
   };
 }
 
