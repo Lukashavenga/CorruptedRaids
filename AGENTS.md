@@ -516,11 +516,20 @@ A perfect taunt makes the healer's positioning irrelevant and the tank's build
 the only build. The leak is what keeps the other roles honest.
 
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
-`casualtyLootChance: 0.15`. A party that LOSES earns too: `defeatXpMultiplier:
-0.15` and `defeatLootChance: 0.08`, no gold. The three loot chances must stay
+`casualtyLootChance: 0.05`. A party that LOSES earns too: `defeatXpMultiplier:
+0.15` and `defeatLootChance: 0.025`, no gold. The three loot chances must stay
 in that order (survived > died in a win > lost) and `npm run simulate` asserts
 it. A viewer who joined, died in turn two and got
 nothing has learned not to join.
+
+**Drops are rare, and the dial is those three chances.** A survivor used to
+roll for loot every time (`mobDropChance` 0.6 then decided, and a boss made it
+certain), which measured 0.30-0.62 items per viewer per run - six chests a
+head over a night. At the streamer's request (2026-10-26) survivors roll at
+`survivorLootChance: 0.25` and the other two were cut to match: 0.08-0.15 per
+viewer per run, about one item a night. To turn drops up or down, scale
+`survivorLootChance`, `casualtyLootChance` and `defeatLootChance` together.
+Loot tables decide WHICH item, never how often.
 
 ### The 3D arena
 
@@ -1250,13 +1259,23 @@ three runs away on the first night, so there is nothing to save for and nothing
 a drop can be better than.
 
 > ALPHA, DELIBERATELY WORSE. Characters now start on 60g
-> (`economy.startingGold`) and recycling refunds the full price
+> (`economy.startingGold`) and recycling a BOUGHT item refunds the full price
 > (`economy.recycleRate: 1`), so gold is currently even less of a resource than
 > the finding above describes. That is a testing decision, not a balance one:
 > an empty purse means a new player cannot open the shop at all, and a tester
 > who loses 60% of an item's value every time they try one stops trying them.
 > Both numbers are the levers to pull when the loop is being balanced rather
 > than exercised - the reasoning is on the fields in `balance.ts`.
+>
+> FOUND gear does not get that refund. Since 2026-10-26 every gear instance
+> carries `source: "shop" | "loot"`; `buyGear` writes "shop", everything else
+> (chests, the starter kit, `grant_gear`) writes "loot", and a loot item sells
+> at `economy.lootRecycleRate: 0.1`. An instance from before the field has no
+> source and is paid as loot - nothing in it can show it was bought. The bag
+> was a wallet at the full rate; now a drop is worth wearing or nearly
+> nothing. `parseRoster` rebuilds instances field by field, so `npm run
+> test:store` saves and reloads a worn and a carried bought item to prove the
+> field survives.
 
 **XP runs about 1.8x the documented budget.** §3: 289 XP per run at Tillage
 Hamlet puts level 300 at ~1,590 runs against the ~2,920 §2 is tuned to. Levels

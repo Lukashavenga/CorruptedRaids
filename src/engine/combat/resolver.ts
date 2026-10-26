@@ -543,7 +543,7 @@ export function runCombat(
       const character = rt.character!;
       const isSurvivor = alive(rt);
 
-      // Loot rolls independently per participant (§2.7) — survivors only.
+      // Loot rolls independently per participant (§2.7).
       // One roll per participant against the run's combined table, NOT one
       // per enemy: a five-person party clearing three mobs would otherwise
       // walk out with ~nine items and flood the economy.
@@ -555,12 +555,13 @@ export function runCombat(
       // A LOST fight rolls too, at the smallest chance of the three. It used
       // to drop nothing; see `defeatLootChance` for why that changed.
       //
-      // The chance is only drawn when it is needed, so a survivor consumes no
-      // random number here and every seeded fight that is WON plays out
-      // exactly as it did before a loss could drop anything.
+      // Survivors roll at a chance too, since drops were cut (see
+      // `survivorLootChance`); before that they always rolled. The chance is
+      // still only drawn when it is under 1, so setting it back to 1 restores
+      // the old random sequence exactly.
       const lootChance = won
         ? isSurvivor
-          ? 1
+          ? balance.rewards.survivorLootChance
           : balance.rewards.casualtyLootChance
         : balance.rewards.defeatLootChance;
       if (lootChance >= 1 || rng() < lootChance) {

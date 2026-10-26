@@ -12,6 +12,7 @@ import type {
   CombatResult,
   DungeonDefinition,
   GearSlot,
+  GearSource,
   Role,
   Stats,
 } from "../types.js";
@@ -136,7 +137,11 @@ export interface CharacterView {
   /** False until the player has been through the appearance picker once. */
   appearanceChosen: boolean;
   equipment: Partial<Record<GearSlot, { instanceId: string; gearId: string } | null>>;
-  inventory: { instanceId: string; gearId: string; recycleValue: number }[];
+  /**
+   * `source` is always present here, unlike on GearInstance: an instance
+   * with none is reported as "loot", which is what it is paid as.
+   */
+  inventory: { instanceId: string; gearId: string; source: GearSource; recycleValue: number }[];
   /**
    * Unopened drops, newest first.
    *
@@ -892,9 +897,11 @@ export class GameEngine extends EventEmitter {
       inventory: character.inventory.map((i) => ({
         instanceId: i.instanceId,
         gearId: i.gearId,
+        source: i.source === "shop" ? "shop" : "loot",
         // Recycle payout is computed server-side so the screen never has to
-        // reimplement the pricing rule and drift from it.
-        recycleValue: this.content.recycleValue(i.gearId),
+        // reimplement the pricing rule and drift from it - which now depends
+        // on where the item came from, not just what it is.
+        recycleValue: this.content.recycleValue(i.gearId, i.source),
       })),
       // Newest first: the chest you just earned is the one you came to open.
       // `gearId` is stripped here — see CharacterView.chests.

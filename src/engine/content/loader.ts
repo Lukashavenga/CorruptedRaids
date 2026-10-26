@@ -8,6 +8,7 @@ import type {
   DungeonDefinition,
   EnemyDefinition,
   GearDefinition,
+  GearSource,
   ShopStock,
   ShopView,
 } from "../types.js";
@@ -302,15 +303,17 @@ export class ContentRegistry {
   }
 
   /**
-   * What recycling a gear item pays out: its value times `economy.recycleRate`.
+   * What recycling a gear item pays out: its value times the rate for where
+   * it came from - `economy.recycleRate` if it was bought, `lootRecycleRate`
+   * otherwise. See both in balance.ts; the rates are the statement, not the
+   * prose, which is why no number is repeated here.
    *
-   * That rate is 1 during alpha, so this currently returns full value — see
-   * the reasoning on recycleRate in balance.ts. It used to be documented here
-   * as "always less than its value", which stopped being true the moment the
-   * rate changed; the rate is the statement, not the prose.
+   * `source` is optional and absent means loot: an instance from before the
+   * field existed cannot show it was bought.
    */
-  recycleValue(id: string): number {
-    return Math.max(1, Math.floor(this.gearValue(id) * this.balance.economy.recycleRate));
+  recycleValue(id: string, source?: GearSource): number {
+    const { recycleRate, lootRecycleRate } = this.balance.economy;
+    return Math.max(1, Math.floor(this.gearValue(id) * (source === "shop" ? recycleRate : lootRecycleRate)));
   }
 
   getGear(id: string): GearDefinition {

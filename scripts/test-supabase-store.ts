@@ -17,8 +17,11 @@
  */
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { join } from "node:path";
 import type { Character } from "../src/engine/types.js";
 import { SupabaseRosterStore } from "../src/engine/persistence/supabaseRosterStore.js";
+import { ContentRegistry } from "../src/engine/content/loader.js";
+import { buyGear, equipGear, gearUsableBy, grantGear, recycleGear, unequipGear } from "../src/engine/character.js";
 
 interface Received {
   method: string;
@@ -173,6 +176,61 @@ console.log(`snapshot ${id} -> ${restored.length} characters`);
 // A snapshot id off an HTTP request is not allowed to be a path.
 await assert.rejects(() => store.readSnapshot("../../etc/passwd"), /bad snapshot id/);
 console.log("snapshot ids are validated, not interpolated");
+
+// --- gear remembers where it came from, across a save -----------------------
+// Bought gear sells back in full and found gear for a fraction, so `source`
+// on an instance is worth gold. parseRoster rebuilds every instance field by
+// field, and its equipment branch once kept only { instanceId, gearId } - a
+// bought item worn across a restart came back as loot. Worn and carried are
+// both checked here for that reason, plus an instance from before the field.
+line();
+{
+  const CONTENT_DIR = join(import.meta.dirname, "..", "content");
+  const content = new ContentRegistry();
+  content.loadGearDir(join(CONTENT_DIR, "gear"));
+  content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
+  content.loadBalance(join(CONTENT_DIR, "balance.json"));
+  content.loadShop(join(CONTENT_DIR, "shop.json"));
+
+  const carol = character("twitch:333", 10_000);
+  // Two different bought items, so one can be worn and one carried; whichever
+  // the shop stocks that a fresh character can put on.
+  const wearable = content.shop.gear.filter((id) => gearUsableBy(content.getGear(id), carol).ok);
+  const [wornId, carriedId] = [wearable[0]!, wearable.find((id) => content.getGear(id).slot !== content.getGear(wearable[0]!).slot)!];
+  assert.ok(buyGear(carol, wornId, content).ok && buyGear(carol, carriedId, content).ok, "bought two items");
+  const worn = carol.inventory.find((i) => i.gearId === wornId)!;
+  assert.ok(equipGear(carol, worn.instanceId, content).ok, "wore the first");
+  const found = grantGear(carol, carriedId);
+  const legacy = { instanceId: "legacy-1", gearId: carriedId }; // no source at all
+  carol.inventory.push(legacy);
+
+  await store.save([carol]);
+  const back = (await new SupabaseRosterStore(`http://127.0.0.1:${port}`, "service-key").load()).find(
+    (c) => c.id === carol.id,
+  )!;
+  const sourceOf = (instanceId: string) => back.inventory.find((i) => i.instanceId === instanceId)?.source;
+
+  const slot = content.getGear(wornId).slot;
+  assert.equal(back.equipment[slot]?.source, "shop", "a WORN bought item is still bought after a load");
+  assert.equal(sourceOf(carol.inventory.find((i) => i.gearId === carriedId && i.source === "shop")!.instanceId), "shop");
+  assert.equal(sourceOf(found.instanceId), "loot", "a found item is still found");
+  assert.equal(sourceOf(legacy.instanceId), undefined, "a pre-source instance stays without one");
+  console.log(`after a load: worn ${wornId} = shop, carried ${carriedId} = shop / loot / none`);
+
+  // And the price follows the source, on the character that came back.
+  assert.ok(unequipGear(back, slot).ok);
+  const price = (id: string) => content.gearValue(id);
+  const sell = (instanceId: string) => recycleGear(back, instanceId, content).gold!;
+  const wornBack = back.inventory.find((i) => i.gearId === wornId && i.source === "shop")!;
+  assert.equal(sell(wornBack.instanceId), price(wornId), "a bought item sells back at its price");
+  assert.equal(sell(found.instanceId), content.recycleValue(carriedId, "loot"), "a found item sells at the loot rate");
+  assert.equal(sell(legacy.instanceId), content.recycleValue(carriedId, "loot"), "a pre-source item sells as loot");
+  assert.ok(content.recycleValue(carriedId, "loot") < price(carriedId), "and that is less than it costs");
+  console.log(
+    `recycled: bought ${wornId} ${price(wornId)}g of ${price(wornId)}g, ` +
+      `found ${carriedId} ${content.recycleValue(carriedId, "loot")}g of ${price(carriedId)}g`,
+  );
+}
 
 server.close();
 line();

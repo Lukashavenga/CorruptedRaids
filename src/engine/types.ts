@@ -427,10 +427,26 @@ export interface GearDefinition {
   value?: number;
 }
 
+/**
+ * Where an owned item came from, which decides what it sells back for.
+ *
+ * "shop" is gear the player paid for and is refunded at `economy.recycleRate`;
+ * "loot" is everything else - chests, the starter kit, operator grants - at
+ * `economy.lootRecycleRate`. Two values rather than one per route because the
+ * price is the only thing that reads it, and the price has two answers.
+ */
+export type GearSource = "shop" | "loot";
+
 /** An owned copy of a gear item. v1 has no rolled variance — one definition == one instance shape. */
 export interface GearInstance {
   instanceId: string;
   gearId: string;
+  /**
+   * Optional because rosters written before it existed have none, and an
+   * instance without one is treated as "loot" (see `lootRecycleRate`). New
+   * instances always carry it.
+   */
+  source?: GearSource;
 }
 
 /**
