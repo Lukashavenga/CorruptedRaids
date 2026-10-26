@@ -819,7 +819,7 @@
     27
   ],
   "completionXp": 60,
-  "joinWindowMs": 25000,
+  "joinWindowMs": 60000,
   "bandStatScale": {
     "weak": 0.76,
     "seasoned": 3.882,
