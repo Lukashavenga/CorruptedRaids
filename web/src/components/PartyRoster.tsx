@@ -65,7 +65,11 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
       {shown.map((e) => {
         const pct = e.maxHp > 0 ? Math.max(0, Math.min(100, (e.hp / e.maxHp) * 100)) : 0;
         return (
-          <li key={e.id} className={`roster-chip ${e.downed ? "is-down" : ""}`} title={e.name}>
+          <li
+            key={e.id}
+            className={`roster-chip ${e.role ? `role-${e.role}` : ""} ${e.downed ? "is-down" : ""}`}
+            title={e.name}
+          >
             {/* The fill is a sibling behind the text rather than a background
                 gradient on the chip, so it can animate its width smoothly
                 without the label inheriting the transition. */}

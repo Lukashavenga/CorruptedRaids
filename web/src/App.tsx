@@ -1,4 +1,4 @@
-import { useMemo, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { useGameConnection } from "./hooks/useGameConnection.js";
 import { useContentCatalog } from "./hooks/useContentCatalog.js";
 import { useScenePreload } from "./hooks/useScenePreload.js";
@@ -60,7 +60,14 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   // Sound cues, derived from snapshot transitions. Must run before the early
   // return below, or hook order changes when the connection drops.
   useGameAudio(snapshot);
-  const catalog = useContentCatalog();
+  // One more every time the connection comes (back) up. A reconnect is how
+  // this page notices the game restarted, and a restart is how content edits
+  // arrive - so the catalogue is fetched again then. See useContentCatalog.
+  const [connections, setConnections] = useState(0);
+  useEffect(() => {
+    if (connected) setConnections((n) => n + 1);
+  }, [connected]);
+  const catalog = useContentCatalog("/content", connections);
   // Warms every scene the moment the catalogue lands, so a run that opens and
   // starts inside a second does not draw its first combat frames on black.
   useScenePreload(catalog);
