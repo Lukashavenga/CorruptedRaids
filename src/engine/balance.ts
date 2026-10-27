@@ -501,11 +501,11 @@ export const DEFAULT_BALANCE: BalanceConfig = {
   },
   rewards: {
     mobDropChance: 0.6,
-    survivorLootChance: 0.25,
+    survivorLootChance: 0.375,
     casualtyXpMultiplier: 0.4,
-    casualtyLootChance: 0.05,
+    casualtyLootChance: 0.075,
     defeatXpMultiplier: 0.15,
-    defeatLootChance: 0.025,
+    defeatLootChance: 0.0375,
     compositionBonusMax: 0.25,
   },
 };
