@@ -613,6 +613,15 @@ DPS deaths by a point and took healer hits from 11% to 8%. Neither earned its
 place, so the knobs exist and the defaults are unchanged. `report:threat
 --set path=value` measures a change without editing balance.json.
 
+**Enemy healers do not heal, for now** (`roles.healer.enemiesHeal: false`,
+2026-10-28). They attack instead. It was switched off to cut fights that run
+out the clock: at level 10 it took those from 9% to 5% and wins from 83% to
+89% (`npm run report:threat`, 60 fights x 5 dungeons). It does NOT fix the
+level-25 stalls - those held at 23-26% either way, and healers that attack
+killed slightly more DPS (42% -> 49%). The dungeons were solved with enemy
+healing on, so they now run a little easy at low levels. Turn it back on
+deliberately and re-solve.
+
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
 `casualtyLootChance: 0.05`. A party that LOSES earns too: `defeatXpMultiplier:
 0.15` and `defeatLootChance: 0.025`, no gold. The three loot chances must stay

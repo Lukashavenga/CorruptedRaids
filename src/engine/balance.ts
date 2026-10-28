@@ -189,6 +189,15 @@ export interface BalanceConfig {
        * A healer should keep a party alive, not be unkillable on its own.
        */
       selfHealMultiplier: number;
+      /**
+       * Whether ENEMY healers heal. Off since 2026-10-28, to stop fights
+       * stalling: a squad that heals itself outlasts a party that has lost its
+       * damage, and the fight runs to the tick ceiling and is scored a defeat
+       * nobody watching understood. An enemy healer still fights - it attacks
+       * instead. Turning this back on makes every fight with an enemy healer
+       * harder again, so re-solve the dungeons when you do.
+       */
+      enemiesHeal: boolean;
     };
   };
 
@@ -519,6 +528,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
       maxSpdBonus: 3,
       tankHealMultiplier: 1.6,
       selfHealMultiplier: 0.4,
+      enemiesHeal: false,
     },
   },
   roleRarity: {
