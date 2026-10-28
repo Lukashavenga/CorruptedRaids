@@ -64,6 +64,7 @@ jobs:
       - run: npm ci --prefix web
 
       - uses: anthropics/claude-code-action@v1
+        id: claude
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -73,3 +74,19 @@ jobs:
             --max-turns 120
             --allowedTools "Bash(npm run *),Bash(npm ci*),Bash(npx tsc *),Bash(npx tsx *),Bash(node *),Bash(git diff*),Bash(git status*),Bash(git log*)"
             --append-system-prompt "Read AGENTS.md before changing anything; it records why the code is the way it is, and several of its rules exist because breaking them already cost a stream. This runner is Linux: use npm/npx, not npm.cmd. Before calling a ticket done, run the section 9 chain: npm run typecheck && npx tsc --noEmit -p web/tsconfig.json && npm run build:web && npm run check:text && npm run simulate && npm run check:formations - and say in the PR which passed and which did not, with output. If you touch content/balance.json, formations or loot, also run npm run simulate:progression and quote the numbers that moved. Every new tunable number goes in content/balance.json and its schema, every new player-facing string in src/text/en.ts. Every state change goes through a GameCommand. If a ticket asks for a design decision it does not make, ask in the issue rather than guessing."
+
+      # The action hides Claude's output, and should: this repo is public and
+      # the full transcript is readable by anyone. But a run that dies on its
+      # first call ("encountered an error after 2s") then says nothing about
+      # why. This prints the ONE line that does - the final result, which on a
+      # failure is the API's error (expired token, unknown model, no access) -
+      # and only when the step failed.
+      - name: Why Claude failed
+        if: failure()
+        env:
+          # The output is not always set when the action fails; this is where
+          # it writes the log either way.
+          LOG: ${{ steps.claude.outputs.execution_file || format('{0}/claude-execution-output.json', runner.temp) }}
+        run: |
+          [ -f "$LOG" ] || { echo "no execution log at $LOG"; exit 0; }
+          jq -r '.[] | select(.type == "result") | .result // empty' "$LOG"
