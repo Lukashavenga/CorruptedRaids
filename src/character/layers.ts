@@ -204,7 +204,38 @@ export interface PlacementFile {
     [spriteId: string]: {
       male?: Placement;
       female?: Placement;
+      /** How the item's loadout THUMBNAIL is framed. Not a body placement. */
+      icon?: IconFraming;
     };
+  };
+}
+
+/**
+ * How a gear thumbnail crops its art, stored beside the sprite's body placements.
+ *
+ * `zoom` 1 is the contain-fit every thumbnail used to get. `x`/`y` are offsets
+ * as fractions of the thumbnail box, positive right/down. The art is cropped
+ * tight, so a whole helm squeezed into 38px leaves its interesting part a dozen
+ * pixels wide; how much to zoom depends on the drawing, hence per item.
+ */
+export interface IconFraming {
+  zoom: number;
+  x: number;
+  y: number;
+}
+
+export const ICON_ZOOM_MIN = 1;
+export const ICON_ZOOM_MAX = 2.5;
+export const ICON_OFFSET_MAX = 0.5;
+
+/** Clamp a stored framing, so a hand-edited file cannot push art out of its box. */
+export function clampFraming(f: Partial<IconFraming> | undefined): IconFraming {
+  const num = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
+  const lim = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  return {
+    zoom: lim(num(f?.zoom, 1), ICON_ZOOM_MIN, ICON_ZOOM_MAX),
+    x: lim(num(f?.x, 0), -ICON_OFFSET_MAX, ICON_OFFSET_MAX),
+    y: lim(num(f?.y, 0), -ICON_OFFSET_MAX, ICON_OFFSET_MAX),
   };
 }
 

@@ -470,7 +470,13 @@ export function AdminApp(): JSX.Element {
       </header>
 
       {tab === "gear" && (
-        <GearTuner gear={tuning.gear} onSaved={tuning.reload} setStatus={setStatus} />
+        <GearTuner
+          gear={tuning.gear}
+          onSaved={tuning.reload}
+          setStatus={setStatus}
+          placements={placements}
+          savePlacements={save}
+        />
       )}
 
       {/* The fight: who stands where, at which band, and how hard they hit.
