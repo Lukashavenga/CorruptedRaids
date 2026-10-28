@@ -26,6 +26,7 @@ import {
 import type { SearchState } from "../engine/bandSearch.js";
 import { PARTY_BANDS, type PartyBand } from "../engine/types.js";
 import { FileRosterStore } from "../engine/persistence/fileRosterStore.js";
+import { BalanceLog, FileLogBackend, SupabaseLogBackend } from "./balanceLog.js";
 import { SupabaseRosterStore } from "../engine/persistence/supabaseRosterStore.js";
 import { pruneUnknownGear, type RosterStore } from "../engine/persistence/rosterStore.js";
 import {
@@ -214,6 +215,32 @@ const knownGear = new Set(content.listGear().map((g) => g.id));
 const gearExists = (id: string) => knownGear.has(id);
 
 const engine = new GameEngine(content, Math.random);
+
+/**
+ * The balance log: one record per fight and per economy action, written in
+ * the background. See src/server/balanceLog.ts and AGENTS.md "Balance log".
+ *
+ * It follows the roster's store - Supabase when characters go there, JSON lines
+ * under DATA_DIR/logs otherwise - so `ROSTER_STORE=file` keeps a sandbox's
+ * records out of production's tables as well as its characters. Those records
+ * are also TAGGED `sandbox` (override with BALANCE_LOG_SOURCE=live|sandbox),
+ * because a file under ./data/sandbox is not the only way they could be read
+ * back alongside real ones.
+ */
+const logSource: "live" | "sandbox" =
+  process.env.BALANCE_LOG_SOURCE === "live" || process.env.BALANCE_LOG_SOURCE === "sandbox"
+    ? process.env.BALANCE_LOG_SOURCE
+    : process.env.ROSTER_STORE === "file"
+      ? "sandbox"
+      : "live";
+const balanceLog = new BalanceLog(
+  supabaseRoster && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+    ? new SupabaseLogBackend(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+    : new FileLogBackend(join(DATA_DIR, "logs")),
+  logSource,
+  () => content.balance.balanceLog,
+);
+balanceLog.attach(engine);
 // DungeonController wraps the engine with the idle/gathering/combat/results/
 // cooldown state machine (see src/state/dungeonStates.config.ts) — it's what
 // holds the join window open, gates a second run from overlapping one still
@@ -1742,7 +1769,7 @@ for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
     if (closing) return;
     closing = true;
     if (saveTimer) clearTimeout(saveTimer);
-    void flushRoster().finally(() => {
+    void Promise.all([flushRoster(), balanceLog.flush()]).finally(() => {
       console.log("[roster] saved on shutdown");
       process.exit(0);
     });

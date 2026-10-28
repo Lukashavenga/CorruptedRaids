@@ -321,6 +321,61 @@ A snapshot crosses from the game to React through `JSON.parse(JSON.stringify())`
 as it would have over SSE. Without it React holds the engine's live objects,
 which the next command mutates in place.
 
+### The balance log
+
+The simulator says whether the engine is correct (§6). It cannot say what
+viewers actually DO, because its reference party spends points exactly as
+designed and wears modelled gear. A fight used to be resolved, replayed and
+forgotten; now it leaves a record, so balance can be argued from real nights.
+
+**What is recorded.** One `FightRecord` per fight - dungeon, raid door and raid
+boss - built in the engine (`src/engine/balanceLog.ts`) from the `CombatResult`
+plus what was known going in: run id, place, level and rating, headcount and
+role counts, the stat multiplier and party scaling in force, outcome, ticks
+against the ceiling, and **why it ended** (`wiped` / `cleared` / `timer`;
+`CombatResult` carries it because a defeat is a wipe OR the timer, and those
+are opposite problems). Each member gets a row: build as it was BEFORE the
+fight (the fight pays out and levels them), damage dealt and taken, heals,
+taunts, death tick, XP, gold, loot. Aggregates come from the event log; the log
+itself is kept only for one fight in `balanceLog.rawEventsOneIn` (default 0).
+`fingerprint` is `<fight hash>.<balance hash>` - a reading means nothing next
+to numbers it was not played under. Not recorded: threat-picked vs focus-break
+hits (`pickTarget` does not report which it used; tagging it means threading a
+flag through the resolver).
+
+**Economy events**: `buy_gear`, `buy_consumable`, `recycle_gear` (with the
+payout and the item's `source`), `open_chest`, `level_up`. They are set on
+`DispatchResult.economy` by the command that did the thing, so the game server
+and the loadout's `character` Edge Function log identically; the function
+inserts once, after the command succeeded and the character was saved.
+
+**It never blocks a fight.** The engine only `emit`s ("fight", "economy") inside
+a try/catch and does no I/O. `src/server/balanceLog.ts` pushes onto a bounded
+queue and a timer drains it; a failed write is warned about and DROPPED, not
+retried (a retry queue is a memory leak on the machine running the stream).
+`npm run test:balance-log` kills the backend mid-run to prove it. The standalone
+overlay attaches nothing, so it logs nothing.
+
+**Tagged by source.** `sim` if any member's id starts `sim:` (the one marker
+`sim_join` characters carry - a mixed fight is `sim`, because a sim viewer
+distorts its headcount and rating), `sandbox` for a server run with
+`ROSTER_STORE=file` (or `BALANCE_LOG_SOURCE=sandbox`), otherwise `live`.
+Reports read `live` only unless told otherwise.
+
+**Where it goes.** Supabase (`sql/005_balance_log.sql`: `fights`,
+`fight_members`, `economy_events`; RLS on, no policy, so service role only -
+it holds every viewer's build, making it viewer-visible is a decision to take
+later) when the roster is in Supabase; otherwise JSON lines in
+`DATA_DIR/logs/{fights,economy}-YYYY-MM-DD.jsonl`. Same record shape either
+way. No pruning: every table has a `created_at` index for when there is one.
+
+**Reading it**: `npm run report:balance` (filters `--from --to --dungeon
+--source --store`). Win and timer rates per place and level next to the
+solver's target and a fresh simulated reading; per-role share of hits, damage
+and heals plus death rate; average point allocation against the reference
+party; drops and gold per viewer per run and night. It asserts nothing, like
+`simulate:progression`.
+
 ### Content is data
 
 `content/` holds JSON, validated at load by `src/engine/content/schemas.ts`:
@@ -363,6 +418,10 @@ variables matter to a deployment:
                      DEV ONLY - it is currently the ONLY way to mint a viewer
                      session on this server at all (see below). Leave unset
                      unless you are testing a viewer-scoped command by hand.
+    BALANCE_LOG_SOURCE  "live" or "sandbox": what this server's balance-log
+                     records are tagged. Unset, it is "sandbox" under
+                     ROSTER_STORE=file and "live" otherwise. See "The balance
+                     log" below.
     PUBLIC_ORIGIN    only matters under the Fly/Docker fallback (DEPLOY.md),
                      where it decides whether the session cookie is marked
                      Secure. Does nothing while this server runs locally.
