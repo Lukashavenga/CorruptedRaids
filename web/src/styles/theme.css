@@ -1109,6 +1109,20 @@ body {
   transition: width 0.45s ease;
 }
 
+/* Health in the member's role colour, so the bar itself says who is dropping:
+   the tanks (blue, the palette's "Tank read"), the healers (green) or the
+   damage (violet - not red, which is the enemy's bar and every damage number).
+   Green stays the fallback for a member with no role. */
+.roster-chip.role-tank .roster-fill {
+  background: linear-gradient(90deg, var(--navy), var(--blue));
+}
+.roster-chip.role-healer .roster-fill {
+  background: linear-gradient(90deg, var(--health-deep), var(--health));
+}
+.roster-chip.role-dps .roster-fill {
+  background: linear-gradient(90deg, var(--violet-deep), var(--violet));
+}
+
 .roster-name {
   position: relative;
   font-family: var(--font-text);

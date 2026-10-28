@@ -120,13 +120,21 @@ function buildFightIndex(
 }
 
 /**
- * Fetches the static content catalog once (GET /content — see src/server/
- * index.ts): gear definitions, consumables, and the shop's stock list. The
- * overlay uses it to resolve a gear item's `visual.tint`; the loadout screen
- * uses it to render item details and the shop.
+ * Fetches the content catalog (GET /content — see src/server/index.ts): gear
+ * definitions, consumables, and the shop's stock list. The overlay uses it to
+ * resolve a gear item's `visual.tint`; the loadout screen uses it to render
+ * item details and the shop.
  *
  * Separate from the live SSE snapshot on purpose: content definitions don't
  * change while the server is running, only character/run state does.
+ *
+ * But they DO change across a restart - that is how a content edit reaches the
+ * game - and the OBS page outlives restarts by reconnecting. Fetched once, it
+ * kept the catalogue from whenever the page was opened: dungeons switched to
+ * `showBackground: false` and restarted into still drew their scene, because
+ * the run no longer named one and the overlay fell back to the stale entry.
+ * So `refreshKey` - the overlay passes a count of (re)connections - fetches
+ * it again whenever the game may be a new process.
  */
 /**
  * @param source Where to read content from. The overlay and admin run beside
@@ -136,8 +144,9 @@ function buildFightIndex(
  * (see scripts/bundle-edge-content.ts). That bundle is the same one the Edge
  * Function validates against, which is the point: the screen and the rules
  * behind it cannot disagree.
+ * @param refreshKey Fetch again whenever this changes. See above.
  */
-export function useContentCatalog(source = "/content"): ContentCatalog {
+export function useContentCatalog(source = "/content", refreshKey = 0): ContentCatalog {
   const [catalog, setCatalog] = useState<ContentCatalog>(EMPTY);
 
   useEffect(() => {
@@ -179,7 +188,7 @@ export function useContentCatalog(source = "/content"): ContentCatalog {
     return () => {
       cancelled = true;
     };
-  }, [source]);
+  }, [source, refreshKey]);
 
   return catalog;
 }
