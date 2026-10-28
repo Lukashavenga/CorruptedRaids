@@ -687,7 +687,7 @@ body {
  * The shop prices and the +N stat buttons are the two controls a player
  * touches most, so they are the two worth making feel like objects.
  */
-.loadout button.stat-add,
+.loadout button.stat-step,
 .loadout .bag button:not(.ghost),
 .loadout button.appearance-toggle {
   background: linear-gradient(180deg, rgba(235, 179, 107, 0.34), rgba(122, 60, 30, 0.42));
@@ -701,14 +701,14 @@ body {
     0 1px 0 rgba(0, 0, 0, 0.45);
 }
 
-.loadout button.stat-add:hover:not(:disabled),
+.loadout button.stat-step:hover:not(:disabled),
 .loadout .bag button:not(.ghost):hover:not(:disabled),
 .loadout button.appearance-toggle:hover:not(:disabled) {
   background: linear-gradient(180deg, rgba(235, 179, 107, 0.48), rgba(122, 60, 30, 0.5));
   border-color: var(--rail-lit);
 }
 
-.loadout button.stat-add:disabled,
+.loadout button.stat-step:disabled,
 .loadout .bag button:disabled {
   opacity: 0.4;
   box-shadow: none;

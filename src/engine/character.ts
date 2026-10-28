@@ -220,6 +220,37 @@ export function allocatePoints(character: Character, stat: AllocatableStat, amou
 }
 
 /**
+ * Spends points on several stats at once, all or nothing.
+ *
+ * The loadout stages a whole build locally and confirms it in one request;
+ * four `allocate_points` in a row could leave half of it applied if the third
+ * failed. Everything is validated before anything is written, so a refusal
+ * leaves the character exactly as it was.
+ */
+export function allocateMany(character: Character, points: Partial<Record<AllocatableStat, number>>): MutationResult {
+  const entries = Object.entries(points);
+  if (entries.length === 0) return { ok: false, reason: "Nothing to spend" };
+  let total = 0;
+  for (const [stat, amount] of entries) {
+    if (!(ALLOCATABLE_STATS as readonly string[]).includes(stat)) {
+      return { ok: false, reason: `"${stat}" is not an allocatable stat` };
+    }
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount < 1) {
+      return { ok: false, reason: "Amount must be a positive whole number" };
+    }
+    total += amount;
+  }
+  if (total > character.unspentPoints) {
+    return { ok: false, reason: `Only ${character.unspentPoints} point(s) available` };
+  }
+  for (const [stat, amount] of entries as [AllocatableStat, number][]) {
+    character.allocated[stat] += amount;
+  }
+  character.unspentPoints -= total;
+  return { ok: true };
+}
+
+/**
  * Refunds every spent point back to the pool.
  *
  * Free and unlimited for now. If respeccing should cost gold or be limited,
