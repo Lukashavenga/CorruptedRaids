@@ -89,7 +89,7 @@ export function groupContent(rows: ContentRow[]): {
  */
 export async function loadContentFromSupabase(
   content: ContentRegistry,
-): Promise<{ loaded: boolean; placements?: unknown; count: number }> {
+): Promise<{ loaded: boolean; placements?: unknown; balance?: unknown; count: number }> {
   const rows = await fetchContent();
   if (!rows) return { loaded: false, count: 0 };
   if (!rows.length) throw new Error("content_files is empty - run `npm run push:content -- --write`");
@@ -103,7 +103,27 @@ export async function loadContentFromSupabase(
     balance: grouped.balance,
     shop: grouped.shop,
   });
-  return { loaded: true, placements: grouped.placements, count: rows.length };
+  return { loaded: true, placements: grouped.placements, balance: grouped.balance, count: rows.length };
+}
+
+/**
+ * One content file as the store holds it RIGHT NOW. Undefined when Supabase is
+ * not configured or the row does not exist; null never.
+ *
+ * For read-modify-write of a file the hosted panel can also edit (balance.json):
+ * merging into the copy loaded at boot would quietly revert whatever was saved
+ * from the other panel since.
+ */
+export async function readContentFile(path: string): Promise<unknown | undefined> {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return undefined;
+  const res = await fetch(`${url}/rest/v1/content_files?path=eq.${encodeURIComponent(path)}&select=data`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` },
+  });
+  if (!res.ok) throw new Error(`content_files read ${path}: ${res.status} ${await res.text()}`);
+  const rows = (await res.json()) as { data: unknown }[];
+  return rows[0]?.data;
 }
 
 /**

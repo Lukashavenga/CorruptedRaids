@@ -21,6 +21,8 @@ import { ShopTuner } from "./ShopTuner.js";
 import { GearInspector } from "./GearInspector.js";
 import { useTuningContent } from "./useTuningContent.js";
 import "./admin.css";
+import { LootTuner } from "./LootTuner.js";
+import { en } from "../../../src/text/en.js";
 import { getAdminKey, setAdminKey } from "../adminKey.js";
 import { backendMode, readPlacements, writePlacements } from "./backend.js";
 
@@ -103,7 +105,7 @@ export function AdminApp(): JSX.Element {
    */
   const [showKit, setShowKit] = useState(false);
   const [kit, setKit] = useState<Partial<Record<GearSlot, string>>>({});
-  const [tab, setTab] = useState<"placement" | "gear" | "shop" | "dungeons" | "raids" | "names">("placement");
+  const [tab, setTab] = useState<"placement" | "gear" | "shop" | "dungeons" | "raids" | "loot" | "names">("placement");
 
   /*
    * Hosted or served by the game server. Only changes how a failed save is
@@ -443,9 +445,9 @@ export function AdminApp(): JSX.Element {
       <header className="admin-bar">
         <h1>Corrupted Admin</h1>
         <nav className="admin-tabs">
-          {(["placement", "gear", "shop", "dungeons", "raids", "names"] as const).map((t) => (
+          {(["placement", "gear", "shop", "dungeons", "raids", "loot", "names"] as const).map((t) => (
             <button key={t} type="button" className={tab === t ? "is-active" : ""} onClick={() => setTab(t)}>
-              {t}
+              {t === "loot" ? en.lootAdmin.tab : t}
             </button>
           ))}
         </nav>
@@ -495,6 +497,8 @@ export function AdminApp(): JSX.Element {
       {tab === "raids" && (
         <RaidTuner raids={tuning.raids} onSaved={tuning.reload} setStatus={setStatus} />
       )}
+
+      {tab === "loot" && <LootTuner setStatus={setStatus} />}
 
       {/* Just the naming. Separate from the fight editor because renaming is
           a file operation with a blast radius, and everything else here is not. */}
