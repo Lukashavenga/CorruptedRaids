@@ -1,5 +1,5 @@
 import type { BodyType, GearDefinition, GearSlot } from "../../src/engine/types.js";
-import { DEFAULT_PLACEMENT, type Placement, type PlacementFile } from "../../src/character/layers.js";
+import { DEFAULT_PLACEMENT, clampFraming, type IconFraming, type Placement, type PlacementFile } from "../../src/character/layers.js";
 import { publicUrl } from "./localGameLink.js";
 
 /**
@@ -74,12 +74,43 @@ const STORAGE_BASE = `${(import.meta.env.VITE_SUPABASE_URL as string | undefined
  * THE one place a sprite path becomes a URL, so an erased sprite is drawn
  * erased on every surface or on none. Two builders that each knew half of it
  * is how an item ends up erased in the bag and whole on the doll.
+ *
+ * The one deliberate exception is `originalSpriteUrl`: gear THUMBNAILS show the
+ * item as drawn. The erase carves a helm hollow so it sits over a head, which
+ * is right on the character and looks broken in a 38px bag cell. Do not "fix"
+ * thumbnails back to this.
  */
 function artUrl(key: string): string {
   const erased = manifest[key];
   if (erased && STORAGE_BASE.startsWith("http")) return STORAGE_BASE + erased.file;
   const v = spriteVersion > 0 ? `?v=${spriteVersion}` : "";
   return publicUrl(`/art/sprites/${key}.png${v}`);
+}
+
+/**
+ * The sprite as drawn, ignoring any erase. For thumbnails only (see artUrl).
+ * `original` exists only for sprites erased before the bucket did; otherwise the
+ * built art IS the original.
+ */
+export function originalSpriteUrl(folder: string, id: string): string {
+  const key = `${folder}/${id}`;
+  const original = manifest[key]?.original;
+  if (original && STORAGE_BASE.startsWith("http")) return STORAGE_BASE + original;
+  const v = spriteVersion > 0 ? `?v=${spriteVersion}` : "";
+  return publicUrl(`/art/sprites/${key}.png${v}`);
+}
+
+let iconFramings: PlacementFile = {};
+
+/** Replace the thumbnail framings. Called by usePlacements with the whole file. */
+export function setIconFramings(next: PlacementFile): void {
+  iconFramings = next ?? {};
+}
+
+/** Null when the item has no framing, which draws exactly as before. */
+export function iconFramingFor(slot: string, spriteId: string): IconFraming | null {
+  const f = iconFramings?.[slot]?.[spriteId]?.icon;
+  return f ? clampFraming(f) : null;
 }
 
 export function spriteUrl(folder: string, id: string): string {
