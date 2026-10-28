@@ -1,0 +1,20 @@
+{
+  "id": "punk-top",
+  "name": "Punk Top",
+  "slot": "top",
+  "enabled": false,
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Punk outfit.",
+  "tags": [
+    "outfit:punk"
+  ],
+  "spriteByBody": {
+    "male": "punk-male",
+    "female": "punk-female"
+  },
+  "requires": {}
+}

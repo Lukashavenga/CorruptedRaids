@@ -1,0 +1,20 @@
+{
+  "id": "stormtrooper-bottoms",
+  "name": "Stormtrooper Bottoms",
+  "slot": "bottom",
+  "enabled": false,
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Stormtrooper outfit.",
+  "tags": [
+    "outfit:stormtrooper"
+  ],
+  "spriteByBody": {
+    "male": "stormtrooper-male",
+    "female": "stormtrooper-female"
+  },
+  "requires": {}
+}

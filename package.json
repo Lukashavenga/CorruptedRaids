@@ -25,6 +25,7 @@
     "tune:dungeons": "tsx scripts/tune-dungeons.ts",
     "retier:gear": "tsx scripts/retier-gear.ts",
     "slice:ui": "python scripts/slice-ui.py \"art/reference/assets Mute.png\"",
+    "import:outfits": "python scripts/import-outfits.py",
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file-if-exists=.env dist/server/index.js",
     "test:store": "tsx --env-file-if-exists=.env scripts/test-supabase-store.ts",

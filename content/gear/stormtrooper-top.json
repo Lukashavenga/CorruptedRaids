@@ -1,0 +1,20 @@
+{
+  "id": "stormtrooper-top",
+  "name": "Stormtrooper Top",
+  "slot": "top",
+  "enabled": false,
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Stormtrooper outfit.",
+  "tags": [
+    "outfit:stormtrooper"
+  ],
+  "spriteByBody": {
+    "male": "stormtrooper-male",
+    "female": "stormtrooper-female"
+  },
+  "requires": {}
+}
