@@ -2,6 +2,7 @@
   "id": "sailor-bottoms",
   "name": "Sailor Bottoms",
   "slot": "bottom",
+  "enabled": false,
   "rarity": "common",
   "statMods": {
     "hp": 2,

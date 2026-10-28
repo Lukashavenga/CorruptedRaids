@@ -2,6 +2,7 @@
   "id": "pink-top",
   "name": "Pink Top",
   "slot": "top",
+  "enabled": false,
   "rarity": "common",
   "statMods": {
     "hp": 2,

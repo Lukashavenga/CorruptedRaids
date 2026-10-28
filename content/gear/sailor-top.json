@@ -2,6 +2,7 @@
   "id": "sailor-top",
   "name": "Sailor Top",
   "slot": "top",
+  "enabled": false,
   "rarity": "common",
   "statMods": {
     "hp": 2,

@@ -87,6 +87,8 @@ Drop the file(s) in `art/New Assets/outfits/`, then:
 
     python scripts/import-outfits.py punk
 
+New outfits are imported **switched off**: not in the shop, not in loot, and not wearable. Turn them on in the admin once they look right on a character.
+
 Check `art/sprites/_contact-outfits/punk.png`. It shows the pieces boxed over
 the template's bodies in grey, so a piece that doesn't sit on its body is
 obvious there. The importer places each piece exactly where it was drawn.

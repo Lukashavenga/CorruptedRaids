@@ -2,6 +2,7 @@
   "id": "stormtrooper-top",
   "name": "Stormtrooper Top",
   "slot": "top",
+  "enabled": false,
   "rarity": "common",
   "statMods": {
     "hp": 2,

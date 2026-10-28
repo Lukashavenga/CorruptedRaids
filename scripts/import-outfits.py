@@ -64,7 +64,9 @@ WHAT IT WRITES - additive, like generate-gear-content.py
         template's bodies in grey. LOOK AT THIS before trusting an import.
   content/gear/<id>-top.json, <id>-bottoms.json
         Only if missing. Common, with the current common top/bottoms' stats
-        as a placeholder - tune them in the admin.
+        as a placeholder - tune them in the admin. Written SWITCHED OFF
+        ("enabled": false): no shop, no drop, cannot be worn. Turn it on in
+        the admin once it has been seen on a character.
   content/placements.json
         See below.
 
@@ -385,6 +387,9 @@ def write_gear(outfit: str, title: str) -> list:
             "id": gid,
             "name": f"{title} {noun}",
             "slot": slot,
+            # Off until someone has looked at it worn: an import is unreviewed
+            # art with placeholder stats, and "enabled" absent means ON.
+            "enabled": False,
             "rarity": PLACEHOLDER[slot]["rarity"],
             "statMods": PLACEHOLDER[slot]["statMods"],
             "description": f"Part of the {title} outfit.",
