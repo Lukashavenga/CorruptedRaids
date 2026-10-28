@@ -23,6 +23,7 @@ import type { Rng } from "../rng.js";
 import { randomInt } from "../rng.js";
 import { Roster } from "../roster.js";
 import {
+  allocateMany,
   allocatePoints,
   buyConsumable,
   buyGear,
@@ -542,6 +543,13 @@ export class GameEngine extends EventEmitter {
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
         const result = unequipGear(character, command.slot);
         return { ok: result.ok, message: result.ok ? text.gear.unequipped : result.reason ?? text.errors.cannotEquip };
+      }
+
+      case "allocate_many": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        const result = allocateMany(character, command.points);
+        return { ok: result.ok, message: result.ok ? text.loadout.pointsSpent : result.reason ?? text.errors.cannotAllocate };
       }
 
       case "allocate_points": {

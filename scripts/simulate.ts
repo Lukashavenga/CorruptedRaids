@@ -797,6 +797,37 @@ console.log(
   console.log("Looks: a hidden helmet stays equipped and counted, and reaches the party view.");
 }
 
+// --- allocate_many is atomic ---------------------------------------------------
+// The loadout stages a build and confirms it in one request, so a refusal has
+// to leave the character untouched rather than half-built.
+{
+  const spend = new GameEngine(content, mulberry32(11));
+  const id = "twitch:spend";
+  spend.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  spend.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Spender" });
+  spend.roster.get(id)!.unspentPoints = 6;
+  const snap = () => JSON.stringify([spend.roster.get(id)!.allocated, spend.roster.get(id)!.unspentPoints]);
+
+  const good = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 2, atk: 3, spd: 1 } });
+  assert.ok(good.ok, `a valid batch applies: ${good.message}`);
+  const c = spend.roster.get(id)!;
+  assert.deepEqual([c.allocated.hp, c.allocated.atk, c.allocated.spd, c.unspentPoints], [2, 3, 1, 0]);
+
+  c.unspentPoints = 4;
+  const before = snap();
+  const over = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 3, skill: 2 } });
+  assert.ok(!over.ok, "an over-budget batch is refused");
+  assert.equal(snap(), before, "...and changes nothing, not even the stat that fitted");
+
+  const badStat = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, luck: 1 } as never });
+  assert.ok(!badStat.ok, "a batch naming a bad stat is refused");
+  assert.equal(snap(), before, "...and the valid stat in it is not applied");
+
+  const fractional = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, atk: 0.5 } });
+  assert.ok(!fractional.ok && snap() === before, "a non-integer amount is refused and changes nothing");
+  console.log("allocate_many: a valid batch applies; over-budget, bad-stat and fractional batches change nothing.");
+}
+
 // --- reset returns to idle ---------------------------------------------------
 engine.dispatch({ type: "reset_dungeon" });
 const afterReset = engine.getStateSnapshot();

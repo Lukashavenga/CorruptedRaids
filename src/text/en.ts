@@ -261,6 +261,24 @@ export const en = {
     pointsAvailable: "{count} points to spend",
     pointAvailableOne: "1 point to spend",
     noPoints: "No points to spend - level up to earn more.",
+    /* The header count. "left" because staged points are already earmarked. */
+    pointsLeft: "{count} points left",
+    pointLeftOne: "1 point left",
+    pointsLeftStaged: "{left} left · {staged} staged",
+    /* Staging buttons are labelled in POINTS; the stat gain is on the value
+       line ("+3 per point"), so the two numbers cannot be confused. */
+    stagePlus: "+{count}",
+    stageMinus: "−",
+    stageAria: "stage {count} point(s)",
+    unstageAria: "remove one staged point",
+    pending: "{count} pending",
+    stageBarLabel: "Staged points",
+    stageReset: "Reset",
+    stageConfirm: "Confirm +{count} points",
+    stageConfirmOne: "Confirm +1 point",
+    /* Browsers show their own wording for this prompt; the string is only
+       required to be non-empty by the beforeunload contract. */
+    unloadWarning: "You have staged stat points that are not confirmed yet.",
     pointsSpent: "Point spent.",
     spentTotal: "{count} spent",
     spentTotalOne: "1 spent",

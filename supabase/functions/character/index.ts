@@ -43,6 +43,8 @@ const ALLOWED = new Set<GameCommand["type"]>([
   "equip_gear",
   "unequip_gear",
   "allocate_points",
+  // The loadout stages a build locally and confirms it in one request.
+  "allocate_many",
   "respec",
   "set_role",
   "set_appearance",

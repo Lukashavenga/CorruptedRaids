@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useCharacter } from "./useCharacter.js";
 import { useContentCatalog } from "../hooks/useContentCatalog.js";
 import { EquipmentDoll } from "./EquipmentDoll.js";
-import { StatAllocator } from "./StatAllocator.js";
+import { StatAllocator, draftTotal, type StatDraft } from "./StatAllocator.js";
 import { RolePicker } from "./RolePicker.js";
 import { AppearancePicker } from "./AppearancePicker.js";
 // One stylesheet that imports the other four, not four imports - see the note
@@ -90,6 +90,33 @@ export function LoadoutApp(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
   const { placements } = usePlacements();
   const { hiddenSlots, toggleHidden } = useHiddenSlots(viewer?.id ?? "", character, dispatch);
+
+  /*
+   * Stat points staged but not sent. Held here and not in StatAllocator so that
+   * switching panels on the stacked phone layout (which unmounts that panel)
+   * does not throw a half-built draft away.
+   */
+  const [draft, setDraft] = useState<StatDraft>({});
+  const staged = draftTotal(draft);
+
+  // Warn before a reload or close loses the draft. The browser shows its own
+  // wording; setting returnValue is what makes it prompt at all.
+  useEffect(() => {
+    if (staged === 0) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = text.loadout.unloadWarning;
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [staged]);
+
+  // Points can shrink under a draft (a respec elsewhere, a stale read). A draft
+  // bigger than the pool could only ever be refused, so drop it.
+  const unspent = character?.unspentPoints ?? 0;
+  useEffect(() => {
+    if (staged > unspent) setDraft({});
+  }, [staged, unspent]);
 
   // The nav drawer is a phone-and-laptop affordance; at desktop width the nav
   // is always on screen and an "open" flag left over from a narrower window
@@ -398,8 +425,20 @@ export function LoadoutApp(): JSX.Element {
               character={character}
               busy={busy}
               balance={catalog.balance}
-              onAllocate={(stat, amount) => run({ type: "allocate_points", requestedBy: viewer.id, stat, amount })}
-              onRespec={() => run({ type: "respec", requestedBy: viewer.id })}
+              draft={draft}
+              setDraft={setDraft}
+              onConfirm={async () => {
+                // One command, one toast, one haptic (run() does the last two).
+                // A refusal keeps the draft so nothing staged is lost.
+                const body = await run({ type: "allocate_many", requestedBy: viewer.id, points: draft });
+                if (body?.ok !== false) setDraft({});
+              }}
+              onRespec={() => {
+                // Committed points come back only through respec; the draft
+                // goes first so it never previews against a pool that changed.
+                setDraft({});
+                if (character.spentPoints > 0) void run({ type: "respec", requestedBy: viewer.id });
+              }}
             />
             <RolePicker
               current={character.role}
