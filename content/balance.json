@@ -22,7 +22,9 @@
   "healing": {
     "triggerBelowFraction": 0.7,
     "base": 2,
-    "perSkillPoint": 0.5
+    "perSkillPoint": 0.5,
+    "selfFirstBelowFraction": 0.35,
+    "tankUrgencyWeight": 0.8
   },
   "roles": {
     "_comment": "What each role DOES beyond its stat block. See src/engine/balance.ts.",
@@ -32,6 +34,7 @@
       "guardPerSkill": 0.01,
       "maxGuard": 0.35,
       "tauntEveryNActions": 3,
+      "tauntCostsAction": 1,
       "tauntTicks": 6,
       "tauntAggroMultiplier": 4,
       "aggroPerSkill": 0.03,

@@ -112,19 +112,25 @@ function readyAbility(rt: Runtime): AbilityDefinition | undefined {
 }
 
 /**
- * Healer target priority — self, then Tank, then DPS, in that fixed order
- * (§2.3). Deliberately NOT random and NOT aggro-weighted: keeping the tank
- * standing is the whole job, and a healer that randomly tops off a healthy
- * DPS while the tank dies reads as broken to anyone watching.
+ * Healer target: whoever is closest to death, with a bias toward the tank.
+ *
+ * Deliberately NOT random and NOT aggro-weighted. It used to be a fixed tier
+ * (self, tank, DPS, healer), which sent a tank at 69% ahead of a DPS at 5% every
+ * time - measured at 17% of heals reaching DPS who are two thirds of the party
+ * and 83% of its deaths. The tank bias (`tankUrgencyWeight`) keeps the tank
+ * first among equals without letting it outrank someone about to die.
  */
 function pickHealTarget(healer: Runtime, allies: Runtime[], balance: BalanceConfig): Runtime | undefined {
-  const hurt = (rt: Runtime) => alive(rt) && rt.hp / rt.maxHp < balance.healing.triggerBelowFraction;
-  if (hurt(healer)) return healer;
-  const byRole = (role: Role) =>
-    allies
-      .filter((rt) => rt.id !== healer.id && rt.role === role && hurt(rt))
-      .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-  return byRole("tank") ?? byRole("dps") ?? byRole("healer");
+  const { triggerBelowFraction, selfFirstBelowFraction, tankUrgencyWeight } = balance.healing;
+  const frac = (rt: Runtime) => rt.hp / rt.maxHp;
+  if (alive(healer) && frac(healer) < selfFirstBelowFraction) return healer;
+  const urgency = (rt: Runtime) => frac(rt) * (rt.role === "tank" ? tankUrgencyWeight : 1);
+  let best: Runtime | undefined;
+  for (const rt of allies) {
+    if (!alive(rt) || frac(rt) >= triggerBelowFraction) continue;
+    if (!best || urgency(rt) < urgency(best)) best = rt;
+  }
+  return best;
 }
 
 function applyDamage(target: Runtime, amount: number): void {
@@ -448,8 +454,10 @@ export function runCombat(
         abilityName: "Taunt",
         detail: `${actor.name} roars.`,
       });
-      tickBuffs(actor);
-      continue;
+      if (balance.roles.tank.tauntCostsAction) {
+        tickBuffs(actor);
+        continue;
+      }
     }
 
     // 3. Otherwise fire a ready ability (enemies/bosses only for now).

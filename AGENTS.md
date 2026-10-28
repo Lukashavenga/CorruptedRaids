@@ -595,6 +595,24 @@ function pickTarget(candidates, balance, rng) {
 A perfect taunt makes the healer's positioning irrelevant and the tank's build
 the only build. The leak is what keeps the other roles honest.
 
+**Healers heal by urgency, not by role (2026-10-28).** `pickHealTarget` used
+to be a fixed tier - self, any tank under 70%, then DPS - so a tank at 69% beat
+a DPS at 5% every time and DPS were 67% of the party and 83% of its deaths. It
+now ranks every ally under `triggerBelowFraction` by hp fraction, with a tank's
+fraction multiplied by `healing.tankUrgencyWeight` (0.8) as a bias rather than
+a tier, and a healer puts itself first only below
+`healing.selfFirstBelowFraction` (0.35). Measured with `npm run report:threat`
+(2 tank / 2 healer / 8 DPS, 60 fights x 5 dungeons, content as on disk):
+
+    L10 typical   win 75 -> 83%   DPS deaths 46 -> 37%   heals to DPS 42 -> 54%
+    L25 best      win 77 -> 77%   DPS deaths 45 -> 42%   heals to DPS 61 -> 66%   timer 23 -> 23%
+
+Tried and NOT kept: `roles.tank.tauntCostsAction: 0` (taunt rides on a normal
+attack) left the timer rate at 25% and win 74%; `focusBreakChance` 0.12 trimmed
+DPS deaths by a point and took healer hits from 11% to 8%. Neither earned its
+place, so the knobs exist and the defaults are unchanged. `report:threat
+--set path=value` measures a change without editing balance.json.
+
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
 `casualtyLootChance: 0.05`. A party that LOSES earns too: `defeatXpMultiplier:
 0.15` and `defeatLootChance: 0.025`, no gold. The three loot chances must stay

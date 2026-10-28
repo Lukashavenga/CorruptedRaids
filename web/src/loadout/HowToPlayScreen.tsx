@@ -46,6 +46,11 @@ export function HowToPlayScreen({ balance }: { balance: BalanceConfig }): JSX.El
         </li>
       </ol>
 
+      <h3 className="screen-h">{t.threat.title}</h3>
+      <p className="how-body">
+        {format(t.threat.body, { chance: String(Math.round(1 / balance.aggro.focusBreakChance)) })}
+      </p>
+
       <h3 className="screen-h">{raids.title}</h3>
       <p className="how-body">{raids.body}</p>
 

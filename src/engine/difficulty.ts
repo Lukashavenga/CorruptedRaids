@@ -140,7 +140,7 @@ function dress(character: Character, content: ContentRegistry, gear: GearAssumpt
   }
 }
 
-function referenceParty(
+export function referenceParty(
   comp: PartyComposition,
   level: number,
   balance: BalanceConfig,
