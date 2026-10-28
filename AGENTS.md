@@ -629,6 +629,28 @@ viewer per run, about one item a night. To turn drops up or down, scale
 `survivorLootChance`, `casualtyLootChance` and `defeatLootChance` together.
 Loot tables decide WHICH item, never how often.
 
+**The dial lives in the admin panel's Loot tab** (`web/src/admin/LootTuner.tsx`),
+no longer only in `content/balance.json`. One multiplier scales the three
+chances together; Advanced sets them one by one. The tab refuses to save a set
+outside 0..1 or out of the order survived > died in a win > lost - the check is
+`lootChanceProblem` in `schemas.ts`, which the loader, the game server and the
+operator Edge Function all run, so the three cannot disagree. Beside the dial
+it shows drops per viewer per run and per night, MEASURED by
+`src/engine/lootMeasure.ts` (section 2's loop: twelve viewers, twenty runs at
+each dungeon) through `POST /loot/measure`, admin-gated. That measurement is
+local-panel only; the hosted panel can save but not measure.
+
+Saving goes through `POST /content/write` with `kind: "balance"`, which accepts
+the three loot chances and nothing else. It merges them into the CURRENT
+balance.json (the store's copy when Supabase is configured, the disk's
+otherwise), writes it back through `writeContentFile`, and applies it to the
+running registry with `ContentRegistry.applyBalance` - so the next run uses it,
+no restart. `reloadContent()` re-applies the store's balance after any other
+content save, because `content.reload` re-reads the disk. Hosted, the panel
+replaces the `balance.json` row through the operator function, which now
+validates it with `validateBalanceFile`; the game picks that up at its next
+restart like every other hosted edit.
+
 ### The 3D arena
 
 `/3d` (`web/arena3d.html`) is the overlay with the two flat ranks replaced by

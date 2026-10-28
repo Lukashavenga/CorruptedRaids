@@ -4,7 +4,15 @@ import { extname, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../engine/content/loader.js";
 import {
+  LOOT_CHANCE_KEYS,
+  lootChanceProblem,
+  validateBalanceFile,
+  type LootChances,
+} from "../engine/content/schemas.js";
+import { measureLoot } from "../engine/lootMeasure.js";
+import {
   loadContentFromSupabase,
+  readContentFile,
   revertSpriteInStore,
   saveSpriteToStore,
   writeContentFile,
@@ -76,6 +84,55 @@ const PLACEMENTS_FILE = join(CONTENT_DIR, "placements.json");
 let supabasePlacements: unknown = null;
 
 /**
+ * balance.json as the store held it, when that is where content came from.
+ *
+ * `content.reload(CONTENT_DIR)` re-reads the disk, which in Supabase mode would
+ * silently put the repo's balance back after any dungeon save - and with it a
+ * drop rate the streamer had just set. `reloadContent` re-applies this.
+ */
+let supabaseBalance: unknown = null;
+const BALANCE_FILE = join(CONTENT_DIR, "balance.json");
+
+/** `content.reload`, without losing the store's balance. */
+function reloadContent(): void {
+  content.reload(CONTENT_DIR);
+  if (supabaseBalance) content.applyBalance(supabaseBalance);
+}
+
+/**
+ * Change the drop dial: the three loot chances, and nothing else.
+ *
+ * The one balance write the admin screen makes, so it is deliberately narrow -
+ * a general "write any balance key" door would let a typo in a panel retune
+ * combat. Merged into the current file (store first, disk otherwise) so the
+ * rest of balance.json, its comments included, survives. Validated by the same
+ * function the loader runs, then applied to the running registry: the next run
+ * uses it with no restart.
+ */
+async function writeLootChances(patch: unknown): Promise<"supabase" | "file"> {
+  const rewards = (patch as { rewards?: Record<string, unknown> } | null)?.rewards;
+  if (typeof rewards !== "object" || rewards === null) throw new Error("expected { rewards: { ...three loot chances } }");
+  for (const key of Object.keys(rewards)) {
+    if (!LOOT_CHANCE_KEYS.includes(key as (typeof LOOT_CHANCE_KEYS)[number])) {
+      throw new Error(`"${key}" is not one of the drop-rate chances: ${LOOT_CHANCE_KEYS.join(", ")}`);
+    }
+  }
+
+  const inStore = await readContentFile("balance.json");
+  const current = (inStore ?? (existsSync(BALANCE_FILE) ? JSON.parse(readFileSync(BALANCE_FILE, "utf-8")) : {})) as {
+    rewards?: object;
+  };
+  const next = { ...current, rewards: { ...current.rewards, ...rewards } };
+  validateBalanceFile(next, "balance.json");
+
+  const stored = await writeContentFile("balance.json", next);
+  if (stored) supabaseBalance = next;
+  else writeFileSync(BALANCE_FILE, `${JSON.stringify(next, null, 2)}\n`);
+  content.applyBalance(next);
+  return stored ? "supabase" : "file";
+}
+
+/**
  * The run each kind of redeem opened last, so the next roll can skip it.
  *
  * In the process, like the FSM and the roster — see the ONE MACHINE note in
@@ -144,6 +201,7 @@ try {
   if (fromDb.loaded) {
     contentSource = `Supabase (${fromDb.count} files)`;
     if (fromDb.placements) supabasePlacements = fromDb.placements;
+    if (fromDb.balance) supabaseBalance = fromDb.balance;
   }
 } catch (err) {
   // Loud, then carry on with the disk. A silent fallback is how you end up
@@ -1039,6 +1097,33 @@ const server = createServer((req, res) => {
   }
 
   /**
+   * What a draft set of loot chances would drop, measured.
+   *
+   * Admin-gated like /difficulty: it plays a hundred runs to answer
+   * (~0.3s measured), so it is not something to leave open. Reads the chances
+   * from the body and touches nothing live - see measureLoot.
+   */
+  if (req.method === "POST" && url.pathname === "/loot/measure") {
+    if (denyNonAdmin(req, res)) return;
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const raw = JSON.parse(body || "{}") as Record<string, unknown>;
+        const chances = Object.fromEntries(LOOT_CHANCE_KEYS.map((k) => [k, raw[k]])) as LootChances;
+        const problem = lootChanceProblem(chances);
+        if (problem) throw new Error(`those chances cannot be used (${problem.code})`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, reading: measureLoot(content, chances) }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, message: (err as Error).message }));
+      }
+    });
+    return;
+  }
+
+  /**
    * One level of a DRAFT fight, measured against the party that level is for.
    *
    * The balance screen's per-level percentages. Separate from POST /difficulty
@@ -1240,7 +1325,7 @@ const server = createServer((req, res) => {
 `);
         }
         unlinkSync(file);
-        content.reload(CONTENT_DIR);
+        reloadContent();
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, strippedFrom: refs.map((r) => r.file) }));
       } catch (err) {
@@ -1295,7 +1380,7 @@ const server = createServer((req, res) => {
           writeFileSync(path, `${JSON.stringify(retargeted, null, 2)}
 `);
         }
-        content.reload(CONTENT_DIR);
+        reloadContent();
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, updated: refs.map((r) => r.file) }));
       } catch (err) {
@@ -1365,8 +1450,24 @@ const server = createServer((req, res) => {
           void writeShop(data, res);
           return;
         }
+        if (kind === "balance") {
+          // Not a file per id like the rest: one file, and only the drop dial
+          // of it. Async because it reaches the store, which the sync path
+          // below never does.
+          void writeLootChances(data).then(
+            (stored) => {
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ ok: true, stored }));
+            },
+            (err: Error) => {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ ok: false, message: err.message }));
+            },
+          );
+          return;
+        }
         const dir = CONTENT_WRITABLE[kind as string];
-        if (!dir) throw new Error(`kind must be one of ${Object.keys(CONTENT_WRITABLE).join(", ")}`);
+        if (!dir) throw new Error(`kind must be one of ${Object.keys(CONTENT_WRITABLE).join(", ")}, shop, balance`);
         if (!/^[a-z0-9-]+$/i.test(id ?? "")) throw new Error("bad id");
         if (typeof data !== "object" || data === null) throw new Error("data must be an object");
 
@@ -1376,7 +1477,7 @@ const server = createServer((req, res) => {
         writeFileSync(file, `${JSON.stringify(data, null, 2)}
 `);
         try {
-          content.reload(CONTENT_DIR);
+          reloadContent();
         } catch (err) {
           // Roll back rather than leave the server holding content it could not
           // load: a half-saved fight would break every subsequent run.
@@ -1390,7 +1491,7 @@ const server = createServer((req, res) => {
           if (backup !== null) writeFileSync(file, backup);
           else if (existsSync(file)) unlinkSync(file);
           try {
-            content.reload(CONTENT_DIR);
+            reloadContent();
           } catch (recoveryErr) {
             // The rollback itself failed, which means the content on disk was
             // already broken before this request. Say so plainly rather than

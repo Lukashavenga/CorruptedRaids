@@ -28,7 +28,9 @@ import type {
   Stats,
 } from "../types.js";
 
-const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+import { DEFAULT_BALANCE } from "../balance.js";
+
+const HEX_COLOR =/^#[0-9a-fA-F]{6}$/;
 
 function validateGearVisual(raw: unknown, file: string): GearVisual | undefined {
   if (raw === undefined) return undefined;
@@ -638,4 +640,46 @@ function validateFight(obj: any, file: string, what: string): FightDefinition {
     ...(bandStatScale ? { bandStatScale } : {}),
     ...(targetWinRate !== undefined ? { targetWinRate } : {}),
   };
+}
+
+/** The three chances that make up the drop-rate dial. See `rewards` in balance.ts. */
+export const LOOT_CHANCE_KEYS = ["survivorLootChance", "casualtyLootChance", "defeatLootChance"] as const;
+export type LootChances = Record<(typeof LOOT_CHANCE_KEYS)[number], number>;
+
+/**
+ * Why a set of loot chances cannot be used, as data. The admin words it from
+ * src/text/en.ts; the loader throws a plain message from the same answer, so
+ * the screen and the boot check cannot disagree about what is legal.
+ */
+export type LootChanceProblem = { code: "range"; key: (typeof LOOT_CHANCE_KEYS)[number] } | { code: "order" };
+
+/** survived > died in a win > lost, each within 0..1. Null when it is fine. */
+export function lootChanceProblem(c: LootChances): LootChanceProblem | null {
+  for (const key of LOOT_CHANCE_KEYS) {
+    if (!isNumber(c[key]) || c[key] < 0 || c[key] > 1) return { code: "range", key };
+  }
+  if (!(c.survivorLootChance > c.casualtyLootChance && c.casualtyLootChance > c.defeatLootChance)) {
+    return { code: "order" };
+  }
+  return null;
+}
+
+/**
+ * balance.json is partial by design (it names only the knobs it changes and is
+ * merged over DEFAULT_BALANCE), so this checks the shape and then the loot
+ * chances as they will be AFTER the merge - a file naming only one of them is
+ * judged against the defaults for the other two.
+ */
+export function validateBalanceFile(raw: unknown, file: string): Record<string, unknown> {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) fail(file, "balance file must contain a JSON object");
+  const rewards = (raw as any).rewards;
+  if (rewards !== undefined) {
+    if (typeof rewards !== "object" || rewards === null || Array.isArray(rewards)) fail(file, `"rewards" must be an object`);
+    const problem = lootChanceProblem({ ...DEFAULT_BALANCE.rewards, ...rewards } as LootChances);
+    if (problem?.code === "range") fail(file, `"rewards.${problem.key}" must be a number from 0 to 1`);
+    if (problem?.code === "order") {
+      fail(file, `loot chances must run survivorLootChance > casualtyLootChance > defeatLootChance`);
+    }
+  }
+  return raw as Record<string, unknown>;
 }

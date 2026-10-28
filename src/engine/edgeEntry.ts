@@ -36,6 +36,7 @@ export {
   validateShopStock,
   validateDungeonDefinition,
   validateRaidDefinition,
+  validateBalanceFile,
 } from "./content/schemas.js";
 
 /*

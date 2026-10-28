@@ -653,6 +653,39 @@ export const en = {
     saveBlocked: "Fix the gold loops marked in red before saving.",
   },
 
+  /** The admin panel's Loot tab: the drop-rate dial. Operator-facing, never on stream. */
+  lootAdmin: {
+    tab: "loot",
+    title: "Drop rate",
+    intro:
+      "How often a member of a finished fight gets a loot roll at all. The three chances move together, so one dial scales them; the item that drops still comes from the fight's loot table.",
+    multiplier: "Drop-rate multiplier",
+    multiplierHint: "1.00 is what is saved now. 0.5 halves drops, 2 doubles them.",
+    resulting: "Resulting chances",
+    survivor: "Survived a win",
+    casualty: "Died in a win",
+    defeat: "Party lost",
+    advanced: "Advanced - set the three chances one by one",
+    advancedHint: "Each is a chance from 0 to 1. They must run survived > died in a win > lost.",
+    measureTitle: "What that drops (measured)",
+    measureNote:
+      "Twelve viewers, twenty runs at each dungeon, the way `npm run simulate:progression` section 2 measures it.",
+    measuring: "Measuring...",
+    perRun: "{n} per viewer per run",
+    perNight: "{n} per viewer per night of about {runs} runs",
+    saved: "{n} per viewer per night saved",
+    hostedMeasure: "Measuring drops needs the local admin panel; saving works from here.",
+    save: "Save drop rate",
+    saving: "Saving...",
+    savedStatus: "Saved the drop rate. The next run uses it.",
+    unchanged: "Nothing to save - this is already the live drop rate.",
+    refusedRange: "Rejected: {field} must be a number from 0 to 1.",
+    refusedOrder:
+      "Rejected: the chances must run survived > died in a win > lost, so dying in a win never beats surviving one and losing never beats either.",
+    refusedGeneric: "Rejected: {reason}",
+    cannotSave: "Cannot save: {reason}",
+  },
+
   errors: {
     // Named, not generic, because the caller that hits this is a bot with a
     // typo in it and the only useful thing to hand back is the string it sent.

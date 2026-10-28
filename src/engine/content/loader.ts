@@ -13,6 +13,7 @@ import type {
   ShopView,
 } from "../types.js";
 import {
+  validateBalanceFile,
   validateConsumableDefinition,
   validateDungeonDefinition,
   validateGearDefinition,
@@ -103,7 +104,7 @@ export class ContentRegistry {
     }
 
     if (bundle.balance && typeof bundle.balance === "object") {
-      this.balance = mergeBalance(DEFAULT_BALANCE, bundle.balance as Record<string, unknown>);
+      this.applyBalance(bundle.balance, "balance.json");
     }
     // Shop last: it validates its ids against everything above, exactly as
     // the directory path does.
@@ -183,11 +184,18 @@ export class ContentRegistry {
    */
   loadBalance(path: string): void {
     if (!existsSync(path)) return;
-    const raw = readJson(path);
-    if (typeof raw !== "object" || raw === null) {
-      throw new Error(`[content:${path}] balance file must contain a JSON object`);
-    }
-    this.balance = mergeBalance(DEFAULT_BALANCE, raw as Record<string, unknown>);
+    this.applyBalance(readJson(path), path);
+  }
+
+  /**
+   * Validate a balance file's contents and make them the live numbers.
+   *
+   * Public because the admin's Loot tab changes the drop dial on a running
+   * server: `balance` is replaced on the SAME registry, and the resolver reads
+   * it per fight, so the next run uses it with no restart.
+   */
+  applyBalance(raw: unknown, file = "balance.json"): void {
+    this.balance = mergeBalance(DEFAULT_BALANCE, validateBalanceFile(raw, `[content:${file}]`));
   }
 
   /**
