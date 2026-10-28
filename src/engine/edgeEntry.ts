@@ -13,6 +13,9 @@ export { ContentRegistry } from "./content/loader.js";
 export type { GameCommand } from "./commands/types.js";
 export { memberPower } from "./partyStrength.js";
 export type { Character, Role } from "./types.js";
+// The balance log's economy rows, which the loadout writes from here.
+export { economyRow } from "./balanceLog.js";
+export type { EconomyDraft, EconomyRecord } from "./balanceLog.js";
 
 /*
  * The content validators, for the operator function.

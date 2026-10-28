@@ -1079,4 +1079,15 @@ export interface CombatResult {
   events: CombatEvent[];
   /** Ids of party members still standing at the end. Casualties keep XP but get no gear (§2.1). */
   survivorIds: string[];
+  /**
+   * How the fight stopped, and how close to the ceiling it ran. Recorded by the
+   * resolver because it is the only thing that knows: an outcome of "defeat"
+   * is a wipe OR the timer, and the two are opposite balance problems.
+   */
+  ticks: number;
+  tickCeiling: number;
+  endReason: FightEndReason;
 }
+
+/** `timer`: both sides were still standing when the tick ceiling hit. */
+export type FightEndReason = "wiped" | "cleared" | "timer";

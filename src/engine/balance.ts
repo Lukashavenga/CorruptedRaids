@@ -422,6 +422,30 @@ export interface BalanceConfig {
      */
     compositionBonusMax: number;
   };
+
+  /**
+   * The balance log (AGENTS.md "Balance log"). Read by the game server's sink
+   * only; the engine builds a record per fight either way and has no opinion
+   * about where it goes.
+   */
+  balanceLog: {
+    /** Off switch for the whole log. A fight is never affected by it either way. */
+    enabled: boolean;
+    /**
+     * Keep the full event log of one fight in N, on the fight's own row.
+     * 0 keeps none, which is the default: the aggregates answer the questions
+     * and a forty-player log is hundreds of kilobytes.
+     */
+    rawEventsOneIn: number;
+    /**
+     * Records waiting to be written, at most. Past this the OLDEST is dropped
+     * with a warning, so a log that is down for a night costs memory only up
+     * to a bound.
+     */
+    maxQueued: number;
+    /** How often the queue is drained in the background. */
+    flushIntervalMs: number;
+  };
 }
 
 /**
@@ -507,6 +531,12 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     defeatXpMultiplier: 0.15,
     defeatLootChance: 0.0375,
     compositionBonusMax: 0.25,
+  },
+  balanceLog: {
+    enabled: true,
+    rawEventsOneIn: 0,
+    maxQueued: 2000,
+    flushIntervalMs: 2000,
   },
 };
 
