@@ -10,10 +10,13 @@ import type {
   SealedChest,
   Stats,
 } from "./types.js";
-import { ALLOCATABLE_STATS, GEAR_SLOTS } from "./types.js";
+import type { Rarity } from "./types.js";
+import { ALLOCATABLE_STATS, GEAR_SLOTS, RARITIES } from "./types.js";
 import { addStats, clampStats, emptyAllocation, statsFromAllocation, xpToNextLevel, ROLE_BASE_STATS } from "./stats.js";
 import type { BalanceConfig } from "./balance.js";
 import type { ContentRegistry } from "./content/loader.js";
+import type { Rng } from "./rng.js";
+import { text, format } from "../text/index.js";
 
 let instanceCounter = 0;
 export function nextInstanceId(gearId: string): string {
@@ -321,6 +324,65 @@ export function recycleGear(character: Character, instanceId: string, content: C
   character.inventory.splice(idx, 1);
   character.gold += gold;
   return { ok: true, gold };
+}
+
+/** The rarity a combine of `rarity` produces, or null when that rarity cannot be combined. */
+export function combineTarget(rarity: Rarity): Rarity | null {
+  const next = RARITIES[RARITIES.indexOf(rarity) + 1];
+  // Legendary is drop-only, so epic is the last rarity that can be combined.
+  return next && next !== "legendary" ? next : null;
+}
+
+/**
+ * Consumes `economy.combineCount` unequipped items sharing a slot and a
+ * rarity and grants one random item of the next rarity in that slot.
+ *
+ * Everything is validated before anything is touched, so a refusal leaves the
+ * bag exactly as it was. The result is a "loot" instance whatever the inputs
+ * were: otherwise combining three bought items would turn a full refund into
+ * a better item that also carries a full refund.
+ */
+export function combineGear(
+  character: Character,
+  instanceIds: readonly string[],
+  content: ContentRegistry,
+  rng: Rng,
+): MutationResult & { instance?: GearInstance; fee?: number } {
+  const { combineCount, combineFee } = content.balance.economy;
+  if (new Set(instanceIds).size !== instanceIds.length) return { ok: false, reason: text.shop.combineOne };
+  if (instanceIds.length !== combineCount) {
+    return { ok: false, reason: format(text.shop.combineWrongCount, { count: combineCount }) };
+  }
+  const inputs: GearInstance[] = [];
+  for (const id of instanceIds) {
+    const found = character.inventory.find((i) => i.instanceId === id);
+    if (!found) {
+      const equipped = Object.values(character.equipment).some((g) => g?.instanceId === id);
+      return { ok: false, reason: equipped ? text.shop.combineEquipped : text.shop.combineNoItem };
+    }
+    inputs.push(found);
+  }
+  const defs = inputs.map((i) => content.getGear(i.gearId));
+  const { slot, rarity } = defs[0]!;
+  if (defs.some((d) => d.slot !== slot)) return { ok: false, reason: text.shop.combineMixedSlot };
+  if (defs.some((d) => d.rarity !== rarity)) return { ok: false, reason: text.shop.combineMixedRarity };
+  const target = combineTarget(rarity);
+  if (!target) return { ok: false, reason: format(text.shop.combineCap, { rarity: text.gear.rarity[rarity] }) };
+  const pool = content.listGear().filter((g) => g.slot === slot && g.rarity === target);
+  if (pool.length === 0) {
+    return {
+      ok: false,
+      reason: format(text.shop.combineEmptyPool, { target: text.gear.rarity[target], slot: text.gear.slot[slot] }),
+    };
+  }
+  if (character.gold < combineFee) {
+    return { ok: false, reason: format(text.shop.combineTooPoor, { gold: combineFee, have: character.gold }) };
+  }
+
+  const chosen = pool[Math.floor(rng() * pool.length)]!;
+  character.inventory = character.inventory.filter((i) => !instanceIds.includes(i.instanceId));
+  character.gold -= combineFee;
+  return { ok: true, instance: grantGear(character, chosen.id, "loot"), fee: combineFee };
 }
 
 /** Buys a stocked gear item, if the shop stocks it and the character can afford it. */

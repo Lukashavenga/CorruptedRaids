@@ -38,6 +38,7 @@ import {
   grantChest,
   openChest,
   recycleGear,
+  combineGear,
   useConsumable,
   baseStatsFor,
   createCharacter,
@@ -820,6 +821,23 @@ export class GameEngine extends EventEmitter {
                 }),
               }
             : {}),
+        };
+      }
+
+      case "combine_gear": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        if (!Array.isArray(command.instanceIds)) return { ok: false, message: text.errors.cannotCombine };
+        const result = combineGear(character, command.instanceIds, this.content, this.rng);
+        if (!result.ok || !result.instance) return { ok: false, message: result.reason ?? text.errors.cannotCombine };
+        return {
+          ok: true,
+          message: format(text.shop.combined, { name: this.content.getGear(result.instance.gearId).name }),
+          economy: this.economyDraft(character.id, "combine_gear", {
+            gearId: result.instance.gearId,
+            goldDelta: -(result.fee ?? 0),
+            gearSource: "loot",
+          }),
         };
       }
 

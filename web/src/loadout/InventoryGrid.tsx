@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { combineTarget } from "../../../src/engine/character.js";
 import { STAT_KEYS } from "../../../src/engine/types.js";
 import type { GearDefinition } from "../../../src/engine/types.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
@@ -13,6 +14,7 @@ export interface InventoryGridProps {
   /** Consumables are carried too, so this panel owns using them. */
   onUse: (consumableId: string) => void;
   onRecycle: (instanceIds: string[]) => void;
+  onCombine: (instanceIds: string[]) => void;
   busy: boolean;
 }
 
@@ -57,11 +59,12 @@ function statLine(def: GearDefinition): string {
  * the Art Bible's "rarity lives in the UI, not the sprite" rule, which is
  * what lets one piece of item art serve every tier.
  */
-export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, busy }: InventoryGridProps): JSX.Element {
+export function InventoryGrid({ character, catalog, onEquip, onRecycle, onCombine, onUse, busy }: InventoryGridProps): JSX.Element {
   // Icons draw the item's worn sprite, and worn gear is cut to fit a body.
   const bodyType = character.appearance.bodyType;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [recycling, setRecycling] = useState(false);
+  const [combining, setCombining] = useState(false);
   const [marked, setMarked] = useState<Set<string>>(new Set());
 
   const items = character.inventory
@@ -93,8 +96,29 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
 
   const leaveRecycling = () => {
     setRecycling(false);
+    setCombining(false);
     setMarked(new Set());
   };
+
+  // Combine mode. The first pick fixes slot and rarity and everything else
+  // dims, so a player cannot build a mix the engine would refuse. The engine
+  // stays the authority; this is only the preview of what it will say.
+  const { combineCount, combineFee } = catalog.balance.economy;
+  const anchor = items.find((row) => marked.has(row.item.instanceId))?.def;
+  const comboTarget = anchor ? combineTarget(anchor.rarity) : null;
+  const comboPoolExists =
+    anchor && comboTarget
+      ? [...catalog.gearById.values()].some((g) => g.slot === anchor.slot && g.rarity === comboTarget)
+      : false;
+  const fits = (def: GearDefinition) =>
+    combineTarget(def.rarity) !== null && (!anchor || (def.slot === anchor.slot && def.rarity === anchor.rarity));
+  const comboProblem = !anchor
+    ? null
+    : !comboTarget
+      ? format(text.shop.combineCap, { rarity: text.gear.rarity[anchor.rarity] })
+      : !comboPoolExists
+        ? format(text.shop.combineNoTarget, { target: text.gear.rarity[comboTarget], slot: text.gear.slot[anchor.slot] })
+        : null;
 
   const toggleMark = (instanceId: string) => {
     setMarked((current) => {
@@ -123,8 +147,17 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
           */}
           <button
             type="button"
+            className={`scrap-button ${combining ? "is-on" : ""}`}
+            onClick={() => (combining ? leaveRecycling() : (leaveRecycling(), setSelectedId(null), setCombining(true)))}
+            aria-pressed={combining}
+            title={combining ? text.shop.recycleDone : format(text.shop.combineModeHint, { count: combineCount })}
+          >
+            <span>{combining ? text.shop.recycleDone : text.shop.combineMode}</span>
+          </button>
+          <button
+            type="button"
             className={`scrap-button ${recycling ? "is-on" : ""}`}
-            onClick={() => (recycling ? leaveRecycling() : (setSelectedId(null), setRecycling(true)))}
+            onClick={() => (recycling ? leaveRecycling() : (leaveRecycling(), setSelectedId(null), setRecycling(true)))}
             aria-pressed={recycling}
             title={recycling ? text.shop.recycleDone : text.shop.recycleManyHint}
           >
@@ -134,27 +167,30 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
         </span>
       </header>
 
-      <ul className={`inv-grid ${recycling ? "is-recycling" : ""}`}>
+      <ul className={`inv-grid ${recycling ? "is-recycling" : ""} ${combining ? "is-combining" : ""}`}>
         {items.map(({ item, def }) => {
           const isMarked = marked.has(item.instanceId);
+          const marking = recycling || combining;
+          const dim = combining && !isMarked && !fits(def);
           return (
             <li key={item.instanceId}>
               <button
                 type="button"
                 className={`inv-cell is-filled rarity-${def.rarity} ${
-                  recycling ? (isMarked ? "is-marked" : "") : selectedId === item.instanceId ? "is-selected" : ""
-                }`}
+                  marking ? (isMarked ? "is-marked" : "") : selectedId === item.instanceId ? "is-selected" : ""
+                } ${dim ? "is-dim" : ""}`}
+                disabled={dim}
                 onClick={() =>
-                  recycling
+                  marking
                     ? toggleMark(item.instanceId)
                     : setSelectedId(selectedId === item.instanceId ? null : item.instanceId)
                 }
                 title={recycling ? format(text.shop.scrapCell, { name: def.name, gold: item.recycleValue }) : def.name}
                 aria-label={def.name}
-                aria-pressed={recycling ? isMarked : selectedId === item.instanceId}
+                aria-pressed={marking ? isMarked : selectedId === item.instanceId}
               >
                 <ItemIcon def={def} slot={def.slot} bodyType={bodyType} size={38} alt={def.name} />
-                {recycling && isMarked && (
+                {marking && isMarked && (
                   <span className="inv-tick" aria-hidden="true">
                     ✕
                   </span>
@@ -204,7 +240,49 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
         </div>
       )}
 
-      {!recycling && selected && (
+      {combining && (
+        <div className="inv-detail is-recycle-bar">
+          <span className="inv-detail-info">
+            <span className="slot-name">
+              {anchor && comboTarget
+                ? format(text.shop.combineProgress, {
+                    marked: marked.size,
+                    count: combineCount,
+                    slot: text.gear.slot[anchor.slot],
+                    rarity: text.gear.rarity[anchor.rarity],
+                    target: text.gear.rarity[comboTarget],
+                  })
+                : format(text.shop.combineNone, { count: combineCount })}
+            </span>
+            <span className="bag-sub">
+              {comboProblem ??
+                (combineFee > 0 ? `${format(text.shop.combineFee, { gold: combineFee })} ` : "") +
+                  format(text.shop.combineHint, {
+                    count: combineCount,
+                    target: comboTarget ? text.gear.rarity[comboTarget] : "",
+                  })}
+            </span>
+          </span>
+          <div className="inv-detail-actions">
+            <button
+              type="button"
+              className="small"
+              disabled={busy || marked.size !== combineCount || comboProblem !== null}
+              onClick={() => {
+                onCombine([...marked]);
+                leaveRecycling();
+              }}
+            >
+              {text.shop.combine}
+            </button>
+            <button type="button" className="ghost small" onClick={leaveRecycling}>
+              {text.loadout.cancel}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!recycling && !combining && selected && (
         <div className={`inv-detail rarity-${selected.def.rarity}`}>
           <ItemIcon def={selected.def} slot={selected.def.slot} bodyType={bodyType} size={40} />
           <div className="inv-detail-info">

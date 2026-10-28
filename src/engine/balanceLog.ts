@@ -111,7 +111,7 @@ export interface FightRecord {
   members: FightMemberRecord[];
 }
 
-export type EconomyKind = "buy_gear" | "buy_consumable" | "recycle_gear" | "open_chest" | "level_up";
+export type EconomyKind = "buy_gear" | "buy_consumable" | "recycle_gear" | "combine_gear" | "open_chest" | "level_up";
 
 /** One thing that moved gold or gear outside a fight. */
 export interface EconomyRecord {

@@ -85,6 +85,14 @@ export type GameCommand =
   /** Destroys an unequipped gear instance for gold. */
   | { type: "recycle_gear"; requestedBy: string; instanceId: string }
   /**
+   * Turns `economy.combineCount` unequipped items of one slot and rarity into
+   * one random item of the next rarity in that slot. A VIEWER command: it acts
+   * on the viewer's own bag, and the result is a "loot" instance so combining
+   * bought gear cannot launder it into a full refund. Stops at epic -
+   * legendary is drop-only.
+   */
+  | { type: "combine_gear"; requestedBy: string; instanceIds: string[] }
+  /**
    * Opens a sealed drop, turning it into a real item in the bag.
    *
    * A VIEWER command — it acts on their own chest and mints nothing that was

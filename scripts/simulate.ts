@@ -18,7 +18,7 @@ import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
-import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
+import { buyGear, combineGear, combineTarget, createCharacter, grantGear, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -320,6 +320,40 @@ for (const entry of content.shopView().gear) {
     // An instance from before `source` existed is paid as loot, not as shop.
     assert.equal(content.recycleValue(def.id), content.recycleValue(def.id, "loot"));
   }
+}
+// Combining (issue #15): refuses bad input without touching the bag, never
+// consumes equipped gear, stops at epic, and pays out as loot.
+{
+  const { combineCount } = content.balance.economy;
+  const gear = content.listGear();
+  const slotRarity = (slot: string, rarity: string) => gear.filter((g) => g.slot === slot && g.rarity === rarity);
+  const found = gear.find((g) => g.rarity !== "epic" && g.rarity !== "legendary" && slotRarity(g.slot, g.rarity === "common" ? "uncommon" : g.rarity === "uncommon" ? "rare" : "epic").length > 0)!;
+  const rng = mulberry32(7);
+  const who = createCharacter({ id: "combine:test", name: "Combiner", role: "dps", appearance: {} as never });
+  const ids = Array.from({ length: combineCount }, () => grantGear(who, found.id, "shop").instanceId);
+  const before = who.inventory.length;
+
+  assert.equal(combineGear(who, ids.slice(1), content, rng).ok, false, "too few inputs must be refused");
+  assert.equal(combineGear(who, [ids[0]!, ids[0]!, ids[0]!], content, rng).ok, false, "a repeated id must be refused");
+  assert.equal(combineGear(who, [...ids.slice(1), "nope"], content, rng).ok, false, "an unowned id must be refused");
+  assert.equal(who.inventory.length, before, "a refusal must leave the bag as it was");
+
+  const equippedItem = who.inventory.pop()!;
+  who.equipment[found.slot] = equippedItem;
+  assert.equal(combineGear(who, ids, content, rng).ok, false, "equipped gear must not be consumed");
+  who.inventory.push(equippedItem);
+  delete who.equipment[found.slot];
+
+  const done = combineGear(who, ids, content, rng);
+  assert.ok(done.ok && done.instance, "a valid combine must succeed");
+  const made = content.getGear(done.instance!.gearId);
+  assert.equal(made.slot, found.slot, "the result stays in the slot");
+  assert.equal(made.rarity, combineTarget(found.rarity), "the result is the next rarity");
+  assert.equal(done.instance!.source, "loot", "a combined item is loot, so it cannot launder a shop refund");
+  assert.equal(who.inventory.length, before - combineCount + 1);
+
+  assert.equal(combineTarget("epic"), null, "epic cannot be combined: legendary is drop-only");
+  assert.equal(combineTarget("legendary"), null);
 }
 for (const entry of content.shopView().consumables) {
   const def = content.getConsumable(entry.id);

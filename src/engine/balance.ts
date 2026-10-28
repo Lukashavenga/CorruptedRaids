@@ -344,6 +344,17 @@ export interface BalanceConfig {
      * shop's commons are 20 each, so this buys three of them.
      */
     startingGold: number;
+    /**
+     * How many same-slot, same-rarity items one `combine_gear` consumes.
+     * Three, so a pile of duplicate commons has a use now that found gear
+     * scraps for 10%.
+     */
+    combineCount: number;
+    /**
+     * Gold one combine costs. 0 until the loop is being balanced: combining
+     * is the junk sink, and a fee on it is a second tax on the bag.
+     */
+    combineFee: number;
   };
 
   rewards: {
@@ -522,6 +533,8 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     lootRecycleRate: 0.1,
     valueByRarity: { common: 20, uncommon: 45, rare: 110, epic: 260, legendary: 600 },
     startingGold: 60,
+    combineCount: 3,
+    combineFee: 0,
   },
   rewards: {
     mobDropChance: 0.6,

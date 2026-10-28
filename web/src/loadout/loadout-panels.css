@@ -988,6 +988,15 @@
   filter: none;
 }
 
+.inv-grid.is-combining .inv-cell.is-dim {
+  opacity: 0.3;
+  filter: saturate(0.3);
+}
+
+.loadout .inv-grid.is-combining .inv-cell.is-marked {
+  filter: none;
+}
+
 .inv-cell.is-marked::after {
   border-color: #d0616f;
 }

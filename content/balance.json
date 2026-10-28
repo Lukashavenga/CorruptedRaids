@@ -72,6 +72,8 @@
     "_comment": "recycleRate is what SHOP-BOUGHT gear sells back for (1 = full refund, so trying an item costs nothing). lootRecycleRate is everything else - chest drops, the starter kit, operator grants, and any item owned before gear remembered where it came from. See src/engine/balance.ts.",
     "recycleRate": 1,
     "lootRecycleRate": 0.1,
+    "combineCount": 3,
+    "combineFee": 0,
     "valueByRarity": {
       "common": 20,
       "uncommon": 45,

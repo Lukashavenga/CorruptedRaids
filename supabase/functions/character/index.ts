@@ -51,6 +51,8 @@ const ALLOWED = new Set<GameCommand["type"]>([
   // Cosmetic: which equipped slots are drawn. Stats are untouched.
   "set_hidden_slots",
   "recycle_gear",
+  // Acts on the viewer's own bag only; the engine rolls the result.
+  "combine_gear",
   // Mints nothing: the item was rolled when the fight resolved and this only
   // moves it from a sealed chest into the bag. Safe from a phone in a way
   // `grant_gear` is not, which is the line this allowlist exists to draw.

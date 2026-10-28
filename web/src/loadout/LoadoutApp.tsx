@@ -458,6 +458,7 @@ export function LoadoutApp(): JSX.Element {
               busy={busy}
               onEquip={(instanceId) => run({ type: "equip_gear", requestedBy: viewer.id, instanceId })}
               onRecycle={recycle}
+              onCombine={(instanceIds) => run({ type: "combine_gear", requestedBy: viewer.id, instanceIds })}
               onUse={(consumableId) => run({ type: "use_consumable", requestedBy: viewer.id, consumableId })}
             />
           </div>
