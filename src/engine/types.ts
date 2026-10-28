@@ -843,10 +843,24 @@ export type ConsumableEffect =
   | { type: "grantXp"; amount: number }
   | { type: "grantGold"; amount: number };
 
-/** What the shop currently stocks, from content/shop.json. Ids only. */
+/**
+ * What the shop currently stocks, from content/shop.json.
+ *
+ * The order of `gear` and `consumables` is the order viewers see.
+ *
+ * `gearPrices` / `consumablePrices` are the shop's price OVERRIDES, keyed by
+ * stocked id; an id with no entry sells at its default (a gear item's
+ * `gearValue`, a consumable's own `price`). They live here and not in the gear
+ * definition's `value` because `value` also prices a RECYCLE
+ * (`recycleValue` derives from `gearValue`): repricing the shelf through
+ * `value` would silently reprice refunds, and a shelf price under what a
+ * bought item recycles for is a gold printer. Two prices, two fields.
+ */
 export interface ShopStock {
   gear: string[];
   consumables: string[];
+  gearPrices?: Record<string, number>;
+  consumablePrices?: Record<string, number>;
 }
 
 /**

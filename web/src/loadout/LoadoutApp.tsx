@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLiveShop } from "./useLiveShop.js";
 import { useCharacter } from "./useCharacter.js";
 import { useContentCatalog } from "../hooks/useContentCatalog.js";
 import { EquipmentDoll } from "./EquipmentDoll.js";
@@ -75,7 +76,11 @@ export function LoadoutApp(): JSX.Element {
   // The bundle shipped with this build, not the game server's live `/content`
   // — the loadout is hosted and has no game server to ask. See the note on
   // useContentCatalog.
-  const catalog = useContentCatalog("/loadout-content.json");
+  const bundled = useContentCatalog("/loadout-content.json");
+  // The shelf is the one part of the bundle the streamer changes between
+  // deploys, so it is read live; the bundled copy stands in until it answers.
+  const liveShop = useLiveShop();
+  const catalog = useMemo(() => (liveShop ? { ...bundled, shop: liveShop } : bundled), [bundled, liveShop]);
   const [busy, setBusy] = useState(false);
   // Appearance is a secondary concern, so it stays behind a toggle rather
   // than occupying permanent space next to stats and gear.
