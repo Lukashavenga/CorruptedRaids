@@ -295,7 +295,7 @@ export function recycleGear(character: Character, instanceId: string, content: C
 /** Buys a stocked gear item, if the shop stocks it and the character can afford it. */
 export function buyGear(character: Character, gearId: string, content: ContentRegistry): MutationResult & { cost?: number } {
   if (!content.shop.gear.includes(gearId)) return { ok: false, reason: "The shop doesn't stock that" };
-  const cost = content.gearValue(gearId);
+  const cost = content.shopGearPrice(gearId);
   if (character.gold < cost) return { ok: false, reason: `Costs ${cost}g - you have ${character.gold}g` };
   character.gold -= cost;
   grantGear(character, gearId, "shop");
@@ -308,11 +308,11 @@ export function buyConsumable(
   content: ContentRegistry,
 ): MutationResult & { cost?: number } {
   if (!content.shop.consumables.includes(consumableId)) return { ok: false, reason: "The shop doesn't stock that" };
-  const def = content.getConsumable(consumableId);
-  if (character.gold < def.price) return { ok: false, reason: `Costs ${def.price}g - you have ${character.gold}g` };
-  character.gold -= def.price;
+  const price = content.shopConsumablePrice(consumableId);
+  if (character.gold < price) return { ok: false, reason: `Costs ${price}g - you have ${character.gold}g` };
+  character.gold -= price;
   character.consumables[consumableId] = (character.consumables[consumableId] ?? 0) + 1;
-  return { ok: true, cost: def.price };
+  return { ok: true, cost: price };
 }
 
 export interface UseConsumableResult extends MutationResult {

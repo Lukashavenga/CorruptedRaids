@@ -106,7 +106,13 @@ export function contentRestore(id: number): Promise<{ message?: string }> {
 }
 
 /** Everything the tuning screens read, in the shape GET /content returns. */
-export function contentAll(): Promise<{ gear: unknown[]; dungeons: unknown[]; raids: unknown[] }> {
+export function contentAll(): Promise<{
+  gear: unknown[];
+  dungeons: unknown[];
+  raids: unknown[];
+  consumables: unknown[];
+  shop: unknown;
+}> {
   return call("?action=content-all");
 }
 

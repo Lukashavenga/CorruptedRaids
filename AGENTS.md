@@ -270,6 +270,27 @@ Twitch plugs into later: chat commands, channel-point redeems and the admin
 panel all become the same union, and the engine cannot tell them apart. **If
 you add a way to change state, add a command - do not reach into the engine.**
 
+### The shop is the streamer's, and it is live
+
+`content/shop.json` is owned by the admin panel's Shop tab: stock, order
+(viewers see the list's order) and price overrides (`gearPrices`,
+`consumablePrices`). The override is the SHELF price only. It is not the gear's
+`value`, because `recycleValue` derives from `value` and repricing the shelf
+through it would silently reprice refunds; with `recycleRate: 1` a shelf price
+under the refund prints gold. `src/engine/shopPricing.ts` holds the price and
+loop rules as pure functions so the panel, the shelf and the purchase are one
+computation, and `npm run simulate` asserts them.
+
+Every shop change goes through `ContentRegistry.setShop`, which validates and
+leaves the shelf untouched on refusal. A save reaches: the running game server
+at once (it also writes the store, or the disk if none is configured); the
+hosted loadout within ~30s, because the `character` Edge Function re-reads
+`shop.json` from the store (10s cache) for both `?shop=1` and `buy_gear`. What
+it does NOT do: gear added in the admin after the last `bundle:edge` deploy
+cannot be bought hosted, because the function's engine only knows the gear
+that was bundled. Stock such an item and the live shop falls back to the
+bundled one, with a log line saying why.
+
 ### The standalone overlay
 
 `npm run build:sim` (`vite build --mode standalone`, into `.pages/`) is the

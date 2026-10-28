@@ -63,6 +63,37 @@ const ALLOWED = new Set<GameCommand["type"]>([
 const content = new ContentRegistry();
 content.loadObjects(bundledContent as Parameters<ContentRegistry["loadObjects"]>[0]);
 
+/**
+ * The shop, live.
+ *
+ * Everything above is a snapshot taken at deploy, which is right for gear
+ * stats and wrong for a shelf the streamer restocks from the admin panel: a
+ * save would reach players at the next deploy. So the SHOP - and only the shop
+ * - is re-read from the content store, and both halves of buying use it: what
+ * the loadout is shown (`?shop=1`) and what `buy_gear` checks and charges.
+ * Showing a live shelf while charging deploy-time stock would be worse than
+ * either.
+ *
+ * Cached per isolate for a few seconds: a purchase is a click, not a loop, and
+ * the cost is a one-row read. A store that cannot be reached, or holds a shop
+ * naming gear this bundle has never heard of, leaves the bundled shop in
+ * place rather than failing the purchase - and logs why.
+ */
+const SHOP_TTL_MS = 10_000;
+let shopCheckedAt = 0;
+
+async function refreshShop(): Promise<void> {
+  if (Date.now() - shopCheckedAt < SHOP_TTL_MS) return;
+  shopCheckedAt = Date.now();
+  try {
+    const res = await db("/content_files?path=eq.shop.json&select=data");
+    const rows = (await res.json()) as { data: unknown }[];
+    if (rows[0]) content.setShop(rows[0].data, "shop.json");
+  } catch (err) {
+    console.error(`live shop unavailable, keeping the last one: ${(err as Error).message}`);
+  }
+}
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 /**
  * Injected by the platform — nothing sets this by hand.
@@ -231,6 +262,13 @@ async function handle(req: Request): Promise<Response> {
       return json({ ok: true, standings, rosterSize: rows.length });
     }
 
+    // The shelf as a buyer sees it, prices resolved by the same registry that
+    // charges them. The loadout falls back to its bundled copy if this fails.
+    if (req.method === "GET" && new URL(req.url).searchParams.has("shop")) {
+      await refreshShop();
+      return json({ ok: true, shop: content.shopView() });
+    }
+
     if (req.method === "GET") {
       if (!row) return json({ ok: true, character: null });
       const engine = seed(row.data);
@@ -250,6 +288,8 @@ async function handle(req: Request): Promise<Response> {
     if (row?.in_run) {
       return json({ ok: false, message: "You are in a run — try again when it ends." }, 409);
     }
+
+    if (command.type === "buy_gear" || command.type === "buy_consumable") await refreshShop();
 
     const engine = seed(row?.data ?? null);
     // `requestedBy` from the TOKEN, overwriting whatever the body claimed.
