@@ -5,7 +5,7 @@ import { ItemIcon } from "./ItemIcon.js";
 import { STAT_KEYS, type GearDefinition, type GearSlot } from "../../../src/engine/types.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
-import { spriteForGear } from "../sprites.js";
+import { spriteForInstance } from "../sprites.js";
 import type { ContentCatalog } from "../hooks/useContentCatalog.js";
 import { text, format } from "../../../src/text/index.js";
 
@@ -88,7 +88,7 @@ export function EquipmentDoll({
     const out: Partial<Record<GearSlot, string>> = {};
     for (const [slot, item] of Object.entries(character.equipment)) {
       if (!item) continue;
-      const sprite = spriteForGear(catalog.gearById.get(item.gearId), character.appearance.bodyType);
+      const sprite = spriteForInstance(item, catalog.gearById, character.appearance.bodyType);
       if (sprite) out[slot as GearSlot] = sprite;
     }
     return out;
@@ -130,6 +130,8 @@ export function EquipmentDoll({
   const socket = (slot: GearSlot) => {
     const item = character.equipment[slot];
     const def = item ? catalog.gearById.get(item.gearId) : undefined;
+    // The icon shows the look; the name and stats everywhere stay the item's own.
+    const lookDef = item?.look ? catalog.gearById.get(item.look) : undefined;
     const label = text.gear.slot[slot];
     const tile = slotTileUrl(slot);
 
@@ -148,11 +150,17 @@ export function EquipmentDoll({
             disabled={busy}
             onClick={() => setPicking(picking === slot ? null : slot)}
             aria-expanded={picking === slot}
-            title={def ? def.name : `${label} - ${text.gear.empty}`}
+            title={
+              def
+                ? lookDef
+                  ? `${def.name} - ${format(text.shop.transmogLooksLike, { name: lookDef.name })}`
+                  : def.name
+                : `${label} - ${text.gear.empty}`
+            }
             aria-label={def ? `${label}: ${def.name}` : `${label}: ${text.gear.empty}`}
           >
             {def ? (
-              <ItemIcon def={def} slot={slot} bodyType={character.appearance.bodyType} size={40} alt={def.name} />
+              <ItemIcon def={def} look={lookDef} slot={slot} bodyType={character.appearance.bodyType} size={40} alt={def.name} />
             ) : tile ? (
               /* The tile IS the socket — cell frame and mark in one drawing —
                  so it fills the box rather than sitting inside it. */

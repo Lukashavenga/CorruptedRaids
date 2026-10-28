@@ -323,6 +323,60 @@ export function recycleGear(character: Character, instanceId: string, content: C
   return { ok: true, gold };
 }
 
+/**
+ * Gives `targetId` the look of `lookId`, keeping the target's own stats, for
+ * `content.transmogCost(target)` gold. The look item is consumed.
+ *
+ * The target may be worn or carried; the look item must be CARRIED, because an
+ * equipped item is never consumed. Same slot only - sprite placement is per
+ * slot. Everything is checked before anything is written, so a refusal leaves
+ * the character as it was. The look is the source's own gearId, not whatever
+ * it was itself transmogged into: what you consume is what you see.
+ */
+export function transmogGear(
+  character: Character,
+  targetId: string,
+  lookId: string,
+  content: ContentRegistry,
+): MutationResult & { cost?: number } {
+  if (targetId === lookId) return { ok: false, reason: "An item cannot take its own look" };
+  const worn = Object.values(character.equipment).find((g) => g?.instanceId === targetId);
+  const target = worn ?? character.inventory.find((i) => i.instanceId === targetId);
+  if (!target) return { ok: false, reason: "You don't own that item" };
+
+  const idx = character.inventory.findIndex((i) => i.instanceId === lookId);
+  if (idx === -1) {
+    const equipped = Object.values(character.equipment).some((g) => g?.instanceId === lookId);
+    return { ok: false, reason: equipped ? "Unequip it first" : "You don't own that item" };
+  }
+  const source = character.inventory[idx]!;
+
+  if (content.getGear(source.gearId).slot !== content.getGear(target.gearId).slot) {
+    return { ok: false, reason: "Only items for the same slot can share a look" };
+  }
+  if ((target.look ?? target.gearId) === source.gearId) return { ok: false, reason: "It already looks like that" };
+
+  const cost = content.transmogCost(target.gearId);
+  if (character.gold < cost) return { ok: false, reason: `Costs ${cost}g - you have ${character.gold}g` };
+
+  character.gold -= cost;
+  character.inventory.splice(idx, 1);
+  // Transmogging back to the target's own drawing is just no look at all.
+  if (source.gearId === target.gearId) delete target.look;
+  else target.look = source.gearId;
+  return { ok: true, cost };
+}
+
+/** Puts an item back to its own drawing. Free; the item consumed for the look is not returned. */
+export function revertTransmog(character: Character, instanceId: string): MutationResult {
+  const worn = Object.values(character.equipment).find((g) => g?.instanceId === instanceId);
+  const item = worn ?? character.inventory.find((i) => i.instanceId === instanceId);
+  if (!item) return { ok: false, reason: "You don't own that item" };
+  if (!item.look) return { ok: false, reason: "It already looks like itself" };
+  delete item.look;
+  return { ok: true };
+}
+
 /** Buys a stocked gear item, if the shop stocks it and the character can afford it. */
 export function buyGear(character: Character, gearId: string, content: ContentRegistry): MutationResult & { cost?: number } {
   if (!content.shop.gear.includes(gearId)) return { ok: false, reason: "The shop doesn't stock that" };

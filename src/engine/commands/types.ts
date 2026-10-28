@@ -85,6 +85,14 @@ export type GameCommand =
   /** Destroys an unequipped gear instance for gold. */
   | { type: "recycle_gear"; requestedBy: string; instanceId: string }
   /**
+   * Makes `targetInstanceId` LOOK like `lookInstanceId`, keeping its own stats,
+   * for gold. The look item is consumed. A VIEWER command: it only touches the
+   * caller's own items and mints nothing.
+   */
+  | { type: "transmog_gear"; requestedBy: string; targetInstanceId: string; lookInstanceId: string }
+  /** Puts an item back to its own look. Free, and the consumed item does not return. */
+  | { type: "revert_transmog"; requestedBy: string; instanceId: string }
+  /**
    * Opens a sealed drop, turning it into a real item in the bag.
    *
    * A VIEWER command — it acts on their own chest and mints nothing that was

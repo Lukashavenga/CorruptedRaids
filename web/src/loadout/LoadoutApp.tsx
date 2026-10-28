@@ -458,6 +458,11 @@ export function LoadoutApp(): JSX.Element {
               busy={busy}
               onEquip={(instanceId) => run({ type: "equip_gear", requestedBy: viewer.id, instanceId })}
               onRecycle={recycle}
+              onTransmog={(targetInstanceId, lookInstanceId) =>
+                run({ type: "transmog_gear", requestedBy: viewer.id, targetInstanceId, lookInstanceId })
+              }
+              onRevertTransmog={(instanceId) => run({ type: "revert_transmog", requestedBy: viewer.id, instanceId })}
+              placements={placements}
               onUse={(consumableId) => run({ type: "use_consumable", requestedBy: viewer.id, consumableId })}
             />
           </div>

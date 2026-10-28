@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { STAT_KEYS } from "../../../src/engine/types.js";
-import type { GearDefinition } from "../../../src/engine/types.js";
+import type { GearDefinition, GearSlot } from "../../../src/engine/types.js";
+import type { PlacementFile } from "../../../src/character/layers.js";
+import { CharacterSprite } from "../components/CharacterSprite.js";
+import { spriteForGear, spriteForInstance } from "../sprites.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import type { ContentCatalog } from "../hooks/useContentCatalog.js";
 import { ItemIcon } from "./ItemIcon.js";
@@ -13,6 +16,11 @@ export interface InventoryGridProps {
   /** Consumables are carried too, so this panel owns using them. */
   onUse: (consumableId: string) => void;
   onRecycle: (instanceIds: string[]) => void;
+  /** Gives `targetInstanceId` the look of `lookInstanceId`; the latter is destroyed. */
+  onTransmog: (targetInstanceId: string, lookInstanceId: string) => void;
+  onRevertTransmog: (instanceId: string) => void;
+  /** For the transmog preview on the character. */
+  placements: PlacementFile;
   busy: boolean;
 }
 
@@ -57,12 +65,26 @@ function statLine(def: GearDefinition): string {
  * the Art Bible's "rarity lives in the UI, not the sprite" rule, which is
  * what lets one piece of item art serve every tier.
  */
-export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, busy }: InventoryGridProps): JSX.Element {
+export function InventoryGrid({
+  character,
+  catalog,
+  onEquip,
+  onRecycle,
+  onUse,
+  onTransmog,
+  onRevertTransmog,
+  placements,
+  busy,
+}: InventoryGridProps): JSX.Element {
   // Icons draw the item's worn sprite, and worn gear is cut to fit a body.
   const bodyType = character.appearance.bodyType;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [recycling, setRecycling] = useState(false);
   const [marked, setMarked] = useState<Set<string>>(new Set());
+  // Transmog is a two-step flow from the detail strip: the item keeping its
+  // stats (`transmogging`), then the item whose look is wanted (`lookId`).
+  const [transmogging, setTransmogging] = useState<string | null>(null);
+  const [lookId, setLookId] = useState<string | null>(null);
 
   const items = character.inventory
     .map((item) => ({ item, def: catalog.gearById.get(item.gearId) }))
@@ -86,6 +108,34 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
       format(text.gear.needsStat, { amount: need, stat: text.stat[stat as keyof typeof text.stat] ?? stat }),
     )
     .join(", ");
+
+  const leaveTransmog = () => {
+    setTransmogging(null);
+    setLookId(null);
+  };
+
+  const tmTarget = transmogging ? items.find((row) => row.item.instanceId === transmogging) ?? null : null;
+  // Only carried items in the same slot can be consumed for their look.
+  const tmCandidates = tmTarget
+    ? items.filter((row) => row.item.instanceId !== transmogging && row.def.slot === tmTarget.def.slot)
+    : [];
+  const tmLook = lookId ? tmCandidates.find((row) => row.item.instanceId === lookId) ?? null : null;
+  const tmCost = tmTarget?.item.transmogCost ?? 0;
+
+  // The preview is the character as worn, with the target's slot drawn as the
+  // look. Built from the same helper as the doll so the two cannot disagree.
+  const previewLayers = (): Partial<Record<GearSlot, string>> => {
+    const out: Partial<Record<GearSlot, string>> = {};
+    for (const [slot, worn] of Object.entries(character.equipment)) {
+      const sprite = spriteForInstance(worn ?? undefined, catalog.gearById, bodyType);
+      if (worn && sprite) out[slot as GearSlot] = sprite;
+    }
+    if (tmTarget && tmLook) {
+      const sprite = spriteForGear(tmLook.def, bodyType);
+      if (sprite) out[tmTarget.def.slot] = sprite;
+    }
+    return out;
+  };
 
   const markedPayout = items
     .filter((row) => marked.has(row.item.instanceId))
@@ -124,7 +174,7 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
           <button
             type="button"
             className={`scrap-button ${recycling ? "is-on" : ""}`}
-            onClick={() => (recycling ? leaveRecycling() : (setSelectedId(null), setRecycling(true)))}
+            onClick={() => (recycling ? leaveRecycling() : (setSelectedId(null), leaveTransmog(), setRecycling(true)))}
             aria-pressed={recycling}
             title={recycling ? text.shop.recycleDone : text.shop.recycleManyHint}
           >
@@ -153,7 +203,14 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
                 aria-label={def.name}
                 aria-pressed={recycling ? isMarked : selectedId === item.instanceId}
               >
-                <ItemIcon def={def} slot={def.slot} bodyType={bodyType} size={38} alt={def.name} />
+                <ItemIcon
+                  def={def}
+                  look={item.look ? catalog.gearById.get(item.look) : undefined}
+                  slot={def.slot}
+                  bodyType={bodyType}
+                  size={38}
+                  alt={def.name}
+                />
                 {recycling && isMarked && (
                   <span className="inv-tick" aria-hidden="true">
                     ✕
@@ -204,9 +261,87 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
         </div>
       )}
 
-      {!recycling && selected && (
+      {/* Transmog. Sticky like the other bars: on a phone a confirm under the
+          grid is a confirm nobody sees. The preview is the whole point, so it
+          sits beside the words rather than behind a tap. */}
+      {!recycling && tmTarget && (
+        <div className="inv-detail is-transmog-bar">
+          {tmLook ? (
+            <>
+              <CharacterSprite
+                bodyType={bodyType}
+                skinTone={character.appearance.skinTone}
+                hair={character.appearance.hair ?? null}
+                layers={previewLayers()}
+                hiddenSlots={character.hiddenSlots}
+                placements={placements}
+                size={128}
+              />
+              <span className="inv-detail-info">
+                <span className="slot-name">
+                  {tmTarget.def.name} · {format(text.shop.transmogLooksLike, { name: tmLook.def.name })}
+                </span>
+                <span className="bag-sub">
+                  {format(text.shop.transmogWarn, { name: tmLook.def.name, target: tmTarget.def.name })}
+                </span>
+              </span>
+              <div className="inv-detail-actions">
+                <button
+                  type="button"
+                  className="small"
+                  disabled={busy || character.gold < tmCost}
+                  onClick={() => {
+                    onTransmog(tmTarget.item.instanceId, tmLook.item.instanceId);
+                    leaveTransmog();
+                    setSelectedId(null);
+                  }}
+                >
+                  {format(text.shop.transmogConfirm, { gold: tmCost })}
+                </button>
+                <button type="button" className="ghost small" onClick={() => setLookId(null)}>
+                  {text.loadout.cancel}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="inv-detail-info">
+                <span className="slot-name">{tmCandidates.length === 0 ? text.shop.transmogNone : text.shop.transmogPick}</span>
+                <ul className="transmog-options">
+                  {tmCandidates.map(({ item, def }) => (
+                    <li key={item.instanceId}>
+                      <button
+                        type="button"
+                        className={`inv-cell is-filled rarity-${def.rarity}`}
+                        onClick={() => setLookId(item.instanceId)}
+                        title={def.name}
+                        aria-label={def.name}
+                      >
+                        <ItemIcon def={def} slot={def.slot} bodyType={bodyType} size={38} alt={def.name} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </span>
+              <div className="inv-detail-actions">
+                <button type="button" className="ghost small" onClick={leaveTransmog}>
+                  {text.loadout.cancel}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {!recycling && !tmTarget && selected && (
         <div className={`inv-detail rarity-${selected.def.rarity}`}>
-          <ItemIcon def={selected.def} slot={selected.def.slot} bodyType={bodyType} size={40} />
+          <ItemIcon
+            def={selected.def}
+            look={selected.item.look ? catalog.gearById.get(selected.item.look) : undefined}
+            slot={selected.def.slot}
+            bodyType={bodyType}
+            size={40}
+          />
           <div className="inv-detail-info">
             <span className="slot-name">{selected.def.name}</span>
             <span className="bag-sub">
@@ -217,6 +352,11 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
               {selected.item.source && ` · ${text.gear.source[selected.item.source]}`}
             </span>
             <span className="slot-mods">{statLine(selected.def)}</span>
+            {selected.item.look && catalog.gearById.get(selected.item.look) && (
+              <span className="bag-sub">
+                {format(text.shop.transmogLooksLike, { name: catalog.gearById.get(selected.item.look)!.name })}
+              </span>
+            )}
           </div>
           <div className="inv-detail-actions">
             <button
@@ -228,6 +368,25 @@ export function InventoryGrid({ character, catalog, onEquip, onRecycle, onUse, b
             >
               {locked ? lockReason : text.gear.equip}
             </button>
+            <button
+              type="button"
+              className="ghost small"
+              disabled={busy}
+              onClick={() => setTransmogging(selected.item.instanceId)}
+              title={format(text.shop.transmogConfirm, { gold: selected.item.transmogCost })}
+            >
+              {text.shop.transmog}
+            </button>
+            {selected.item.look && (
+              <button
+                type="button"
+                className="ghost small"
+                disabled={busy}
+                onClick={() => onRevertTransmog(selected.item.instanceId)}
+              >
+                {text.shop.transmogRevert}
+              </button>
+            )}
             {/* The payout is on the button because recycling destroys the
                 item - the number is the warning. */}
             <button

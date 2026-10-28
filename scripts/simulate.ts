@@ -18,7 +18,7 @@ import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
-import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
+import { buyGear, createCharacter, grantGear, grantXp, revertTransmog, transmogGear } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -328,6 +328,43 @@ for (const entry of content.shopView().consumables) {
     def.effect.amount < entry.price,
     `stocked consumable "${def.id}" pays out ${def.effect.amount}g but costs ${entry.price}g — that is an infinite gold loop`,
   );
+}
+// Transmog: the rules the loadout relies on. Cost rises with rarity (a ladder
+// that falls would make the rare item the cheap one to re-skin), and every
+// refusal leaves the character untouched.
+{
+  const costs = (["common", "uncommon", "rare", "epic", "legendary"] as const).map(
+    (r) => content.balance.economy.transmogCostByRarity[r],
+  );
+  assert.ok(costs.every((c, i) => c > 0 && (i === 0 || c >= costs[i - 1]!)), `transmog costs must rise with rarity: ${costs}`);
+
+  const all = content.listGear();
+  const a = all.find((g) => g.requires === undefined || Object.keys(g.requires).length === 0)!;
+  const same = all.find((g) => g.slot === a.slot && g.id !== a.id)!;
+  const other = all.find((g) => g.slot !== a.slot)!;
+  const hero = createCharacter({ id: "sim:transmog", name: "Transmog", role: "dps", gold: 10_000 });
+  const target = grantGear(hero, a.id);
+  const wrongSlot = grantGear(hero, other.id);
+  const lookItem = grantGear(hero, same.id);
+  const before = JSON.stringify(hero);
+
+  assert.equal(transmogGear(hero, target.instanceId, wrongSlot.instanceId, content).ok, false, "different slot refused");
+  assert.equal(transmogGear(hero, target.instanceId, "nope", content).ok, false, "missing look item refused");
+  hero.gold = content.transmogCost(a.id) - 1;
+  const poor = JSON.stringify(hero);
+  assert.equal(transmogGear(hero, target.instanceId, lookItem.instanceId, content).ok, false, "not enough gold refused");
+  assert.equal(JSON.stringify(hero), poor, "a refusal changes nothing");
+  assert.notEqual(before, poor); // only the gold differed
+
+  hero.gold = 10_000;
+  const paid = transmogGear(hero, target.instanceId, lookItem.instanceId, content);
+  assert.ok(paid.ok && paid.cost === content.transmogCost(a.id), "priced by the item keeping its stats");
+  assert.equal(hero.gold, 10_000 - paid.cost!);
+  assert.equal(target.look, same.id);
+  assert.equal(target.gearId, a.id, "stats stay with the item");
+  assert.equal(hero.inventory.some((i) => i.instanceId === lookItem.instanceId), false, "look item consumed");
+  assert.ok(revertTransmog(hero, target.instanceId).ok && target.look === undefined, "revert is free");
+  assert.equal(hero.gold, 10_000 - paid.cost!, "and does not refund");
 }
 console.log(
   `Economy: ${content.shopView().gear.length} gear + ${content.shopView().consumables.length} consumables stocked, no buy/recycle loops.`,
