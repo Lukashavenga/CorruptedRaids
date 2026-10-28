@@ -4,7 +4,9 @@ import { ALLOCATABLE_STATS, GEAR_STAT_KEYS, RARITIES } from "../../../src/engine
 import { DEFAULT_BALANCE } from "../../../src/engine/balance.js";
 import { explainStat, powerScore, RARITY_POWER_BAND } from "../../../src/engine/statGuide.js";
 import { SLOT_FOLDER, spriteForGear, spriteUrl } from "../sprites.js";
+import type { PlacementFile } from "../../../src/character/layers.js";
 import { writeContent } from "./backend.js";
+import { IconFramer } from "./IconFramer.js";
 
 /**
  * Sensible drag ranges per gear stat.
@@ -29,6 +31,9 @@ export interface GearTunerProps {
   gear: GearDefinition[];
   onSaved: () => void;
   setStatus: (message: string) => void;
+  /** placements.json, for the thumbnail framing stored beside each sprite. */
+  placements: PlacementFile;
+  savePlacements: (next: PlacementFile) => Promise<string | null>;
 }
 
 /**
@@ -42,7 +47,7 @@ export interface GearTunerProps {
  * editor that showed six identical sliders would invite exactly the mistake it
  * should prevent.
  */
-export function GearTuner({ gear, onSaved, setStatus }: GearTunerProps): JSX.Element {
+export function GearTuner({ gear, onSaved, setStatus, placements, savePlacements }: GearTunerProps): JSX.Element {
   const [slot, setSlot] = useState<string>("top");
   const [id, setId] = useState("");
   const [draft, setDraft] = useState<GearDefinition | null>(null);
@@ -221,6 +226,14 @@ export function GearTuner({ gear, onSaved, setStatus }: GearTunerProps): JSX.Ele
             )}
           </div>
         </div>
+
+        <IconFramer
+          def={draft}
+          bodyType={bodies[0] ?? "male"}
+          placements={placements}
+          save={savePlacements}
+          setStatus={setStatus}
+        />
 
         <h3 className="sub-heading">Stats - click one to see what it is worth</h3>
         {GEAR_STAT_KEYS.map((key) => {

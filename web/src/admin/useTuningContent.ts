@@ -4,6 +4,8 @@ import type {
   DungeonDefinition,
   GearDefinition,
   RaidDefinition,
+  ConsumableDefinition,
+  ShopStock,
 } from "../../../src/engine/types.js";
 
 /**
@@ -19,11 +21,16 @@ export function useTuningContent(): {
   raids: RaidDefinition[];
   gear: GearDefinition[];
   dungeons: DungeonDefinition[];
+  consumables: ConsumableDefinition[];
+  /** The raw stock list as saved - order and price overrides - or null if none. */
+  shop: ShopStock | null;
   reload: () => void;
 } {
   const [raids, setRaids] = useState<RaidDefinition[]>([]);
   const [gear, setGear] = useState<GearDefinition[]>([]);
   const [dungeons, setDungeons] = useState<DungeonDefinition[]>([]);
+  const [consumables, setConsumables] = useState<ConsumableDefinition[]>([]);
+  const [shop, setShop] = useState<ShopStock | null>(null);
 
   // Through the backend switch, so the same screens work served by the game
   // server and served as a static page. See web/src/admin/backend.ts.
@@ -33,15 +40,19 @@ export function useTuningContent(): {
         setRaids(data.raids as RaidDefinition[]);
         setGear(data.gear as GearDefinition[]);
         setDungeons(data.dungeons as DungeonDefinition[]);
+        setConsumables(data.consumables as ConsumableDefinition[]);
+        setShop((data.shop as ShopStock | null) ?? null);
       })
       .catch(() => {
         setRaids([]);
         setGear([]);
         setDungeons([]);
+        setConsumables([]);
+        setShop(null);
       });
   }, []);
 
   useEffect(reload, [reload]);
 
-  return { raids, gear, dungeons, reload };
+  return { raids, gear, dungeons, consumables, shop, reload };
 }

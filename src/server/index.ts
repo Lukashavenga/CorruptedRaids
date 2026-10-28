@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createServer, type ServerResponse } from "node:http";
 import { readFileSync, writeFileSync, existsSync, copyFileSync, mkdirSync, readdirSync, unlinkSync } from "node:fs";
 import { extname, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,6 +26,7 @@ import {
 import type { SearchState } from "../engine/bandSearch.js";
 import { PARTY_BANDS, type PartyBand } from "../engine/types.js";
 import { FileRosterStore } from "../engine/persistence/fileRosterStore.js";
+import { BalanceLog, FileLogBackend, SupabaseLogBackend } from "./balanceLog.js";
 import { SupabaseRosterStore } from "../engine/persistence/supabaseRosterStore.js";
 import { pruneUnknownGear, type RosterStore } from "../engine/persistence/rosterStore.js";
 import {
@@ -214,6 +215,32 @@ const knownGear = new Set(content.listGear().map((g) => g.id));
 const gearExists = (id: string) => knownGear.has(id);
 
 const engine = new GameEngine(content, Math.random);
+
+/**
+ * The balance log: one record per fight and per economy action, written in
+ * the background. See src/server/balanceLog.ts and AGENTS.md "Balance log".
+ *
+ * It follows the roster's store - Supabase when characters go there, JSON lines
+ * under DATA_DIR/logs otherwise - so `ROSTER_STORE=file` keeps a sandbox's
+ * records out of production's tables as well as its characters. Those records
+ * are also TAGGED `sandbox` (override with BALANCE_LOG_SOURCE=live|sandbox),
+ * because a file under ./data/sandbox is not the only way they could be read
+ * back alongside real ones.
+ */
+const logSource: "live" | "sandbox" =
+  process.env.BALANCE_LOG_SOURCE === "live" || process.env.BALANCE_LOG_SOURCE === "sandbox"
+    ? process.env.BALANCE_LOG_SOURCE
+    : process.env.ROSTER_STORE === "file"
+      ? "sandbox"
+      : "live";
+const balanceLog = new BalanceLog(
+  supabaseRoster && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+    ? new SupabaseLogBackend(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+    : new FileLogBackend(join(DATA_DIR, "logs")),
+  logSource,
+  () => content.balance.balanceLog,
+);
+balanceLog.attach(engine);
 // DungeonController wraps the engine with the idle/gathering/combat/results/
 // cooldown state machine (see src/state/dungeonStates.config.ts) — it's what
 // holds the join window open, gates a second run from overlapping one still
@@ -1280,6 +1307,39 @@ const server = createServer((req, res) => {
   }
 
   /**
+   * Save the shop: validate, write where content lives, then swap it in.
+   *
+   * Its own path rather than a CONTENT_WRITABLE kind because it is ONE file,
+   * not a directory of them, and because it must not go through
+   * `content.reload(CONTENT_DIR)`: when content came from Supabase that
+   * re-reads the repo's older copy of everything. `setShop` validates against
+   * the registry that is actually running and leaves the shelf untouched if it
+   * throws, so a rejected save changes nothing.
+   *
+   * The store when it is configured, the disk otherwise - the same order the
+   * boot read uses, so the file the game reads back is the file just written.
+   * Written BEFORE the swap: a failed write must not leave the running shop
+   * ahead of what a restart would load.
+   */
+  const writeShop = async (data: unknown, out: ServerResponse): Promise<void> => {
+    const before = content.shop;
+    try {
+      if (typeof data !== "object" || data === null) throw new Error("data must be an object");
+      content.setShop(data, "shop.json");
+      content.shop = before;
+      const stored = await writeContentFile("shop.json", data);
+      if (!stored) writeFileSync(join(CONTENT_DIR, "shop.json"), `${JSON.stringify(data, null, 2)}\n`);
+      content.setShop(data, "shop.json");
+      out.writeHead(200, { "Content-Type": "application/json" });
+      out.end(JSON.stringify({ ok: true, stored, loops: content.shopLoops() }));
+    } catch (err) {
+      content.shop = before;
+      out.writeHead(400, { "Content-Type": "application/json" });
+      out.end(JSON.stringify({ ok: false, message: (err as Error).message }));
+    }
+  };
+
+  /**
    * Write one content file and reload the registry.
    *
    * The kind is constrained to a known set of directories rather than taken
@@ -1301,6 +1361,10 @@ const server = createServer((req, res) => {
       const previous = readFileSync;
       try {
         const { kind, id, data } = JSON.parse(body || "{}");
+        if (kind === "shop") {
+          void writeShop(data, res);
+          return;
+        }
         const dir = CONTENT_WRITABLE[kind as string];
         if (!dir) throw new Error(`kind must be one of ${Object.keys(CONTENT_WRITABLE).join(", ")}`);
         if (!/^[a-z0-9-]+$/i.test(id ?? "")) throw new Error("bad id");
@@ -1356,6 +1420,9 @@ const server = createServer((req, res) => {
         raids: content.listRaids(),
         consumables: content.listConsumables(),
         shop: content.shopView(),
+        // The raw list, order and overrides: what the admin edits. `shop`
+        // above is the resolved view a buyer sees.
+        shopStock: content.shop,
         balance: content.balance,
       }),
     );
@@ -1742,7 +1809,7 @@ for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
     if (closing) return;
     closing = true;
     if (saveTimer) clearTimeout(saveTimer);
-    void flushRoster().finally(() => {
+    void Promise.all([flushRoster(), balanceLog.flush()]).finally(() => {
       console.log("[roster] saved on shutdown");
       process.exit(0);
     });

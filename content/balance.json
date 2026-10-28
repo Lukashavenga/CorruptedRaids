@@ -93,5 +93,12 @@
     "defeatXpMultiplier": 0.15,
     "defeatLootChance": 0.0375,
     "compositionBonusMax": 0.25
+  },
+  "balanceLog": {
+    "_comment": "The balance log (AGENTS.md, 'Balance log'). rawEventsOneIn keeps the whole event log of one fight in N on its row; 0 keeps none, which is right until a specific fight needs replaying. maxQueued bounds memory while the log is down; the oldest record is dropped first. Not part of a fight's content fingerprint, so changing these does not read as a rebalance.",
+    "enabled": true,
+    "rawEventsOneIn": 0,
+    "maxQueued": 2000,
+    "flushIntervalMs": 2000
   }
 }

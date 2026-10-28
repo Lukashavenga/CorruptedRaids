@@ -70,6 +70,8 @@ export type GameCommand =
   // --- loadout screen (§2.6). All character-scoped, all keyed by viewer id.
   /** Spends banked level-up points on one stat. */
   | { type: "allocate_points"; requestedBy: string; stat: AllocatableStat; amount: number }
+  /** Spends points on several stats in one atomic step: every point lands or none does. */
+  | { type: "allocate_many"; requestedBy: string; points: Partial<Record<AllocatableStat, number>> }
   /** Refunds every spent point back to the pool. */
   | { type: "respec"; requestedBy: string }
   | { type: "set_role"; requestedBy: string; role: Role }

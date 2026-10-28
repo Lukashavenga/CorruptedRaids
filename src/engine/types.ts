@@ -843,10 +843,24 @@ export type ConsumableEffect =
   | { type: "grantXp"; amount: number }
   | { type: "grantGold"; amount: number };
 
-/** What the shop currently stocks, from content/shop.json. Ids only. */
+/**
+ * What the shop currently stocks, from content/shop.json.
+ *
+ * The order of `gear` and `consumables` is the order viewers see.
+ *
+ * `gearPrices` / `consumablePrices` are the shop's price OVERRIDES, keyed by
+ * stocked id; an id with no entry sells at its default (a gear item's
+ * `gearValue`, a consumable's own `price`). They live here and not in the gear
+ * definition's `value` because `value` also prices a RECYCLE
+ * (`recycleValue` derives from `gearValue`): repricing the shelf through
+ * `value` would silently reprice refunds, and a shelf price under what a
+ * bought item recycles for is a gold printer. Two prices, two fields.
+ */
 export interface ShopStock {
   gear: string[];
   consumables: string[];
+  gearPrices?: Record<string, number>;
+  consumablePrices?: Record<string, number>;
 }
 
 /**
@@ -1079,4 +1093,15 @@ export interface CombatResult {
   events: CombatEvent[];
   /** Ids of party members still standing at the end. Casualties keep XP but get no gear (§2.1). */
   survivorIds: string[];
+  /**
+   * How the fight stopped, and how close to the ceiling it ran. Recorded by the
+   * resolver because it is the only thing that knows: an outcome of "defeat"
+   * is a wipe OR the timer, and the two are opposite balance problems.
+   */
+  ticks: number;
+  tickCeiling: number;
+  endReason: FightEndReason;
 }
+
+/** `timer`: both sides were still standing when the tick ceiling hit. */
+export type FightEndReason = "wiped" | "cleared" | "timer";

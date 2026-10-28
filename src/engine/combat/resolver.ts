@@ -5,6 +5,7 @@ import type {
   CombatResult,
   CombatantSnapshot,
   EnemyDefinition,
+  FightEndReason,
   Role,
   Side,
   StatKey,
@@ -542,6 +543,8 @@ export function runCombat(
   const survivors = partyRt.filter(alive);
   const outcome = enemyRt.every((rt) => !alive(rt)) && survivors.length > 0 ? "victory" : "defeat";
   events.push({ type: "outcome", outcome });
+  // Both sides standing means the loop left on the ceiling, not on a kill.
+  const endReason: FightEndReason = survivors.length === 0 ? "wiped" : enemyRt.some(alive) ? "timer" : "cleared";
 
   {
     const totalXp = enemies.reduce((sum, def) => sum + def.xpReward, 0);
@@ -624,6 +627,9 @@ export function runCombat(
     combatants,
     events,
     survivorIds: survivors.map((rt) => rt.id),
+    ticks: tick,
+    tickCeiling,
+    endReason,
   };
 }
 

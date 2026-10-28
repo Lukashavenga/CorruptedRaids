@@ -3,7 +3,7 @@ import type { PlacementFile } from "../../../src/character/layers.js";
 import { adminFetch } from "../adminKey.js";
 import { fetchLiveArt } from "../liveArt.js";
 import { loadLocalGame } from "../localGameLink.js";
-import { setSpriteManifest } from "../sprites.js";
+import { setIconFramings, setSpriteManifest } from "../sprites.js";
 
 /**
  * Loads content/placements.json from the server.
@@ -134,6 +134,7 @@ export function usePlacements(source?: PlacementSource): {
           loaded.current = true;
           setError(null);
           if (at < savedAt.current) return;
+          setIconFramings(data ?? {});
           setPlacements(data ?? {});
         },
         (err: unknown) => setError((err as Error).message ?? String(err)),
@@ -143,6 +144,7 @@ export function usePlacements(source?: PlacementSource): {
 
     void load().then((data) => {
       if (at < savedAt.current) return;
+      setIconFramings(data ?? {});
       setPlacements(data ?? {});
     });
   }, []);
@@ -155,6 +157,7 @@ export function usePlacements(source?: PlacementSource): {
     // waiting for a round trip before showing the drag you just made would
     // make positioning feel broken.
     savedAt.current = Date.now();
+    setIconFramings(next);
     setPlacements(next);
     const custom = sourceRef.current;
     if (custom) {

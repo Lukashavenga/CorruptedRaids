@@ -613,13 +613,94 @@
 
 .stat-card-spent {
   font-family: var(--font-data);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--ink-dim);
 }
 
-.stat-add {
-  flex: none;
-  min-width: 46px;
+/*
+ * The three staging buttons, one row under the number at every width.
+ *
+ * Under it rather than beside it: beside the number there was room for one
+ * button, and a card is as narrow as 118px. 44px is the touch floor. The
+ * container query is what keeps the row from crowding in the narrowest panel;
+ * a media query would answer for the window and not for the panel.
+ */
+.stat-steps {
+  flex: 1 0 100%;
+  display: grid;
+  grid-template-columns: 44px repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.loadout button.stat-step {
+  min-height: 44px;
+  padding: 0 6px;
+  font-size: 14px;
+  /* Hold-to-repeat: no double-tap zoom, no text selection, no callout. */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@container panel (max-width: 260px) {
+  .stat-steps {
+    gap: 4px;
+  }
+
+  .loadout button.stat-step {
+    font-size: 13px;
+    padding: 0 2px;
+  }
+}
+
+/* What is staged but not yet sent. Gold, the same colour as the points chip
+   above: both say "this is yours to act on". */
+.stat-pending {
+  color: var(--points-gold, #f4c95d);
+}
+
+.stat-arrow {
+  color: var(--ink-dim);
+  font-size: 0.7em;
+}
+
+.stat-card.has-pending {
+  border-color: rgba(244, 201, 93, 0.55);
+}
+
+/*
+ * Confirm / Reset, pinned while anything is staged.
+ *
+ * Sticky for the same reason as the bag's detail strip: a change you cannot see
+ * reads as a tap that did nothing, and the panel is taller than a phone. Above
+ * the phone's fixed tab bar (about 72px) on the stacked layout.
+ */
+.stage-bar {
+  position: sticky;
+  bottom: 12px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px;
+  background: var(--slab);
+  border: 2px solid rgba(244, 201, 93, 0.55);
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 -6px 14px rgba(0, 0, 0, 0.5);
+}
+
+.loadout .stage-bar button {
+  min-height: 44px;
+}
+
+@media (max-width: 1023px) {
+  .stage-bar {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* --- role ---------------------------------------------------------------- */

@@ -361,31 +361,7 @@ export function expandFight(
   strength: number,
   bandScale: BandStatScale = NO_BAND_SCALE,
 ): EnemyDefinition[] {
-  // The band the party actually landed in — NOT the band whose layout got
-  // fielded. Those differ when a fight is half-authored and `squadFor` falls
-  // back down, and it is the party's band that says how hard the night is.
-  //
-  // The FIGHT'S own curve wins over the global one. That is what lets a place
-  // labelled L16 stay harder than one labelled L4 at every band, while the
-  // band itself still adapts to who turned up — see FightDefinition.
-  const band = bandFor(strength);
-  const curveAt = (b: PartyBand): number => fight.bandStatScale?.[b] ?? bandScale[b] ?? 1;
-  // RAMPED ACROSS THE WHOLE BAND, not stepped at its floor.
-  //
-  // A band is WIDE — `seasoned` runs from 110 to 430 — and the curve between
-  // adjacent bands is steep, because the parties they are priced against are
-  // (BARBIEVILLE solves to x0.76 / x2.18 / x11.93 for weak / seasoned /
-  // elite). Stepping meant a party at 136, barely over the seasoned floor,
-  // met a fight solved for one at 256: measured, a chat of twelve went to
-  // 5-20% win at every dungeon the moment the curve had real teeth.
-  //
-  // So the multiplier interpolates by where the party actually sits in its
-  // band. The full width here rather than squadFor's BAND_RAMP_SPAN — the
-  // count ramp only has to kill a cliff at the threshold, whereas this is the
-  // difficulty curve itself and should be continuous everywhere.
-  const below = PARTY_BANDS[PARTY_BANDS.indexOf(band) - 1];
-  const t = bandSpan(strength, band);
-  const scale = below ? curveAt(below) + (curveAt(band) - curveAt(below)) * t : curveAt(band);
+  const scale = statScaleFor(fight, strength, bandScale);
   // The level multiplier scales hp and attack for every body. A unit's own
   // strength scales hp and TURNS - its attack per hit is left alone, because
   // multiplying that was measured to waste itself on overkill (see
@@ -410,4 +386,44 @@ export function expandFight(
     initiativeWeight: (unit.weight ?? 1) * (unit.strength ?? 1),
     ...(unit.strength !== undefined && unit.strength !== 1 ? { strength: unit.strength } : {}),
   }));
+}
+
+/**
+ * The hp/attack multiplier `expandFight` applies at this strength.
+ *
+ * Its own function so the balance log can record the number a fight was
+ * actually played at without re-deriving it: a second copy of this
+ * interpolation is a copy that drifts, and a log that disagrees with the fight
+ * it describes is worse than none.
+ */
+export function statScaleFor(
+  fight: FightDefinition,
+  strength: number,
+  bandScale: BandStatScale = NO_BAND_SCALE,
+): number {
+  // The band the party actually landed in — NOT the band whose layout got
+  // fielded. Those differ when a fight is half-authored and `squadFor` falls
+  // back down, and it is the party's band that says how hard the night is.
+  //
+  // The FIGHT'S own curve wins over the global one. That is what lets a place
+  // labelled L16 stay harder than one labelled L4 at every band, while the
+  // band itself still adapts to who turned up — see FightDefinition.
+  const band = bandFor(strength);
+  const curveAt = (b: PartyBand): number => fight.bandStatScale?.[b] ?? bandScale[b] ?? 1;
+  // RAMPED ACROSS THE WHOLE BAND, not stepped at its floor.
+  //
+  // A band is WIDE — `seasoned` runs from 110 to 430 — and the curve between
+  // adjacent bands is steep, because the parties they are priced against are
+  // (BARBIEVILLE solves to x0.76 / x2.18 / x11.93 for weak / seasoned /
+  // elite). Stepping meant a party at 136, barely over the seasoned floor,
+  // met a fight solved for one at 256: measured, a chat of twelve went to
+  // 5-20% win at every dungeon the moment the curve had real teeth.
+  //
+  // So the multiplier interpolates by where the party actually sits in its
+  // band. The full width here rather than squadFor's BAND_RAMP_SPAN — the
+  // count ramp only has to kill a cliff at the threshold, whereas this is the
+  // difficulty curve itself and should be continuous everywhere.
+  const below = PARTY_BANDS[PARTY_BANDS.indexOf(band) - 1];
+  const t = bandSpan(strength, band);
+  return below ? curveAt(below) + (curveAt(band) - curveAt(below)) * t : curveAt(band);
 }

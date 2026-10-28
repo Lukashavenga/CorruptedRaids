@@ -261,6 +261,24 @@ export const en = {
     pointsAvailable: "{count} points to spend",
     pointAvailableOne: "1 point to spend",
     noPoints: "No points to spend - level up to earn more.",
+    /* The header count. "left" because staged points are already earmarked. */
+    pointsLeft: "{count} points left",
+    pointLeftOne: "1 point left",
+    pointsLeftStaged: "{left} left · {staged} staged",
+    /* Staging buttons are labelled in POINTS; the stat gain is on the value
+       line ("+3 per point"), so the two numbers cannot be confused. */
+    stagePlus: "+{count}",
+    stageMinus: "−",
+    stageAria: "stage {count} point(s)",
+    unstageAria: "remove one staged point",
+    pending: "{count} pending",
+    stageBarLabel: "Staged points",
+    stageReset: "Reset",
+    stageConfirm: "Confirm +{count} points",
+    stageConfirmOne: "Confirm +1 point",
+    /* Browsers show their own wording for this prompt; the string is only
+       required to be non-empty by the beforeunload contract. */
+    unloadWarning: "You have staged stat points that are not confirmed yet.",
     pointsSpent: "Point spent.",
     spentTotal: "{count} spent",
     spentTotalOne: "1 spent",
@@ -593,6 +611,46 @@ export const en = {
     keyMissing: "Enter the admin key to use these controls.",
     keyRefused: "The server refused that admin key.",
     keyUnset: "This server has no ADMIN_SECRET set, so it refuses every command.",
+  },
+
+  /** The admin panel's Shop tab. Operator-facing, never on stream. */
+  adminShop: {
+    gearHeading: "Gear on the shelf",
+    consumablesHeading: "Consumables on the shelf",
+    addHeading: "Add from the catalogue",
+    empty: "Nothing stocked. Viewers see an empty shop.",
+    orderHint: "Viewers see the shelf in this order.",
+    allSlots: "All slots",
+    allRarities: "All rarities",
+    search: "Search by name",
+    add: "Add",
+    remove: "Remove",
+    moveUp: "Up",
+    moveDown: "Down",
+    price: "Price",
+    priceHint: "Shelf price only. Recycling pays from the item's own value, not this.",
+    usePrice: "Default {gold}g",
+    resetPrice: "Use default",
+    gate: "Needs {requires}",
+    ungated: "No gate",
+    noMods: "No stat changes",
+    disabled: "Item is switched off, so viewers do not see it",
+    nothingToAdd: "Nothing left in the catalogue matches.",
+    save: "Save shop",
+    saved: "Saved the shop.",
+    savedHosted: "Saved the shop. Loadouts pick it up within about 30 seconds.",
+    unsaved: "Unsaved changes",
+    revert: "Discard changes",
+    rejected: "Rejected: {reason}",
+    /* The standing warning. Kept on screen, not behind a tooltip: it is the
+       mistake that costs a stream its economy. */
+    goldLoopWarning:
+      "Never stock a gold-granting consumable that pays out more than it costs: buying it would print gold.",
+    loopGold: "Pays {payout}g and costs {price}g - buying it prints gold.",
+    loopRecycle: "Costs {price}g but recycles for {refund}g - buying and scrapping it prints gold.",
+    effectXp: "+{amount} XP",
+    effectGold: "+{amount}g",
+    saveBlocked: "Fix the gold loops marked in red before saving.",
   },
 
   errors: {
