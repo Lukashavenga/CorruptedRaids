@@ -1,0 +1,20 @@
+/* --- shop tab ---------------------------------------------------------------
+   A shelf is a list of rows: picture, what it is, its price, and what you can
+   do to it. The price column is a fixed width so a column of inputs lines up. */
+.shop-tuner { padding: 12px 16px; display: grid; gap: 12px; max-width: 1100px; }
+.shop-bar { display: flex; gap: 8px; align-items: center; }
+.shop-dirty { color: var(--accent); }
+.shop-loop, .shop-sub.is-loop, .shop-warning { color: var(--danger); }
+.shop-sub.is-warn { color: var(--accent); }
+.shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.shop-row { display: flex; gap: 10px; align-items: center; padding: 4px 8px; border: 1px solid var(--ink-faint); border-radius: 3px; }
+.shop-row.is-candidate { opacity: 0.85; }
+.shop-row.is-missing { border-color: var(--danger); }
+.shop-icon { width: 36px; height: 36px; object-fit: contain; image-rendering: pixelated; flex: none; }
+.shop-info { display: grid; flex: 1; min-width: 0; }
+.shop-name { color: var(--ink); }
+.shop-sub { color: var(--ink-muted); font-size: 0.85em; }
+.shop-price { display: grid; width: 90px; flex: none; }
+.shop-price input { width: 100%; }
+.shop-actions { display: flex; gap: 4px; flex: none; }
+.shop-filters { display: flex; gap: 8px; }

@@ -1,6 +1,14 @@
 import { EventEmitter } from "node:events";
 import { compositionFactor, memberPower, partyRating } from "../partyStrength.js";
 import { bandFor, effectiveRating, expandFight } from "../squad.js";
+import { partyScalingFor } from "../balance.js";
+import {
+  buildFightRecord,
+  snapshotParty,
+  type EconomyDraft,
+  type FightContext,
+  type MemberSnapshot,
+} from "../balanceLog.js";
 import type {
   AllocatableStat,
   RaidDefinition,
@@ -23,6 +31,7 @@ import type { Rng } from "../rng.js";
 import { randomInt } from "../rng.js";
 import { Roster } from "../roster.js";
 import {
+  allocateMany,
   allocatePoints,
   buyConsumable,
   buyGear,
@@ -70,6 +79,11 @@ export interface DispatchResult {
    * the new one.
    */
   chest?: { instanceId: string; gearId: string };
+  /**
+   * What a purchase, recycle or chest opening did to the economy, for the
+   * balance log. Set only on success; the caller stamps the time and source.
+   */
+  economy?: EconomyDraft;
 }
 
 /** A party member as the overlay needs to see them during the join window. */
@@ -268,8 +282,87 @@ export class GameEngine extends EventEmitter {
 
   dispatch(command: GameCommand): DispatchResult {
     const result = this.handle(command);
+    // Before "update", and never able to throw into it: see emitFight.
+    if (result.ok && result.economy) this.emitLog("economy", result.economy);
     this.emit("update", { snapshot: this.getStateSnapshot(), result });
     return result;
+  }
+
+  /**
+   * Hands a balance-log record to whoever listens. A listener that throws
+   * (or a record that cannot be built) is warned about and dropped: the log is
+   * an observer, and a fight that has already been resolved must reach the
+   * overlay whatever the log does. The engine does no I/O here, so a listener
+   * is the only thing that can fail, and it is not allowed to.
+   */
+  private emitLog(event: "fight" | "economy", payload: unknown): void {
+    try {
+      this.emit(event, payload);
+    } catch (err) {
+      console.warn(`[balance-log] ${event} listener failed: ${(err as Error).message}`);
+    }
+  }
+
+  /** Builds and emits the record for a fight that has just been resolved. */
+  private recordFight(
+    ctx: Omit<FightContext, "runId" | "strength" | "extras" | "partyScale">,
+    strength: number,
+    members: MemberSnapshot[],
+    combat: CombatResult,
+    extras: Map<string, { xp: number; gold: number }>,
+  ): void {
+    try {
+      if (!this.content.balance.balanceLog.enabled || this.listenerCount("fight") === 0) return;
+      const record = buildFightRecord(
+        {
+          ...ctx,
+          runId: this.runId,
+          strength,
+          extras,
+          partyScale: partyScalingFor(members.length, this.content.balance),
+        },
+        members,
+        combat,
+        this.content,
+        new Date(),
+      );
+      this.emitLog("fight", record);
+    } catch (err) {
+      console.warn(`[balance-log] could not build a fight record: ${(err as Error).message}`);
+    }
+  }
+
+  private economyDraft(
+    characterId: string,
+    kind: EconomyDraft["kind"],
+    fields: { gearId?: string; goldDelta?: number; gearSource?: string },
+  ): EconomyDraft {
+    let rarity: EconomyDraft["rarity"] = null;
+    if (fields.gearId) {
+      try {
+        rarity = this.content.getGear(fields.gearId).rarity;
+      } catch {
+        // An item deleted since: still worth a row, just without a rarity.
+      }
+    }
+    return {
+      characterId,
+      kind,
+      goldDelta: fields.goldDelta ?? 0,
+      gearId: fields.gearId ?? null,
+      rarity,
+      gearSource: fields.gearSource ?? null,
+      level: null,
+      fightId: null,
+    };
+  }
+
+  /** Identifies a run across its fights; assigned when one is opened. */
+  runId = "";
+  private runSeq = 0;
+  private newRunId(): string {
+    this.runSeq += 1;
+    return `${Date.now().toString(36)}-${this.runSeq.toString(36)}`;
   }
 
   /**
@@ -298,6 +391,7 @@ export class GameEngine extends EventEmitter {
           return { ok: false, message: format(text.errors.unknownDungeon, { id: command.dungeonId }) };
         }
         this.openDungeon = def;
+        this.runId = this.newRunId();
         this.partyIds = [];
         this.lastCombat = null;
         return { ok: true, message: format(text.dungeon.opened, { name: def.name }) };
@@ -354,7 +448,11 @@ export class GameEngine extends EventEmitter {
         const party = this.party;
         if (party.length === 0) return { ok: false, message: text.errors.emptyParty };
 
-        const enemies = this.content.expandDungeonEnemies(this.openDungeon, effectiveRating(partyRating(party, this.content), party.length));
+        const strength = effectiveRating(partyRating(party, this.content), party.length);
+        const enemies = this.content.expandDungeonEnemies(this.openDungeon, strength);
+        // Builds are read BEFORE the fight: it pays out, levels and loots.
+        const members = snapshotParty(party, this.content);
+        const extras = new Map<string, { xp: number; gold: number }>();
         const combat = runCombat(party, enemies, this.content, this.content.balance, this.rng, {
           scaleToPartySize: this.openDungeon.scalesWithPartySize,
           lootFrom: this.openDungeon.name,
@@ -379,17 +477,33 @@ export class GameEngine extends EventEmitter {
           for (const character of party) {
             const survived = combat.survivorIds.includes(character.id);
             const share = survived ? 1 : casualtyXpMultiplier;
+            let gold = 0;
             if (survived) {
-              character.gold += randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng);
+              gold = randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng);
+              character.gold += gold;
             }
             // xpRate: see balance.ts.
             const xp = Math.round(dungeon.completionXp * share * bonus * this.content.balance.progression.xpRate);
+            extras.set(character.id, { xp, gold });
             for (const level of grantXp(character, xp, this.content.balance)) {
               combat.events.push({ type: "levelUp", characterId: character.id, newLevel: level });
             }
           }
         }
 
+        this.recordFight(
+          {
+            kind: "dungeon",
+            dungeonId: this.openDungeon.id,
+            fight: this.openDungeon,
+            enemyCount: enemies.length,
+            scaledToParty: this.openDungeon.scalesWithPartySize !== false,
+          },
+          strength,
+          members,
+          combat,
+          extras,
+        );
         this.lastCombat = combat;
         const key = combat.outcome === "victory" ? text.dungeon.cleared : text.dungeon.wiped;
         return { ok: true, message: format(key, { name: this.openDungeon.name }), combat };
@@ -411,6 +525,7 @@ export class GameEngine extends EventEmitter {
         this.openDungeon = null;
         this.openRaid = def;
         this.raidRun = startRaid(def, this.rng);
+        this.runId = this.newRunId();
         this.partyIds = [];
         this.lastCombat = null;
         return { ok: true, message: format(text.dungeon.opened, { name: def.name }) };
@@ -459,21 +574,37 @@ export class GameEngine extends EventEmitter {
         // every room rather than deciding the shape of the content itself.
         if (!room?.fight) return { ok: true, message: text.raid.clear };
 
+        const roomStrength = effectiveRating(partyRating(this.party, this.content), this.party.length);
         const enemies = expandFight(
           room.fight,
           // Namespaced by raid so a room id can collide with a dungeon id
           // without the overlay looking up the wrong formation.
           `${def.id}:${room.id}`,
           room.name,
-          effectiveRating(partyRating(this.party, this.content), this.party.length),
+          roomStrength,
           this.content.balance.bandStatScale,
         );
+        const roomMembers = snapshotParty(this.party, this.content);
         const combat = runCombat(this.party, enemies, this.content, this.content.balance, this.rng, {
           partyBuffs: buffTotals(run),
           // The ROOM, not the raid: "The Watch House" is where a chest came
           // from in a way "The Long Road" is not.
           lootFrom: room.name,
         });
+        this.recordFight(
+          {
+            kind: "raid_room",
+            raidId: def.id,
+            roomId: room.id,
+            fight: room.fight,
+            enemyCount: enemies.length,
+            scaledToParty: true,
+          },
+          roomStrength,
+          roomMembers,
+          combat,
+          new Map(),
+        );
         this.lastCombat = combat;
         return { ok: true, message: text.raid.ambush, combat };
       }
@@ -489,14 +620,17 @@ export class GameEngine extends EventEmitter {
         // The multipliers are content, so a harder raid tier is a number change
         // rather than a new fight.
         enterRoom(run);
+        const bossStrength = effectiveRating(partyRating(this.party, this.content), this.party.length);
         const bossEnemies = expandFight(
           def.boss.fight,
           `${def.id}:${def.boss.id}`,
           def.boss.name,
-          effectiveRating(partyRating(this.party, this.content), this.party.length),
+          bossStrength,
           this.content.balance.bandStatScale,
         );
         if (bossEnemies.length === 0) return { ok: false, message: text.errors.noOpenRun };
+        const bossMembers = snapshotParty(this.party, this.content);
+        const bossExtras = new Map<string, { xp: number; gold: number }>();
 
         const combat = runCombat(this.party, bossEnemies, this.content, this.content.balance, this.rng, {
           partyBuffs: buffTotals(run),
@@ -518,13 +652,30 @@ export class GameEngine extends EventEmitter {
           for (const id of combat.survivorIds) {
             const character = this.roster.get(id);
             if (!character) continue;
-            character.gold += randomInt(def.completionGold[0], def.completionGold[1], this.rng);
+            const gold = randomInt(def.completionGold[0], def.completionGold[1], this.rng);
+            character.gold += gold;
+            bossExtras.set(character.id, { xp: def.completionXp, gold });
             for (const level of grantXp(character, def.completionXp, this.content.balance)) {
               combat.events.push({ type: "levelUp", characterId: character.id, newLevel: level });
             }
           }
         }
 
+        this.recordFight(
+          {
+            kind: "raid_boss",
+            raidId: def.id,
+            roomId: def.boss.id,
+            fight: def.boss.fight,
+            enemyCount: bossEnemies.length,
+            scaledToParty: true,
+            boss: { hp: def.boss.hpMultiplier, atk: def.boss.atkMultiplier },
+          },
+          bossStrength,
+          bossMembers,
+          combat,
+          bossExtras,
+        );
         this.lastCombat = combat;
         const key = combat.outcome === "victory" ? text.dungeon.cleared : text.dungeon.wiped;
         return { ok: true, message: format(key, { name: def.name }), combat };
@@ -542,6 +693,13 @@ export class GameEngine extends EventEmitter {
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
         const result = unequipGear(character, command.slot);
         return { ok: result.ok, message: result.ok ? text.gear.unequipped : result.reason ?? text.errors.cannotEquip };
+      }
+
+      case "allocate_many": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        const result = allocateMany(character, command.points);
+        return { ok: result.ok, message: result.ok ? text.loadout.pointsSpent : result.reason ?? text.errors.cannotAllocate };
       }
 
       case "allocate_points": {
@@ -638,16 +796,30 @@ export class GameEngine extends EventEmitter {
           // The reveal needs to name the item, and this is the only moment the
           // engine and the screen both know which instance the chest became.
           chest: { instanceId: opened.instance.instanceId, gearId: opened.gearId },
+          economy: this.economyDraft(character.id, "open_chest", { gearId: opened.gearId, gearSource: "loot" }),
         };
       }
 
       case "recycle_gear": {
         const character = this.roster.get(command.requestedBy);
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        // Read before the recycle removes it: the payout depends on where the
+        // item came from, which is the thing the economy report wants.
+        const recycled = character.inventory.find((i) => i.instanceId === command.instanceId);
         const result = recycleGear(character, command.instanceId, this.content);
         return {
           ok: result.ok,
           message: result.ok ? format(text.shop.recycled, { gold: result.gold ?? 0 }) : result.reason ?? text.errors.cannotRecycle,
+          ...(result.ok && recycled
+            ? {
+                economy: this.economyDraft(character.id, "recycle_gear", {
+                  gearId: recycled.gearId,
+                  goldDelta: result.gold ?? 0,
+                  // An instance from before `source` existed is paid as loot.
+                  gearSource: recycled.source ?? "loot",
+                }),
+              }
+            : {}),
         };
       }
 
@@ -664,6 +836,15 @@ export class GameEngine extends EventEmitter {
         return {
           ok: result.ok,
           message: result.ok ? format(text.shop.bought, { name, gold: result.cost ?? 0 }) : result.reason ?? text.errors.cannotBuy,
+          ...(result.ok
+            ? {
+                economy: this.economyDraft(character.id, "buy_gear", {
+                  gearId: command.gearId,
+                  goldDelta: -(result.cost ?? 0),
+                  gearSource: "shop",
+                }),
+              }
+            : {}),
         };
       }
 
@@ -680,6 +861,9 @@ export class GameEngine extends EventEmitter {
         return {
           ok: result.ok,
           message: result.ok ? format(text.shop.bought, { name, gold: result.cost ?? 0 }) : result.reason ?? text.errors.cannotBuy,
+          ...(result.ok
+            ? { economy: this.economyDraft(character.id, "buy_consumable", { goldDelta: -(result.cost ?? 0) }) }
+            : {}),
         };
       }
 

@@ -18,7 +18,7 @@ import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
-import { grantXp } from "../src/engine/character.js";
+import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -283,7 +283,9 @@ Party strength: a naked ten scores ${entry}; every band's sample party lands in 
 // Content-level guards. These are cheap here and expensive to notice live:
 // a shop is a place where a bad number becomes free gold.
 for (const entry of content.shopView().gear) {
-  const value = content.gearValue(entry.id);
+  // What the SHELF charges, which is the item's value unless the shop
+  // overrides it - the override is exactly how a gold loop would get in.
+  const value = entry.price;
   // The shop rate: this loop is about buying and selling back, and only a
   // bought item is paid at it.
   const back = content.recycleValue(entry.id, "shop");
@@ -330,6 +332,49 @@ for (const entry of content.shopView().consumables) {
 console.log(
   `Economy: ${content.shopView().gear.length} gear + ${content.shopView().consumables.length} consumables stocked, no buy/recycle loops.`,
 );
+
+// --- the shelf's own prices --------------------------------------------------
+//
+// An admin override changes what the shelf shows AND what the purchase takes,
+// leaves the refund alone, and a rejected shop leaves the shelf as it was.
+{
+  const before = content.shop;
+  try {
+    const gearId = before.gear[0]!;
+    const tomeId = before.consumables[0]!;
+    const base = content.gearValue(gearId);
+    const dear = base * 3 + 7;
+    content.setShop({ ...before, gearPrices: { [gearId]: dear }, consumablePrices: { [tomeId]: 5 } });
+    assert.equal(content.shopView().gear.find((g) => g.id === gearId)?.price, dear, "view shows the override");
+    assert.equal(content.shopView().consumables.find((c) => c.id === tomeId)?.price, 5);
+
+    const buyer = createCharacter({ id: "twitch:shop-test", name: "Shopper", role: "dps", appearance: {} as never, gold: dear });
+    const bought = buyGear(buyer, gearId, content);
+    assert.ok(bought.ok && bought.cost === dear && buyer.gold === 0, "purchase charges the override, not the value");
+    assert.equal(content.recycleValue(gearId, "shop"), Math.max(1, Math.floor(base * content.balance.economy.recycleRate)), "refund still derives from value");
+    assert.ok(!buyGear(buyer, gearId, content).ok, "cannot buy without the gold");
+
+    // Gear priced under what it recycles for is a gold printer, and is reported.
+    content.setShop({ ...before, gearPrices: { [gearId]: 0 } });
+    assert.equal(content.shopLoops().length, 1, "a free item that recycles for gold is flagged");
+
+    // Every refusal leaves the live shelf exactly as it was.
+    const live = JSON.stringify(content.shop);
+    for (const bad of [
+      { gear: ["no-such-item"] },
+      { gear: [gearId, gearId] },
+      { gear: [gearId], gearPrices: { [gearId]: -1 } },
+      { gear: [gearId], gearPrices: { [gearId]: 1.5 } },
+      { gear: [], gearPrices: { [gearId]: 10 } },
+    ]) {
+      assert.throws(() => content.setShop(bad), /./, `rejects ${JSON.stringify(bad)}`);
+      assert.equal(JSON.stringify(content.shop), live, "a rejected shop changes nothing");
+    }
+  } finally {
+    content.shop = before;
+  }
+  console.log("Shop: overrides price the shelf and the purchase, refunds keep the item's value, bad shops are refused.");
+}
 
 // --- roles earn their slot ---------------------------------------------------
 //
@@ -795,6 +840,37 @@ console.log(
   looks.dispatch({ type: "set_hidden_slots", requestedBy: id, slots: [] });
   assert.equal(looks.roster.get(id)!.hiddenSlots, undefined, "showing everything removes the field entirely");
   console.log("Looks: a hidden helmet stays equipped and counted, and reaches the party view.");
+}
+
+// --- allocate_many is atomic ---------------------------------------------------
+// The loadout stages a build and confirms it in one request, so a refusal has
+// to leave the character untouched rather than half-built.
+{
+  const spend = new GameEngine(content, mulberry32(11));
+  const id = "twitch:spend";
+  spend.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  spend.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Spender" });
+  spend.roster.get(id)!.unspentPoints = 6;
+  const snap = () => JSON.stringify([spend.roster.get(id)!.allocated, spend.roster.get(id)!.unspentPoints]);
+
+  const good = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 2, atk: 3, spd: 1 } });
+  assert.ok(good.ok, `a valid batch applies: ${good.message}`);
+  const c = spend.roster.get(id)!;
+  assert.deepEqual([c.allocated.hp, c.allocated.atk, c.allocated.spd, c.unspentPoints], [2, 3, 1, 0]);
+
+  c.unspentPoints = 4;
+  const before = snap();
+  const over = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 3, skill: 2 } });
+  assert.ok(!over.ok, "an over-budget batch is refused");
+  assert.equal(snap(), before, "...and changes nothing, not even the stat that fitted");
+
+  const badStat = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, luck: 1 } as never });
+  assert.ok(!badStat.ok, "a batch naming a bad stat is refused");
+  assert.equal(snap(), before, "...and the valid stat in it is not applied");
+
+  const fractional = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, atk: 0.5 } });
+  assert.ok(!fractional.ok && snap() === before, "a non-integer amount is refused and changes nothing");
+  console.log("allocate_many: a valid batch applies; over-budget, bad-stat and fractional batches change nothing.");
 }
 
 // --- reset returns to idle ---------------------------------------------------

@@ -71,7 +71,12 @@ from inside this repo - they all need an account you own.
    (the public `sprites` bucket for erased art, and public read of exactly
    `placements.json` and `sprites.json`, which every page needs to draw a
    character). Any erases made on disk before 004 go up once with
-   `npm run push:sprites -- --write`.
+   `npm run push:sprites -- --write`. Then `sql/005_balance_log.sql` (the
+   balance log: `fights`, `fight_members`, `economy_events`; service role
+   only, no viewer policy). Without it the game server and the `character`
+   function warn on every write and the log stays empty - nothing else is
+   affected. Redeploy `character` (`npm run deploy:fn`) so the loadout's shop
+   and chest actions are logged. Read it with `npm run report:balance`.
 3. **Authentication → Sign in / Providers → Twitch**: open its settings panel
    (don't enable or save yet - Supabase won't let you save it enabled without
    a Client ID and Secret, and you don't have those yet). The panel shows the

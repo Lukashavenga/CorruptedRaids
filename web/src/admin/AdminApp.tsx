@@ -17,6 +17,7 @@ import { DungeonTuner } from "./DungeonTuner.js";
 import { DungeonRenamer } from "./DungeonRenamer.js";
 import { RaidTuner } from "./RaidTuner.js";
 import { GearTuner } from "./GearTuner.js";
+import { ShopTuner } from "./ShopTuner.js";
 import { GearInspector } from "./GearInspector.js";
 import { useTuningContent } from "./useTuningContent.js";
 import "./admin.css";
@@ -104,7 +105,7 @@ export function AdminApp(): JSX.Element {
    */
   const [showKit, setShowKit] = useState(false);
   const [kit, setKit] = useState<Partial<Record<GearSlot, string>>>({});
-  const [tab, setTab] = useState<"placement" | "gear" | "dungeons" | "raids" | "loot" | "names">("placement");
+  const [tab, setTab] = useState<"placement" | "gear" | "shop" | "dungeons" | "raids" | "loot" | "names">("placement");
 
   /*
    * Hosted or served by the game server. Only changes how a failed save is
@@ -444,7 +445,7 @@ export function AdminApp(): JSX.Element {
       <header className="admin-bar">
         <h1>Corrupted Admin</h1>
         <nav className="admin-tabs">
-          {(["placement", "gear", "dungeons", "raids", "loot", "names"] as const).map((t) => (
+          {(["placement", "gear", "shop", "dungeons", "raids", "loot", "names"] as const).map((t) => (
             <button key={t} type="button" className={tab === t ? "is-active" : ""} onClick={() => setTab(t)}>
               {t === "loot" ? en.lootAdmin.tab : t}
             </button>
@@ -472,7 +473,23 @@ export function AdminApp(): JSX.Element {
       </header>
 
       {tab === "gear" && (
-        <GearTuner gear={tuning.gear} onSaved={tuning.reload} setStatus={setStatus} />
+        <GearTuner
+          gear={tuning.gear}
+          onSaved={tuning.reload}
+          setStatus={setStatus}
+          placements={placements}
+          savePlacements={save}
+        />
+      )}
+
+      {tab === "shop" && (
+        <ShopTuner
+          gear={tuning.gear}
+          consumables={tuning.consumables}
+          shop={tuning.shop}
+          onSaved={tuning.reload}
+          setStatus={setStatus}
+        />
       )}
 
       {/* The fight: who stands where, at which band, and how hard they hit.

@@ -56,16 +56,31 @@ export interface TuningContent {
   gear: unknown[];
   dungeons: unknown[];
   raids: unknown[];
+  consumables: unknown[];
+  /** The raw stock list (order and price overrides), not the buyer's view. */
+  shop: unknown;
 }
 
 export async function readContent(): Promise<TuningContent> {
   if ((await backendMode()) === "local") {
     const res = await fetch("/content");
     const data = await res.json();
-    return { gear: data.gear ?? [], dungeons: data.dungeons ?? [], raids: data.raids ?? [] };
+    return {
+      gear: data.gear ?? [],
+      dungeons: data.dungeons ?? [],
+      raids: data.raids ?? [],
+      consumables: data.consumables ?? [],
+      shop: data.shopStock ?? null,
+    };
   }
   const data = await operator.contentAll();
-  return { gear: data.gear, dungeons: data.dungeons, raids: data.raids };
+  return {
+    gear: data.gear,
+    dungeons: data.dungeons,
+    raids: data.raids,
+    consumables: data.consumables ?? [],
+    shop: data.shop ?? null,
+  };
 }
 
 /**
@@ -79,6 +94,7 @@ function pathFor(kind: string, id: string): string {
   if (kind === "raid") return `raids/${id}.json`;
   if (kind === "gear") return `gear/${id}.json`;
   if (kind === "consumable") return `consumables/${id}.json`;
+  if (kind === "shop") return "shop.json";
   throw new Error(`Unknown content kind "${kind}"`);
 }
 

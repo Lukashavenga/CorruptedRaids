@@ -21,6 +21,7 @@ import {
   validateShopStock,
 } from "./schemas.js";
 import { DEFAULT_BALANCE, type BalanceConfig } from "../balance.js";
+import { shopConsumablePriceOf, shopGearPriceOf, shopLoops } from "../shopPricing.js";
 
 /**
  * ContentRegistry is the single seam through which the engine knows about
@@ -107,16 +108,7 @@ export class ContentRegistry {
     }
     // Shop last: it validates its ids against everything above, exactly as
     // the directory path does.
-    if (bundle.shop) {
-      const stock = validateShopStock(bundle.shop, "shop");
-      for (const id of stock.gear) {
-        if (!this.gear.has(id)) throw new Error(`shop stocks unknown gearId "${id}"`);
-      }
-      for (const id of stock.consumables) {
-        if (!this.consumables.has(id)) throw new Error(`shop stocks unknown consumableId "${id}"`);
-      }
-      this.shop = stock;
-    }
+    if (bundle.shop) this.setShop(bundle.shop, "shop");
   }
 
   loadGearDir(dir: string): void {
@@ -268,14 +260,56 @@ export class ContentRegistry {
    */
   loadShop(path: string): void {
     if (!existsSync(path)) return;
-    const stock = validateShopStock(readJson(path), path);
+    this.setShop(readJson(path), path);
+  }
+
+  /**
+   * Replace the shop's stock, validated, or throw and leave it as it was.
+   *
+   * The one door every shop change comes through - boot, a bundle, and the
+   * admin's save on a running server - so what is checked at boot is checked
+   * on a live edit, and a rejected save leaves the shelf viewers can see
+   * exactly as it was.
+   */
+  setShop(raw: unknown, where = "shop"): void {
+    const stock = validateShopStock(raw, where);
     for (const id of stock.gear) {
-      if (!this.gear.has(id)) throw new Error(`[content:${path}] shop stocks unknown gearId "${id}"`);
+      if (!this.gear.has(id)) throw new Error(`[content:${where}] shop stocks unknown gearId "${id}"`);
     }
     for (const id of stock.consumables) {
-      if (!this.consumables.has(id)) throw new Error(`[content:${path}] shop stocks unknown consumableId "${id}"`);
+      if (!this.consumables.has(id)) throw new Error(`[content:${where}] shop stocks unknown consumableId "${id}"`);
     }
     this.shop = stock;
+    for (const problem of this.shopLoops()) console.warn(`[content:${where}] ${problem}`);
+  }
+
+  /**
+   * What the shop charges for a stocked gear item: the shop's override if it
+   * has one, otherwise the item's `gearValue`. The purchase AND the view both
+   * ask here, so a buy button cannot disagree with what the buy takes.
+   */
+  shopGearPrice(id: string): number {
+    return shopGearPriceOf(this.shop, this.getGear(id), this.balance.economy);
+  }
+
+  /** The consumable's shop price: the shop's override, else its own `price`. */
+  shopConsumablePrice(id: string): number {
+    return shopConsumablePriceOf(this.shop, this.getConsumable(id));
+  }
+
+  /**
+   * Stock that pays out more than it costs, as readable lines. Reported at
+   * load rather than refused: refusing would let a balance edit stop the
+   * server booting. The rule is in shopPricing.ts so the admin panel shows
+   * the same verdict.
+   */
+  shopLoops(): string[] {
+    return shopLoops(
+      this.shop,
+      (id) => this.gear.get(id),
+      (id) => this.consumables.get(id),
+      this.balance.economy,
+    ).map((l) => `"${l.id}" costs ${l.price}g and pays back ${l.payout}g - infinite gold`);
   }
 
   /** The shop with prices resolved — what GET /content hands the client. */
@@ -286,8 +320,8 @@ export class ContentRegistry {
       // stocked, or turning it back on becomes a second job.
       gear: this.shop.gear
         .filter((id) => this.getGear(id).enabled !== false)
-        .map((id) => ({ id, price: this.gearValue(id) })),
-      consumables: this.shop.consumables.map((id) => ({ id, price: this.getConsumable(id).price })),
+        .map((id) => ({ id, price: this.shopGearPrice(id) })),
+      consumables: this.shop.consumables.map((id) => ({ id, price: this.shopConsumablePrice(id) })),
     };
   }
 

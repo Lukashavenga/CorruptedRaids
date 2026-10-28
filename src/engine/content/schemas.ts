@@ -280,9 +280,35 @@ export function validateShopStock(raw: unknown, file: string): ShopStock {
     if (!Array.isArray(obj[key]) || !obj[key].every((v: unknown) => typeof v === "string")) {
       fail(file, `"${key}" must be an array of ids`);
     }
+    // A duplicate is a shelf listing one item twice, and the admin's reorder
+    // and remove act on an id, so they would act on both.
+    const dupe = (obj[key] as string[]).find((id, i, all) => all.indexOf(id) !== i);
+    if (dupe !== undefined) fail(file, `"${key}" lists "${dupe}" more than once`);
     return obj[key];
   };
-  return { gear: list("gear"), consumables: list("consumables") };
+  const prices = (key: string, stocked: string[]): Record<string, number> | undefined => {
+    if (obj[key] === undefined) return undefined;
+    if (typeof obj[key] !== "object" || obj[key] === null || Array.isArray(obj[key])) {
+      fail(file, `"${key}" must be an object of id -> price`);
+    }
+    const out: Record<string, number> = {};
+    for (const [id, price] of Object.entries(obj[key] as Record<string, unknown>)) {
+      if (!stocked.includes(id)) fail(file, `"${key}" prices "${id}", which the shop does not stock`);
+      if (typeof price !== "number" || !Number.isInteger(price) || price < 0) {
+        fail(file, `"${key}.${id}" must be a whole number >= 0`);
+      }
+      out[id] = price;
+    }
+    return out;
+  };
+  const gear = list("gear");
+  const consumables = list("consumables");
+  const stock: ShopStock = { gear, consumables };
+  const gearPrices = prices("gearPrices", gear);
+  const consumablePrices = prices("consumablePrices", consumables);
+  if (gearPrices) stock.gearPrices = gearPrices;
+  if (consumablePrices) stock.consumablePrices = consumablePrices;
+  return stock;
 }
 
 export function validateDungeonDefinition(raw: unknown, file: string): DungeonDefinition {

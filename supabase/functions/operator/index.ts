@@ -445,13 +445,15 @@ Deno.serve(async (req: Request) => {
       const dungeons: unknown[] = [];
       const raids: unknown[] = [];
       const consumables: unknown[] = [];
+      let shop: unknown = null;
       for (const row of rows) {
-        if (row.path.startsWith("gear/")) gear.push(row.data);
+        if (row.path === "shop.json") shop = row.data;
+        else if (row.path.startsWith("gear/")) gear.push(row.data);
         else if (row.path.startsWith("dungeons/")) dungeons.push(row.data);
         else if (row.path.startsWith("raids/")) raids.push(row.data);
         else if (row.path.startsWith("consumables/")) consumables.push(row.data);
       }
-      return json({ ok: true, gear, dungeons, raids, consumables }, 200, req);
+      return json({ ok: true, gear, dungeons, raids, consumables, shop }, 200, req);
     }
 
     if (action === "content-get") {
@@ -470,6 +472,22 @@ Deno.serve(async (req: Request) => {
 
       const invalid = validateContent(path, body.data);
       if (invalid) return json({ ok: false, message: invalid }, 400, req);
+
+      // The shape check above cannot know which ids exist. The game refuses to
+      // load a shop that stocks one that does not, so refuse it here, while its
+      // author is still looking at it.
+      if (path === "shop.json") {
+        const live = await liveContent();
+        const stock = body.data as { gear?: string[]; consumables?: string[] };
+        const gearIds = new Set(live.listGear().map((g) => g.id));
+        const consumableIds = new Set(live.listConsumables().map((c) => c.id));
+        const missingGear = (stock.gear ?? []).find((id) => !gearIds.has(id));
+        const missingConsumable = (stock.consumables ?? []).find((id) => !consumableIds.has(id));
+        if (missingGear) return json({ ok: false, message: `shop stocks unknown gearId "${missingGear}"` }, 400, req);
+        if (missingConsumable) {
+          return json({ ok: false, message: `shop stocks unknown consumableId "${missingConsumable}"` }, 400, req);
+        }
+      }
 
       await db("/content_files", {
         method: "POST",
