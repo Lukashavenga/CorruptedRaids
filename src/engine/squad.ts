@@ -37,11 +37,16 @@ export const ENTRY_RATING = 45;
  * The current readings (npm run simulate prints them, and asserts them):
  *
  *     weak         L1   no gear      45
- *     seasoned     L10  typical     256
- *     elite        L25  best        715
- *     brutal       L50  best      1,233
- *     infernal     L100 best      2,172
- *     apocalyptic  L200 best      4,046
+ *     seasoned     L10  typical     314
+ *     elite        L25  best        814
+ *     brutal       L50  best      1,291
+ *     infernal     L100 best      2,231
+ *     apocalyptic  L200 best      4,106
+ *
+ * Re-measured 2026-10-28 when gear gates were retired (AGENTS.md §2.3): every
+ * party now wears the same best-in-slot kit, so the levels differ only by
+ * points spent and the readings sit closer together at the top. `npm run
+ * measure:bands` reprints them.
  *
  * These are an order of magnitude below what they were, and deliberately: the
  * whole stat scale came down when Armour was removed and a level-1 character
@@ -51,11 +56,11 @@ export const ENTRY_RATING = 45;
  */
 export const BAND_THRESHOLDS: Record<PartyBand, number> = {
   weak: 0,
-  seasoned: 110,
-  elite: 430,
-  brutal: 940,
-  infernal: 1640,
-  apocalyptic: 2960,
+  seasoned: 119,
+  elite: 506,
+  brutal: 1025,
+  infernal: 1697,
+  apocalyptic: 3027,
 };
 
 /**

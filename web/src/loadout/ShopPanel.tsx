@@ -74,13 +74,7 @@ export function ShopPanel({ character, catalog, onBuyGear, onBuyConsumable, busy
                   <span className="bag-info">
                     <span className="slot-name">{def.name}</span>
                     <span className="bag-sub">
-                      {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]} ·{" "}
-                      {/* text.stat, not the raw key: the engine's shorthand is
-                          hp/atk/armour and a player has never seen those
-                          words (AGENTS.md §8). */}
-                      {Object.entries(def.requires ?? {})
-                        .map(([stat, need]) => `${need} ${text.stat[stat as keyof typeof text.stat] ?? stat}`)
-                        .join(", ") || text.gear.noRequirement}
+                      {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]}
                     </span>
                     <span className="slot-mods">{statLine(def)}</span>
                   </span>

@@ -170,12 +170,6 @@ export function gearUsableBy(def: GearDefinition, character: Character): Mutatio
   if (def.bodyTypes && !def.bodyTypes.includes(character.appearance.bodyType)) {
     return { ok: false, reason: `${def.name} is not cut for that body.` };
   }
-  for (const [stat, needed] of Object.entries(def.requires) as [AllocatableStat, number][]) {
-    const has = character.allocated[stat] ?? 0;
-    if (has < needed) {
-      return { ok: false, reason: `${def.name} needs ${needed} ${stat} (${character.name} has spent ${has})` };
-    }
-  }
   return { ok: true };
 }
 

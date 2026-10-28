@@ -41,7 +41,7 @@
       "spdPerSkill": 0.15,
       "maxSpdBonus": 3,
       "tankHealMultiplier": 1.6,
-      "selfHealMultiplier": 0.4
+      "selfHealMultiplier": 0.3
     }
   },
   "roleRarity": {

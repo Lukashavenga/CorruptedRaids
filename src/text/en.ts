@@ -199,11 +199,6 @@ export const en = {
     unequipped: "Unequipped.",
     empty: "Empty",
     granted: "Granted {gearId} to {name}.",
-    requiresLevel: "Needs {level}",
-    /* Gates read POINTS SPENT in a stat, not the stat's displayed value —
-       AGENTS.md §10. The wording says "spent" for that reason. */
-    needsStat: "Needs {amount} spent in {stat}",
-    noRequirement: "no requirement",
   },
 
   /**
@@ -627,8 +622,6 @@ export const en = {
     priceHint: "Shelf price only. Recycling pays from the item's own value, not this.",
     usePrice: "Default {gold}g",
     resetPrice: "Use default",
-    gate: "Needs {requires}",
-    ungated: "No gate",
     noMods: "No stat changes",
     disabled: "Item is switched off, so viewers do not see it",
     nothingToAdd: "Nothing left in the catalogue matches.",

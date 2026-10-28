@@ -2630,12 +2630,12 @@
   "completionXp": 140,
   "joinWindowMs": 60000,
   "bandStatScale": {
-    "weak": 0.365,
-    "seasoned": 5.046,
-    "elite": 10.989,
-    "brutal": 11.682,
-    "infernal": 15.978,
-    "apocalyptic": 19.187
+    "weak": 0.357,
+    "seasoned": 4.728,
+    "elite": 12.257,
+    "brutal": 12.257,
+    "infernal": 21.002,
+    "apocalyptic": 21.002
   },
   "completionGold": [
     30,

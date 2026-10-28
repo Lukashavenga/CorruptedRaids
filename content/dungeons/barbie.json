@@ -821,12 +821,12 @@
   "completionXp": 60,
   "joinWindowMs": 60000,
   "bandStatScale": {
-    "weak": 0.76,
-    "seasoned": 3.882,
-    "elite": 14.352,
-    "brutal": 25.261,
-    "infernal": 34.056,
-    "apocalyptic": 34.056
+    "weak": 0.667,
+    "seasoned": 3.538,
+    "elite": 14.988,
+    "brutal": 26.396,
+    "infernal": 26.396,
+    "apocalyptic": 26.396
   },
   "completionGold": [
     12,

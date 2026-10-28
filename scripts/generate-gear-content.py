@@ -26,17 +26,6 @@ OUT = ROOT / "content" / "gear"
 
 RARITIES = ["common", "uncommon", "rare", "epic", "legendary"]
 
-#: Stats whose base value is so large that a requirement on them is never felt.
-#: A character starts with 120 hp, so any hp gate is met before it is read.
-UNGATEABLE = {"hp"}
-
-#: An item whose best stat is at or under this stays ungated — the starting
-#: tier a player with no points spent can still put on.
-UNGATED_BELOW = 16
-
-#: The smallest gate worth writing. Below this it is a requirement in name only.
-GATE_FLOOR = 8
-
 # Named by eye from the sheets. Anything not listed falls back to a generated
 # name — better a plain name than a wrong one.
 HEAD_NAMES = [
@@ -101,33 +90,6 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
-def gate_for(stats: dict) -> dict:
-    """What a player must have spent before they may wear this.
-
-    Gear gates on ATTRIBUTES, not level: where the points went is the build, so
-    that is what a piece of gear should ask about. A level-80 player who dumped
-    everything into Speed has not earned the heavy armour.
-
-    The gate names the item's dominant stat — the one it is *for* — pitched just
-    under what the item grants, so a piece is a step up rather than a wall.
-
-    HP IS NEVER GATED. `requires` compares against a stat's VALUE, not the
-    points spent on it, and every character starts with 120 hp — so an "hp: 36"
-    gate is met at level 1 by everyone and gates nothing at all. The catalogue
-    carried 33 such gates and not one of them ever stopped anybody. An item
-    whose only real stat is hp is therefore left open; gating it would be a
-    label, not a requirement.
-    """
-    gateable = {k: v for k, v in stats.items() if k not in UNGATEABLE}
-    if not gateable:
-        return {}
-    dominant = max(gateable, key=lambda k: gateable[k])
-    value = gateable[dominant]
-    if value <= UNGATED_BELOW:
-        return {}
-    return {dominant: max(GATE_FLOOR, round(value * 1.2))}
-
-
 def build() -> int:
     # Additive, NOT a wipe.
     #
@@ -151,7 +113,6 @@ def build() -> int:
             "name": name,
             "slot": slot,
             "rarity": rarity_for(index, total),
-            "requires": gate_for(stats),
             "statMods": stats,
             "description": f"{name}. Taken, not given.",
             "tags": [],
@@ -195,7 +156,6 @@ def build() -> int:
                 "name": name,
                 "slot": slot,
                 "rarity": rarity_for(i, len(tiers)),
-                "requires": gate_for(stats),
                 "statMods": stats,
                 "description": f"{name}. Taken, not given.",
                 "tags": [],
