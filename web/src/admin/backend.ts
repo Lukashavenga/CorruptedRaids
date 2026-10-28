@@ -1,6 +1,9 @@
 import type { PartyBand } from "../../../src/engine/types.js";
 import type { BandReading, BandSolution } from "../../../src/engine/bandSolver.js";
 import type { SearchState } from "../../../src/engine/bandSearch.js";
+import { DEFAULT_BALANCE } from "../../../src/engine/balance.js";
+import { LOOT_CHANCE_KEYS, type LootChances } from "../../../src/engine/content/schemas.js";
+import type { LootReading } from "../../../src/engine/lootMeasure.js";
 import { adminFetch } from "../adminKey.js";
 import * as operator from "../operator/api.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
@@ -312,6 +315,58 @@ export async function writeContent(kind: string, id: string, data: unknown): Pro
     return;
   }
   await operator.contentPut(pathFor(kind, id), data);
+}
+
+// --- the drop-rate dial -------------------------------------------------------
+
+/** The live loot chances: what the next run will use. */
+export async function readLootChances(): Promise<LootChances> {
+  let rewards: Partial<LootChances> = {};
+  if ((await backendMode()) === "local") {
+    const res = await fetch("/content");
+    rewards = (await res.json()).balance?.rewards ?? {};
+  } else {
+    // balance.json is partial by design, so a row that does not name a chance
+    // means the in-code default - the same merge the game does.
+    const file = await operator.contentGet("balance.json").catch(() => null);
+    rewards = (file?.file.data as { rewards?: Partial<LootChances> } | undefined)?.rewards ?? {};
+  }
+  return Object.fromEntries(LOOT_CHANCE_KEYS.map((k) => [k, rewards[k] ?? DEFAULT_BALANCE.rewards[k]])) as LootChances;
+}
+
+/**
+ * Save the three chances to the live store. Locally the game server merges them
+ * into balance.json and applies them to the running registry, so the next run
+ * uses them; hosted, the Edge Function replaces the row (validated there) and
+ * the game picks it up at its next restart, like every other hosted edit.
+ */
+export async function writeLootChances(chances: LootChances): Promise<void> {
+  if ((await backendMode()) === "local") {
+    const res = await adminFetch("/content/write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: "balance", id: "balance", data: { rewards: chances } }),
+    });
+    const body = await res.json();
+    if (!body.ok) throw new Error(body.message ?? "Rejected");
+    return;
+  }
+  const file = await operator.contentGet("balance.json").catch(() => null);
+  const current = (file?.file.data ?? {}) as { rewards?: object };
+  await operator.contentPut("balance.json", { ...current, rewards: { ...current.rewards, ...chances } });
+}
+
+/** What a set of chances drops, measured by the game server. Local only. */
+export async function measureLoot(chances: LootChances): Promise<LootReading> {
+  if ((await backendMode()) === "hosted") throw new NeedsLocalPanel("Measuring drops");
+  const res = await adminFetch("/loot/measure", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(chances),
+  });
+  const body = await res.json();
+  if (!body.ok) throw new Error(body.message ?? "could not measure");
+  return body.reading as LootReading;
 }
 
 /**

@@ -46,6 +46,7 @@ import {
   validateGearDefinition,
   validateRaidDefinition,
   validateShopStock,
+  validateBalanceFile,
 } from "./_engine.js";
 import type { Character, FightDefinition, GameCommand, PartyBand, SearchState } from "./_engine.js";
 
@@ -238,11 +239,10 @@ function validateContent(path: string, data: unknown): string | null {
     else if (path.startsWith("raids/")) validateRaidDefinition(data, path);
     else if (path.startsWith("consumables/")) validateConsumableDefinition(data, path);
     else if (path === "shop.json") validateShopStock(data, path);
-    else if (path === "balance.json" || path === "placements.json") {
-      // Both are partial by design - balance.json names only the knobs it
-      // changes and merges over the in-code defaults, and placements.json is a
-      // free-form map of sprite to position. Neither has a validator on the
-      // disk side either, so inventing one here would be a second opinion.
+    else if (path === "balance.json") validateBalanceFile(data, path);
+    else if (path === "placements.json") {
+      // A free-form map of sprite to position, with no validator on the disk
+      // side either, so inventing one here would be a second opinion.
       if (typeof data !== "object" || data === null || Array.isArray(data)) return `${path} must be a JSON object`;
     } else if (path === "sprites.json") {
       // Normally written by sprite-put / sprite-revert below, but restoring an

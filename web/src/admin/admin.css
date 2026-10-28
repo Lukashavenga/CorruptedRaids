@@ -1387,3 +1387,32 @@
   outline: none;
   border-color: var(--accent, #e2b570);
 }
+
+.loot-tuner {
+  max-width: 640px;
+  padding: 16px 24px;
+  display: grid;
+  gap: 8px;
+}
+
+.loot-dial {
+  display: grid;
+  gap: 6px;
+}
+
+.loot-chances,
+.loot-reading {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.loot-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.loot-problem {
+  color: #e07a6a;
+}
