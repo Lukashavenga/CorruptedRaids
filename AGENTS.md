@@ -342,6 +342,52 @@ A snapshot crosses from the game to React through `JSON.parse(JSON.stringify())`
 as it would have over SSE. Without it React holds the engine's live objects,
 which the next command mutates in place.
 
+### The auction house
+
+Viewers list FOUND gear (`source: "loot"`, unequipped, never consumables) for a
+fixed price and the first viewer to pay gets it. No bids, no timers. It lives on
+the hosted loadout only. **It needs Supabase**: the standalone overlay and the
+file roster store have no auction house, and the four commands refuse there
+(`GameEngine.auction` is null) rather than being stubbed.
+
+**A viewer only ever writes their own character, and that is the whole design.**
+A sale changes two characters, but the game server holds the live roster and its
+write-behind save wins every conflict (`conflicts` in `supabaseRosterStore.ts`).
+A buyer's request that credited the SELLER's row would be silently lost whenever
+the seller was mid-run: gold vanishing, or an item duplicated if the debit were
+the side lost. So:
+
+- **list** escrows the item: it leaves the seller's bag into a `listings` row.
+- **buy** debits the buyer, gives them the item and inserts a `proceeds` row for
+  the seller (price minus fee), in one transaction (`auction_buy`). The seller's
+  `characters` row is not read or written.
+- **collect** is the seller's own write: proceeds become gold, and cancelled or
+  expired listings come back into the bag. Proceeds are COLLECTED, not pushed,
+  for exactly the reason above. Collect, like list, is refused mid-run.
+- **cancel** only flips the listing; the item returns through collect, the same
+  as an expiry.
+
+**Rules in the engine, atomicity in Postgres.** `src/engine/auction.ts` holds
+price floor, fee, cap and what may be listed; the `character` Edge Function loads
+an `AuctionContext`, dispatches, and hands the engine's result to a function in
+`sql/006_auction.sql` (the ticket said 005; that was taken). The functions know
+nothing of fees. They lock the character row and refuse unless its `updated_at`
+is still what the engine read, so two requests racing on one viewer cannot spend
+the same gold. Two buyers of one listing: the claim is a single `UPDATE ... WHERE
+status = 'open'`, so the second finds it sold and rolls back with its gold intact.
+
+Bought items arrive as `source: "loot"` (loot recycle rate), so a resale can never
+become a full shop refund. The minimum price is the item's loot recycle value.
+Sellers are anonymous: `seller_id` is excluded from the viewer column grant.
+Tunables are `economy.auctionFee` (0.10, the gold sink), `auctionListingDays` (7)
+and `auctionMaxListings` (10). The balance log gets `auction_buy` (minus the
+price) and `auction_collect` (plus the proceeds); the gap is the fee.
+
+`npm run test:auction` runs the rules always, and the SQL half (simultaneous
+buys, seller mid-run) only with `AUCTION_TEST_DB_URL` pointing at a scratch
+Postgres, because a stub cannot prove atomicity. Phase 1 shipped the backend; the
+loadout panel is phases 2 and 3.
+
 ### The balance log
 
 The simulator says whether the engine is correct (§6). It cannot say what

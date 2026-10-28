@@ -344,6 +344,17 @@ export interface BalanceConfig {
      * shop's commons are 20 each, so this buys three of them.
      */
     startingGold: number;
+    /**
+     * Share of an auction sale's price that vanishes: the gold sink. Gold is
+     * already too plentiful (AGENTS.md section 10), so the seller is paid
+     * `price - floor(price * auctionFee)` and the rest is destroyed. Clamped
+     * to 0..0.95 where it is used.
+     */
+    auctionFee: number;
+    /** Days a listing stays open before it expires and returns to its seller. */
+    auctionListingDays: number;
+    /** Live listings one viewer may hold at once. */
+    auctionMaxListings: number;
   };
 
   rewards: {
@@ -522,6 +533,9 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     lootRecycleRate: 0.1,
     valueByRarity: { common: 20, uncommon: 45, rare: 110, epic: 260, legendary: 600 },
     startingGold: 60,
+    auctionFee: 0.1,
+    auctionListingDays: 7,
+    auctionMaxListings: 10,
   },
   rewards: {
     mobDropChance: 0.6,

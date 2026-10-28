@@ -15,6 +15,7 @@ export { memberPower } from "./partyStrength.js";
 export type { Character, Role } from "./types.js";
 // The balance log's economy rows, which the loadout writes from here.
 export { economyRow } from "./balanceLog.js";
+export type { AuctionContext, AuctionEffect, AuctionListing, AuctionProceeds } from "./auction.js";
 export type { EconomyDraft, EconomyRecord } from "./balanceLog.js";
 
 /*

@@ -108,4 +108,17 @@ export type GameCommand =
   | { type: "buy_consumable"; requestedBy: string; consumableId: string }
   | { type: "use_consumable"; requestedBy: string; consumableId: string }
 
+  // --- auction house (AGENTS.md "Auction house"). Viewer commands, and every one
+  // acts on the caller's OWN character only: a sale pays the seller through a
+  // proceeds row they collect, never by writing their character. They refuse
+  // unless the host loaded an AuctionContext, so only the hosted loadout has one.
+  /** Escrows a found, unequipped item as a buyout listing. */
+  | { type: "list_gear"; requestedBy: string; instanceId: string; price: number }
+  /** Withdraws an open listing; the item comes back through collect_proceeds. */
+  | { type: "cancel_listing"; requestedBy: string; listingId: string }
+  /** Pays a listing's price and takes the item. First payer wins. */
+  | { type: "buy_listing"; requestedBy: string; listingId: string }
+  /** Moves sale proceeds into gold and cancelled or expired listings back into the bag. */
+  | { type: "collect_proceeds"; requestedBy: string }
+
   | { type: "reset_roster"; requestedBy?: string };

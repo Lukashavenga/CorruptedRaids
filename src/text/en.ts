@@ -649,6 +649,16 @@ export const en = {
     saveBlocked: "Fix the gold loops marked in red before saving.",
   },
 
+  /* The auction house. Hosted loadout only; these are command results, the
+     panel's own copy arrives with phase 2. */
+  auction: {
+    unavailable: "There is no auction house here.",
+    listed: "Listed {name} for {gold}g.",
+    cancelled: "Listing withdrawn. Collect to get the item back.",
+    bought: "Bought {name} for {gold}g.",
+    collected: "Collected {gold}g and {items} returned item(s).",
+  },
+
   errors: {
     // Named, not generic, because the caller that hits this is a bot with a
     // typo in it and the only useful thing to hand back is the string it sent.

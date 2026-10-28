@@ -52,6 +52,8 @@ import {
   unequipGear,
 } from "../character.js";
 import { xpToNextLevel } from "../stats.js";
+import { buyListing, cancelListing, collectProceeds, listGear } from "../auction.js";
+import type { AuctionContext, AuctionEffect } from "../auction.js";
 import { runCombat } from "../combat/resolver.js";
 import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
@@ -84,6 +86,8 @@ export interface DispatchResult {
    * balance log. Set only on success; the caller stamps the time and source.
    */
   economy?: EconomyDraft;
+  /** What an auction command needs the database to do atomically with the character write. */
+  auction?: AuctionEffect;
 }
 
 /** A party member as the overlay needs to see them during the join window. */
@@ -273,6 +277,12 @@ export class GameEngine extends EventEmitter {
   /** Viewer ids that have joined the open run, in join order. */
   partyIds: string[] = [];
   lastCombat: CombatResult | null = null;
+  /**
+   * The auction house as the host read it, or null where there is none (the
+   * game server, the file roster store, the standalone overlay). Set per
+   * request by the `character` Edge Function; see AuctionContext.
+   */
+  auction: AuctionContext | null = null;
 
   constructor(content: ContentRegistry, rng: Rng) {
     super();
@@ -329,6 +339,58 @@ export class GameEngine extends EventEmitter {
       this.emitLog("fight", record);
     } catch (err) {
       console.warn(`[balance-log] could not build a fight record: ${(err as Error).message}`);
+    }
+  }
+
+  /**
+   * The four auction commands. Each changes only `requestedBy`'s character and
+   * reports what the database must do alongside that write as `auction`; the
+   * seller of a sale is never loaded here. Refuses without an `auction`
+   * context, which is every host but the hosted loadout.
+   */
+  private handleAuction(command: Extract<GameCommand, { type: "list_gear" | "cancel_listing" | "buy_listing" | "collect_proceeds" }>): DispatchResult {
+    const ctx = this.auction;
+    if (!ctx) return { ok: false, message: text.auction.unavailable };
+    const character = this.roster.get(command.requestedBy);
+    if (!character) return { ok: false, message: text.errors.unknownCharacter };
+    const name = (gearId: string) => {
+      try {
+        return this.content.getGear(gearId).name;
+      } catch {
+        return gearId;
+      }
+    };
+    switch (command.type) {
+      case "list_gear": {
+        const r = listGear(character, command.instanceId, command.price, ctx, this.content);
+        if (!r.ok) return { ok: false, message: r.reason };
+        return { ok: true, message: format(text.auction.listed, { name: name(r.gearId), gold: command.price }), auction: r.effect };
+      }
+      case "cancel_listing": {
+        const r = cancelListing(character, command.listingId, ctx);
+        if (!r.ok) return { ok: false, message: r.reason };
+        return { ok: true, message: text.auction.cancelled, auction: r.effect };
+      }
+      case "buy_listing": {
+        const r = buyListing(character, command.listingId, ctx, this.content);
+        if (!r.ok) return { ok: false, message: r.reason };
+        return {
+          ok: true,
+          message: format(text.auction.bought, { name: name(r.gearId), gold: r.price }),
+          auction: r.effect,
+          economy: this.economyDraft(character.id, "auction_buy", { gearId: r.gearId, goldDelta: -r.price, gearSource: "loot" }),
+        };
+      }
+      case "collect_proceeds": {
+        const r = collectProceeds(character, ctx);
+        if (!r.ok) return { ok: false, message: r.reason };
+        return {
+          ok: true,
+          message: format(text.auction.collected, { gold: r.gold, items: r.items }),
+          auction: r.effect,
+          ...(r.gold > 0 ? { economy: this.economyDraft(character.id, "auction_collect", { goldDelta: r.gold }) } : {}),
+        };
+      }
     }
   }
 
@@ -866,6 +928,12 @@ export class GameEngine extends EventEmitter {
             : {}),
         };
       }
+
+      case "list_gear":
+      case "cancel_listing":
+      case "buy_listing":
+      case "collect_proceeds":
+        return this.handleAuction(command);
 
       case "use_consumable": {
         const character = this.roster.get(command.requestedBy);

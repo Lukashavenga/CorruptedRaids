@@ -79,7 +79,10 @@
       "epic": 260,
       "legendary": 600
     },
-    "startingGold": 60
+    "startingGold": 60,
+    "auctionFee": 0.1,
+    "auctionListingDays": 7,
+    "auctionMaxListings": 10
   },
   "rewards": {
     "_comment": "THE DROP-RATE DIAL is survivorLootChance / casualtyLootChance / defeatLootChance: the chance a member gets a loot roll at all, which then has to pass mobDropChance (a fight with a boss always passes). Cut 2026-10-26 from 1 / 0.15 / 0.08 to roughly a quarter, at the streamer's request: drops per viewer per run went from 0.30-0.62 to 0.08-0.15 across the five dungeons (`npm run simulate:progression` section 2), about 6 items a night of twelve runs to about 1. Raised 2026-10-27 by half (x1.5, 0.25 / 0.05 / 0.025 -> 0.375 / 0.075 / 0.0375) after a day on stream felt too stingy: on 7-player parties, 60 fights per dungeon, drops per player per run went from 0.10 to 0.13 (1.2 to 1.6 over twelve runs), win rate unchanged. There is no cap per night or per day; every run rolls fresh. Scale all three together; the order survived > died in a win > lost is asserted by `npm run simulate`.",
