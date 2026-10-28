@@ -1,0 +1,19 @@
+{
+  "id": "sailor-bottoms",
+  "name": "Sailor Bottoms",
+  "slot": "bottom",
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Sailor outfit.",
+  "tags": [
+    "outfit:sailor"
+  ],
+  "spriteByBody": {
+    "male": "sailor-male",
+    "female": "sailor-female"
+  },
+  "requires": {}
+}

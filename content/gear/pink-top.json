@@ -1,0 +1,19 @@
+{
+  "id": "pink-top",
+  "name": "Pink Top",
+  "slot": "top",
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Pink outfit.",
+  "tags": [
+    "outfit:pink"
+  ],
+  "spriteByBody": {
+    "male": "pink-male",
+    "female": "pink-female"
+  },
+  "requires": {}
+}

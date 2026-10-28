@@ -1,0 +1,19 @@
+{
+  "id": "sailor-top",
+  "name": "Sailor Top",
+  "slot": "top",
+  "rarity": "common",
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Part of the Sailor outfit.",
+  "tags": [
+    "outfit:sailor"
+  ],
+  "spriteByBody": {
+    "male": "sailor-male",
+    "female": "sailor-female"
+  },
+  "requires": {}
+}
