@@ -315,7 +315,7 @@ export const en = {
         skill: "−{perPoint}% damage taken per point (max {cap}%)",
         guard: "−{perPoint}% for the whole party per point (max {cap}%)",
         threat: "{base}x base, +{perPoint}% per Skill point (max +{cap}%)",
-        healed: "first, and {more}% more",
+        healed: "favoured, and {more}% more",
         note: "{chance}% of attacks ignore threat anyway.",
       },
       healer: {
@@ -420,6 +420,10 @@ export const en = {
           title: "Take what is left",
           body: "Win and you take XP, gold and gear. Lose and you still take {defeatShare}% of the XP and a slim chance at gear - a bad night is still a night.",
         },
+      },
+      threat: {
+        title: "How threat works",
+        body: "Enemies mostly hit whoever is most threatening. Tanks are very threatening, and more so with Skill, and every few turns they Taunt to pull harder. About one hit in {chance} ignores threat and goes anywhere, which is why DPS still need some HP. Healers save whoever is closest to death, and favour the tank.",
       },
       raids: {
         title: "Raids",

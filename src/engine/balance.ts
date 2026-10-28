@@ -102,6 +102,19 @@ export interface BalanceConfig {
     base: number;
     /** Additional healing per point of the healer's `skill` stat. */
     perSkillPoint: number;
+    /**
+     * A healer heals ITSELF first only below this fraction. Above it, it is
+     * just one more hurt ally competing on urgency - it used to jump the
+     * queue the moment it dipped under `triggerBelowFraction`.
+     */
+    selfFirstBelowFraction: number;
+    /**
+     * Multiplies a TANK's hp fraction when ranking who is most in need, so a
+     * tank at 60% (0.6 x 0.8 = 0.48) outranks a DPS at 50% but never a DPS at
+     * 5%. A bias, not a tier: the old rule healed any hurt tank before any
+     * DPS, so a tank at 69% beat a DPS at 5% every time.
+     */
+    tankUrgencyWeight: number;
   };
 
   /**
@@ -133,8 +146,14 @@ export interface BalanceConfig {
        */
       guardPerSkill: number;
       maxGuard: number;
-      /** A tank taunts every Nth action instead of attacking. */
+      /** A tank taunts every Nth action. */
       tauntEveryNActions: number;
+      /**
+       * 1: the taunt takes the whole action, so the tank does not attack that
+       * turn. 0: the taunt rides on a normal attack and costs no offence.
+       * A number rather than a flag so the threat report can `--set` it.
+       */
+      tauntCostsAction: number;
       /** How many ticks a taunt holds enemy attention. */
       tauntTicks: number;
       /** Aggro multiplier while taunting, on top of the role multiplier. */
@@ -455,6 +474,8 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     triggerBelowFraction: 0.7,
     base: 2,
     perSkillPoint: 0.5,
+    selfFirstBelowFraction: 0.35,
+    tankUrgencyWeight: 0.8,
   },
   roles: {
     tank: {
@@ -463,6 +484,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
       guardPerSkill: 0.01,
       maxGuard: 0.35,
       tauntEveryNActions: 3,
+      tauntCostsAction: 1,
       tauntTicks: 6,
       tauntAggroMultiplier: 4,
       aggroPerSkill: 0.03,
