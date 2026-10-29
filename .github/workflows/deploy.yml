@@ -1,0 +1,107 @@
+# Ship the hosted loadout: the `character` and `operator` Edge Functions, and
+# the Cloudflare Pages site. Run by hand, from the Actions tab - including from
+# a phone, which is the reason it exists.
+#
+# It is DEPLOY.md sections 3 and 4 in order, with one step added in front:
+# the content is pulled from the store first. The hosted admin panel saves to
+# Supabase, the functions and the loadout page carry a copy of the gear bundled
+# at deploy time, and that copy is built from content/ - so deploying the
+# repo's content/ ships whatever was last committed, not what the streamer
+# saved this morning. Pulling here makes "Run workflow" mean "ship what the
+# admin panel says". The pull is not committed; `npm run pull:content` and a
+# commit is still how the repo catches up.
+#
+# Never on push. Deploying the stream's live surfaces is a decision, and a
+# merge is not one.
+#
+# Secrets (Settings -> Secrets and variables -> Actions -> Secrets):
+#   SUPABASE_URL            https://<ref>.supabase.co, as in the root .env
+#   SUPABASE_SERVICE_KEY    the service key, as in the root .env - for the pull
+#   SUPABASE_ACCESS_TOKEN   a personal token from supabase.com/dashboard/account/tokens;
+#                           it is what `npx supabase login` stores locally
+#   CLOUDFLARE_API_TOKEN    a token with "Cloudflare Pages: Edit"
+#   CLOUDFLARE_ACCOUNT_ID   from the Cloudflare dashboard's sidebar
+# Variables (same page, Variables tab) - the two web/.env values, which Vite
+# inlines at build time. The Pages workflow already reads these two names:
+#   VITE_SUPABASE_URL
+#   VITE_SUPABASE_PUBLISHABLE_KEY
+name: Deploy loadout
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: What to deploy
+        type: choice
+        options: [both, functions, site]
+        default: both
+      pull:
+        description: Pull content from the store first (what the admin panel saved)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+# Two deploys racing each other would leave the function and the page built
+# from different content - the exact disagreement this exists to prevent.
+concurrency:
+  group: deploy-loadout
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+
+      # WITH install scripts, unlike the Pages workflow: they are what fetch
+      # the Supabase and Wrangler binaries, and this job runs both.
+      - run: npm ci
+      - run: npm ci --prefix web
+
+      # Fail on a missing secret before anything is half-deployed, naming it.
+      - name: Check configuration
+        env:
+          TARGET: ${{ inputs.target }}
+          PULL: ${{ inputs.pull }}
+        run: |
+          need() { for n in "$@"; do [ -n "${!n}" ] || { echo "::error::$n is not set - see the top of deploy.yml"; missing=1; }; done; }
+          need SUPABASE_URL
+          [ "$PULL" = "true" ] && need SUPABASE_SERVICE_KEY
+          [ "$TARGET" != "site" ] && need SUPABASE_ACCESS_TOKEN
+          [ "$TARGET" != "functions" ] && need CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID VITE_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY
+          [ -z "$missing" ]
+
+      - if: inputs.pull
+        run: npm run pull:content -- --write
+
+      # Both halves need it: the functions validate against _content.json, the
+      # page renders web/public/loadout-content.json, and they are one build.
+      - run: npm run bundle:edge
+      - run: npm run test:edge
+
+      - if: inputs.target != 'site'
+        # Not `npm run deploy:fn`: that bundles again, and the bundle above is
+        # the one test:edge just checked.
+        run: npx tsx scripts/deploy-function.ts
+
+      # `npm run deploy` does not build; DEPLOY.md runs build:web before it.
+      - if: inputs.target != 'functions'
+        run: npm run build:web && npm run deploy
