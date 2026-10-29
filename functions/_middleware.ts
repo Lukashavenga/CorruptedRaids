@@ -204,8 +204,12 @@ async function openGate(ctx: Ctx): Promise<Response> {
   });
   if (!res.ok) return json({ ok: false, message: "That sign-in could not be verified." }, 401);
 
-  const user = (await res.json().catch(() => null)) as { user_metadata?: { provider_id?: unknown } } | null;
-  const twitchId = user?.user_metadata?.provider_id;
+  // From `identities`, which only Supabase Auth writes. NOT user_metadata: any
+  // signed-in account can rewrite its own (`updateUser`), so reading
+  // `provider_id` from there let a caller put the streamer's id in and walk
+  // through this gate. sql/006 has the longer account.
+  const user = (await res.json().catch(() => null)) as { identities?: { provider?: string; id?: unknown }[] } | null;
+  const twitchId = user?.identities?.find((i) => i.provider === "twitch")?.id;
   // Digits only: the id becomes a field in a dot-separated cookie, and one
   // containing a dot would let a caller choose where the fields split.
   if (typeof twitchId !== "string" || !/^[0-9]+$/.test(twitchId) || !cfg.ids.includes(twitchId)) {

@@ -191,19 +191,31 @@ async function db(path: string, init: RequestInit = {}): Promise<Response> {
 }
 
 /**
- * The caller's Twitch id, from their verified token and nowhere else.
+ * The caller's Twitch id, from Supabase Auth's identities and nowhere else.
+ *
+ * NOT from the token's user_metadata, which is what this read until an
+ * advisor caught it: any signed-in account can rewrite its own user_metadata,
+ * so setting `provider_id` to the streamer's id made the caller an operator.
+ * See the character function's copy for the longer account.
  *
  * Identical to the character function's version, and duplicated rather than
  * shared on purpose: this is the line the whole file's security rests on, and
  * it should be readable here without following an import.
  */
-function callerTwitchId(req: Request): string | null {
+async function callerTwitchId(req: Request): Promise<string | null> {
   const auth = req.headers.get("Authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   try {
-    const payload = JSON.parse(atob(auth.slice(7).split(".")[1]!));
-    const id = payload?.user_metadata?.provider_id ?? payload?.user_metadata?.sub;
-    return typeof id === "string" && id ? id : null;
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { Authorization: auth, apikey: SERVICE_KEY },
+    });
+    if (!res.ok) return null;
+    const user = (await res.json()) as { identities?: { provider?: string; id?: unknown }[] };
+    // The identity's `id` is auth.identities.provider_id: what Twitch said, not
+    // what the account says about itself. user_metadata.provider_id is the
+    // latter, and `supabase.auth.updateUser` lets anyone rewrite it.
+    const id = user.identities?.find((i) => i.provider === "twitch")?.id;
+    return typeof id === "string" && /^[0-9]+$/.test(id) ? id : null;
   } catch {
     return null;
   }
@@ -333,7 +345,7 @@ interface Row {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
 
-  const twitchId = callerTwitchId(req);
+  const twitchId = await callerTwitchId(req);
   const url = new URL(req.url);
   const action = url.searchParams.get("action") ?? "whoami";
 

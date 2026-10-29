@@ -57,6 +57,10 @@ create index if not exists bug_reports_created_at_idx
 alter table public.bug_reports enable row level security;
 
 -- A viewer may FILE a report, as themselves.
+-- SUPERSEDED by 006_identity_from_auth_identities.sql: user_metadata is
+-- writable by the user, so the policy below let a caller read (or file as)
+-- any id they chose. Kept as written so the files still apply in order.
+--
 --
 -- `with check` rather than `using`: this is an insert, so there is no existing
 -- row to test — the check runs against the row being written, and pins its
