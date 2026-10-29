@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ShopView } from "../../../src/engine/types.js";
+import type { ConsumableDefinition, ShopView } from "../../../src/engine/types.js";
 import { callCharacterFn } from "./supabase.js";
 
 /** How often a loadout left open looks at the shelf again. */
@@ -21,8 +21,18 @@ const REFRESH_MS = 30_000;
  * Re-read on a timer and when the tab comes back to the front, because a phone
  * loadout is left open for hours and the stream is where the restock happens.
  */
-export function useLiveShop(): ShopView | null {
-  const [shop, setShop] = useState<ShopView | null>(null);
+export interface LiveShop {
+  shop: ShopView;
+  /**
+   * The consumables as the store holds them now, so a name or description
+   * edited in the Shop tab shows without a deploy. Null from a function
+   * deployed before it sent them; the bundled definitions stand in.
+   */
+  consumables: ConsumableDefinition[] | null;
+}
+
+export function useLiveShop(): LiveShop | null {
+  const [shop, setShop] = useState<LiveShop | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +40,8 @@ export function useLiveShop(): ShopView | null {
       void callCharacterFn({ method: "GET" }, "?shop=1").then(({ status, body }) => {
         if (cancelled || status !== 200) return;
         const next = body.shop as ShopView | undefined;
-        if (next && Array.isArray(next.gear) && Array.isArray(next.consumables)) setShop(next);
+        const consumables = Array.isArray(body.consumables) ? (body.consumables as ConsumableDefinition[]) : null;
+        if (next && Array.isArray(next.gear) && Array.isArray(next.consumables)) setShop({ shop: next, consumables });
       });
     };
     const onVisible = () => {

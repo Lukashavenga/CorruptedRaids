@@ -255,6 +255,29 @@ export class ContentRegistry {
   }
 
   /**
+   * Replace every consumable definition, validated, or throw and keep the old.
+   *
+   * For the loadout's Edge Function, which bundles its content at deploy and
+   * so would show a renamed tome under its old name until the next deploy.
+   * It re-reads the consumables from the content store beside the shop and
+   * swaps them in here. Refused whole, never half-applied: a malformed row,
+   * a duplicate, or a set missing something the shop stocks leaves what was
+   * there, because a stocked consumable with no definition breaks the shelf.
+   */
+  setConsumables(raws: unknown[], where = "consumables"): void {
+    const next = new Map<string, ConsumableDefinition>();
+    for (const [i, raw] of raws.entries()) {
+      const def = validateConsumableDefinition(raw, `${where}[${i}]`);
+      if (next.has(def.id)) throw new Error(`[content:${where}] duplicate consumable id "${def.id}"`);
+      next.set(def.id, def);
+    }
+    for (const id of this.shop.consumables) {
+      if (!next.has(id)) throw new Error(`[content:${where}] the shop stocks "${id}", which this set does not define`);
+    }
+    this.consumables = next;
+  }
+
+  /**
    * Shop stock. Validates that every stocked id actually exists, so a typo
    * fails at startup rather than producing a shop row that can't be bought.
    */

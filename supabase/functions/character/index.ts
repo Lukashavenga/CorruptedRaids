@@ -76,9 +76,15 @@ content.loadObjects(bundledContent as Parameters<ContentRegistry["loadObjects"]>
  * Showing a live shelf while charging deploy-time stock would be worse than
  * either.
  *
+ * The CONSUMABLES come along with it. Their names and descriptions are edited
+ * in the Shop tab, beside their prices, and a renamed tome that kept its old
+ * name until the next deploy read as a save that did nothing. They are a
+ * handful of small rows, and buying or using one reads its price and effect
+ * here, so the live definition is also the one that is charged and applied.
+ *
  * Cached per isolate for a few seconds: a purchase is a click, not a loop, and
- * the cost is a one-row read. A store that cannot be reached, or holds a shop
- * naming gear this bundle has never heard of, leaves the bundled shop in
+ * the cost is two small reads. A store that cannot be reached, or holds a shop
+ * naming gear this bundle has never heard of, leaves the last good copy in
  * place rather than failing the purchase - and logs why.
  */
 const SHOP_TTL_MS = 10_000;
@@ -88,9 +94,24 @@ async function refreshShop(): Promise<void> {
   if (Date.now() - shopCheckedAt < SHOP_TTL_MS) return;
   shopCheckedAt = Date.now();
   try {
-    const res = await db("/content_files?path=eq.shop.json&select=data");
-    const rows = (await res.json()) as { data: unknown }[];
-    if (rows[0]) content.setShop(rows[0].data, "shop.json");
+    const [shopRes, consumablesRes] = await Promise.all([
+      db("/content_files?path=eq.shop.json&select=data"),
+      db("/content_files?path=like.consumables%2F*&select=data"),
+    ]);
+    const shop = ((await shopRes.json()) as { data: unknown }[])[0]?.data;
+    const consumables = ((await consumablesRes.json()) as { data: unknown }[]).map((r) => r.data);
+    const applyShop = () => shop !== undefined && content.setShop(shop, "shop.json");
+    const applyConsumables = () => consumables.length > 0 && content.setConsumables(consumables, "consumables");
+    // Each checks itself against the other, so the order that works depends
+    // on what changed: a newly stocked tome needs its definition first, a
+    // tome taken off the shelf and deleted needs the shelf first.
+    try {
+      applyConsumables();
+      applyShop();
+    } catch {
+      applyShop();
+      applyConsumables();
+    }
   } catch (err) {
     console.error(`live shop unavailable, keeping the last one: ${(err as Error).message}`);
   }
@@ -278,7 +299,7 @@ async function handle(req: Request): Promise<Response> {
     // charges them. The loadout falls back to its bundled copy if this fails.
     if (req.method === "GET" && new URL(req.url).searchParams.has("shop")) {
       await refreshShop();
-      return json({ ok: true, shop: content.shopView() });
+      return json({ ok: true, shop: content.shopView(), consumables: content.listConsumables() });
     }
 
     if (req.method === "GET") {
@@ -301,7 +322,10 @@ async function handle(req: Request): Promise<Response> {
       return json({ ok: false, message: "You are in a run — try again when it ends." }, 409);
     }
 
-    if (command.type === "buy_gear" || command.type === "buy_consumable") await refreshShop();
+    // Using a tome reads its effect, so it wants the live definition too.
+    if (command.type === "buy_gear" || command.type === "buy_consumable" || command.type === "use_consumable") {
+      await refreshShop();
+    }
 
     const engine = seed(row?.data ?? null);
     // The balance log: collected as the command runs, written only once it
