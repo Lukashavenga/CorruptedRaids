@@ -2,14 +2,13 @@
   "id": "iron-flail",
   "name": "Iron Flail",
   "slot": "mainHand",
-  "rarity": "rare",
-  "statMods": {
-    "atk": 3
-  },
-  "description": "Iron Flail. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "mh09",
-  "requires": {
-    "atk": 12
-  }
+  "requires": {},
+  "statMods": {
+    "atk": 5,
+    "spd": 1
+  },
+  "description": "SWING SWING BY THE TANGLES OF MY FLAIL"
 }

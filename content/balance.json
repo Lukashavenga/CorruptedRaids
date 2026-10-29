@@ -1,104 +1,94 @@
 {
-  "_comment": "Every balance knob in the game. See src/engine/balance.ts for what each field does and why. RESCALED when Armour was removed and Skill took over mitigation: a level-1 character now opens at 9-14 health rather than 40-70, so every stat-scale number here came down with it (skillCurveK, perPoint, healing). Rewards and prices did not \u2014 they are not on the stat scale. Re-measure with `npm run simulate:progression` after touching any of it. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
-  "combat": {
-    "skillCurveK": 10,
-    "maxMitigation": 0.75,
-    "damageVariance": 0.2,
-    "critMultiplier": 1.8,
-    "minDamage": 1,
-    "maxTicks": 400,
-    "maxTicksPerCombatant": 20
-  },
   "aggro": {
     "base": 10,
+    "perDamageDealt": 0.08,
     "roleMultiplier": {
-      "tank": 6,
       "dps": 1,
+      "tank": 6,
       "healer": 0.6
     },
-    "perDamageDealt": 0.08,
     "focusBreakChance": 0.22
   },
-  "healing": {
-    "triggerBelowFraction": 0.7,
-    "base": 2,
-    "perSkillPoint": 0.5,
-    "selfFirstBelowFraction": 0.35,
-    "tankUrgencyWeight": 0.8
-  },
   "roles": {
-    "_comment": "What each role DOES beyond its stat block. See src/engine/balance.ts.",
     "tank": {
-      "mitigationPerSkill": 0.012,
-      "maxSelfMitigation": 0.4,
-      "guardPerSkill": 0.01,
       "maxGuard": 0.35,
-      "tauntEveryNActions": 3,
-      "tauntCostsAction": 1,
       "tauntTicks": 6,
-      "tauntAggroMultiplier": 4,
       "aggroPerSkill": 0.03,
-      "maxAggroFromSkill": 1.5
+      "guardPerSkill": 0.01,
+      "maxAggroFromSkill": 1.5,
+      "maxSelfMitigation": 0.4,
+      "mitigationPerSkill": 0.012,
+      "tauntEveryNActions": 3,
+      "tauntAggroMultiplier": 4
     },
     "healer": {
-      "spdPerSkill": 0.15,
       "maxSpdBonus": 3,
-      "tankHealMultiplier": 1.6,
-      "selfHealMultiplier": 0.4
-    }
-  },
-  "roleRarity": {
-    "scarceBelowShare": 0.2,
-    "crowdedAboveShare": 0.5,
-    "scarceMultiplier": 1.15,
-    "crowdedMultiplier": 0.92
-  },
-  "partyScaling": {
-    "baselinePartySize": 5,
-    "hpPerExtraMember": 0.05,
-    "maxMultiplier": 6,
-    "minMultiplier": 0.4,
-    "atkPerDoubling": 0.65,
-    "_comment": "Enemy ATTACK is SUB-LINEAR in headcount (atkPerDoubling = per DOUBLING of the party, not per head); HP stays linear (hpPerExtraMember). The old per-head atkPerExtraMember is gone, not deprecated - it is what made the top of the ladder unreachable: at 0.24 a party of 25 met 5.8x attack while their own HP had not moved, so Woop Woop read 0-7% at EVERY headcount from 5 to 30 and Ladies of The Knight never won. Measured sweep (7 curves x 3 dungeons x 10 headcounts): 0.65 gives the top of the ladder a real turnout curve without flattening it to a guaranteed win, which 0.45 did. 0.65 per doubling is ~2.9x at forty players; do not read it as a per-head number. Re-measure with `npm run simulate:progression` section 11 after touching any of it."
-  },
-  "progression": {
-    "pointsPerLevel": 2,
-    "perPoint": {
-      "hp": 2,
-      "atk": 1,
-      "skill": 1,
-      "spd": 1
+      "spdPerSkill": 0.15,
+      "selfHealMultiplier": 0.4,
+      "tankHealMultiplier": 1.6
     },
-    "xpRate": 0.25
+    "_comment": "What each role DOES beyond its stat block. See src/engine/balance.ts."
+  },
+  "combat": {
+    "maxTicks": 400,
+    "minDamage": 1,
+    "skillCurveK": 10,
+    "maxMitigation": 0.75,
+    "critMultiplier": 1.8,
+    "damageVariance": 0.2,
+    "maxTicksPerCombatant": 20
   },
   "economy": {
     "_comment": "recycleRate is what SHOP-BOUGHT gear sells back for (1 = full refund, so trying an item costs nothing). lootRecycleRate is everything else - chest drops, the starter kit, operator grants, and any item owned before gear remembered where it came from. See src/engine/balance.ts.",
     "recycleRate": 1,
-    "lootRecycleRate": 0.1,
+    "startingGold": 60,
     "valueByRarity": {
+      "epic": 260,
+      "rare": 110,
       "common": 20,
       "uncommon": 45,
-      "rare": 110,
-      "epic": 260,
       "legendary": 600
     },
-    "startingGold": 60
+    "lootRecycleRate": 0.1
+  },
+  "healing": {
+    "base": 2,
+    "perSkillPoint": 0.5,
+    "triggerBelowFraction": 0.7
   },
   "rewards": {
     "_comment": "THE DROP-RATE DIAL is survivorLootChance / casualtyLootChance / defeatLootChance: the chance a member gets a loot roll at all, which then has to pass mobDropChance (a fight with a boss always passes). Cut 2026-10-26 from 1 / 0.15 / 0.08 to roughly a quarter, at the streamer's request: drops per viewer per run went from 0.30-0.62 to 0.08-0.15 across the five dungeons (`npm run simulate:progression` section 2), about 6 items a night of twelve runs to about 1. Raised 2026-10-27 by half (x1.5, 0.25 / 0.05 / 0.025 -> 0.375 / 0.075 / 0.0375) after a day on stream felt too stingy: on 7-player parties, 60 fights per dungeon, drops per player per run went from 0.10 to 0.13 (1.2 to 1.6 over twelve runs), win rate unchanged. There is no cap per night or per day; every run rolls fresh. Scale all three together; the order survived > died in a win > lost is asserted by `npm run simulate`.",
     "mobDropChance": 0.6,
-    "survivorLootChance": 0.375,
-    "casualtyXpMultiplier": 0.4,
-    "casualtyLootChance": 0.075,
+    "defeatLootChance": 0.0709,
+    "casualtyLootChance": 0.1418,
     "defeatXpMultiplier": 0.15,
-    "defeatLootChance": 0.0375,
-    "compositionBonusMax": 0.25
+    "survivorLootChance": 0.7088,
+    "compositionBonusMax": 0.25,
+    "casualtyXpMultiplier": 0.4
   },
-  "balanceLog": {
-    "_comment": "The balance log (AGENTS.md, 'Balance log'). rawEventsOneIn keeps the whole event log of one fight in N on its row; 0 keeps none, which is right until a specific fight needs replaying. maxQueued bounds memory while the log is down; the oldest record is dropped first. Not part of a fight's content fingerprint, so changing these does not read as a rebalance.",
-    "enabled": true,
-    "rawEventsOneIn": 0,
-    "maxQueued": 2000,
-    "flushIntervalMs": 2000
+  "_comment": "Every balance knob in the game. See src/engine/balance.ts for what each field does and why. RESCALED when Armour was removed and Skill took over mitigation: a level-1 character now opens at 9-14 health rather than 40-70, so every stat-scale number here came down with it (skillCurveK, perPoint, healing). Rewards and prices did not — they are not on the stat scale. Re-measure with `npm run simulate:progression` after touching any of it. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
+  "roleRarity": {
+    "scarceBelowShare": 0.2,
+    "scarceMultiplier": 1.15,
+    "crowdedAboveShare": 0.5,
+    "crowdedMultiplier": 0.92
+  },
+  "progression": {
+    "xpRate": 0.25,
+    "perPoint": {
+      "hp": 2,
+      "atk": 1,
+      "spd": 1,
+      "skill": 1
+    },
+    "pointsPerLevel": 2
+  },
+  "partyScaling": {
+    "_comment": "Enemy ATTACK is SUB-LINEAR in headcount (atkPerDoubling = per DOUBLING of the party, not per head); HP stays linear (hpPerExtraMember). The old per-head atkPerExtraMember is gone, not deprecated - it is what made the top of the ladder unreachable: at 0.24 a party of 25 met 5.8x attack while their own HP had not moved, so Woop Woop read 0-7% at EVERY headcount from 5 to 30 and Ladies of The Knight never won. Measured sweep (7 curves x 3 dungeons x 10 headcounts): 0.65 gives the top of the ladder a real turnout curve without flattening it to a guaranteed win, which 0.45 did. 0.65 per doubling is ~2.9x at forty players; do not read it as a per-head number. Re-measure with `npm run simulate:progression` section 11 after touching any of it.",
+    "maxMultiplier": 6,
+    "minMultiplier": 0.4,
+    "atkPerDoubling": 0.65,
+    "hpPerExtraMember": 0.05,
+    "baselinePartySize": 5
   }
 }

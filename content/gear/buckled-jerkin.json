@@ -2,16 +2,18 @@
   "id": "buckled-jerkin",
   "name": "Buckled Jerkin",
   "slot": "top",
+  "tags": [],
   "rarity": "uncommon",
+  "requires": {},
   "statMods": {
-    "hp": 4,
+    "hp": 2,
+    "atk": 1,
+    "spd": 6,
     "skill": 1
   },
-  "description": "Buckled Jerkin. Taken, not given.",
-  "tags": [],
+  "description": "Maiden-beater",
   "spriteByBody": {
     "male": "male-t2",
     "female": "female-t2"
-  },
-  "requires": {}
+  }
 }

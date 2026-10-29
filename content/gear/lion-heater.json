@@ -1,15 +1,15 @@
 {
   "id": "lion-heater",
-  "name": "Lion Heater",
+  "name": "Lion GAURD",
   "slot": "mainHand",
-  "rarity": "legendary",
-  "statMods": {
-    "atk": 7
-  },
-  "description": "Lion Heater. Taken, not given.",
   "tags": [],
+  "rarity": "epic",
   "sprite": "mh27",
-  "requires": {
-    "atk": 36
-  }
+  "requires": {},
+  "statMods": {
+    "hp": 30,
+    "spd": -2,
+    "skill": 12
+  },
+  "description": "BY THIS LION I PROTECT THEE"
 }

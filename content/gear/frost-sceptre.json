@@ -2,14 +2,16 @@
   "id": "frost-sceptre",
   "name": "Frost Sceptre",
   "slot": "mainHand",
-  "rarity": "epic",
-  "statMods": {
-    "atk": 5
-  },
-  "description": "Frost Sceptre. Taken, not given.",
   "tags": [],
+  "rarity": "epic",
   "sprite": "mh19",
   "requires": {
     "atk": 28
-  }
+  },
+  "statMods": {
+    "atk": 4,
+    "spd": 4,
+    "skill": 12
+  },
+  "description": "Don't let it goooo!"
 }

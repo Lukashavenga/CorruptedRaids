@@ -1,15 +1,15 @@
 {
   "id": "plain-quarterstaff",
-  "name": "Plain Quarterstaff",
+  "name": "Buckler",
   "slot": "mainHand",
-  "rarity": "legendary",
-  "statMods": {
-    "atk": 7
-  },
-  "description": "Plain Quarterstaff. Taken, not given.",
   "tags": [],
+  "rarity": "uncommon",
   "sprite": "mh25",
-  "requires": {
-    "atk": 36
-  }
+  "requires": {},
+  "statMods": {
+    "hp": 15,
+    "atk": -1,
+    "skill": 6
+  },
+  "description": "If you can dodge a wrench, you can do better than this shield"
 }

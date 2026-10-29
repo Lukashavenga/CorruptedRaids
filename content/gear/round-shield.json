@@ -1,15 +1,15 @@
 {
   "id": "round-shield",
-  "name": "Round Shield",
+  "name": "Pearl Staff",
   "slot": "mainHand",
-  "rarity": "legendary",
-  "statMods": {
-    "atk": 7
-  },
-  "description": "Round Shield. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "mh26",
-  "requires": {
-    "atk": 36
-  }
+  "requires": {},
+  "statMods": {
+    "hp": 3,
+    "spd": 4,
+    "skill": 11
+  },
+  "description": "Sounds like a Band no?"
 }

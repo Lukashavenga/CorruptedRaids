@@ -477,6 +477,7 @@
       "description": "Two serjeants and whoever they armed."
     }
   ],
+  "enabled": false,
   "_comment": "The first raid. The PATH is authored: every round names what is behind Left, Ahead and Right, and the number of rounds is the length of that list. Two runs of this raid are now identical - that is the trade for being able to say what a night looks like before it happens. The audience still cannot see behind a door until it opens, so a chat vote is as blind as it ever was. Edit rooms and the path in the admin panel's Raids tab. NOTE: saving from the admin rewrites this file from the validated object, which drops underscore-prefixed keys - this comment included.",
   "flavorText": "Four doors between you and the one who came to stop this.",
   "completionXp": 320,

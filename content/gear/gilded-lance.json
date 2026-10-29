@@ -2,14 +2,13 @@
   "id": "gilded-lance",
   "name": "Gilded Lance",
   "slot": "mainHand",
-  "rarity": "rare",
-  "statMods": {
-    "atk": 3
-  },
-  "description": "Gilded Lance. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "mh11",
-  "requires": {
-    "atk": 16
-  }
+  "requires": {},
+  "statMods": {
+    "atk": 7,
+    "skill": 2
+  },
+  "description": "Pointy"
 }

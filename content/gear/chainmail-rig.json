@@ -2,16 +2,18 @@
   "id": "chainmail-rig",
   "name": "Chainmail Rig",
   "slot": "top",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 4,
-    "skill": 2
-  },
-  "description": "Chainmail Rig. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 14,
+    "atk": 2,
+    "spd": 1,
+    "skill": 6
+  },
+  "description": "It's hard",
   "spriteByBody": {
     "male": "male-t3",
     "female": "female-t3"
-  },
-  "requires": {}
+  }
 }

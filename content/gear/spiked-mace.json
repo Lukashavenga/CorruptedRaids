@@ -2,14 +2,15 @@
   "id": "spiked-mace",
   "name": "Spiked Mace",
   "slot": "mainHand",
-  "rarity": "uncommon",
-  "statMods": {
-    "atk": 2
-  },
-  "description": "Spiked Mace. Taken, not given.",
   "tags": [],
+  "rarity": "uncommon",
   "sprite": "mh07",
-  "requires": {
-    "atk": 12
-  }
+  "requires": {},
+  "statMods": {
+    "hp": 1,
+    "atk": 4,
+    "spd": 1,
+    "skill": 1
+  },
+  "description": "What's a morningstar then?"
 }

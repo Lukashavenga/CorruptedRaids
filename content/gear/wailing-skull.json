@@ -2,14 +2,15 @@
   "id": "wailing-skull",
   "name": "Stalking Skull",
   "slot": "offHand",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 4,
-    "atk": 1,
-    "skill": 2
-  },
-  "description": "What was  that?! I swear you're being followed",
   "tags": [],
+  "rarity": "rare",
   "sprite": "oh06",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": -3,
+    "atk": 2,
+    "spd": 3,
+    "skill": 10
+  },
+  "description": "What was that?! I swear you're being followed"
 }

@@ -2,14 +2,15 @@
   "id": "gilded-recurve",
   "name": "Gilded Recurve",
   "slot": "mainHand",
-  "rarity": "epic",
-  "statMods": {
-    "atk": 4
-  },
-  "description": "Gilded Recurve. Taken, not given.",
   "tags": [],
+  "rarity": "epic",
   "sprite": "mh15",
   "requires": {
     "atk": 20
-  }
+  },
+  "statMods": {
+    "atk": 10,
+    "spd": 5
+  },
+  "description": "Shiny"
 }

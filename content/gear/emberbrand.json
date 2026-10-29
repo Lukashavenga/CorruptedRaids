@@ -2,14 +2,17 @@
   "id": "emberbrand",
   "name": "Emberbrand",
   "slot": "mainHand",
-  "rarity": "legendary",
-  "statMods": {
-    "atk": 6
-  },
-  "description": "Emberbrand. Taken, not given.",
   "tags": [],
+  "rarity": "legendary",
   "sprite": "mh23",
   "requires": {
     "atk": 32
-  }
+  },
+  "statMods": {
+    "hp": -5,
+    "atk": 12,
+    "spd": 4,
+    "skill": 12
+  },
+  "description": "HOT HOT HOTT!!!!"
 }

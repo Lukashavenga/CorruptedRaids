@@ -2,13 +2,15 @@
   "id": "green-draught",
   "name": "Absinth",
   "slot": "offHand",
-  "rarity": "uncommon",
-  "statMods": {
-    "hp": 2,
-    "skill": 1
-  },
-  "description": "Green Draught. Taken, not given.",
   "tags": [],
+  "rarity": "uncommon",
   "sprite": "oh03",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 6,
+    "atk": 8,
+    "spd": -1,
+    "skill": -2
+  },
+  "description": "Is anyone else seeing that fairy?"
 }
