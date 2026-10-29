@@ -77,10 +77,17 @@ export function LoadoutApp(): JSX.Element {
   // — the loadout is hosted and has no game server to ask. See the note on
   // useContentCatalog.
   const bundled = useContentCatalog("/loadout-content.json");
-  // The shelf is the one part of the bundle the streamer changes between
-  // deploys, so it is read live; the bundled copy stands in until it answers.
-  const liveShop = useLiveShop();
-  const catalog = useMemo(() => (liveShop ? { ...bundled, shop: liveShop } : bundled), [bundled, liveShop]);
+  // The shelf and the consumables are the parts of the bundle the streamer
+  // changes between deploys, so they are read live; the bundled copy stands in
+  // until the function answers.
+  const live = useLiveShop();
+  const catalog = useMemo(() => {
+    if (!live) return bundled;
+    const consumablesById = live.consumables
+      ? new Map(live.consumables.map((c) => [c.id, c]))
+      : bundled.consumablesById;
+    return { ...bundled, shop: live.shop, consumablesById };
+  }, [bundled, live]);
   const [busy, setBusy] = useState(false);
   // Appearance is a secondary concern, so it stays behind a toggle rather
   // than occupying permanent space next to stats and gear.

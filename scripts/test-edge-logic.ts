@@ -165,6 +165,27 @@ console.log(`character view renders: corruption ${view.corruption}, ${view.stats
   console.log(`shop adjustment: ${stocked.id} ${base}g -> ${onSale.price}g, charged and shown alike`);
 }
 
+// --- consumables, live --------------------------------------------------------
+//
+// The function swaps in the store's consumables beside the shop, so a renamed
+// tome shows without a deploy. A bad set must be refused whole.
+{
+  const live = new ContentRegistry();
+  live.loadObjects(bundle);
+  const defs = live.listConsumables();
+  const renamed = defs.map((d) => ({ ...d, name: `${d.name} (renamed)` }));
+  live.setConsumables(renamed);
+  assert.ok(live.listConsumables().every((d) => d.name.endsWith("(renamed)")), "names come from the new set");
+
+  const stocked = live.shop.consumables[0];
+  if (stocked) {
+    assert.throws(() => live.setConsumables(renamed.filter((d) => d.id !== stocked)), /stocks/, "a set missing a stocked tome is refused");
+    assert.throws(() => live.setConsumables([...renamed, { ...renamed[0]!, price: -1 }]), /price|duplicate/, "a malformed set is refused");
+    assert.ok(live.listConsumables().every((d) => d.name.endsWith("(renamed)")), "a refused set leaves the last good one");
+  }
+  console.log(`consumables swap live: ${defs.length} renamed, bad sets refused`);
+}
+
 // --- one engine per request, and it must not leak ---------------------------
 const other = seed(null);
 assert.equal(other.roster.get(VIEWER), undefined, "a fresh engine holds nobody else's character");
