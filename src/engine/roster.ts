@@ -1,5 +1,5 @@
 import type { Character, Role } from "./types.js";
-import { createCharacter, grantGear, SKIN_TONES } from "./character.js";
+import { createCharacter, dedupeInstanceIds, grantGear, SKIN_TONES } from "./character.js";
 
 /**
  * Hair sprite ids from art/sprites/hair, cycled so a crowd looks like people
@@ -129,7 +129,14 @@ export class Roster {
    */
   hydrate(characters: Character[]): void {
     this.characters.clear();
-    for (const c of characters) this.characters.set(c.id, c);
+    for (const c of characters) {
+      // Every load path comes through here - the game server's store and the
+      // loadout's Edge Function alike - so this is where the duplicate ids an
+      // old per-process counter minted get split apart (see nextInstanceId).
+      // The rename is stored by the next save of that character.
+      dedupeInstanceIds(c);
+      this.characters.set(c.id, c);
+    }
   }
 
   /**
