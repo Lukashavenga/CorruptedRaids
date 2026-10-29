@@ -155,6 +155,37 @@ export function spriteForGear(def: GearDefinition | undefined, bodyType: BodyTyp
   return def.sprite ?? null;
 }
 
+/**
+ * The sprite an owned INSTANCE draws: the look it was transmogged to if it has
+ * one, otherwise its own gear. Every surface that draws worn or carried gear
+ * (loadout doll, bag icons, flat overlay, 3D overlay, which share the layer map
+ * built from this) asks here, so none can disagree. `look` is a gear id, and
+ * its per-body cut is chosen by the WEARER's body, like any other gear.
+ * A look whose gear is no longer in the catalogue falls back to the item's own
+ * drawing rather than leaving a bare slot.
+ */
+export function spriteForInstance(
+  instance: { gearId: string; look?: string } | undefined,
+  gearById: ReadonlyMap<string, GearDefinition>,
+  bodyType: BodyType,
+): string | null {
+  if (!instance) return null;
+  return spriteForLook(gearById.get(instance.gearId), instance.look ? gearById.get(instance.look) : undefined, bodyType);
+}
+
+/**
+ * The precedence itself - the look's drawing, else the item's own - for a
+ * caller that already holds both definitions (ItemIcon). spriteForInstance
+ * goes through it too, so the rule is written once.
+ */
+export function spriteForLook(
+  def: GearDefinition | undefined,
+  look: GearDefinition | undefined,
+  bodyType: BodyType,
+): string | null {
+  return (look ? spriteForGear(look, bodyType) : null) ?? spriteForGear(def, bodyType);
+}
+
 /** Where a sprite sits, falling back to the origin when nothing is recorded. */
 export function placementFor(
   placements: PlacementFile,

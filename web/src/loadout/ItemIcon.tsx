@@ -1,12 +1,14 @@
 import { useState } from "react";
 import type { BodyType, GearDefinition, GearSlot } from "../../../src/engine/types.js";
 import type { IconFraming } from "../../../src/character/layers.js";
-import { SLOT_FOLDER, iconFramingFor, originalSpriteUrl, spriteForGear } from "../sprites.js";
+import { SLOT_FOLDER, iconFramingFor, originalSpriteUrl, spriteForLook } from "../sprites.js";
 import { SlotIcon } from "./SlotIcon.js";
 
 export interface ItemIconProps {
   /** The item's definition, from the content catalogue. */
   def: GearDefinition | undefined;
+  /** A transmog look: draw this item's picture instead of `def`'s (same slot). */
+  look?: GearDefinition;
   /** Drawn if the item has no art. */
   slot: GearSlot;
   /** Which body's cut of the art to show, for gear that has two. */
@@ -39,11 +41,11 @@ export interface ItemIconProps {
  * Contain-fit rather than fixed dimensions, because the source art ranges from
  * a 175px face mark to a 539px torch and a square icon would squash most of it.
  */
-export function ItemIcon({ def, slot, bodyType, size = 40, alt, framing }: ItemIconProps): JSX.Element {
+export function ItemIcon({ def, look, slot, bodyType, size = 40, alt, framing }: ItemIconProps): JSX.Element {
   const [missing, setMissing] = useState(false);
 
   const folder = SLOT_FOLDER[slot];
-  const sprite = spriteForGear(def, bodyType);
+  const sprite = spriteForLook(def, look, bodyType);
 
   if (missing || !folder || !sprite) return <SlotIcon slot={slot} size={size} />;
 

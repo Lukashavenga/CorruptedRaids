@@ -375,6 +375,11 @@ export class ContentRegistry {
     return def.value ?? this.balance.economy.valueByRarity[def.rarity];
   }
 
+  /** Gold to transmog this item: by its own rarity, since it is the one keeping its stats. */
+  transmogCost(id: string): number {
+    return this.balance.economy.transmogCostByRarity[this.getGear(id).rarity];
+  }
+
   /**
    * What recycling a gear item pays out: its value times the rate for where
    * it came from - `economy.recycleRate` if it was bought, `lootRecycleRate`

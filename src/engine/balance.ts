@@ -355,6 +355,13 @@ export interface BalanceConfig {
     /** Default gold value per rarity, used when a gear item doesn't set its own `value`. */
     valueByRarity: Record<Rarity, number>;
     /**
+     * Gold a transmog costs, by the rarity of the item KEEPING ITS STATS (the
+     * one being re-skinned), not the one consumed for its look. Decided
+     * 2026-10-28: the look item's rarity is irrelevant, so a legendary look
+     * on a common costs a common's price.
+     */
+    transmogCostByRarity: Record<Rarity, number>;
+    /**
      * Gold a character is created with.
      *
      * Enough for two or three of the cheapest items, which is the point: a new
@@ -543,6 +550,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     recycleRate: 1,
     lootRecycleRate: 0.1,
     valueByRarity: { common: 20, uncommon: 45, rare: 110, epic: 260, legendary: 600 },
+    transmogCostByRarity: { common: 10, uncommon: 25, rare: 60, epic: 150, legendary: 350 },
     startingGold: 60,
   },
   rewards: {

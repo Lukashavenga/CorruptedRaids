@@ -447,6 +447,13 @@ export interface GearInstance {
    * instances always carry it.
    */
   source?: GearSource;
+  /**
+   * The gear id whose DRAWING this instance wears (transmog). Stats, rarity,
+   * gates and recycle value all stay the item's own; only the picture changes.
+   * Absent means it draws as itself. Anything that decides which sprite an
+   * instance draws goes through `spriteForInstance` in web/src/sprites.ts.
+   */
+  look?: string;
 }
 
 /**
