@@ -12,8 +12,23 @@ if (!container) {
   throw new Error("#root element not found - check web/loadout.html");
 }
 
-createRoot(container).render(
-  <StrictMode>
-    <LoadoutApp />
-  </StrictMode>,
-);
+const root = createRoot(container);
+
+// `?chestLab` swaps the whole page for the chest-opening review bench. It is a
+// dynamic import so the lab is its own chunk: the normal loadout never loads it
+// and nothing in its flow links to it.
+if (new URLSearchParams(window.location.search).has("chestLab")) {
+  void import("./chest/ChestLab.js").then(({ ChestLab }) => {
+    root.render(
+      <StrictMode>
+        <ChestLab />
+      </StrictMode>,
+    );
+  });
+} else {
+  root.render(
+    <StrictMode>
+      <LoadoutApp />
+    </StrictMode>,
+  );
+}

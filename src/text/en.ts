@@ -230,6 +230,18 @@ export const en = {
       /* Shown once the bag has no chests left, in place of the shelf. */
       empty: "Nothing waiting. Win a run to earn a chest.",
     },
+    /* The chest-opening review bench at `loadout.html?chestLab`. Not a page a
+       player reaches, but copy is never inlined, so its labels live here too. */
+    chestLab: {
+      heading: "Chest lab",
+      timings:
+        "Wind-up {shake}ms, then the open takes {open}ms and the item appears at {reveal}ms into it. Timings are in chest/chestTimeline.ts.",
+      reducedMotion: "Reduced motion",
+      play: "Play",
+      playSlow: "Play at ¼ speed",
+      playing: "playing",
+      revealed: "revealed",
+    },
     title: "Character",
     subtitle: "Loadout & progression",
     signedInAs: "Signed in as {name}",
