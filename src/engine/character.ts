@@ -15,10 +15,56 @@ import { addStats, clampStats, emptyAllocation, statsFromAllocation, xpToNextLev
 import type { BalanceConfig } from "./balance.js";
 import type { ContentRegistry } from "./content/loader.js";
 
-let instanceCounter = 0;
+/**
+ * A gear instance id that no other instance will ever share.
+ *
+ * Random, not counted. This was a module-level counter, which restarts at #1
+ * in every process - and there are many processes: each game server boot and
+ * each cold start of the loadout's Edge Function. A character who already
+ * owned `chainmail-rig#1` could be handed a second one, and from then on the
+ * two were one item to everything that looks gear up by id: selecting either
+ * selected both, React drew ghost copies under the shared key, and scrapping
+ * one removed whichever the engine found first. 19 such collisions were live
+ * across 7 characters when it was caught (2026-10-29).
+ */
 export function nextInstanceId(gearId: string): string {
-  instanceCounter += 1;
-  return `${gearId}#${instanceCounter}`;
+  return `${gearId}#${globalThis.crypto.randomUUID().slice(0, 13)}`;
+}
+
+/**
+ * Give every instance a character holds an id of its own, worn and carried,
+ * and every sealed chest likewise. Returns how many were renamed.
+ *
+ * The repair for what the old counter left behind (see nextInstanceId), run
+ * wherever characters are loaded. DETERMINISTIC on purpose: the loadout reads
+ * a character, the viewer taps an item, and the next request loads the stored
+ * row again before acting on the id it sent. A random rename would be a new id
+ * every load, and that tap would name an item that no longer exists. So the
+ * first holder of an id keeps it, in slot order then bag order, and the n-th
+ * repeat becomes `<id>~n` - the same answer every time until a save makes it
+ * the stored one.
+ */
+export function dedupeInstanceIds(character: Character): number {
+  let renamed = 0;
+  const seen = new Map<string, number>();
+  const unique = (id: string): string => {
+    const n = (seen.get(id) ?? 0) + 1;
+    seen.set(id, n);
+    if (n === 1) return id;
+    renamed += 1;
+    let candidate = `${id}~${n}`;
+    while (seen.has(candidate)) candidate += "~";
+    seen.set(candidate, 1);
+    return candidate;
+  };
+  for (const slot of GEAR_SLOTS) {
+    const worn = character.equipment[slot];
+    if (worn) worn.instanceId = unique(worn.instanceId);
+  }
+  for (const item of character.inventory) item.instanceId = unique(item.instanceId);
+  seen.clear();
+  for (const chest of character.chests ?? []) chest.id = unique(chest.id);
+  return renamed;
 }
 
 /**

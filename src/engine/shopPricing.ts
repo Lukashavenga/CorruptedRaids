@@ -1,5 +1,6 @@
-import type { ConsumableDefinition, GearDefinition, ShopStock } from "./types.js";
+import type { ConsumableDefinition, GearDefinition, Rarity, ShopPricingInputs, ShopStock } from "./types.js";
 import type { BalanceConfig } from "./balance.js";
+import { powerScore } from "./statGuide.js";
 
 /**
  * Shop prices as pure functions of definitions and balance.
@@ -22,12 +23,85 @@ export function boughtRecycleOf(def: GearDefinition, economy: BalanceConfig["eco
   return Math.max(1, Math.floor(gearValueOf(def, economy) * economy.recycleRate));
 }
 
-export function shopGearPriceOf(stock: ShopStock, def: GearDefinition, economy: BalanceConfig["economy"]): number {
+/** A price with the shopkeeper's percentage on top. Never below 1g: a free item is not a sale. */
+export function adjustedPrice(base: number, percent: number | undefined): number {
+  if (!percent) return base;
+  return Math.max(1, Math.round(base * (1 + percent / 100)));
+}
+
+/** The shelf price before any adjustment: the shop's own price, else the item's value. */
+export function shopGearBasePriceOf(stock: ShopStock, def: GearDefinition, economy: BalanceConfig["economy"]): number {
   return stock.gearPrices?.[def.id] ?? gearValueOf(def, economy);
 }
 
-export function shopConsumablePriceOf(stock: ShopStock, def: ConsumableDefinition): number {
+export function shopGearPriceOf(stock: ShopStock, def: GearDefinition, economy: BalanceConfig["economy"]): number {
+  return adjustedPrice(shopGearBasePriceOf(stock, def, economy), stock.gearAdjust?.[def.id]);
+}
+
+export function shopConsumableBasePriceOf(stock: ShopStock, def: ConsumableDefinition): number {
   return stock.consumablePrices?.[def.id] ?? def.price;
+}
+
+export function shopConsumablePriceOf(stock: ShopStock, def: ConsumableDefinition): number {
+  return adjustedPrice(shopConsumableBasePriceOf(stock, def), stock.consumableAdjust?.[def.id]);
+}
+
+/**
+ * Where the admin's suggestions start, measured rather than chosen.
+ *
+ * 116g is what a viewer took home per fight across the 45 live alpha fights
+ * (2026-10-28/29, balance log). The run counts are a savings ladder: a common
+ * is one run's pay, a rare about a night (8-10 runs), a legendary about a week
+ * of nights. Both are editable in the Shop tab and saved in shop.json.
+ */
+export const DEFAULT_SHOP_PRICING: ShopPricingInputs = {
+  goldPerRun: 116,
+  runsByRarity: { common: 1, uncommon: 3, rare: 8, epic: 20, legendary: 50 },
+};
+
+/** Rounded the way a shopkeeper would write it: to 5 under 100, 10 under 1,000, 50 above. */
+export function shopRound(gold: number): number {
+  const step = gold < 100 ? 5 : gold < 1000 ? 10 : 50;
+  return Math.max(step, Math.round(gold / step) * step);
+}
+
+/**
+ * The price the admin suggests for a gear item: a rarity's run count times a
+ * run's pay, nudged by how strong this item is next to the others of its
+ * rarity.
+ *
+ * Rarity alone was not enough: the catalogue's rarities and stats were set
+ * independently (AGENTS.md §10, retier:gear), so a "rare" runs from 7 to 118
+ * power. The nudge is the square root of power over the rarity's median, held
+ * to 0.6-1.6x, so a standout item costs more without the rarity's name stopping
+ * meaning anything. `medianPower` comes from the catalogue the caller has.
+ *
+ * A SUGGESTION only. The panel writes it into the item's price when asked;
+ * the engine never prices from this, so editing an item's stats can never
+ * quietly reprice what is on the shelf.
+ */
+export function suggestedGearPriceOf(
+  def: GearDefinition,
+  pricing: ShopPricingInputs,
+  medianPower: Record<Rarity, number>,
+  balance: BalanceConfig,
+): number {
+  const power = Math.max(1, powerScore(def.statMods, balance));
+  const median = Math.max(1, medianPower[def.rarity]);
+  const nudge = Math.min(1.6, Math.max(0.6, Math.sqrt(power / median)));
+  return shopRound(pricing.goldPerRun * pricing.runsByRarity[def.rarity] * nudge);
+}
+
+/** Each rarity's median power across a catalogue, for suggestedGearPriceOf. */
+export function medianPowerByRarity(gear: GearDefinition[], balance: BalanceConfig): Record<Rarity, number> {
+  const by: Record<string, number[]> = {};
+  for (const def of gear) (by[def.rarity] ??= []).push(powerScore(def.statMods, balance));
+  const out = {} as Record<Rarity, number>;
+  for (const rarity of ["common", "uncommon", "rare", "epic", "legendary"] as Rarity[]) {
+    const list = (by[rarity] ?? []).sort((a, b) => a - b);
+    out[rarity] = list.length ? list[Math.floor(list.length / 2)]! : 1;
+  }
+  return out;
 }
 
 /** One stocked item that pays out more than it costs. */

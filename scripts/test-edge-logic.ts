@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../src/engine/content/loader.js";
 import { GameEngine } from "../src/engine/state/gameEngine.js";
 import type { Character } from "../src/engine/types.js";
+import { grantGear } from "../src/engine/character.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -96,6 +97,73 @@ const view = engine.getCharacterView(VIEWER)!;
 assert.ok(view.corruption >= 0 && view.stats.hp > 0, "the character view is populated");
 assert.equal(view.id, VIEWER);
 console.log(`character view renders: corruption ${view.corruption}, ${view.stats.hp} hp`);
+
+// --- every gear instance is its own item -----------------------------------
+//
+// Ids came from a counter that restarted in every process, so a character
+// could hold two `x#1`s: the bag selected both and scrapping one left a ghost.
+// New ids must not collide, and a stored duplicate must be split the SAME way
+// on every load, or the id the loadout sends back names nothing next request.
+{
+  const dupe = structuredClone(engine.roster.get(VIEWER)!);
+  const gearId = dupe.inventory[0]!.gearId;
+  dupe.inventory = [
+    { instanceId: `${gearId}#1`, gearId, source: "loot" },
+    { instanceId: `${gearId}#1`, gearId, source: "loot" },
+    { instanceId: `${gearId}#1`, gearId, source: "loot" },
+  ];
+  dupe.equipment = { [edge.getGear(gearId)!.slot]: { instanceId: `${gearId}#1`, gearId } };
+  const ids = (c: Character) => [...Object.values(c.equipment).map((g) => g!.instanceId), ...c.inventory.map((g) => g.instanceId)];
+  const first = ids(seed(structuredClone(dupe)).roster.get(VIEWER)!);
+  const again = ids(seed(structuredClone(dupe)).roster.get(VIEWER)!);
+  assert.equal(new Set(first).size, 4, `four held items, four ids: ${first.join(", ")}`);
+  assert.deepEqual(again, first, "a duplicate is renamed the same way on every load");
+
+  const split = seed(structuredClone(dupe));
+  const target = ids(split.roster.get(VIEWER)!)[2]!;
+  const before = split.roster.get(VIEWER)!.inventory.length;
+  assert.ok(split.dispatch({ type: "recycle_gear", requestedBy: VIEWER, instanceId: target }).ok, "scrap one of the split copies");
+  assert.equal(split.roster.get(VIEWER)!.inventory.length, before - 1, "scrapping removes exactly one");
+
+  const minted = engine.roster.get(VIEWER)!;
+  const fresh = new Set(Array.from({ length: 200 }, () => grantGear(minted, gearId).instanceId));
+  assert.equal(fresh.size, 200, "200 new instances, 200 different ids");
+  console.log(`duplicate ids split deterministically (${first.slice(1).join(", ")}); new ids unique`);
+}
+
+// --- the shopkeeper's percentage --------------------------------------------
+//
+// A sale is a percent on top of the shelf price, and the shelf, the purchase
+// and the struck-through "was" price must all agree on it.
+{
+  const shop = new ContentRegistry();
+  shop.loadObjects(bundle);
+  const stocked = shop.shopView().gear[0]!;
+  // Priced well above its value, as the suggested prices are: a discount below
+  // value is a gold loop while bought gear refunds in full, and the admin
+  // refuses to save one.
+  const base = 1000;
+  const priced = { ...JSON.parse(JSON.stringify(bundle.shop)), gearPrices: { [stocked.id]: base } };
+  shop.setShop({ ...priced, gearAdjust: { [stocked.id]: -20 } }, "test");
+  const onSale = shop.shopView().gear.find((g) => g.id === stocked.id)!;
+  assert.equal(onSale.price, Math.max(1, Math.round(base * 0.8)), "20% off the shelf price");
+  assert.equal(onSale.was, base, "the old price travels with it, to be struck through");
+
+  const buyer = structuredClone(engine.roster.get(VIEWER)!);
+  buyer.gold = 1_000_000;
+  const shopEngine = new GameEngine(shop, Math.random);
+  shopEngine.roster.hydrate([buyer]);
+  assert.ok(shopEngine.dispatch({ type: "buy_gear", requestedBy: VIEWER, gearId: stocked.id }).ok, "buy on sale");
+  assert.equal(shopEngine.roster.get(VIEWER)!.gold, 1_000_000 - onSale.price, "the purchase charges the sale price");
+
+  assert.throws(
+    () => shop.setShop({ ...priced, gearAdjust: { [stocked.id]: -100 } }, "test"),
+    /percent/,
+    "a 100% discount is refused rather than giving the item away",
+  );
+  assert.equal(shop.shopView().gear.find((g) => g.id === stocked.id)!.price, onSale.price, "a refused shop leaves the shelf as it was");
+  console.log(`shop adjustment: ${stocked.id} ${base}g -> ${onSale.price}g, charged and shown alike`);
+}
 
 // --- one engine per request, and it must not leak ---------------------------
 const other = seed(null);

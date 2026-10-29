@@ -1177,6 +1177,164 @@
 .loadout .inv-detail.rarity-legendary { border-left-color: var(--rarity-legendary); }
 
 /*
+ * The shop's cards.
+ *
+ * Rarity is told three ways at once - the name's colour, the frame, and a glow
+ * rising from the item's corner - because it is the first thing a buyer asks
+ * and the old rows only marked it with a 3px left edge. The requirement line
+ * is gone: gates are almost all lifted (113 of 127 items), and "no
+ * requirement" on every row was text that said nothing.
+ *
+ * The price button was cream on translucent brown, about 3:1 against its own
+ * fill. It is now bright gold on near-black, well past 7:1, and an item the
+ * viewer cannot afford dims its text rather than the whole button, so the
+ * number stays readable.
+ */
+.shop-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 8px;
+}
+
+.loadout .shop-card {
+  --r-edge: #5d6672;
+  --r-text: #c9d1da;
+  --r-glow: rgba(150, 160, 175, 0.1);
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 6px 12px;
+  padding: 10px 12px 10px 10px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, var(--r-glow), transparent 60%),
+    var(--slab);
+  border: 2px solid var(--r-edge);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+.loadout .shop-card.is-consumable { grid-template-columns: minmax(0, 1fr); }
+
+.loadout .shop-card.rarity-uncommon { --r-edge: #3f8f4a; --r-text: #8edb8e; --r-glow: rgba(92, 167, 93, 0.2); }
+.loadout .shop-card.rarity-rare { --r-edge: #4f7fd0; --r-text: #84b2f2; --r-glow: rgba(79, 127, 208, 0.24); }
+.loadout .shop-card.rarity-epic { --r-edge: #a14fb0; --r-text: #dc9ae4; --r-glow: rgba(161, 79, 176, 0.28); }
+.loadout .shop-card.rarity-legendary {
+  --r-edge: #d9a24e;
+  --r-text: #f6cf86;
+  --r-glow: rgba(226, 181, 112, 0.32);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 12px rgba(226, 181, 112, 0.28);
+}
+
+.shop-well {
+  grid-row: 1 / -1;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--r-edge);
+  border-radius: 3px;
+  box-shadow: inset 0 0 14px var(--r-glow);
+}
+.loadout .shop-card.rarity-legendary .shop-well {
+  animation: shop-legendary-glint 3.2s ease-in-out infinite;
+}
+@keyframes shop-legendary-glint {
+  0%, 100% { box-shadow: inset 0 0 14px var(--r-glow); }
+  50% { box-shadow: inset 0 0 22px rgba(246, 207, 134, 0.55); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loadout .shop-card.rarity-legendary .shop-well { animation: none; }
+}
+
+.shop-card-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.shop-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--r-text);
+  text-shadow: var(--edge);
+}
+.shop-card-kind {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.shop-rarity { color: var(--r-text); font-weight: 700; }
+.shop-card-desc { font-size: 12px; color: var(--ink-body); }
+
+.shop-stats { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.shop-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.shop-stat-value { font-family: var(--font-data); font-weight: 700; }
+.shop-stat.is-up .shop-stat-value { color: #8fe08f; }
+.shop-stat.is-down .shop-stat-value { color: #ff9a9a; }
+
+.loadout button.shop-buy {
+  grid-column: -2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 7px;
+  background: #120f1a;
+  border: 1px solid #d9a24e;
+  border-radius: 4px;
+  color: #ffe0a3;
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: none;
+  box-shadow: inset 0 1px 0 rgba(255, 224, 163, 0.12);
+}
+.loadout button.shop-buy:hover:not(:disabled) {
+  background: #241b2e;
+  border-color: #f6cf86;
+  filter: none;
+}
+.loadout button.shop-buy:disabled { opacity: 1; cursor: default; }
+.loadout button.shop-buy.is-short {
+  color: var(--ink-dim);
+  border-color: #4a4452;
+}
+.loadout button.shop-buy.is-short .shop-coin { filter: grayscale(1) brightness(0.7); }
+.shop-coin { width: 18px; height: 18px; image-rendering: pixelated; }
+.shop-was { font-size: 11px; font-weight: 400; color: var(--ink-dim); }
+
+.shop-sale {
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  padding: 1px 6px;
+  background: #2f8a4c;
+  border: 1px solid #0e2b18;
+  border-radius: 3px;
+  color: #ffffff;
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/*
  * The stock scrolls. All of it, in one box, so gear and consumables move
  * together — two scroll areas in one panel is two things to discover.
  *

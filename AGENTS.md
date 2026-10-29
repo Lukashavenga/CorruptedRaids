@@ -281,6 +281,17 @@ under the refund prints gold. `src/engine/shopPricing.ts` holds the price and
 loop rules as pure functions so the panel, the shelf and the purchase are one
 computation, and `npm run simulate` asserts them.
 
+**A sale is a percentage, kept apart from the price.** `gearAdjust` /
+`consumableAdjust` hold whole percents (-90..500) applied on top of the shelf
+price by `shopGearPriceOf`, so the shelf, the purchase and the struck-through
+"was" price (`ShopView.was`) are one computation, and a sale ends by deleting
+one number. Discounting below an item's `value` is a gold loop while
+`recycleRate` is 1; the panel refuses to save it like any other loop. The
+Shop tab also SUGGESTS prices (`suggestedGearPriceOf`: runs of pay per rarity
+x measured gold per run, nudged by the item's power against its rarity's
+median); `shop.json`'s `pricing` block holds those inputs and the engine never
+prices from it, so editing an item's stats cannot reprice the shelf.
+
 Every shop change goes through `ContentRegistry.setShop`, which validates and
 leaves the shelf untouched on refusal. A save reaches: the running game server
 at once (it also writes the store, or the disk if none is configured); the

@@ -169,6 +169,8 @@ const CONTENT_WRITABLE: Record<string, string> = {
   gear: "gear",
   dungeon: "dungeons",
   raid: "raids",
+  // The Shop tab edits a consumable's name and description.
+  consumable: "consumables",
 };
 
 const OVERLAY_DIR = join(ROOT, "overlay");
@@ -1306,8 +1308,11 @@ const server = createServer((req, res) => {
     req.on("end", () => {
       try {
         const { kind, id, force } = JSON.parse(body || "{}");
-        const dir = CONTENT_WRITABLE[kind as string];
-        if (!dir) throw new Error(`kind must be one of ${Object.keys(CONTENT_WRITABLE).join(", ")}`);
+        // Consumables are writable (names, descriptions) but not deletable:
+        // the reference check below does not look at the shop, and a stocked
+        // consumable that vanished would stop the content loading.
+        const dir = kind === "consumable" ? undefined : CONTENT_WRITABLE[kind as string];
+        if (!dir) throw new Error(`kind must be one of gear, dungeon, raid`);
         if (!/^[a-z0-9-]+$/i.test(id ?? "")) throw new Error("bad id");
         const file = join(CONTENT_DIR, dir, `${id}.json`);
         if (!existsSync(file)) throw new Error(`no such ${kind} "${id}"`);
@@ -1352,8 +1357,10 @@ const server = createServer((req, res) => {
     req.on("end", () => {
       try {
         const { kind, id, newId } = JSON.parse(body || "{}");
-        const dir = CONTENT_WRITABLE[kind as string];
-        if (!dir) throw new Error(`kind must be one of ${Object.keys(CONTENT_WRITABLE).join(", ")}`);
+        // Not consumables: the shop stocks them by id, and nothing here
+        // follows a rename into shop.json.
+        const dir = kind === "consumable" ? undefined : CONTENT_WRITABLE[kind as string];
+        if (!dir) throw new Error(`kind must be one of gear, dungeon, raid`);
         for (const candidate of [id, newId]) {
           if (!/^[a-z0-9-]+$/i.test(candidate ?? "")) throw new Error("ids may only contain letters, numbers and dashes");
         }
