@@ -2,14 +2,15 @@
   "id": "field-crossbow",
   "name": "Field Crossbow",
   "slot": "mainHand",
-  "rarity": "epic",
-  "statMods": {
-    "atk": 4
-  },
-  "description": "Field Crossbow. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "mh16",
-  "requires": {
-    "atk": 24
-  }
+  "requires": {},
+  "statMods": {
+    "hp": 4,
+    "atk": 12,
+    "spd": -2,
+    "skill": 7
+  },
+  "description": "quite square no?"
 }

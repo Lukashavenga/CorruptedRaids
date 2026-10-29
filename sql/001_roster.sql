@@ -66,6 +66,10 @@ alter table public.roster_snapshots enable row level security;
 -- viewer has no business reading a dump of every character in the channel.
 
 -- A viewer may READ their own character.
+-- SUPERSEDED by 006_identity_from_auth_identities.sql: user_metadata is
+-- writable by the user, so the policy below let a caller read (or file as)
+-- any id they chose. Kept as written so the files still apply in order.
+--
 --
 -- Supabase's Twitch provider puts the Twitch user id in the JWT as
 -- `user_metadata.provider_id`. Matching on that rather than on `auth.uid()`

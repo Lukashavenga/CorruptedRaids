@@ -2,14 +2,12 @@
   "id": "bearded-halberd",
   "name": "Bearded Halberd",
   "slot": "mainHand",
+  "tags": [],
   "rarity": "rare",
+  "sprite": "mh12",
+  "requires": {},
   "statMods": {
     "atk": 4
   },
-  "description": "Bearded Halberd. Taken, not given.",
-  "tags": [],
-  "sprite": "mh12",
-  "requires": {
-    "atk": 16
-  }
+  "description": "Bearded Halberd. Taken, not given."
 }

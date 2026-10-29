@@ -2,13 +2,15 @@
   "id": "coin-purse",
   "name": "Bag oh Pills",
   "slot": "offHand",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 2,
-    "skill": 3
-  },
-  "description": "Found at a Trance Party",
   "tags": [],
+  "rarity": "rare",
   "sprite": "oh05",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 6,
+    "atk": -1,
+    "spd": 6,
+    "skill": 10
+  },
+  "description": "Found at a Trance Party"
 }

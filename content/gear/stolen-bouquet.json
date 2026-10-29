@@ -2,14 +2,15 @@
   "id": "stolen-bouquet",
   "name": "Flowers",
   "slot": "offHand",
+  "tags": [],
   "rarity": "rare",
+  "sprite": "oh08",
+  "requires": {},
   "statMods": {
     "hp": 6,
     "atk": 1,
-    "skill": 1
+    "spd": 2,
+    "skill": 3
   },
-  "description": "Insert funny description about flowers.?",
-  "tags": [],
-  "sprite": "oh08",
-  "requires": {}
+  "description": "Insert a funny description about flowers.?"
 }

@@ -2,14 +2,17 @@
   "id": "warlock-s-rod",
   "name": "Warlock's Rod",
   "slot": "mainHand",
-  "rarity": "legendary",
-  "statMods": {
-    "atk": 6
-  },
-  "description": "Warlock's Rod. Taken, not given.",
   "tags": [],
+  "rarity": "legendary",
   "sprite": "mh21",
   "requires": {
     "atk": 28
-  }
+  },
+  "statMods": {
+    "hp": -5,
+    "atk": 10,
+    "spd": 4,
+    "skill": 12
+  },
+  "description": "Spoooky"
 }

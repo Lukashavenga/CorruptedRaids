@@ -2,16 +2,17 @@
   "id": "strapped-harness",
   "name": "Strapped Harness",
   "slot": "top",
+  "tags": [],
   "rarity": "common",
+  "requires": {},
   "statMods": {
     "hp": 2,
-    "skill": 1
+    "atk": 2,
+    "spd": 2
   },
-  "description": "Strapped Harness. Taken, not given.",
-  "tags": [],
+  "description": "It's essentially a belt and a bowl",
   "spriteByBody": {
     "male": "male-t1",
     "female": "female-t1"
-  },
-  "requires": {}
+  }
 }

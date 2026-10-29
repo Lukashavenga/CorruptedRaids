@@ -3,10 +3,11 @@
   "name": "Rusty Dagger",
   "slot": "mainHand",
   "rarity": "common",
-  "statMods": {
-    "atk": 1
-  },
-  "description": "x",
   "sprite": "mh01",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "atk": 1,
+    "spd": 2
+  },
+  "description": "+1 Tetanus"
 }

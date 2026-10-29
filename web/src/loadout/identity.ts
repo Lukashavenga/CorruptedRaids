@@ -41,10 +41,13 @@ export async function readSession(): Promise<SessionState> {
 
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user;
-  // `provider_id` is the numeric Twitch id. It is what the RLS policy matches
-  // and what the game server keys characters on, so it — not Supabase's own
-  // uid — is the identity that matters here.
-  const providerId = user?.user_metadata?.["provider_id"] as string | undefined;
+  // The Twitch identity's `id` is the numeric Twitch id. It is what the RLS
+  // policy matches (sql/006) and what the game server keys characters on, so
+  // it — not Supabase's own uid — is the identity that matters here. Read from
+  // `identities`, as the functions do, not user_metadata.provider_id: the
+  // account can rewrite the latter, and a page that believed it would ask for
+  // a character the server will rightly refuse.
+  const providerId = user?.identities?.find((i) => i.provider === "twitch")?.id;
   if (!user || !providerId) return { viewer: null, configured: true };
 
   const name =

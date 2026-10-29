@@ -175,21 +175,31 @@ async function db(path: string, init: RequestInit = {}): Promise<Response> {
 }
 
 /**
- * The Twitch id of whoever is calling, from their verified JWT.
+ * The Twitch id of whoever is calling, from Supabase Auth's own record of them.
  *
- * The token is verified by the platform before this function runs (leave
- * `verify_jwt` on), so the claims can be trusted — but the id is read from the
- * TOKEN and never from the request body. That is the same rule the game server
- * follows for `requestedBy`, and for the same reason: a field the caller can
- * type is a field the caller can lie in.
+ * Never from the request body - the same rule the game server follows for
+ * `requestedBy`, and for the same reason: a field the caller can type is a
+ * field the caller can lie in. That rule turned out to reach further than the
+ * body. This used to decode the JWT and read `user_metadata.provider_id`, and
+ * user_metadata is ALSO a field the caller can type: `updateUser` rewrites it
+ * and the next token carries it, so anyone could act on anyone's character.
+ * Asking /auth/v1/user both verifies the token and returns `identities`, which
+ * only Supabase Auth writes. sql/006 moved the RLS policy to the same source.
  */
-function callerTwitchId(req: Request): string | null {
+async function callerTwitchId(req: Request): Promise<string | null> {
   const auth = req.headers.get("Authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   try {
-    const payload = JSON.parse(atob(auth.slice(7).split(".")[1]!));
-    const id = payload?.user_metadata?.provider_id ?? payload?.user_metadata?.sub;
-    return typeof id === "string" && id ? id : null;
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { Authorization: auth, apikey: SERVICE_KEY },
+    });
+    if (!res.ok) return null;
+    const user = (await res.json()) as { identities?: { provider?: string; id?: unknown }[] };
+    // The identity's `id` is auth.identities.provider_id: what Twitch said, not
+    // what the account says about itself. user_metadata.provider_id is the
+    // latter, and `supabase.auth.updateUser` lets anyone rewrite it.
+    const id = user.identities?.find((i) => i.provider === "twitch")?.id;
+    return typeof id === "string" && /^[0-9]+$/.test(id) ? id : null;
   } catch {
     return null;
   }
@@ -232,7 +242,7 @@ Deno.serve(async (req: Request) => {
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 204 });
 
-  const twitchId = callerTwitchId(req);
+  const twitchId = await callerTwitchId(req);
   if (!twitchId) return json({ ok: false, message: "Not signed in" }, 401);
   const viewerId = `twitch:${twitchId}`;
 

@@ -2,14 +2,15 @@
   "id": "roast-haunch",
   "name": "Roast Leg",
   "slot": "offHand",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 6,
-    "atk": 1,
-    "skill": 3
-  },
-  "description": "CAVEMAN LIKE PROTEIN",
   "tags": [],
+  "rarity": "rare",
   "sprite": "oh09",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 21,
+    "atk": 3,
+    "spd": -1,
+    "skill": 6
+  },
+  "description": "CAVEMAN LIKE PROTEIN"
 }

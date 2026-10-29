@@ -130,7 +130,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "stats": {
           "hp": 17,
           "atk": 3,
@@ -140,184 +140,6 @@
         },
         "sprite": "cops/cops-08",
         "weight": 1.4,
-        "xpReward": 68
-      }
-    ],
-    "seasoned": [
-      {
-        "x": 0.6925133689839572,
-        "y": 0.9580430218760458,
-        "id": "cops-umtfws3531",
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
-        "scale": 1.05,
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "crit": 0.06,
-          "skill": 2
-        },
-        "sprite": "cops/cops-08",
-        "weight": 5.3,
-        "xpReward": 68
-      },
-      {
-        "x": 0.45664113311172133,
-        "y": 0.8295250555268202,
-        "id": "cops-umtfws6mh2",
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "dps",
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "crit": 0.06,
-          "skill": 2
-        },
-        "sprite": "cops/cops-06",
-        "weight": 5.3,
-        "xpReward": 68
-      },
-      {
-        "x": 0.10745772510478392,
-        "y": 0.9346761189034594,
-        "id": "cops-umtfws93o3",
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "dps",
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "crit": 0.06,
-          "skill": 2
-        },
-        "sprite": "cops/cops-09",
-        "weight": 5.3,
-        "xpReward": 68
-      },
-      {
-        "x": 0,
-        "y": 0.9814099248486323,
-        "id": "cops-umtfwshga4",
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "tank",
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "crit": 0.06,
-          "skill": 2
-        },
-        "sprite": "cops/cops-10",
-        "weight": 5.3,
-        "xpReward": 68
-      },
-      {
-        "x": 0.35489232548056077,
-        "y": 1,
-        "id": "cops-umtfwsmbu5",
-        "loot": [
-          {
-            "gearId": "patched-leggings",
-            "weight": 2
-          },
-          {
-            "gearId": "chainmail-rig",
-            "weight": 3
-          },
-          {
-            "gearId": "horned-warhelm",
-            "weight": 2
-          },
-          {
-            "gearId": "spiked-mace",
-            "weight": 3
-          }
-        ],
-        "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "dps",
-        "stats": {
-          "hp": 17,
-          "atk": 3,
-          "spd": 3,
-          "crit": 0.06,
-          "skill": 2
-        },
-        "sprite": "cops/cops-09",
-        "weight": 5.3,
         "xpReward": 68
       }
     ],
@@ -345,7 +167,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "scale": 1.05,
         "stats": {
           "hp": 17,
@@ -556,7 +378,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "stats": {
           "hp": 17,
           "atk": 3,
@@ -696,7 +518,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "stats": {
           "hp": 17,
           "atk": 3,
@@ -938,7 +760,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "stats": {
           "hp": 17,
           "atk": 3,
@@ -1154,6 +976,184 @@
         "xpReward": 68
       }
     ],
+    "seasoned": [
+      {
+        "x": 0.6925133689839572,
+        "y": 0.9580430218760458,
+        "id": "cops-umtfws3531",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "scale": 1.05,
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-08",
+        "weight": 5.3,
+        "xpReward": 68
+      },
+      {
+        "x": 0.45664113311172133,
+        "y": 0.8295250555268202,
+        "id": "cops-umtfws6mh2",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-06",
+        "weight": 5.3,
+        "xpReward": 68
+      },
+      {
+        "x": 0.10745772510478392,
+        "y": 0.9346761189034594,
+        "id": "cops-umtfws93o3",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 5.3,
+        "xpReward": 68
+      },
+      {
+        "x": 0,
+        "y": 0.9814099248486323,
+        "id": "cops-umtfwshga4",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "tank",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-10",
+        "weight": 5.3,
+        "xpReward": 68
+      },
+      {
+        "x": 0.35489232548056077,
+        "y": 1,
+        "id": "cops-umtfwsmbu5",
+        "loot": [
+          {
+            "gearId": "patched-leggings",
+            "weight": 2
+          },
+          {
+            "gearId": "chainmail-rig",
+            "weight": 3
+          },
+          {
+            "gearId": "horned-warhelm",
+            "weight": 2
+          },
+          {
+            "gearId": "spiked-mace",
+            "weight": 3
+          }
+        ],
+        "name": "Woop WOOP - SOUND OF DA POLICE",
+        "role": "dps",
+        "stats": {
+          "hp": 17,
+          "atk": 3,
+          "spd": 3,
+          "crit": 0.06,
+          "skill": 2
+        },
+        "sprite": "cops/cops-09",
+        "weight": 5.3,
+        "xpReward": 68
+      }
+    ],
     "apocalyptic": [
       {
         "x": 0.708,
@@ -1281,7 +1281,7 @@
           }
         ],
         "name": "Woop WOOP - SOUND OF DA POLICE",
-        "role": "healer",
+        "role": "dps",
         "stats": {
           "hp": 17,
           "atk": 3,
@@ -1508,18 +1508,18 @@
   "completionXp": 260,
   "joinWindowMs": 60000,
   "bandStatScale": {
-    "weak": 0.145,
-    "seasoned": 2.771,
-    "elite": 9.461,
-    "brutal": 43.333,
-    "infernal": 48.195,
-    "apocalyptic": 119.996
+    "weak": 1.111,
+    "elite": 21.087,
+    "brutal": 44.026,
+    "infernal": 44.026,
+    "seasoned": 6.019,
+    "apocalyptic": 117.169
   },
+  "targetWinRate": 0.62,
   "completionGold": [
     60,
     110
   ],
   "recommendedLevel": 12,
-  "scalesWithPartySize": true,
-  "targetWinRate": 0.62
+  "scalesWithPartySize": true
 }

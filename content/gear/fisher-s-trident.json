@@ -1,15 +1,17 @@
 {
   "id": "fisher-s-trident",
-  "name": "Fisher's Trident",
+  "name": "Fishtick",
   "slot": "mainHand",
-  "rarity": "rare",
-  "statMods": {
-    "atk": 4
-  },
-  "description": "Fisher's Trident. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "mh13",
   "requires": {
     "atk": 20
-  }
+  },
+  "statMods": {
+    "atk": 5,
+    "spd": 3,
+    "skill": 2
+  },
+  "description": "By the power of Poesidon!"
 }

@@ -1543,7 +1543,8 @@ tree, the way §3's Layout block is kept in sync with `src/`.
     data/              runtime roster/save data. Gitignored. Not source.
     .pages/            BUILD OUTPUT of `npm run build:sim` - the standalone
                        overlay GitHub Pages serves (§3). Gitignored.
-    .github/workflows/ the one workflow, which builds and publishes it
+    .github/workflows/ pages.yml builds and publishes it; deploy.yml ships the
+                       hosted loadout by hand (DEPLOY.md 3-4, store pulled first)
     overlay/            BUILD OUTPUT of `npm run build:web`. Never edit by
                        hand, never audit by hand - `web/` is the source of
                        truth for everything in here.

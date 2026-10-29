@@ -1,0 +1,100 @@
+{
+  "id": "alpha-raid",
+  "boss": {
+    "id": "the-boss",
+    "kind": "fight",
+    "name": "The Boss",
+    "fight": {
+      "kind": "boss",
+      "loot": [],
+      "stats": {
+        "hp": 13,
+        "atk": 2,
+        "spd": 3,
+        "crit": 0.05,
+        "skill": 1
+      },
+      "xpReward": 38,
+      "formations": {
+        "weak": []
+      },
+      "goldReward": [
+        8,
+        20
+      ]
+    },
+    "description": "It has been waiting.",
+    "hpMultiplier": 5,
+    "atkMultiplier": 1
+  },
+  "name": "ALPHA RAID",
+  "path": [
+    {
+      "up": "first-passage",
+      "left": "first-passage",
+      "right": "first-passage"
+    }
+  ],
+  "buffs": [
+    {
+      "id": "stolen-vestments",
+      "name": "Stolen Vestments",
+      "statMods": {
+        "hp": 1,
+        "skill": 1
+      },
+      "description": "Taken off a shrine. Still warm."
+    },
+    {
+      "id": "blood-in-the-water",
+      "name": "Blood in the Water",
+      "statMods": {
+        "atk": 1,
+        "crit": 0.05
+      },
+      "description": "The first scream carries. The rest come easier."
+    },
+    {
+      "id": "unhallowed-ground",
+      "name": "Unhallowed Ground",
+      "statMods": {
+        "hp": 6,
+        "spd": 1
+      },
+      "description": "Something under the chapel agrees with you."
+    },
+    {
+      "id": "tithe-of-teeth",
+      "name": "Tithe of Teeth",
+      "statMods": {
+        "atk": 1,
+        "skill": 1
+      },
+      "description": "Paid in what the village had left."
+    }
+  ],
+  "rooms": [
+    {
+      "id": "first-passage",
+      "kind": "clear",
+      "name": "First Passage",
+      "description": "Nothing here but the way on."
+    },
+    {
+      "id": "new-shrine",
+      "kind": "buff",
+      "name": "New Shrine",
+      "buffId": "tithe-of-teeth",
+      "background": "barbies",
+      "description": "A shrine, still lit."
+    }
+  ],
+  "enabled": false,
+  "completionXp": 320,
+  "joinWindowMs": 120000,
+  "completionGold": [
+    90,
+    180
+  ],
+  "recommendedLevel": 6
+}
