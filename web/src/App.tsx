@@ -6,6 +6,7 @@ import { useCombatPlayback } from "./hooks/useCombatPlayback.js";
 import { useGameAudio } from "./hooks/useGameAudio.js";
 import { useCountdown } from "./hooks/useCountdown.js";
 import { useStageScale } from "./hooks/useStageScale.js";
+import { useSettled } from "./hooks/useSettled.js";
 import { CombatantFigure } from "./components/CombatantFigure.js";
 import { CombatLog } from "./components/CombatLog.js";
 import { PartyRoster } from "./components/PartyRoster.js";
@@ -41,6 +42,19 @@ const SIM_ENABLED = new URLSearchParams(window.location.search).get("sim") !== "
  */
 const ARENA_PARTY_CAP = 40;
 
+/**
+ * The shortest time the roster holds one arrangement before re-sorting by who
+ * was hit last.
+ *
+ * Hits on the party land roughly every 1.5s in a small fight and every 400ms
+ * or so in a big one (MIN_ATTACK_BEAT_MS, with the enemy's half of the swings
+ * hitting the party). Re-sorting on each of those moved eight names several
+ * times a second; held this long, a viewer can find their own name and read
+ * its fill before the grid moves again. It is presentation pacing, like the
+ * replay's own beats, so it lives with the overlay and not in balance.json.
+ */
+const ROSTER_DWELL_MS = 1200;
+
 export interface AppProps {
   /**
    * Draws the fight, in place of the two flat ranks and the backdrop behind
@@ -72,6 +86,8 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
   // starts inside a second does not draw its first combat frames on black.
   useScenePreload(catalog);
   const playback = useCombatPlayback(lastResult, updateSeq);
+  // The roster's order, held for a moment at a time. See ROSTER_DWELL_MS.
+  const rosterHits = useSettled(playback.lastDamaged, ROSTER_DWELL_MS);
   const joinSecondsLeft = useCountdown(snapshot?.joinDeadline ?? null);
   const voteSecondsLeft = useCountdown(snapshot?.choiceDeadline ?? null);
   const stageScale = useStageScale();
@@ -233,8 +249,25 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
 
   const showArena = snapshot.state !== "idle" && !choosing;
 
-  /** Names for the roster grid — every viewer in the party, not just the
-      figures that fit on the stage. */
+  /**
+   * Names for the roster grid — every viewer in the party, not just the
+   * figures that fit on the stage.
+   *
+   * During a fight, whoever was hit most recently comes first (issue #36). The
+   * grid shows eight names and a party is often twenty, so in join order the
+   * twelve folded into "+12" stayed folded even while they were the ones being
+   * hit, and the health chat could see was the health that was not moving.
+   *
+   * Join order is the tie-break and everyone's order before their first hit,
+   * which also makes it the whole order outside a fight: the sort is skipped
+   * unless `showFight`, because `playback` keeps the LAST fight's hits after
+   * it ends and the gathering grid should not arrive pre-shuffled by it.
+   *
+   * A death is not given a hit of its own. The killing blow is already the
+   * newest hit, so the fallen hold the front until somebody else is struck and
+   * then sink behind everyone still taking damage - which is where a name that
+   * will not change again belongs. Heals are not hits (see `lastDamaged`).
+   */
   const rosterEntries = partyCards.map((c) => ({
     id: c.id,
     name: c.name,
@@ -243,6 +276,10 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
     maxHp: c.maxHp,
     downed: showFight ? (playback.downed[c.id] ?? false) : false,
   }));
+  if (showFight) {
+    // Array.prototype.sort is stable, so equal ranks keep join order.
+    rosterEntries.sort((a, b) => (rosterHits[b.id] ?? 0) - (rosterHits[a.id] ?? 0));
+  }
 
   /**
    * What to say about the door that was just opened.
