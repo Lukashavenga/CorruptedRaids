@@ -36,10 +36,12 @@ const PATTERNS = {
   commit: [14, 30, 14],
   /** A control refused: not enough gold, gate not met, nothing to spend. */
   refuse: [26, 40, 26],
-  /** The chest rattling. Three knocks under the six shake frames. */
+  /** The chest rattling. Three knocks under the three rocks of the wind-up. */
   chestShake: [10, 70, 10, 70, 14],
   /** The lid going. One thump with a tail, timed to the burst frames. */
   chestOpen: [18, 40, 34],
+  /** The item appearing out of the open chest. Lighter than the pop it follows. */
+  chestReveal: [12, 30, 20],
   /** A level's worth of points arrived. */
   levelUp: [12, 50, 12, 50, 28],
 } as const;
