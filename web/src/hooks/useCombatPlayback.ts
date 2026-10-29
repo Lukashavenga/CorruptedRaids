@@ -22,6 +22,17 @@ export interface PlaybackState {
   hp: Record<string, number>;
   pulses: Record<string, PulseKind>;
   /**
+   * combatantId -> sequence number of the last attack that landed on it.
+   *
+   * A counter rather than a timestamp: the replay is paced by timers, so wall
+   * clock would make two hits in one frame tie and make the order depend on
+   * when the tab happened to render. Higher is more recent. Absent means never
+   * hit this fight. Heals deliberately do not write it - the roster uses this
+   * to show whoever the fight is touching, and a healer topping people up
+   * would otherwise shuffle the list.
+   */
+  lastDamaged: Record<string, number>;
+  /**
    * Numbers currently floating off combatants — the damage and heals as they
    * land, rather than only as a line of text.
    *
@@ -77,6 +88,7 @@ const IDLE: PlaybackState = {
   logLines: [],
   hp: {},
   pulses: {},
+  lastDamaged: {},
   floats: [],
   poses: {},
   downed: {},
@@ -107,6 +119,7 @@ const POSE_HOLD_MS = 620;
  */
 const ACTION_LEAD_MS = 240;
 let nextActionSeq = 0;
+let nextDamageSeq = 0;
 
 /** The log line for a beat that stands for several events - a big party's tail (replayPacing.ts). */
 function summaryLine(beat: Exclude<ReplayBeat, { kind: "event" }>): [string, LogLine["cls"]] {
@@ -210,6 +223,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       logLines: [],
       hp: Object.fromEntries(combat.combatants.map((c) => [c.id, c.maxHp])),
       pulses: {},
+      lastDamaged: {},
       floats: [],
       poses: {},
       downed: {},
@@ -327,7 +341,13 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
               }),
               event.crit ? "crit" : undefined,
             );
-            setPlayback((p) => ({ ...p, hp: { ...p.hp, [event.targetId]: event.targetHpAfter } }));
+            // Beats are at least MIN_ATTACK_BEAT_MS apart, so this reorders the
+            // roster at most a few times a second even with a big party.
+            setPlayback((p) => ({
+              ...p,
+              hp: { ...p.hp, [event.targetId]: event.targetHpAfter },
+              lastDamaged: { ...p.lastDamaged, [event.targetId]: (nextDamageSeq += 1) },
+            }));
             pulse(event.targetId, event.crit ? "flash" : "shake");
             floatNumber(event.targetId, `-${event.damage}`, event.crit ? "crit" : "damage");
             posePulse(event.actorId, "attack");

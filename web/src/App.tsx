@@ -235,14 +235,24 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
 
   /** Names for the roster grid — every viewer in the party, not just the
       figures that fit on the stage. */
-  const rosterEntries = partyCards.map((c) => ({
-    id: c.id,
-    name: c.name,
-    role: c.role,
-    hp: c.hp,
-    maxHp: c.maxHp,
-    downed: showFight ? (playback.downed[c.id] ?? false) : false,
-  }));
+  const rosterEntries = partyCards
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      role: c.role,
+      hp: c.hp,
+      maxHp: c.maxHp,
+      downed: showFight ? (playback.downed[c.id] ?? false) : false,
+    }))
+    // Most recently damaged first, so the eight chips that fit are the bodies
+    // the fight is touching. The sort is stable, so anyone never hit (and
+    // everyone outside a fight, where nothing is in lastDamaged) keeps join
+    // order. The downed sink on their own: nobody hits them again.
+    // Gated on showFight: playback keeps its last fight's state afterwards,
+    // and gathering must go back to join order.
+    .sort((a, b) =>
+      showFight ? (playback.lastDamaged[b.id] ?? 0) - (playback.lastDamaged[a.id] ?? 0) : 0,
+    );
 
   /**
    * What to say about the door that was just opened.
