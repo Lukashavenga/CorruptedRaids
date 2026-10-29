@@ -2,42 +2,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import type { ContentCatalog } from "../hooks/useContentCatalog.js";
 import { ItemIcon } from "./ItemIcon.js";
+import { ChestStage, type ChestStageHandle } from "./chest/ChestStage.js";
+import { bestRarity } from "./chest/chestTimeline.js";
 import { haptic } from "./haptics.js";
 import { play } from "../audio.js";
 import { text, format } from "../../../src/text/index.js";
 
-/**
- * Frame timings.
+/*
+ * THE TIMING LIVES IN chest/chestTimeline.ts, AND THE SCENE DRIVES THIS.
  *
- * The shake is the ANTICIPATION. At the original 60ms a frame it read as a
- * buzz rather than as a chest straining to open — the six frames blurred into
- * one wobbling shape. 72ms is about the floor where each rock still registers
- * as its own movement, and two passes rather than three because you felt
- * yourself waiting through the last one.
- *
- * The pop is 420ms across FIVE frames, unevenly divided — see `chest-open` in
- * motion.css. Frames at a metronomic rate are the recipe for reading as
- * stop-motion, which is exactly what they did; they now accelerate into the
- * burst and hold there.
- *
- * FIVE, not six: the sheet's last frame is the chest settling back down to a
- * calm glow, which lands as the energy draining out of the moment right when
- * the item is being named. Ending on frame five — the full burst — keeps the
- * peak under the reveal.
+ * This file used to hold SHAKE_MS, OPEN_MS and REVEAL_AT and sequence the
+ * reveal off setTimeouts while motion.css ran a CSS animation with the same
+ * numbers copied into it. The scene now owns the clock (on the render clock,
+ * so a hidden tab waits instead of replaying) and tells us when the pop and
+ * the reveal happen; the phase follows.
  */
-const SHAKE_FRAME_MS = 72;
-const SHAKE_LOOPS = 2;
-const FRAMES = 6;
-
-const SHAKE_MS = SHAKE_FRAME_MS * FRAMES * SHAKE_LOOPS;
-const OPEN_MS = 420;
-/**
- * How far into the pop the item appears.
- *
- * 0.70: the accelerated timing reaches the final burst frame at 71%, and the
- * name should land ON that rather than after it.
- */
-const REVEAL_AT = 0.70;
 
 type Phase = "idle" | "shaking" | "opening" | "revealed";
 
@@ -90,57 +69,52 @@ export function ChestShelf({ character, catalog, onOpen, busy }: ChestShelfProps
   const t = text.loadout.chest;
   const [phase, setPhase] = useState<Phase>("idle");
   const [revealed, setRevealed] = useState<Reveal[]>([]);
-  const timers = useRef<number[]>([]);
+  const stage = useRef<ChestStageHandle>(null);
   /**
    * Results that have arrived but are not on screen yet.
    *
    * Held in a ref rather than state so a skip can show whatever has landed so
-   * far without waiting on the timers that would have shown it.
+   * far without waiting on the beat that would have shown it.
    */
   const pending = useRef<Reveal[]>([]);
   const inFlight = useRef<Promise<unknown> | null>(null);
 
-  const clearTimers = () => {
-    for (const id of timers.current) window.clearTimeout(id);
-    timers.current = [];
-  };
-  // Every timeout below outlives the component if the player switches tab
-  // mid-open, and a setState after unmount is a warning plus a leak.
-  useEffect(() => clearTimers, []);
+  const begin = useCallback(
+    (work: Promise<Reveal[]>) => {
+      pending.current = [];
+      setRevealed([]);
+      setPhase("shaking");
+      haptic("chestShake");
 
-  const after = (ms: number, fn: () => void) => {
-    timers.current.push(window.setTimeout(fn, ms));
-  };
-
-  const begin = useCallback((work: Promise<Reveal[]>) => {
-    pending.current = [];
-    setRevealed([]);
-    setPhase("shaking");
-    haptic("chestShake");
-
-    // Out now, shown later: the reveal is paced by the animation and never by
-    // the network, so a slow connection makes the chest take a moment longer
-    // rather than popping open onto a spinner.
-    const job = work.then((items) => {
-      pending.current = items;
-      return items;
-    });
-    inFlight.current = job;
-
-    after(SHAKE_MS, () => {
-      setPhase("opening");
-      haptic("chestOpen");
-      // On the pop, not on the shake: the sting has its impact at the front,
-      // and the two land together this way. It is also safely inside a user
-      // gesture — the player pressed the chest — so autoplay never refuses it.
-      play("chestOpen");
-      void job.then(() => {
-        after(Math.round(OPEN_MS * REVEAL_AT), () => {
-          setRevealed(pending.current);
-          setPhase("revealed");
-        });
+      // Out now, shown later: the chest rocks while the request is out and
+      // the open is held until it lands, so a slow connection makes the
+      // wind-up last longer rather than popping open onto a spinner. The
+      // rarity comes back with the item, which is the first moment the burst
+      // can be tinted for it.
+      const job = work.then((items) => {
+        pending.current = items;
+        const rarities = items.flatMap((i) => catalog.gearById.get(i.gearId)?.rarity ?? []);
+        stage.current?.release(bestRarity(rarities));
+        return items;
       });
-    });
+      inFlight.current = job;
+    },
+    [catalog],
+  );
+
+  /** The lid goes. On the pop, not the wind-up: the sting has its impact at the
+   *  front and the two land together this way. It is also safely inside a user
+   *  gesture - the player pressed the chest - so autoplay never refuses it. */
+  const onPop = useCallback(() => {
+    setPhase("opening");
+    haptic("chestOpen");
+    play("chestOpen");
+  }, []);
+
+  const onReveal = useCallback(() => {
+    setRevealed(pending.current);
+    setPhase("revealed");
+    haptic("chestReveal");
   }, []);
 
   const openOne = useCallback(
@@ -172,18 +146,14 @@ export function ChestShelf({ character, catalog, onOpen, busy }: ChestShelfProps
 
   /** Jumps to the reveal, showing whatever has come back so far. */
   const skip = useCallback(() => {
-    clearTimers();
-    // The animation stops now, which is what the tap asked for. The items
-    // land the moment the request resolves — already done in the common case.
-    setPhase((p) => (p === "revealed" ? p : "opening"));
-    void inFlight.current?.then(() => {
-      setRevealed(pending.current);
-      setPhase("revealed");
-    });
+    // The animation ends now, which is what the tap asked for. The items land
+    // the moment the request resolves - already done in the common case - and
+    // the chest keeps rocking until then, because opening it before the
+    // rarity is known would tint the burst for the wrong item.
+    void inFlight.current?.then(() => stage.current?.finish());
   }, []);
 
   const dismiss = useCallback(() => {
-    clearTimers();
     setPhase("idle");
     setRevealed([]);
     pending.current = [];
@@ -253,12 +223,9 @@ export function ChestShelf({ character, catalog, onOpen, busy }: ChestShelfProps
           onClick={phase === "revealed" ? dismiss : skip}
         >
           <div className="chest-modal-inner">
-            {/* The glow is a SEPARATE, continuously animated element behind
-                the sprite. Six frames can only ever step; light blooming
-                smoothly underneath them is what stops the whole thing reading
-                as stop-motion. */}
-            <span className={`chest-bloom is-${phase}`} aria-hidden="true" />
-            <span className={`chest-sprite is-${phase}`} aria-hidden="true" />
+            {/* Built from the chest's parts on a small canvas, with the bloom
+                behind it - see chest/chestScene.ts. */}
+            <ChestStage ref={stage} onPop={onPop} onReveal={onReveal} />
 
             {phase === "revealed" && (
               <div className={`chest-reveal-item${defs.length > 1 ? " is-many" : ""}`}>
