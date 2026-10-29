@@ -21,7 +21,7 @@ import {
   validateShopStock,
 } from "./schemas.js";
 import { DEFAULT_BALANCE, type BalanceConfig } from "../balance.js";
-import { shopConsumablePriceOf, shopGearPriceOf, shopLoops } from "../shopPricing.js";
+import { shopConsumableBasePriceOf, shopConsumablePriceOf, shopGearBasePriceOf, shopGearPriceOf, shopLoops } from "../shopPricing.js";
 
 /**
  * ContentRegistry is the single seam through which the engine knows about
@@ -320,8 +320,16 @@ export class ContentRegistry {
       // stocked, or turning it back on becomes a second job.
       gear: this.shop.gear
         .filter((id) => this.getGear(id).enabled !== false)
-        .map((id) => ({ id, price: this.shopGearPrice(id) })),
-      consumables: this.shop.consumables.map((id) => ({ id, price: this.shopConsumablePrice(id) })),
+        .map((id) => {
+          const price = this.shopGearPrice(id);
+          const was = shopGearBasePriceOf(this.shop, this.getGear(id), this.balance.economy);
+          return was !== price ? { id, price, was } : { id, price };
+        }),
+      consumables: this.shop.consumables.map((id) => {
+        const price = this.shopConsumablePrice(id);
+        const was = shopConsumableBasePriceOf(this.shop, this.getConsumable(id));
+        return was !== price ? { id, price, was } : { id, price };
+      }),
     };
   }
 

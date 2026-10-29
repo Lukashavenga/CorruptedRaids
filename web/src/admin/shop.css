@@ -18,3 +18,21 @@
 .shop-price input { width: 100%; }
 .shop-actions { display: flex; gap: 4px; flex: none; }
 .shop-filters { display: flex; gap: 8px; }
+
+/* Pricing: the inputs the suggestions are worked out from, then per row a
+   price cell - base, adjustment, suggestion, and what it actually sells for. */
+.pricing-inputs { display: flex; flex-wrap: wrap; gap: 10px 16px; }
+.pricing-inputs label { display: grid; gap: 2px; width: 150px; }
+.pricing-inputs label:first-child { width: 220px; }
+.pricing-inputs input { width: 100%; }
+.pricing-apply { justify-self: start; }
+.shop-pricing-cell { display: grid; grid-template-columns: 100px 80px; width: 186px; gap: 2px 6px; flex: none; align-items: end; }
+.shop-pricing-cell .shop-price { width: auto; }
+.shop-pricing-cell > .shop-sub, .shop-final { grid-column: 1 / -1; }
+.shop-final { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.shop-final.is-adjusted { color: var(--good); }
+.shop-final s { color: var(--ink-muted); font-weight: 400; }
+.link-button { background: none; border: 0; padding: 0; color: var(--primary); cursor: pointer; text-decoration: underline; font: inherit; }
+.consumable-field { display: grid; gap: 2px; }
+.consumable-field span { color: var(--ink-muted); font-size: 0.8em; }
+.consumable-field input, .consumable-field textarea { width: 100%; box-sizing: border-box; font: inherit; }

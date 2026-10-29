@@ -131,6 +131,40 @@ console.log(`character view renders: corruption ${view.corruption}, ${view.stats
   console.log(`duplicate ids split deterministically (${first.slice(1).join(", ")}); new ids unique`);
 }
 
+// --- the shopkeeper's percentage --------------------------------------------
+//
+// A sale is a percent on top of the shelf price, and the shelf, the purchase
+// and the struck-through "was" price must all agree on it.
+{
+  const shop = new ContentRegistry();
+  shop.loadObjects(bundle);
+  const stocked = shop.shopView().gear[0]!;
+  // Priced well above its value, as the suggested prices are: a discount below
+  // value is a gold loop while bought gear refunds in full, and the admin
+  // refuses to save one.
+  const base = 1000;
+  const priced = { ...JSON.parse(JSON.stringify(bundle.shop)), gearPrices: { [stocked.id]: base } };
+  shop.setShop({ ...priced, gearAdjust: { [stocked.id]: -20 } }, "test");
+  const onSale = shop.shopView().gear.find((g) => g.id === stocked.id)!;
+  assert.equal(onSale.price, Math.max(1, Math.round(base * 0.8)), "20% off the shelf price");
+  assert.equal(onSale.was, base, "the old price travels with it, to be struck through");
+
+  const buyer = structuredClone(engine.roster.get(VIEWER)!);
+  buyer.gold = 1_000_000;
+  const shopEngine = new GameEngine(shop, Math.random);
+  shopEngine.roster.hydrate([buyer]);
+  assert.ok(shopEngine.dispatch({ type: "buy_gear", requestedBy: VIEWER, gearId: stocked.id }).ok, "buy on sale");
+  assert.equal(shopEngine.roster.get(VIEWER)!.gold, 1_000_000 - onSale.price, "the purchase charges the sale price");
+
+  assert.throws(
+    () => shop.setShop({ ...priced, gearAdjust: { [stocked.id]: -100 } }, "test"),
+    /percent/,
+    "a 100% discount is refused rather than giving the item away",
+  );
+  assert.equal(shop.shopView().gear.find((g) => g.id === stocked.id)!.price, onSale.price, "a refused shop leaves the shelf as it was");
+  console.log(`shop adjustment: ${stocked.id} ${base}g -> ${onSale.price}g, charged and shown alike`);
+}
+
 // --- one engine per request, and it must not leak ---------------------------
 const other = seed(null);
 assert.equal(other.roster.get(VIEWER), undefined, "a fresh engine holds nobody else's character");

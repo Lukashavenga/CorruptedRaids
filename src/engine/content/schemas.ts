@@ -24,6 +24,7 @@ import type {
   RaidDefinition,
   RaidRoom,
   RaidStep,
+  Rarity,
   ShopStock,
   Stats,
 } from "../types.js";
@@ -301,15 +302,55 @@ export function validateShopStock(raw: unknown, file: string): ShopStock {
     }
     return out;
   };
+  // A percentage on top of the price. Bounded so a typo cannot give an item
+  // away (-100) or put it out of reach of everyone forever.
+  const adjust = (key: string, stocked: string[]): Record<string, number> | undefined => {
+    if (obj[key] === undefined) return undefined;
+    if (typeof obj[key] !== "object" || obj[key] === null || Array.isArray(obj[key])) {
+      fail(file, `"${key}" must be an object of id -> percent`);
+    }
+    const out: Record<string, number> = {};
+    for (const [id, pct] of Object.entries(obj[key] as Record<string, unknown>)) {
+      if (!stocked.includes(id)) fail(file, `"${key}" adjusts "${id}", which the shop does not stock`);
+      if (typeof pct !== "number" || !Number.isInteger(pct) || pct < SHOP_ADJUST_MIN || pct > SHOP_ADJUST_MAX) {
+        fail(file, `"${key}.${id}" must be a whole percent from ${SHOP_ADJUST_MIN} to ${SHOP_ADJUST_MAX}`);
+      }
+      if (pct !== 0) out[id] = pct;
+    }
+    return Object.keys(out).length ? out : undefined;
+  };
   const gear = list("gear");
   const consumables = list("consumables");
   const stock: ShopStock = { gear, consumables };
   const gearPrices = prices("gearPrices", gear);
   const consumablePrices = prices("consumablePrices", consumables);
+  const gearAdjust = adjust("gearAdjust", gear);
+  const consumableAdjust = adjust("consumableAdjust", consumables);
   if (gearPrices) stock.gearPrices = gearPrices;
   if (consumablePrices) stock.consumablePrices = consumablePrices;
+  if (gearAdjust) stock.gearAdjust = gearAdjust;
+  if (consumableAdjust) stock.consumableAdjust = consumableAdjust;
+  if (obj.pricing !== undefined) {
+    const p = obj.pricing;
+    const positive = (v: unknown) => typeof v === "number" && Number.isFinite(v) && v > 0;
+    if (typeof p !== "object" || p === null || !positive(p.goldPerRun)) {
+      fail(file, `"pricing.goldPerRun" must be a number above 0`);
+    }
+    const runs = p.runsByRarity;
+    if (typeof runs !== "object" || runs === null || !RARITIES.every((r) => positive(runs[r]))) {
+      fail(file, `"pricing.runsByRarity" must give every rarity a number above 0`);
+    }
+    stock.pricing = {
+      goldPerRun: p.goldPerRun,
+      runsByRarity: Object.fromEntries(RARITIES.map((r) => [r, runs[r]])) as Record<Rarity, number>,
+    };
+  }
   return stock;
 }
+
+/** The range a shop adjustment may take, in whole percent. */
+export const SHOP_ADJUST_MIN = -90;
+export const SHOP_ADJUST_MAX = 500;
 
 export function validateDungeonDefinition(raw: unknown, file: string): DungeonDefinition {
   if (typeof raw !== "object" || raw === null) fail(file, "dungeon file must contain a JSON object");

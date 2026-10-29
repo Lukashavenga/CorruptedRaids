@@ -861,6 +861,28 @@ export interface ShopStock {
   consumables: string[];
   gearPrices?: Record<string, number>;
   consumablePrices?: Record<string, number>;
+  /**
+   * The shopkeeper's markdown or markup, as a whole percent on top of the
+   * shelf price: -20 is a fifth off, 50 is half again. Separate from the
+   * price so a sale can end without anyone remembering what the item cost
+   * before it, and so the shelf can show the old price struck through.
+   */
+  gearAdjust?: Record<string, number>;
+  consumableAdjust?: Record<string, number>;
+  /**
+   * What the admin's suggested prices are worked out from. Read by the
+   * panel only - the engine never prices from it, so editing a gear item can
+   * never quietly reprice the shelf. See suggestedGearPriceOf.
+   */
+  pricing?: ShopPricingInputs;
+}
+
+/** See ShopStock.pricing. */
+export interface ShopPricingInputs {
+  /** Gold a viewer earns from one run, on average. */
+  goldPerRun: number;
+  /** How many runs of saving an item of each rarity should cost. */
+  runsByRarity: Record<Rarity, number>;
 }
 
 /**
@@ -870,8 +892,9 @@ export interface ShopStock {
  * actually charges.
  */
 export interface ShopView {
-  gear: { id: string; price: number }[];
-  consumables: { id: string; price: number }[];
+  /** `was` is the price before the shopkeeper's adjustment, present only when there is one. */
+  gear: { id: string; price: number; was?: number }[];
+  consumables: { id: string; price: number; was?: number }[];
 }
 
 /*
