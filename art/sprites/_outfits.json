@@ -1,1 +1,26 @@
-{}
+{
+  "bottom/punk-female/female": {
+    "rotation": 0,
+    "scale": 0.5,
+    "x": 263.5,
+    "y": 365.8
+  },
+  "bottom/punk-male/male": {
+    "rotation": 0,
+    "scale": 0.5,
+    "x": 258.2,
+    "y": 362.0
+  },
+  "top/punk-female/female": {
+    "rotation": 0,
+    "scale": 0.5,
+    "x": 244.8,
+    "y": 215.8
+  },
+  "top/punk-male/male": {
+    "rotation": 0,
+    "scale": 0.5,
+    "x": 240.0,
+    "y": 201.8
+  }
+}
