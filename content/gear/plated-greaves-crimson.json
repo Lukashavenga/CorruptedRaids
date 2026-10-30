@@ -1,0 +1,22 @@
+{
+  "id": "plated-greaves-crimson",
+  "name": "Crimson Plated Greaves",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:plated-greaves"
+  ],
+  "rarity": "epic",
+  "requires": {},
+  "statMods": {
+    "hp": 30,
+    "atk": 5,
+    "spd": -1,
+    "skill": 10
+  },
+  "description": "Kneepads of STEEL",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t4-crimson",
+    "female": "female-t4-crimson"
+  }
+}

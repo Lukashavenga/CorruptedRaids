@@ -1,0 +1,18 @@
+{
+  "id": "crusader-helm-gilded",
+  "name": "Gilded Crusader Helm",
+  "slot": "head",
+  "tags": [
+    "variant-of:crusader-helm"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 10,
+    "spd": -1,
+    "skill": 2
+  },
+  "description": "Can't see anything but sits nice",
+  "enabled": false,
+  "sprite": "head01-gilded"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "patched-leggings-black",
+  "name": "Black Patched Leggings",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:patched-leggings"
+  ],
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 3,
+    "spd": 1,
+    "skill": 5
+  },
+  "description": "Ewww it looks Poor",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t3-black",
+    "female": "female-t3-black"
+  }
+}

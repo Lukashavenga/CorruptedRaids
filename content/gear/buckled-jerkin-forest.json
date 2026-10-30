@@ -1,0 +1,22 @@
+{
+  "id": "buckled-jerkin-forest",
+  "name": "Forest Buckled Jerkin",
+  "slot": "top",
+  "tags": [
+    "variant-of:buckled-jerkin"
+  ],
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "atk": 1,
+    "spd": 6,
+    "skill": 1
+  },
+  "description": "Maiden-beater",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t2-forest",
+    "female": "female-t2-forest"
+  }
+}

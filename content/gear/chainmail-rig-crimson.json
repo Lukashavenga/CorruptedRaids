@@ -1,0 +1,22 @@
+{
+  "id": "chainmail-rig-crimson",
+  "name": "Crimson Chainmail Rig",
+  "slot": "top",
+  "tags": [
+    "variant-of:chainmail-rig"
+  ],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 14,
+    "atk": 2,
+    "spd": 1,
+    "skill": 6
+  },
+  "description": "It's hard",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t3-crimson",
+    "female": "female-t3-crimson"
+  }
+}

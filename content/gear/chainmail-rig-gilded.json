@@ -1,0 +1,22 @@
+{
+  "id": "chainmail-rig-gilded",
+  "name": "Gilded Chainmail Rig",
+  "slot": "top",
+  "tags": [
+    "variant-of:chainmail-rig"
+  ],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 14,
+    "atk": 2,
+    "spd": 1,
+    "skill": 6
+  },
+  "description": "It's hard",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t3-gilded",
+    "female": "female-t3-gilded"
+  }
+}

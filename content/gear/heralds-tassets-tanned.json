@@ -1,0 +1,22 @@
+{
+  "id": "heralds-tassets-tanned",
+  "name": "Tanned Heralds Tassets",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:heralds-tassets"
+  ],
+  "rarity": "legendary",
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "atk": 8,
+    "spd": 6,
+    "skill": 10
+  },
+  "description": "Just well rounded, stretchy, warm nice Pants. that's it. just believe it. stop asking questions.",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t5-tanned",
+    "female": "female-t5-tanned"
+  }
+}

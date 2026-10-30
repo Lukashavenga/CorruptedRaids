@@ -35,9 +35,9 @@
     },
     "male-t3": {
       "icon": {
-        "x": 0.092,
-        "y": 0.277,
-        "zoom": 1.6
+        "x": 0.032,
+        "y": 0.032,
+        "zoom": 1.15
       },
       "male": {
         "x": 239,
@@ -218,6 +218,393 @@
         "x": 221,
         "y": 169,
         "scale": 0.501,
+        "rotation": 0
+      }
+    },
+    "female-t4-crimson": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.819,
+        "rotation": 0
+      },
+      "female": {
+        "x": 240,
+        "y": 221,
+        "scale": 0.56,
+        "rotation": -3
+      }
+    },
+    "male-t4-crimson": {
+      "icon": {
+        "x": 0.069,
+        "y": 0.125,
+        "zoom": 1.35
+      },
+      "male": {
+        "x": 237,
+        "y": 220,
+        "scale": 0.75,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 244,
+        "y": 235,
+        "scale": 0.492,
+        "rotation": 0
+      }
+    },
+    "female-t4-gilded": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.819,
+        "rotation": 0
+      },
+      "female": {
+        "x": 240,
+        "y": 221,
+        "scale": 0.56,
+        "rotation": -3
+      }
+    },
+    "male-t4-gilded": {
+      "icon": {
+        "x": 0.069,
+        "y": 0.125,
+        "zoom": 1.35
+      },
+      "male": {
+        "x": 237,
+        "y": 220,
+        "scale": 0.75,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 244,
+        "y": 235,
+        "scale": 0.492,
+        "rotation": 0
+      }
+    },
+    "female-t4-blackened": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.819,
+        "rotation": 0
+      },
+      "female": {
+        "x": 240,
+        "y": 221,
+        "scale": 0.56,
+        "rotation": -3
+      }
+    },
+    "male-t4-blackened": {
+      "icon": {
+        "x": 0.069,
+        "y": 0.125,
+        "zoom": 1.35
+      },
+      "male": {
+        "x": 237,
+        "y": 220,
+        "scale": 0.75,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 244,
+        "y": 235,
+        "scale": 0.492,
+        "rotation": 0
+      }
+    },
+    "female-t3-crimson": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.858,
+        "rotation": 0
+      },
+      "female": {
+        "x": 233,
+        "y": 216,
+        "scale": 0.54,
+        "rotation": 0
+      }
+    },
+    "male-t3-crimson": {
+      "icon": {
+        "x": 0.032,
+        "y": 0.032,
+        "zoom": 1.15
+      },
+      "male": {
+        "x": 239,
+        "y": 227,
+        "scale": 0.68,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 247,
+        "y": 235,
+        "scale": 0.495,
+        "rotation": 0
+      }
+    },
+    "female-t3-gilded": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.858,
+        "rotation": 0
+      },
+      "female": {
+        "x": 233,
+        "y": 216,
+        "scale": 0.54,
+        "rotation": 0
+      }
+    },
+    "male-t3-gilded": {
+      "icon": {
+        "x": 0.032,
+        "y": 0.032,
+        "zoom": 1.15
+      },
+      "male": {
+        "x": 239,
+        "y": 227,
+        "scale": 0.68,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 247,
+        "y": 235,
+        "scale": 0.495,
+        "rotation": 0
+      }
+    },
+    "female-t3-blackened": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.858,
+        "rotation": 0
+      },
+      "female": {
+        "x": 233,
+        "y": 216,
+        "scale": 0.54,
+        "rotation": 0
+      }
+    },
+    "male-t3-blackened": {
+      "icon": {
+        "x": 0.032,
+        "y": 0.032,
+        "zoom": 1.15
+      },
+      "male": {
+        "x": 239,
+        "y": 227,
+        "scale": 0.68,
+        "bodyMask": [],
+        "rotation": 0
+      },
+      "female": {
+        "x": 247,
+        "y": 235,
+        "scale": 0.495,
+        "rotation": 0
+      }
+    },
+    "female-t1-tanned": {
+      "male": {
+        "x": 253,
+        "y": 183,
+        "scale": 0.7,
+        "rotation": 0
+      },
+      "female": {
+        "x": 261,
+        "y": 207,
+        "scale": 0.51,
+        "rotation": 4
+      }
+    },
+    "male-t1-tanned": {
+      "male": {
+        "x": 251,
+        "y": 184,
+        "scale": 0.63,
+        "rotation": 0
+      },
+      "female": {
+        "x": 263,
+        "y": 217,
+        "scale": 0.54,
+        "rotation": 0
+      }
+    },
+    "female-t1-black": {
+      "male": {
+        "x": 253,
+        "y": 183,
+        "scale": 0.7,
+        "rotation": 0
+      },
+      "female": {
+        "x": 261,
+        "y": 207,
+        "scale": 0.51,
+        "rotation": 4
+      }
+    },
+    "male-t1-black": {
+      "male": {
+        "x": 251,
+        "y": 184,
+        "scale": 0.63,
+        "rotation": 0
+      },
+      "female": {
+        "x": 263,
+        "y": 217,
+        "scale": 0.54,
+        "rotation": 0
+      }
+    },
+    "female-t2-tanned": {
+      "male": {
+        "x": 258,
+        "y": 219,
+        "scale": 0.66,
+        "rotation": 0
+      },
+      "female": {
+        "x": 262,
+        "y": 229,
+        "scale": 0.484,
+        "rotation": 0
+      }
+    },
+    "male-t2-tanned": {
+      "icon": {
+        "x": 0.09,
+        "y": 0.25,
+        "zoom": 1.4
+      },
+      "male": {
+        "x": 256,
+        "y": 211,
+        "scale": 0.68,
+        "rotation": 0
+      },
+      "female": {
+        "x": 259,
+        "y": 230,
+        "scale": 0.472,
+        "rotation": 0
+      }
+    },
+    "female-t2-black": {
+      "male": {
+        "x": 258,
+        "y": 219,
+        "scale": 0.66,
+        "rotation": 0
+      },
+      "female": {
+        "x": 262,
+        "y": 229,
+        "scale": 0.484,
+        "rotation": 0
+      }
+    },
+    "male-t2-black": {
+      "icon": {
+        "x": 0.09,
+        "y": 0.25,
+        "zoom": 1.4
+      },
+      "male": {
+        "x": 256,
+        "y": 211,
+        "scale": 0.68,
+        "rotation": 0
+      },
+      "female": {
+        "x": 259,
+        "y": 230,
+        "scale": 0.472,
+        "rotation": 0
+      }
+    },
+    "female-t2-forest": {
+      "male": {
+        "x": 258,
+        "y": 219,
+        "scale": 0.66,
+        "rotation": 0
+      },
+      "female": {
+        "x": 262,
+        "y": 229,
+        "scale": 0.484,
+        "rotation": 0
+      }
+    },
+    "male-t2-forest": {
+      "icon": {
+        "x": 0.09,
+        "y": 0.25,
+        "zoom": 1.4
+      },
+      "male": {
+        "x": 256,
+        "y": 211,
+        "scale": 0.68,
+        "rotation": 0
+      },
+      "female": {
+        "x": 259,
+        "y": 230,
+        "scale": 0.472,
+        "rotation": 0
+      }
+    },
+    "female-t5-black": {
+      "male": {
+        "x": 252,
+        "y": 183,
+        "scale": 0.512,
+        "rotation": 0
+      },
+      "female": {
+        "x": 238,
+        "y": 239,
+        "scale": 0.56,
+        "rotation": 6
+      }
+    },
+    "male-t5-black": {
+      "male": {
+        "x": 237,
+        "y": 234,
+        "scale": 0.66,
+        "rotation": 0
+      },
+      "female": {
+        "x": 252,
+        "y": 205,
+        "scale": 0.404,
         "rotation": 0
       }
     }
@@ -1510,7 +1897,7 @@
   "head": {
     "head01": {
       "male": {
-        "x": 249,
+        "x": 248,
         "y": 87,
         "scale": 0.69,
         "rotation": 0
@@ -1595,6 +1982,11 @@
       }
     },
     "head06": {
+      "icon": {
+        "x": -0.005,
+        "y": 0.035,
+        "zoom": 1
+      },
       "male": {
         "x": 242,
         "y": 63,
@@ -1860,6 +2252,194 @@
         "y": 108,
         "scale": 0.6,
         "rotation": 10
+      }
+    },
+    "head01-crimson": {
+      "male": {
+        "x": 248,
+        "y": 87,
+        "scale": 0.69,
+        "rotation": 0
+      },
+      "female": {
+        "x": 253,
+        "y": 121,
+        "scale": 0.508,
+        "bodyMask": [
+          {
+            "h": 72,
+            "w": 151,
+            "x": 182,
+            "y": 65
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "head01-gilded": {
+      "male": {
+        "x": 248,
+        "y": 87,
+        "scale": 0.69,
+        "rotation": 0
+      },
+      "female": {
+        "x": 253,
+        "y": 121,
+        "scale": 0.508,
+        "bodyMask": [
+          {
+            "h": 72,
+            "w": 151,
+            "x": 182,
+            "y": 65
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "head01-blackened": {
+      "male": {
+        "x": 248,
+        "y": 87,
+        "scale": 0.69,
+        "rotation": 0
+      },
+      "female": {
+        "x": 253,
+        "y": 121,
+        "scale": 0.508,
+        "bodyMask": [
+          {
+            "h": 72,
+            "w": 151,
+            "x": 182,
+            "y": 65
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "head05-crimson": {
+      "male": {
+        "x": 246,
+        "y": 38,
+        "scale": 0.64,
+        "rotation": -3
+      },
+      "female": {
+        "x": 246,
+        "y": 82,
+        "scale": 0.58,
+        "rotation": -10
+      }
+    },
+    "head05-gilded": {
+      "male": {
+        "x": 246,
+        "y": 38,
+        "scale": 0.64,
+        "rotation": -3
+      },
+      "female": {
+        "x": 246,
+        "y": 82,
+        "scale": 0.58,
+        "rotation": -10
+      }
+    },
+    "head05-blackened": {
+      "male": {
+        "x": 246,
+        "y": 38,
+        "scale": 0.64,
+        "rotation": -3
+      },
+      "female": {
+        "x": 246,
+        "y": 82,
+        "scale": 0.58,
+        "rotation": -10
+      }
+    },
+    "head06-gilded": {
+      "icon": {
+        "x": -0.005,
+        "y": 0.035,
+        "zoom": 1
+      },
+      "male": {
+        "x": 242,
+        "y": 63,
+        "scale": 0.72,
+        "rotation": 0
+      },
+      "female": {
+        "x": 248,
+        "y": 108,
+        "scale": 0.75,
+        "rotation": 0
+      }
+    },
+    "head06-blackened": {
+      "icon": {
+        "x": -0.005,
+        "y": 0.035,
+        "zoom": 1
+      },
+      "male": {
+        "x": 242,
+        "y": 63,
+        "scale": 0.72,
+        "rotation": 0
+      },
+      "female": {
+        "x": 248,
+        "y": 108,
+        "scale": 0.75,
+        "rotation": 0
+      }
+    },
+    "head22-crimson": {
+      "male": {
+        "x": 245,
+        "y": 81,
+        "scale": 0.64,
+        "rotation": -8
+      },
+      "female": {
+        "x": 259,
+        "y": 109,
+        "scale": 0.57,
+        "rotation": 4
+      }
+    },
+    "head22-gilded": {
+      "male": {
+        "x": 245,
+        "y": 81,
+        "scale": 0.64,
+        "rotation": -8
+      },
+      "female": {
+        "x": 259,
+        "y": 109,
+        "scale": 0.57,
+        "rotation": 4
+      }
+    },
+    "head22-blackened": {
+      "male": {
+        "x": 245,
+        "y": 81,
+        "scale": 0.64,
+        "rotation": -8
+      },
+      "female": {
+        "x": 259,
+        "y": 109,
+        "scale": 0.57,
+        "rotation": 4
       }
     }
   },
@@ -2193,6 +2773,486 @@
         "x": 253,
         "y": 386,
         "scale": 0.501,
+        "rotation": 0
+      }
+    },
+    "female-t4-crimson": {
+      "male": {
+        "x": 252,
+        "y": 333,
+        "scale": 0.535,
+        "rotation": 0
+      },
+      "female": {
+        "x": 255,
+        "y": 389,
+        "scale": 0.64,
+        "bodyMask": [
+          {
+            "h": 153,
+            "w": 262,
+            "x": 145,
+            "y": 333
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t4-crimson": {
+      "male": {
+        "x": 247,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 140,
+            "w": 137,
+            "x": 107,
+            "y": 360
+          },
+          {
+            "h": 211,
+            "w": 135,
+            "x": 293,
+            "y": 285
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.528,
+        "rotation": 0
+      }
+    },
+    "female-t4-gilded": {
+      "male": {
+        "x": 252,
+        "y": 333,
+        "scale": 0.535,
+        "rotation": 0
+      },
+      "female": {
+        "x": 255,
+        "y": 389,
+        "scale": 0.64,
+        "bodyMask": [
+          {
+            "h": 153,
+            "w": 262,
+            "x": 145,
+            "y": 333
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t4-gilded": {
+      "male": {
+        "x": 247,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 140,
+            "w": 137,
+            "x": 107,
+            "y": 360
+          },
+          {
+            "h": 211,
+            "w": 135,
+            "x": 293,
+            "y": 285
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.528,
+        "rotation": 0
+      }
+    },
+    "female-t4-blackened": {
+      "male": {
+        "x": 252,
+        "y": 333,
+        "scale": 0.535,
+        "rotation": 0
+      },
+      "female": {
+        "x": 255,
+        "y": 389,
+        "scale": 0.64,
+        "bodyMask": [
+          {
+            "h": 153,
+            "w": 262,
+            "x": 145,
+            "y": 333
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t4-blackened": {
+      "male": {
+        "x": 247,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 140,
+            "w": 137,
+            "x": 107,
+            "y": 360
+          },
+          {
+            "h": 211,
+            "w": 135,
+            "x": 293,
+            "y": 285
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.528,
+        "rotation": 0
+      }
+    },
+    "female-t5-tanned": {
+      "male": {
+        "x": 252,
+        "y": 373,
+        "scale": 0.61,
+        "rotation": 0
+      },
+      "female": {
+        "x": 257,
+        "y": 392,
+        "scale": 0.67,
+        "bodyMask": [
+          {
+            "h": 144,
+            "w": 254,
+            "x": 135,
+            "y": 331
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t5-tanned": {
+      "male": {
+        "x": 252,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 147,
+            "w": 119,
+            "x": 114,
+            "y": 346
+          },
+          {
+            "h": 193,
+            "w": 145,
+            "x": 286,
+            "y": 278
+          },
+          {
+            "h": 54,
+            "w": 34,
+            "x": 180,
+            "y": 272
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.529,
+        "rotation": 0
+      }
+    },
+    "female-t5-black": {
+      "male": {
+        "x": 252,
+        "y": 373,
+        "scale": 0.61,
+        "rotation": 0
+      },
+      "female": {
+        "x": 257,
+        "y": 392,
+        "scale": 0.67,
+        "bodyMask": [
+          {
+            "h": 144,
+            "w": 254,
+            "x": 135,
+            "y": 331
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t5-black": {
+      "male": {
+        "x": 252,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 147,
+            "w": 119,
+            "x": 114,
+            "y": 346
+          },
+          {
+            "h": 193,
+            "w": 145,
+            "x": 286,
+            "y": 278
+          },
+          {
+            "h": 54,
+            "w": 34,
+            "x": 180,
+            "y": 272
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.529,
+        "rotation": 0
+      }
+    },
+    "female-t1-forest": {
+      "male": {
+        "x": 248,
+        "y": 365,
+        "scale": 0.67,
+        "rotation": 0
+      },
+      "female": {
+        "x": 253,
+        "y": 386,
+        "scale": 0.66,
+        "bodyMask": [
+          {
+            "h": 39,
+            "w": 81,
+            "x": 141,
+            "y": 439
+          },
+          {
+            "h": 57,
+            "w": 141,
+            "x": 267,
+            "y": 426
+          }
+        ],
+        "rotation": -1
+      }
+    },
+    "male-t1-forest": {
+      "male": {
+        "x": 243,
+        "y": 379,
+        "scale": 0.76,
+        "bodyMask": [
+          {
+            "h": 130,
+            "w": 346,
+            "x": 86,
+            "y": 347
+          },
+          {
+            "h": 76,
+            "w": 153,
+            "x": 180,
+            "y": 261
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 346,
+        "scale": 0.536,
+        "rotation": 0
+      }
+    },
+    "female-t1-black": {
+      "male": {
+        "x": 248,
+        "y": 365,
+        "scale": 0.67,
+        "rotation": 0
+      },
+      "female": {
+        "x": 253,
+        "y": 386,
+        "scale": 0.66,
+        "bodyMask": [
+          {
+            "h": 39,
+            "w": 81,
+            "x": 141,
+            "y": 439
+          },
+          {
+            "h": 57,
+            "w": 141,
+            "x": 267,
+            "y": 426
+          }
+        ],
+        "rotation": -1
+      }
+    },
+    "male-t1-black": {
+      "male": {
+        "x": 243,
+        "y": 379,
+        "scale": 0.76,
+        "bodyMask": [
+          {
+            "h": 130,
+            "w": 346,
+            "x": 86,
+            "y": 347
+          },
+          {
+            "h": 76,
+            "w": 153,
+            "x": 180,
+            "y": 261
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 346,
+        "scale": 0.536,
+        "rotation": 0
+      }
+    },
+    "female-t2-forest": {
+      "male": {
+        "x": 251,
+        "y": 333,
+        "scale": 0.542,
+        "rotation": 0
+      },
+      "female": {
+        "x": 250,
+        "y": 387,
+        "scale": 0.64,
+        "bodyMask": [
+          {
+            "h": 123,
+            "w": 237,
+            "x": 141,
+            "y": 355
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t2-forest": {
+      "male": {
+        "x": 256,
+        "y": 379,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 132,
+            "w": 135,
+            "x": 107,
+            "y": 352
+          },
+          {
+            "h": 153,
+            "w": 180,
+            "x": 251,
+            "y": 364
+          },
+          {
+            "h": 75,
+            "w": 171,
+            "x": 181,
+            "y": 265
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.531,
+        "rotation": 0
+      }
+    },
+    "female-t3-black": {
+      "male": {
+        "x": 251,
+        "y": 333,
+        "scale": 0.541,
+        "rotation": 0
+      },
+      "female": {
+        "x": 259,
+        "y": 388,
+        "scale": 0.64,
+        "bodyMask": [
+          {
+            "h": 153,
+            "w": 262,
+            "x": 145,
+            "y": 333
+          }
+        ],
+        "rotation": 0
+      }
+    },
+    "male-t3-black": {
+      "male": {
+        "x": 252,
+        "y": 378,
+        "scale": 0.72,
+        "bodyMask": [
+          {
+            "h": 142,
+            "w": 142,
+            "x": 94,
+            "y": 345
+          },
+          {
+            "h": 225,
+            "w": 128,
+            "x": 274,
+            "y": 277
+          }
+        ],
+        "rotation": 0
+      },
+      "female": {
+        "x": 254,
+        "y": 345,
+        "scale": 0.528,
         "rotation": 0
       }
     }
@@ -2825,6 +3885,54 @@
         "z": 130,
         "scale": 0.79,
         "rotation": -12
+      }
+    },
+    "mh02-crimson": {
+      "male": {
+        "x": 360,
+        "y": 144,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
+      },
+      "female": {
+        "x": 349,
+        "y": 160,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
+      }
+    },
+    "mh02-gilded": {
+      "male": {
+        "x": 360,
+        "y": 144,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
+      },
+      "female": {
+        "x": 349,
+        "y": 160,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
+      }
+    },
+    "mh02-blackened": {
+      "male": {
+        "x": 360,
+        "y": 144,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
+      },
+      "female": {
+        "x": 349,
+        "y": 160,
+        "z": 125,
+        "scale": 0.84,
+        "rotation": -14
       }
     }
   }

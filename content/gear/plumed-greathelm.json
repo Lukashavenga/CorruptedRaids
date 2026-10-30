@@ -2,13 +2,15 @@
   "id": "plumed-greathelm",
   "name": "Plumed Greathelm",
   "slot": "head",
+  "tags": [],
   "rarity": "uncommon",
+  "sprite": "head22",
   "requires": {},
   "statMods": {
-    "hp": 6,
-    "skill": 2
+    "hp": 20,
+    "atk": 3,
+    "spd": -1,
+    "skill": 3
   },
-  "description": "Plumed Greathelm. Taken, not given.",
-  "tags": [],
-  "sprite": "head22"
+  "description": "Protector of foreheads"
 }

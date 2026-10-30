@@ -1,0 +1,22 @@
+{
+  "id": "ranger-s-mantle-black",
+  "name": "Black Ranger's Mantle",
+  "slot": "top",
+  "tags": [
+    "variant-of:ranger-s-mantle"
+  ],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 3,
+    "atk": 3,
+    "spd": 5,
+    "skill": 3
+  },
+  "description": "How many Men did Robin Marry?",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t5-black",
+    "female": "female-t5-black"
+  }
+}

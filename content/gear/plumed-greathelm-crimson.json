@@ -1,0 +1,19 @@
+{
+  "id": "plumed-greathelm-crimson",
+  "name": "Crimson Plumed Greathelm",
+  "slot": "head",
+  "tags": [
+    "variant-of:plumed-greathelm"
+  ],
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 20,
+    "atk": 3,
+    "spd": -1,
+    "skill": 3
+  },
+  "description": "Protector of foreheads",
+  "enabled": false,
+  "sprite": "head22-crimson"
+}

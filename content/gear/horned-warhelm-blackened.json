@@ -1,0 +1,18 @@
+{
+  "id": "horned-warhelm-blackened",
+  "name": "Blackened Horned Warhelm",
+  "slot": "head",
+  "tags": [
+    "variant-of:horned-warhelm"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "atk": 3,
+    "spd": 1
+  },
+  "description": "TO VALHALLA!",
+  "enabled": false,
+  "sprite": "head05-blackened"
+}

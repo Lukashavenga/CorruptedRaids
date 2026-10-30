@@ -1,0 +1,17 @@
+{
+  "id": "iron-shortsword-blackened",
+  "name": "Blackened Iron Shortsword",
+  "slot": "mainHand",
+  "tags": [
+    "variant-of:iron-shortsword"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "atk": 2,
+    "spd": 1
+  },
+  "description": "Ye.",
+  "enabled": false,
+  "sprite": "mh02-blackened"
+}

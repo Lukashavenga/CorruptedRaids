@@ -1,0 +1,20 @@
+{
+  "id": "worn-breeches-black",
+  "name": "Black Worn Breeches",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:worn-breeches"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Kinda Shit",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t1-black",
+    "female": "female-t1-black"
+  }
+}

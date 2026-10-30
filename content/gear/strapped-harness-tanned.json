@@ -1,0 +1,21 @@
+{
+  "id": "strapped-harness-tanned",
+  "name": "Tanned Strapped Harness",
+  "slot": "top",
+  "tags": [
+    "variant-of:strapped-harness"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "atk": 2,
+    "spd": 2
+  },
+  "description": "It's essentially a belt and a bowl",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t1-tanned",
+    "female": "female-t1-tanned"
+  }
+}

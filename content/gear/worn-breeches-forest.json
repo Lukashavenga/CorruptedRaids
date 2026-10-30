@@ -1,0 +1,20 @@
+{
+  "id": "worn-breeches-forest",
+  "name": "Forest Worn Breeches",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:worn-breeches"
+  ],
+  "rarity": "common",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "skill": 1
+  },
+  "description": "Kinda Shit",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t1-forest",
+    "female": "female-t1-forest"
+  }
+}

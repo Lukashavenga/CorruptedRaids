@@ -1,0 +1,22 @@
+{
+  "id": "knight-s-cuirass-blackened",
+  "name": "Blackened Knight's Cuirass",
+  "slot": "top",
+  "tags": [
+    "variant-of:knight-s-cuirass"
+  ],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 13,
+    "atk": 3,
+    "spd": -1,
+    "skill": 10
+  },
+  "description": "It's harder.",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t4-blackened",
+    "female": "female-t4-blackened"
+  }
+}

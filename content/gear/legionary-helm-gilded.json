@@ -1,0 +1,19 @@
+{
+  "id": "legionary-helm-gilded",
+  "name": "Gilded Legionary Helm",
+  "slot": "head",
+  "tags": [
+    "variant-of:legionary-helm"
+  ],
+  "rarity": "rare",
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "atk": 5,
+    "spd": 2,
+    "skill": 3
+  },
+  "description": "Legionary Helm. Taken, not given.",
+  "enabled": false,
+  "sprite": "head06-gilded"
+}

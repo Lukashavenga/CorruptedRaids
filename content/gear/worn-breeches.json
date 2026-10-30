@@ -2,16 +2,16 @@
   "id": "worn-breeches",
   "name": "Worn Breeches",
   "slot": "bottom",
+  "tags": [],
   "rarity": "common",
+  "requires": {},
   "statMods": {
     "hp": 2,
     "skill": 1
   },
-  "description": "Worn Breeches. Taken, not given.",
-  "tags": [],
+  "description": "Kinda Shit",
   "spriteByBody": {
     "male": "male-t1",
     "female": "female-t1"
-  },
-  "requires": {}
+  }
 }

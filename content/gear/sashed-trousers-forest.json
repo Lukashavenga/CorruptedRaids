@@ -1,0 +1,22 @@
+{
+  "id": "sashed-trousers-forest",
+  "name": "Forest Sashed Trousers",
+  "slot": "bottom",
+  "tags": [
+    "variant-of:sashed-trousers"
+  ],
+  "rarity": "uncommon",
+  "requires": {},
+  "statMods": {
+    "hp": 2,
+    "atk": 1,
+    "spd": 5,
+    "skill": 2
+  },
+  "description": "Good at running away from crimes",
+  "enabled": false,
+  "spriteByBody": {
+    "male": "male-t2-forest",
+    "female": "female-t2-forest"
+  }
+}

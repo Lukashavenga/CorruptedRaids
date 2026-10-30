@@ -450,7 +450,7 @@ side of a clock change, the casualty, sim and tie rules, and the raid rule.
 
 `content/` holds JSON, validated at load by `src/engine/content/schemas.ts`:
 
-    content/gear/          119 pieces
+    content/gear/          162 pieces (35 of them material variants)
     content/dungeons/        5   (a place AND the fight in it)
     content/consumables/     4
     content/raids/           1   (rooms, plus the authored path through them)
@@ -1107,8 +1107,19 @@ There is no live generator. Assets are sliced from sheets the artist supplies.
     npm run slice      sheets → gear / hands / encounter sprites
     npm run slice:ui   art/reference/assets Mute.png → art/ui/*.png
     npm run gen:font   the bitmap display font
+    npm run recolour:gear    material variants of existing gear (below)
     npm run import:outfits   art/New Assets/outfits → a top + bottoms per body,
                              placed, with gear files (art/templates/outfit-brief.md)
+
+**Material variants are re-dyes, not new art.** `npm run recolour:gear`
+(`scripts/recolour-gear.py`) makes a Crimson / Gilded / Blackened steel piece, a
+Tanned / Black leather one, or a Forest / Black cloth one from an existing item:
+each base names which colour range is its steel, leather or dye, and only that
+range is moved onto a palette ramp, ranked by brightness so the shading
+survives. Variants copy the base's stats and placement, carry a
+`variant-of:<base>` tag, and are written switched off. Build them from the
+ERASED sprites (`--sprite-base`, the bucket's URL) or the eraser's work is
+undone on every variant, and from the live store's placements and gear.
 
 **Outfits are drawn ON the template, and that is what makes them fit.**
 `art/templates/outfit-template.png` is the game's two bodies at exactly 2x,
