@@ -47,6 +47,8 @@ const ALLOWED = new Set<GameCommand["type"]>([
   "allocate_many",
   "respec",
   "set_role",
+  // Gathering-only (the game server refuses it elsewhere) and touches only the caller.
+  "switch_role",
   "set_appearance",
   // Cosmetic: which equipped slots are drawn. Stats are untouched.
   "set_hidden_slots",

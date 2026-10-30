@@ -304,6 +304,34 @@ console.log(`character view renders: corruption ${view.corruption}, ${view.stats
   console.log(`transmog: ${keep!.id} looks like ${lookA!.id} for ${cost}g, keeps its stats; refusals change nothing ("${broke}")`);
 }
 
+// --- a build per role, across requests --------------------------------------
+// The loadout's set_role is the one that matters here: each request builds a
+// fresh engine from the stored row, so the saved build has to ride on the
+// Character itself. switch_role belongs to a gathering party, which the
+// function never has, so it must be refused rather than join anyone.
+{
+  const owner = "twitch:builds-edge";
+  let e = seed(null);
+  e.dispatch({ type: "ensure_character", requestedBy: owner, displayName: "Builds", role: "dps" });
+  const c = e.roster.get(owner)!;
+  c.unspentPoints = 5;
+  e = seed(c);
+  e.dispatch({ type: "allocate_many", requestedBy: owner, points: { atk: 5 } });
+  assert.ok(e.dispatch({ type: "set_role", requestedBy: owner, role: "tank" }).ok);
+  e.dispatch({ type: "respec", requestedBy: owner });
+  e.dispatch({ type: "allocate_many", requestedBy: owner, points: { hp: 2 } });
+
+  // The next request sees only what was written back.
+  const stored = JSON.parse(JSON.stringify(e.roster.get(owner)!)) as Character;
+  e = seed(stored);
+  assert.ok(e.dispatch({ type: "set_role", requestedBy: owner, role: "dps" }).ok);
+  assert.equal(e.roster.get(owner)!.allocated.atk, 5, "the DPS build survived a round trip through the stored row");
+  assert.equal(e.roster.get(owner)!.unspentPoints, 0,"the unspent pool is the earned total less this build");
+  const refused = e.dispatch({ type: "switch_role", requestedBy: owner, role: "tank" });
+  assert.equal(refused.ok, false, "a role switch with no party gathering is refused");
+  console.log(`role builds survive requests; switch_role without a party: "${refused.message}"`);
+}
+
 // --- one engine per request, and it must not leak ---------------------------
 const other = seed(null);
 assert.equal(other.roster.get(VIEWER), undefined, "a fresh engine holds nobody else's character");

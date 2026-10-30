@@ -320,6 +320,25 @@ receive - so `composeCharacter.ts` needed no change, because it is handed
 sprite ids rather than gear. `parseRoster` rebuilds instances field by field,
 so `look` is named there; `npm run test:store` proves it survives a save.
 
+### A saved build per role
+
+`Character.builds` holds, per role, a spread of points and the INSTANCE ids worn.
+The live `allocated`/`equipment` are the active role's build; `switchRole`
+(`character.ts`) saves them under the role being left and applies the entered
+role's. A role with no saved build keeps what is worn and spent, so clicking an
+unused role strips nobody. The earned total (`spent + unspent`) never changes:
+the entered build is spent out of it and the rest is unspent. Gear that is gone,
+the wrong slot, or fails `gearUsableBy` against the build's own allocation leaves
+its slot empty rather than failing the switch.
+
+`set_role` (loadout) and `switch_role` (gathering party, chat) share it, and
+`join_dungeon` with a role switches an existing character too. `!jTank/!jHeal/!jDPS`
+and `!sTank/!sHeal/!sDPS` are shortcuts for those. **A switch before joining is
+answered "join first", it does not join** - a stray `!sTank` should not put a
+viewer in a fight. `switch_role` is refused outside `gathering` (controller) and
+is a viewer command, so it is in the `character` allowlist and not in
+`OPERATOR_COMMANDS`; the function never has a party, so there it is always refused.
+
 ### The standalone overlay
 
 `npm run build:sim` (`vite build --mode standalone`, into `.pages/`) is the

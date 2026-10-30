@@ -61,6 +61,7 @@ export function viewerId(userId: string): string {
 /** Chat can reach exactly these. Everything else needs the operator. */
 export type ChatCommand =
   | { kind: "join"; command: GameCommand }
+  | { kind: "switch"; command: GameCommand }
   | { kind: "vote"; direction: PathDirection };
 
 export interface ChatLine {
@@ -113,6 +114,13 @@ const DIRECTIONS: Record<string, PathDirection> = {
 /** Roles a viewer may pick on the way in, matching Role in the engine. */
 const ROLES = new Set(["tank", "healer", "dps"]);
 
+const SHORTCUTS: Record<string, { verb: "j" | "s"; role: "tank" | "healer" | "dps" }> = {};
+for (const verb of ["j", "s"] as const) {
+  SHORTCUTS[`${verb}tank`] = { verb, role: "tank" };
+  SHORTCUTS[`${verb}heal`] = { verb, role: "healer" };
+  SHORTCUTS[`${verb}dps`] = { verb, role: "dps" };
+}
+
 /**
  * Turns one chat line into a command, or null if it was not for us.
  *
@@ -128,6 +136,26 @@ export function parseChatLine(line: ChatLine): ChatCommand | null {
   if (!word) return null;
 
   const requestedBy = viewerId(line.userId);
+
+  // `!jTank` / `!jHeal` / `!jDPS` join, `!sTank` / `!sHeal` / `!sDPS` switch.
+  // Shortcuts for `!join <role>`: the same commands, in one word. A switch by
+  // someone who has not joined is answered "join first" by the engine rather
+  // than joining them.
+  const shortcut = SHORTCUTS[word];
+  if (shortcut) {
+    return {
+      kind: shortcut.verb === "j" ? "join" : "switch",
+      command:
+        shortcut.verb === "j"
+          ? {
+              type: "join_dungeon",
+              requestedBy,
+              displayName: line.userName?.trim() || line.userId,
+              role: shortcut.role,
+            }
+          : { type: "switch_role", requestedBy, role: shortcut.role },
+    };
+  }
 
   if (word === "join") {
     const role = rest[0] && ROLES.has(rest[0]) ? (rest[0] as "tank" | "healer" | "dps") : undefined;

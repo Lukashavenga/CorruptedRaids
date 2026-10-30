@@ -18,7 +18,7 @@ import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
-import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
+import { buyGear, createCharacter, grantGear, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 import { dayKey, dungeoneerOf, recordSurvivals } from "../src/engine/dungeoneer.js";
 import { validateBalanceFile } from "../src/engine/content/schemas.js";
@@ -1042,6 +1042,86 @@ console.log(
   const fractional = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, atk: 0.5 } });
   assert.ok(!fractional.ok && snap() === before, "a non-integer amount is refused and changes nothing");
   console.log("allocate_many: a valid batch applies; over-budget, bad-stat and fractional batches change nothing.");
+}
+
+// --- a saved build per role --------------------------------------------------
+{
+  const e = new GameEngine(content, mulberry32(11));
+  const id = "twitch:builds";
+  e.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  assert.ok(!e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok, "a switch before joining is refused, not a join");
+  assert.ok(!e.roster.has(id) && e.partyIds.length === 0, "...and does not put anyone in the party");
+  e.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Builds", role: "dps" });
+  const c = e.roster.get(id)!;
+  c.unspentPoints = 10;
+
+  // DPS build: 6 atk, a helmet on.
+  e.dispatch({ type: "allocate_many", requestedBy: id, points: { atk: 6 } });
+  const helm = c.inventory.find((g) => content.getGear(g.gearId).slot === "head" && Object.keys(content.getGear(g.gearId).requires).length === 0)!;
+  assert.ok(e.dispatch({ type: "equip_gear", requestedBy: id, instanceId: helm.instanceId }).ok, "the check needs a helmet on");
+
+  // Tank: nothing saved yet, so it inherits what is worn and spent.
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok);
+  assert.equal(c.role, "tank");
+  assert.equal(c.allocated.atk, 6, "a role with no saved build keeps what was spent");
+  assert.equal(c.equipment.head?.instanceId, helm.instanceId, "...and what is worn");
+
+  // Rebuild the tank: respec, 4 into hp, helmet off.
+  e.dispatch({ type: "respec", requestedBy: id });
+  e.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 4 } });
+  e.dispatch({ type: "unequip_gear", requestedBy: id, slot: "head" });
+  const total = c.unspentPoints + 4;
+  assert.equal(total, 10);
+
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" }).ok);
+  assert.deepEqual(c.allocated, { hp: 0, atk: 6, skill: 0, spd: 0 }, "DPS gets its own spread back");
+  assert.equal(c.unspentPoints, 4, "the earned total is unchanged: unspent is whatever the build leaves");
+  assert.equal(c.equipment.head?.instanceId, helm.instanceId, "DPS gets its helmet back");
+
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok);
+  assert.deepEqual(c.allocated, { hp: 4, atk: 0, skill: 0, spd: 0 });
+  assert.equal(c.equipment.head, undefined, "the tank build had no helmet");
+  assert.ok(c.inventory.some((g) => g.instanceId === helm.instanceId), "...and the helmet is in the bag");
+
+  // A recycled item leaves its slot empty rather than failing the switch.
+  e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" });
+  e.dispatch({ type: "unequip_gear", requestedBy: id, slot: "head" });
+  e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+  c.builds!.dps!.equipment.head = helm.instanceId;
+  e.dispatch({ type: "recycle_gear", requestedBy: id, instanceId: helm.instanceId });
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" }).ok, "a build naming a recycled item still applies");
+  assert.equal(c.equipment.head, undefined, "...with that slot empty");
+
+  // Gates are re-checked against the build's own allocation.
+  const gated = content.listGear().find((g) => Object.keys(g.requires).length > 0 && g.enabled !== false)!;
+  const [stat, needed] = Object.entries(gated.requires)[0] as [keyof typeof c.allocated, number];
+  const gi = grantGear(c, gated.id);
+  c.builds!.tank!.equipment[gated.slot] = gi.instanceId;
+  c.allocated[stat] = 0;
+  e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+  assert.ok(c.allocated[stat] < needed ? c.equipment[gated.slot]?.instanceId !== gi.instanceId : true, "gear the build cannot wear is left in the bag");
+
+  // Joining as a role switches an existing character and applies its build.
+  e.dispatch({ type: "reset_dungeon" });
+  e.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  c.role = "dps";
+  assert.ok(e.dispatch({ type: "join_dungeon", requestedBy: id, role: "healer" }).ok);
+  assert.equal(c.role, "healer", "joining as a role switches an existing character to it");
+  console.log("Role builds: saved per role, restored on switch, missing gear empties its slot, a pre-join switch is refused.");
+}
+
+// --- chat shortcuts ------------------------------------------------------------
+{
+  for (const [word, role] of [["jTank", "tank"], ["JHEAL", "healer"], ["jDPS", "dps"]] as const) {
+    const p = parseChatLine({ userId: "9", userName: "Z", message: `!${word}` });
+    assert.ok(p?.kind === "join" && p.command.type === "join_dungeon" && p.command.role === role, `!${word} joins as ${role}`);
+  }
+  for (const [word, role] of [["sTank", "tank"], ["SHEAL", "healer"], ["sdps", "dps"]] as const) {
+    const p = parseChatLine({ userId: "9", message: `!${word}` });
+    assert.ok(p?.kind === "switch" && p.command.type === "switch_role" && p.command.role === role, `!${word} switches to ${role}`);
+    assert.equal(p.command.requestedBy, "twitch:9");
+  }
+  console.log("Chat: !jTank/!jHeal/!jDPS join and !sTank/!sHeal/!sDPS switch, case-insensitively.");
 }
 
 // --- reset returns to idle ---------------------------------------------------
