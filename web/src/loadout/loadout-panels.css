@@ -1318,7 +1318,13 @@
   color: var(--ink-dim);
 }
 .shop-rarity { color: var(--r-text); font-weight: 700; }
-.shop-card-desc { font-size: 12px; color: var(--ink-body); }
+.shop-card-desc { font-size: 12px; color: var(--ink-body); font-style: italic; }
+
+/* An item's flavour line, wherever an item is picked: the bag's detail strip
+   and the slot picker. Italic and quieter than the stats, because it is the
+   item's voice rather than its numbers - the numbers are what a player is
+   deciding on, the line is what makes it that item. */
+.item-desc { font-size: 12px; font-style: italic; color: var(--ink-body); line-height: 1.3; }
 
 .shop-stats { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
 .shop-stat {

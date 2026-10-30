@@ -270,6 +270,7 @@ export function InventoryGrid({
               {selected.item.source && ` · ${text.gear.source[selected.item.source]}`}
             </span>
             <span className="slot-mods">{statLine(selected.def)}</span>
+            {selected.def.description && <span className="item-desc">{selected.def.description}</span>}
             {selected.item.look && catalog.gearById.get(selected.item.look) && (
               <span className="bag-sub">
                 {format(text.shop.transmogLooksLike, { name: catalog.gearById.get(selected.item.look)!.name })}

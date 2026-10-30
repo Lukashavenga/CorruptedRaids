@@ -273,6 +273,7 @@ export function EquipmentDoll({
               <span className="bag-info">
                 <span className="slot-name">{wornDef.name}</span>
                 <span className="slot-mods">{statLine(wornDef)}</span>
+                {wornDef.description && <span className="item-desc">{wornDef.description}</span>}
                 {worn?.look && catalog.gearById.get(worn.look) && (
                   <span className="bag-sub">
                     {format(text.shop.transmogLooksLike, { name: catalog.gearById.get(worn.look)!.name })}
@@ -344,6 +345,7 @@ export function EquipmentDoll({
                     <span className="bag-info">
                       <span className="slot-name">{def.name}</span>
                       <span className="slot-mods">{statLine(def)}</span>
+                      {def.description && <span className="item-desc">{def.description}</span>}
                     </span>
                     <button
                       type="button"
