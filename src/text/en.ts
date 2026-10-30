@@ -574,6 +574,20 @@ export const en = {
     recycleDone: "Done",
     recycleNone: "Pick what to scrap",
     recycleCount: "{count} marked · {gold}g",
+    /* Transmog: an item takes another's look and keeps its own stats. */
+    transmog: "Transmog",
+    transmogHeading: "Transmog {name}",
+    transmogged: "Transmogrified for {gold}g.",
+    transmogReverted: "Original look restored.",
+    transmogRevert: "Restore look",
+    transmogBack: "Back",
+    transmogPick: "Pick the item whose look you want. It will be used up.",
+    transmogNone: "Nothing in the bag can lend this slot a look.",
+    transmogCost: "Costs {cost}g · you have {gold}g",
+    transmogShort: "Costs {cost}g · you have only {gold}g",
+    transmogConfirm: "Transmog · {gold}g",
+    transmogWarn: "{name} will be destroyed. {target} keeps its own stats. Restoring the look later is free, but {name} does not come back.",
+    transmogLooksLike: "Looks like {name}",
     use: "Use",
     used: "Used.",
     usedXp: "+{xp} XP.",
@@ -586,6 +600,21 @@ export const en = {
   },
 
   /** Raid-specific copy: doors, buffs, the boss. */
+  /*
+   * Transmog refusals, worded for the player who tapped the button. The engine
+   * returns these as-is, so the loadout shows exactly why nothing happened.
+   */
+  transmog: {
+    self: "An item cannot take its own look.",
+    notOwned: "You don't own that item.",
+    donorEquipped: "Take that item off first - a worn item is never consumed.",
+    otherSlot: "Only items for the same slot can share a look.",
+    sameItem: "That is the same item. Restore its look instead - that is free.",
+    alreadyLooks: "It already looks like that.",
+    wrongBody: "{name} is not cut for your body.",
+    cannotAfford: "Costs {cost}g - you have {gold}g.",
+    notTransmogged: "It already looks like itself.",
+  },
   raid: {
     door: { left: "Left", up: "Ahead", right: "Right" },
     prompt: "Choose a path",
@@ -749,6 +778,7 @@ export const en = {
     cannotEquip: "Could not equip.",
     cannotAllocate: "Could not spend points.",
     cannotRecycle: "Could not recycle that.",
+    cannotTransmog: "Could not change that item's look.",
     cannotBuy: "Could not buy that.",
     cannotUse: "Could not use that.",
     unknownConsumable: 'No such consumable "{id}"',

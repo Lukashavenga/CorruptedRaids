@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CharacterSprite } from "../components/CharacterSprite.js";
 import { SlotIcon, slotTileUrl } from "./SlotIcon.js";
 import { ItemIcon } from "./ItemIcon.js";
+import { TransmogFlow } from "./TransmogFlow.js";
 import { STAT_KEYS, type GearDefinition, type GearSlot } from "../../../src/engine/types.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import type { PlacementFile } from "../../../src/character/layers.js";
-import { spriteForGear } from "../sprites.js";
+import { spriteForInstance } from "../sprites.js";
 import type { ContentCatalog } from "../hooks/useContentCatalog.js";
 import { text, format } from "../../../src/text/index.js";
 
@@ -19,6 +20,9 @@ export interface EquipmentDollProps {
   /** Slots equipped but hidden from view — see the show/hide toggles. */
   hiddenSlots: readonly GearSlot[];
   onToggleHidden: (slot: GearSlot) => void;
+  /** Gives the worn item another's look; the donor in the bag is destroyed. */
+  onTransmog: (targetInstanceId: string, lookInstanceId: string) => void;
+  onRevertTransmog: (instanceId: string) => void;
 }
 
 /**
@@ -63,8 +67,14 @@ export function EquipmentDoll({
   placements,
   hiddenSlots,
   onToggleHidden,
+  onTransmog,
+  onRevertTransmog,
 }: EquipmentDollProps): JSX.Element {
   const [picking, setPicking] = useState<GearSlot | null>(null);
+  // Transmogging what is in the socket being picked for. Reset whenever the
+  // picker moves to another slot, so a half-made choice cannot follow it.
+  const [transmogging, setTransmogging] = useState(false);
+  useEffect(() => setTransmogging(false), [picking]);
 
   /*
    * Bring the list to the player.
@@ -88,7 +98,7 @@ export function EquipmentDoll({
     const out: Partial<Record<GearSlot, string>> = {};
     for (const [slot, item] of Object.entries(character.equipment)) {
       if (!item) continue;
-      const sprite = spriteForGear(catalog.gearById.get(item.gearId), character.appearance.bodyType);
+      const sprite = spriteForInstance(item, catalog.gearById, character.appearance.bodyType);
       if (sprite) out[slot as GearSlot] = sprite;
     }
     return out;
@@ -130,6 +140,8 @@ export function EquipmentDoll({
   const socket = (slot: GearSlot) => {
     const item = character.equipment[slot];
     const def = item ? catalog.gearById.get(item.gearId) : undefined;
+    // The icon shows the look; the name and stats everywhere stay the item's own.
+    const lookDef = item?.look ? catalog.gearById.get(item.look) : undefined;
     const label = text.gear.slot[slot];
     const tile = slotTileUrl(slot);
 
@@ -148,11 +160,17 @@ export function EquipmentDoll({
             disabled={busy}
             onClick={() => setPicking(picking === slot ? null : slot)}
             aria-expanded={picking === slot}
-            title={def ? def.name : `${label} - ${text.gear.empty}`}
+            title={
+              def
+                ? lookDef
+                  ? `${def.name} - ${format(text.shop.transmogLooksLike, { name: lookDef.name })}`
+                  : def.name
+                : `${label} - ${text.gear.empty}`
+            }
             aria-label={def ? `${label}: ${def.name}` : `${label}: ${text.gear.empty}`}
           >
             {def ? (
-              <ItemIcon def={def} slot={slot} bodyType={character.appearance.bodyType} size={40} alt={def.name} />
+              <ItemIcon def={def} look={lookDef} slot={slot} bodyType={character.appearance.bodyType} size={40} alt={def.name} />
             ) : tile ? (
               /* The tile IS the socket — cell frame and mark in one drawing —
                  so it fills the box rather than sitting inside it. */
@@ -245,10 +263,21 @@ export function EquipmentDoll({
 
           {wornDef && (
             <div className={`slot-row is-worn rarity-${wornDef.rarity}`}>
-              <ItemIcon def={wornDef} slot={picking} bodyType={character.appearance.bodyType} size={34} />
+              <ItemIcon
+                def={wornDef}
+                look={worn?.look ? catalog.gearById.get(worn.look) : undefined}
+                slot={picking}
+                bodyType={character.appearance.bodyType}
+                size={34}
+              />
               <span className="bag-info">
                 <span className="slot-name">{wornDef.name}</span>
                 <span className="slot-mods">{statLine(wornDef)}</span>
+                {worn?.look && catalog.gearById.get(worn.look) && (
+                  <span className="bag-sub">
+                    {format(text.shop.transmogLooksLike, { name: catalog.gearById.get(worn.look)!.name })}
+                  </span>
+                )}
               </span>
               <div className="slot-row-actions">
                 {/* The same toggle as the dot on the socket, spelled out. The
@@ -267,8 +296,40 @@ export function EquipmentDoll({
                 <button type="button" className="ghost small" disabled={busy} onClick={() => onUnequip(picking)}>
                   {text.gear.unequip}
                 </button>
+                {/* The worn item is the one a player most wants to restyle, so
+                    it can be done here without taking it off first. */}
+                <button
+                  type="button"
+                  className="ghost small"
+                  disabled={busy}
+                  aria-pressed={transmogging}
+                  onClick={() => setTransmogging((open) => !open)}
+                >
+                  {text.shop.transmog}
+                </button>
+                {worn?.look && (
+                  <button type="button" className="ghost small" disabled={busy} onClick={() => onRevertTransmog(worn.instanceId)}>
+                    {text.shop.transmogRevert}
+                  </button>
+                )}
               </div>
             </div>
+          )}
+
+          {worn && wornDef && transmogging && (
+            <TransmogFlow
+              character={character}
+              catalog={catalog}
+              placements={placements}
+              target={worn}
+              targetDef={wornDef}
+              busy={busy}
+              onConfirm={(targetId, lookInstanceId) => {
+                onTransmog(targetId, lookInstanceId);
+                setTransmogging(false);
+              }}
+              onCancel={() => setTransmogging(false)}
+            />
           )}
 
           {candidates.length === 0 ? (
@@ -279,7 +340,7 @@ export function EquipmentDoll({
                 const locked = lockReason(def);
                 return (
                   <li key={item.instanceId} className={`slot-row rarity-${def.rarity}`}>
-                    <ItemIcon def={def} slot={def.slot} bodyType={character.appearance.bodyType} size={34} />
+                    <ItemIcon def={def} look={item.look ? catalog.gearById.get(item.look) : undefined} slot={def.slot} bodyType={character.appearance.bodyType} size={34} />
                     <span className="bag-info">
                       <span className="slot-name">{def.name}</span>
                       <span className="slot-mods">{statLine(def)}</span>

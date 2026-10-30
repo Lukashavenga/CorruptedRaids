@@ -33,6 +33,16 @@ export interface PlaybackState {
   floats: FloatingNumber[];
   poses: Record<string, Motion>;
   downed: Record<string, boolean>;
+  /**
+   * combatantId -> the sequence number of the last hit that landed on it.
+   *
+   * A sequence number rather than a timestamp: it is the event's place in the
+   * log, so two hits that land in the same frame still have an order, and the
+   * order is the fight's rather than the browser's timer jitter. Written by
+   * DAMAGE only - a heal would make every healer's favourite target hop to the
+   * front of the roster on every cast. Empty outside a replay.
+   */
+  lastDamaged: Record<string, number>;
   /** Both sides' opening state for the fight being replayed — the overlay builds its panels from this. */
   combatants: CombatantSnapshot[];
   outcome: CombatOutcome | null;
@@ -80,6 +90,7 @@ const IDLE: PlaybackState = {
   floats: [],
   poses: {},
   downed: {},
+  lastDamaged: {},
   combatants: [],
   outcome: null,
   action: null,
@@ -213,6 +224,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       floats: [],
       poses: {},
       downed: {},
+      lastDamaged: {},
       combatants: combat.combatants,
       outcome: null,
       action: null,
@@ -292,6 +304,9 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
     };
 
     let delay = REPLAY_LEAD_IN_MS;
+    // Counts hits in log order for `lastDamaged`. Assigned while scheduling,
+    // so the number is fixed by the log and not by when a timer happened to fire.
+    let hitSeq = 0;
     // The beats, not the raw log: `tick` is already gone, a long fight's beats
     // are already shortened, and a big party's rewards are already grouped.
     // Each beat's `ms` is its whole cost, so the replay ends exactly when the
@@ -318,6 +333,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
           const party = nameOf(incoming ? event.targetId : event.actorId);
           const enemy = nameOf(incoming ? event.actorId : event.targetId);
           announce(when, { kind: "attack", actorId: event.actorId, targetId: event.targetId, crit: event.crit });
+          const seq = (hitSeq += 1);
           at(when, () => {
             pushLine(
               format(incoming ? text.combatLog.attackIn : text.combatLog.attackOut, {
@@ -327,7 +343,11 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
               }),
               event.crit ? "crit" : undefined,
             );
-            setPlayback((p) => ({ ...p, hp: { ...p.hp, [event.targetId]: event.targetHpAfter } }));
+            setPlayback((p) => ({
+              ...p,
+              hp: { ...p.hp, [event.targetId]: event.targetHpAfter },
+              lastDamaged: { ...p.lastDamaged, [event.targetId]: seq },
+            }));
             pulse(event.targetId, event.crit ? "flash" : "shake");
             floatNumber(event.targetId, `-${event.damage}`, event.crit ? "crit" : "damage");
             posePulse(event.actorId, "attack");

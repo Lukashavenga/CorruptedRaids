@@ -302,6 +302,24 @@ cannot be bought hosted, because the function's engine only knows the gear
 that was bundled. Stock such an item and the live shop falls back to the
 bundled one, with a log line saying why.
 
+### Transmog: a look is a gear id on the instance
+
+`GearInstance.look` names the gear whose DRAWING an instance wears; stats,
+rarity, gates and recycle value stay the item's own. `transmog_gear` (viewer
+command, in the `character` function's allowlist) sets it by CONSUMING a
+carried item of the same slot, for `economy.transmogCostByRarity` of the item
+KEEPING its stats (decided on #23 - the donor's rarity does not matter).
+`revert_transmog` is free and returns nothing. Refused, and nothing changes:
+a worn donor, another slot, a copy of the item itself (Restore does that for
+free), a look not cut for the wearer's body, or not enough gold.
+
+Which sprite an instance draws is decided once, in `spriteForInstance` /
+`spriteForLook` (`web/src/sprites.ts`), and everything that draws gear asks
+there: the doll, bag icons, and `App.tsx`'s layer map, which both overlays
+receive - so `composeCharacter.ts` needed no change, because it is handed
+sprite ids rather than gear. `parseRoster` rebuilds instances field by field,
+so `look` is named there; `npm run test:store` proves it survives a save.
+
 ### The standalone overlay
 
 `npm run build:sim` (`vite build --mode standalone`, into `.pages/`) is the

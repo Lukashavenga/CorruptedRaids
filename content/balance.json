@@ -39,7 +39,7 @@
     "maxTicksPerCombatant": 20
   },
   "economy": {
-    "_comment": "recycleRate is what SHOP-BOUGHT gear sells back for (1 = full refund, so trying an item costs nothing). lootRecycleRate is everything else - chest drops, the starter kit, operator grants, and any item owned before gear remembered where it came from. See src/engine/balance.ts.",
+    "_comment": "recycleRate is what SHOP-BOUGHT gear sells back for (1 = full refund, so trying an item costs nothing). lootRecycleRate is everything else - chest drops, the starter kit, operator grants, and any item owned before gear remembered where it came from. transmogCostByRarity is the gold to give an item another's look, by the rarity of the item KEEPING its stats (#23); a first guess, to be tuned against gold per run. See src/engine/balance.ts.",
     "recycleRate": 1,
     "startingGold": 60,
     "valueByRarity": {
@@ -49,7 +49,14 @@
       "uncommon": 45,
       "legendary": 600
     },
-    "lootRecycleRate": 0.1
+    "lootRecycleRate": 0.1,
+    "transmogCostByRarity": {
+      "common": 10,
+      "uncommon": 25,
+      "rare": 60,
+      "epic": 150,
+      "legendary": 350
+    }
   },
   "healing": {
     "base": 2,

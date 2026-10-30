@@ -22,7 +22,7 @@ import type { Character } from "../src/engine/types.js";
 import { SupabaseRosterStore } from "../src/engine/persistence/supabaseRosterStore.js";
 import { parseRoster } from "../src/engine/persistence/rosterStore.js";
 import { ContentRegistry } from "../src/engine/content/loader.js";
-import { buyGear, equipGear, gearUsableBy, grantGear, recycleGear, unequipGear } from "../src/engine/character.js";
+import { buyGear, equipGear, gearUsableBy, grantGear, recycleGear, revertTransmog, transmogGear, unequipGear } from "../src/engine/character.js";
 
 interface Received {
   method: string;
@@ -365,6 +365,45 @@ line();
     `recycled: bought ${wornId} ${price(wornId)}g of ${price(wornId)}g, ` +
       `found ${carriedId} ${content.recycleValue(carriedId, "loot")}g of ${price(carriedId)}g`,
   );
+}
+
+// --- a transmogged item keeps its look across a save ------------------------
+// parseRoster rebuilds instances field by field, so `look` is lost unless it is
+// named there. Worn and carried are both checked, like `source` above, and the
+// stats must not have moved.
+line();
+{
+  const CONTENT_DIR = join(import.meta.dirname, "..", "content");
+  const content = new ContentRegistry();
+  content.loadGearDir(join(CONTENT_DIR, "gear"));
+  content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
+  content.loadBalance(join(CONTENT_DIR, "balance.json"));
+
+  const dave = character("twitch:444", 10_000);
+  const all = content.listGear();
+  const a = all.find((g) => gearUsableBy(g, dave).ok)!;
+  const b = all.find((g) => g.slot === a.slot && g.id !== a.id)!;
+  const c = all.find((g) => g.slot === a.slot && g.id !== a.id && g.id !== b.id)!;
+  const target = grantGear(dave, a.id);
+  assert.ok(equipGear(dave, target.instanceId, content).ok, "wore the target");
+  const carriedTarget = grantGear(dave, a.id);
+  const goldBefore = dave.gold;
+  const first = transmogGear(dave, target.instanceId, grantGear(dave, b.id).instanceId, content);
+  assert.ok(first.ok, `transmog worn: ${first.reason}`);
+  assert.equal(first.cost, content.transmogCost(a.id), "priced by the item keeping its stats");
+  assert.equal(dave.gold, goldBefore - content.transmogCost(a.id));
+  assert.ok(transmogGear(dave, carriedTarget.instanceId, grantGear(dave, c.id).instanceId, content).ok, "transmog carried");
+
+  await store.save([dave]);
+  const back = (await new SupabaseRosterStore(`http://127.0.0.1:${port}`, "service-key").load()).find(
+    (x) => x.id === dave.id,
+  )!;
+  assert.equal(back.equipment[a.slot]?.look, b.id, "a WORN look survives a load");
+  assert.equal(back.equipment[a.slot]?.gearId, a.id, "and the item is still itself");
+  assert.equal(back.inventory.find((i) => i.instanceId === carriedTarget.instanceId)?.look, c.id, "a carried look survives");
+  assert.ok(revertTransmog(back, target.instanceId).ok);
+  assert.equal(back.equipment[a.slot]?.look, undefined, "reverting clears it");
+  console.log(`after a load: worn ${a.id} looks like ${b.id}, carried looks like ${c.id}; revert clears it`);
 }
 
 server.close();

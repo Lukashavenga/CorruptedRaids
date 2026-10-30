@@ -743,5 +743,22 @@ export function validateBalanceFile(raw: unknown, file: string): Record<string, 
       fail(file, `"dungeoneer.resetHour" must be a whole hour from 0 to 23`);
     }
   }
+  const transmog = (raw as any).economy?.transmogCostByRarity;
+  if (transmog !== undefined) {
+    // Merged per key over the defaults, so a partial table is fine; what is not
+    // fine is a price that is negative (a transmog that PAYS - consume junk,
+    // print gold) or fractional (the purse is whole gold everywhere else).
+    if (typeof transmog !== "object" || transmog === null || Array.isArray(transmog)) {
+      fail(file, `"economy.transmogCostByRarity" must be an object`);
+    }
+    for (const [rarity, cost] of Object.entries(transmog as Record<string, unknown>)) {
+      if (!RARITIES.includes(rarity as Rarity)) {
+        fail(file, `"economy.transmogCostByRarity.${rarity}" is not a rarity (${RARITIES.join(", ")})`);
+      }
+      if (!Number.isInteger(cost) || (cost as number) < 0) {
+        fail(file, `"economy.transmogCostByRarity.${rarity}" must be a whole number of gold, 0 or more`);
+      }
+    }
+  }
   return raw as Record<string, unknown>;
 }

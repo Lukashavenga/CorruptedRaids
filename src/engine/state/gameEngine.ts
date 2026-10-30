@@ -38,6 +38,8 @@ import {
   grantChest,
   openChest,
   recycleGear,
+  revertTransmog,
+  transmogGear,
   useConsumable,
   baseStatsFor,
   createCharacter,
@@ -107,7 +109,8 @@ export interface PartyMemberView {
   role: Role;
   stats: Stats;
   appearance: CharacterAppearance;
-  equipment: Record<string, { instanceId: string; gearId: string; gearName: string } | null>;
+  /** `look` is the gear id whose drawing the item wears (transmog); absent means its own. */
+  equipment: Record<string, { instanceId: string; gearId: string; gearName: string; look?: string } | null>;
   /** Equipped but not drawn - the overlay leaves these layers off the figure. */
   hiddenSlots: GearSlot[];
 }
@@ -156,12 +159,21 @@ export interface CharacterView {
   appearanceChosen: boolean;
   /** Equipped slots the player has chosen not to have drawn. */
   hiddenSlots: GearSlot[];
-  equipment: Partial<Record<GearSlot, { instanceId: string; gearId: string } | null>>;
+  equipment: Partial<Record<GearSlot, { instanceId: string; gearId: string; look?: string; transmogCost: number } | null>>;
   /**
    * `source` is always present here, unlike on GearInstance: an instance
    * with none is reported as "loot", which is what it is paid as.
    */
-  inventory: { instanceId: string; gearId: string; source: GearSource; recycleValue: number }[];
+  inventory: {
+    instanceId: string;
+    gearId: string;
+    source: GearSource;
+    recycleValue: number;
+    /** Gear id whose drawing it wears, if transmogged. */
+    look?: string;
+    /** Gold to give this item another's look - priced server-side like recycleValue. */
+    transmogCost: number;
+  }[];
   /**
    * Unopened drops, newest first.
    *
@@ -869,6 +881,36 @@ export class GameEngine extends EventEmitter {
         };
       }
 
+      case "transmog_gear": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        // Read before the transmog: the item keeping its stats is what set the
+        // price, so it is the gear (and rarity) the economy row is about.
+        const target =
+          Object.values(character.equipment).find((g) => g?.instanceId === command.targetInstanceId) ??
+          character.inventory.find((i) => i.instanceId === command.targetInstanceId);
+        const result = transmogGear(character, command.targetInstanceId, command.lookInstanceId, this.content);
+        return {
+          ok: result.ok,
+          message: result.ok ? format(text.shop.transmogged, { gold: result.cost ?? 0 }) : result.reason ?? text.errors.cannotTransmog,
+          ...(result.ok && target
+            ? {
+                economy: this.economyDraft(character.id, "transmog_gear", {
+                  gearId: target.gearId,
+                  goldDelta: -(result.cost ?? 0),
+                }),
+              }
+            : {}),
+        };
+      }
+
+      case "revert_transmog": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        const result = revertTransmog(character, command.instanceId);
+        return { ok: result.ok, message: result.ok ? text.shop.transmogReverted : result.reason ?? text.errors.cannotTransmog };
+      }
+
       case "buy_gear": {
         const character = this.roster.get(command.requestedBy);
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
@@ -967,7 +1009,12 @@ export class GameEngine extends EventEmitter {
     const equipment: PartyMemberView["equipment"] = {};
     for (const [slot, instance] of Object.entries(character.equipment)) {
       equipment[slot] = instance
-        ? { instanceId: instance.instanceId, gearId: instance.gearId, gearName: this.content.getGear(instance.gearId).name }
+        ? {
+            instanceId: instance.instanceId,
+            gearId: instance.gearId,
+            gearName: this.content.getGear(instance.gearId).name,
+            ...(instance.look ? { look: instance.look } : {}),
+          }
         : null;
     }
     return {
@@ -1122,7 +1169,14 @@ export class GameEngine extends EventEmitter {
     const equipment: CharacterView["equipment"] = {};
     for (const slot of GEAR_SLOTS) {
       const instance = character.equipment[slot];
-      equipment[slot] = instance ? { instanceId: instance.instanceId, gearId: instance.gearId } : null;
+      equipment[slot] = instance
+        ? {
+            instanceId: instance.instanceId,
+            gearId: instance.gearId,
+            ...(instance.look ? { look: instance.look } : {}),
+            transmogCost: this.content.transmogCost(instance.gearId),
+          }
+        : null;
     }
 
     return {
@@ -1151,6 +1205,8 @@ export class GameEngine extends EventEmitter {
         // reimplement the pricing rule and drift from it - which now depends
         // on where the item came from, not just what it is.
         recycleValue: this.content.recycleValue(i.gearId, i.source),
+        ...(i.look ? { look: i.look } : {}),
+        transmogCost: this.content.transmogCost(i.gearId),
       })),
       // Newest first: the chest you just earned is the one you came to open.
       // `gearId` is stripped here — see CharacterView.chests.

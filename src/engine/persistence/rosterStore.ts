@@ -182,6 +182,9 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
           instanceId: g.instanceId,
           gearId: g.gearId,
           ...(g.source === "shop" || g.source === "loot" ? { source: g.source } : {}),
+          // Rebuilt field by field like `source`: a transmogged item that came
+          // back from a save as its plain self would have eaten the gold.
+          ...(typeof g.look === "string" && g.look !== "" ? { look: g.look } : {}),
         }
       : null;
   const instances = (v: unknown): GearInstance[] =>
