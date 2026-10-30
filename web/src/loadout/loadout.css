@@ -741,6 +741,8 @@ body {
   font-size: 12px;
   color: var(--ink-body);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+  /* Tapping it dismisses it early. */
+  cursor: pointer;
 }
 
 /* --- a scrollbar that belongs to this game ------------------------------ */

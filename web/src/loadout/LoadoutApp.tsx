@@ -71,6 +71,9 @@ const NAV = [
 
 type Page = (typeof NAV)[number]["id"];
 
+/** How long a toast stays up, in ms. A refusal says why, so it gets longer to be read. */
+const TOAST_MS = { ok: 3500, refused: 6000 };
+
 export function LoadoutApp(): JSX.Element {
   const { character, loading, message, error, viewer, session, inRun, dispatch, reload } = useCharacter();
   // The bundle shipped with this build, not the game server's live `/content`
@@ -96,6 +99,8 @@ export function LoadoutApp(): JSX.Element {
   /** Whether the last command succeeded, and a counter so a repeat re-animates. */
   const [lastOk, setLastOk] = useState(true);
   const [toastSeq, setToastSeq] = useState(0);
+  /** Which toast has been dismissed - by its timer or a tap. See TOAST_MS. */
+  const [toastGoneSeq, setToastGoneSeq] = useState(0);
   // Which top-level screen is showing. The nav used to be four dead buttons;
   // this is the state that makes them go somewhere.
   const [page, setPage] = useState<Page>("loadout");
@@ -148,6 +153,16 @@ export function LoadoutApp(): JSX.Element {
     desktop.addEventListener("change", close);
     return () => desktop.removeEventListener("change", close);
   }, [menuOpen]);
+
+  // The message a command leaves was never cleared, so the last toast sat
+  // over the bottom of the page for as long as the tab stayed open - over the
+  // very list a player was scrolling. Each one now leaves on its own timer;
+  // a refusal stays longer because it is the one carrying an explanation.
+  useEffect(() => {
+    if (toastSeq === 0) return;
+    const timer = setTimeout(() => setToastGoneSeq(toastSeq), lastOk ? TOAST_MS.ok : TOAST_MS.refused);
+    return () => clearTimeout(timer);
+  }, [toastSeq, lastOk]);
 
   const run = async (command: Parameters<typeof dispatch>[0]) => {
     setBusy(true);
@@ -500,8 +515,13 @@ export function LoadoutApp(): JSX.Element {
             message is often the only confirmation, because haptics do nothing
             on iOS (see haptics.ts). `key` restarts the animation when the same
             message arrives twice. */}
-        {message && (
-          <p key={`${message}:${toastSeq}`} className={`toast ${lastOk ? "just-changed" : "just-refused"}`}>
+        {message && toastGoneSeq !== toastSeq && (
+          <p
+            key={`${message}:${toastSeq}`}
+            className={`toast ${lastOk ? "just-changed" : "just-refused"}`}
+            role="status"
+            onClick={() => setToastGoneSeq(toastSeq)}
+          >
             {message}
           </p>
         )}
