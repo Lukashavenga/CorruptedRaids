@@ -1490,6 +1490,27 @@
 }
 
 /* --- leaderboard ---------------------------------------------------------- */
+/* Today's Dungeoneer, above the table: the crown the overlay draws on a
+   roster chip, at three times the size, so it reads as the same title. */
+.board-dungeoneer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: radial-gradient(120% 120% at 0% 0%, rgba(226, 181, 112, 0.22), transparent 60%), var(--slab);
+  border: 2px solid #d9a24e;
+  border-radius: 4px;
+}
+.board-dungeoneer.is-empty { border-color: #4a4452; background: var(--slab); }
+.board-crown { flex: none; fill: #f6cf86; image-rendering: pixelated; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.8)); }
+.board-dungeoneer.is-empty .board-crown { fill: #6b6475; }
+.board-dungeoneer p { margin: 0; }
+.board-dungeoneer-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-dim); }
+.board-dungeoneer-name { font-size: 16px; font-weight: 700; color: #f6cf86; text-shadow: var(--edge); }
+.board-dungeoneer.is-empty .board-dungeoneer-name { font-size: 13px; font-weight: 400; color: var(--ink-body); }
+.board-dungeoneer-count { margin-left: 8px; font-family: var(--font-data); font-size: 12px; font-weight: 400; color: var(--ink-body); }
+
 .board {
   width: 100%;
   border-collapse: collapse;

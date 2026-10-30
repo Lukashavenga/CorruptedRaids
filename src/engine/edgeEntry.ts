@@ -12,6 +12,9 @@ export { GameEngine } from "./state/gameEngine.js";
 export { ContentRegistry } from "./content/loader.js";
 export type { GameCommand } from "./commands/types.js";
 export { memberPower } from "./partyStrength.js";
+// The leaderboard names today's Dungeoneer with the same rule the overlay
+// crowns them by, so the two can never disagree about who holds it.
+export { dayKey, dungeoneerOf } from "./dungeoneer.js";
 export type { Character, Role } from "./types.js";
 // The balance log's economy rows, which the loadout writes from here.
 export { economyRow } from "./balanceLog.js";
