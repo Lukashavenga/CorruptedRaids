@@ -49,11 +49,13 @@ written for a generator and carrying its own references.
 > rendering, dark background.
 >
 > Rules for every image:
-> - Plain flat white background. No glow, haze, shadow, sparkles or vignette.
+> - Background: one flat solid magenta, #FF00FF, edge to edge. Not white,
+>   not transparent, not a checkerboard. No glow, haze, shadow or vignette.
 > - No anti-aliasing, gradients, blur or painterly texture. Hard pixel edges.
 > - Clothing only on the body. No background props, no text, no labels.
-> - Wherever skin would show through the clothes, leave the body as it is in
->   Image 1 (I will cut it out afterwards). Don't add new skin.
+> - Don't draw the body at all, only the clothes. Wherever skin would show
+>   through them (rips, bare midriff, fingers out of fingerless gloves), fill
+>   it with the same flat #FF00FF magenta. Never paint skin.
 >
 > Reply "ready" and I'll send the outfits one by one.
 
@@ -61,7 +63,8 @@ written for a generator and carrying its own references.
 
 > Dress both bodies in Image 1 in a **[OUTFIT NAME]** outfit: **[top]** and
 > **[bottoms + boots]**. [Optional: gloves.] Same pose, same position, same
-> size, 1536 x 1024, white background, palette and style as before.
+> size, 1536 x 1024, flat #FF00FF background and skin, palette and style as
+> before.
 
 The four that need redrawing (their stats and ids already exist, so the names
 must stay the same):
@@ -89,7 +92,8 @@ anyway.
 
 - *"The legs are wider than the template. Redraw with the feet exactly where
   they are in Image 1."*
-- *"Remove the glow and the shadow; flat white behind the figures."*
+- *"Remove the glow and the shadow; flat #FF00FF behind the figures."*
+- *"The skin in the rips/fingers is painted. Fill those with #FF00FF."*
 - *"Too smooth. Re-render as pixel art at the same pixel size as Image 1's
   bodies, with hard edges and no anti-aliasing."*
 - *"You changed the body. Keep the body pixel-identical to Image 1 and only
@@ -99,16 +103,22 @@ anyway.
 
 ## After ChatGPT - turning the image into something the importer accepts
 
-ChatGPT will not keep pixels exactly where they were, and it paints a white
-background and skin. So each result needs a short cleanup in an editor
-(Aseprite, Photopea, Photoshop):
+**Why magenta.** ChatGPT cannot export transparency: asked for it, it PAINTS a
+grey-and-white checkerboard (the first Punk redraw came back that way, as an
+RGB file). Keying that out also eats every white stud and chain highlight, and
+an enclosed patch of it - inside a neckline - is not reached by a flood fill.
+Magenta appears in nothing this game wears, so one colour select removes the
+background AND the skin holes in a single step.
+
+ChatGPT will not keep pixels exactly where they were either. So each result
+needs a short cleanup in an editor (Aseprite, Photopea, Photoshop):
 
 1. Open `../outfit-template.png` (the labelled one) and put the ChatGPT image
    on a layer above it.
 2. If the figures drifted, **move and scale the ChatGPT layer** until its
    bodies sit on the template's bodies. Scale it as a whole; don't warp it.
-3. Erase the white background and **every skin pixel**, leaving only
-   clothing, fully transparent around it.
+3. Select by colour #FF00FF (contiguous off) and delete it. Then check for
+   anything skin-coloured left behind and erase that too.
 4. Hide the template layer and export a **1536 x 1024 transparent PNG**:
    `Punk-top.png`, `Punk-bottoms.png` (and `Punk-gloves.png`), or one
    `Punk.png` with no two pieces touching.
