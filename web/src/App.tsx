@@ -21,7 +21,7 @@ import type { Motion } from "../../src/character/layers.js";
 import type { PartyMemberView } from "../../src/engine/state/gameEngine.js";
 import { layoutLineup } from "./lineup.js";
 import { usePlacements } from "./hooks/usePlacements.js";
-import { backgroundUrl, foregroundUrl, spriteForGear } from "./sprites.js";
+import { backgroundUrl, foregroundUrl, spriteForGear, spriteForInstance } from "./sprites.js";
 import { SIDE_WIDTH, STAGE_H, STAGE_W } from "./stage.js";
 import { byFormation } from "./formation.js";
 import { castIndexOf, encounterIdOf, enemySpriteFor } from "./enemyArt.js";
@@ -109,7 +109,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
       const hidden = new Set<string>(member.hiddenSlots ?? []);
       for (const [slot, equipped] of Object.entries(member.equipment)) {
         if (!equipped || hidden.has(slot)) continue;
-        const sprite = spriteForGear(catalog.gearById.get(equipped.gearId), member.appearance.bodyType);
+        const sprite = spriteForInstance(equipped, catalog.gearById, member.appearance.bodyType);
         if (sprite) out[slot as GearSlot] = sprite;
       }
       return out;

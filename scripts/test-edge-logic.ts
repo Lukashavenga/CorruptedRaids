@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import { ContentRegistry } from "../src/engine/content/loader.js";
 import { GameEngine } from "../src/engine/state/gameEngine.js";
 import type { Character } from "../src/engine/types.js";
+import { RARITIES } from "../src/engine/types.js";
+import { validateBalanceFile } from "../src/engine/content/schemas.js";
 import { grantGear } from "../src/engine/character.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -184,6 +186,122 @@ console.log(`character view renders: corruption ${view.corruption}, ${view.stats
     assert.ok(live.listConsumables().every((d) => d.name.endsWith("(renamed)")), "a refused set leaves the last good one");
   }
   console.log(`consumables swap live: ${defs.length} renamed, bad sets refused`);
+}
+
+// --- transmog (#23) -----------------------------------------------------------
+//
+// An item takes another's look and keeps its own stats; the look item is
+// consumed and the price is the KEPT item's rarity. Run through the bundle the
+// function ships and through `dispatch`, because that is the path a phone
+// takes - and every refusal must leave the character exactly as it was.
+{
+  const body = engine.roster.get(VIEWER)!.appearance.bodyType;
+  const fits = (g: ReturnType<typeof edge.listGear>[number]) => !g.bodyTypes || g.bodyTypes.includes(body);
+  const bySlot = new Map<string, ReturnType<typeof edge.listGear>>();
+  for (const g of edge.listGear().filter(fits)) bySlot.set(g.slot, [...(bySlot.get(g.slot) ?? []), g]);
+  const [slot, pool] = [...bySlot.entries()].find(([, gs]) => gs.length >= 3)!;
+  const [keep, lookA, lookB] = pool;
+  const other = edge.listGear().find((g) => g.slot !== slot && fits(g))!;
+  const cost = edge.transmogCost(keep!.id);
+  assert.equal(cost, edge.balance.economy.transmogCostByRarity[keep!.rarity], "priced by the kept item's rarity");
+  // A ladder that fell would make the rarer item the cheaper one to re-skin.
+  const ladder = RARITIES.map((r) => edge.balance.economy.transmogCostByRarity[r]);
+  assert.ok(ladder.every((c, i) => i === 0 || c >= ladder[i - 1]!), `transmog costs rise with rarity: ${ladder.join(" / ")}`);
+  // A negative price would pay out for consuming junk: refused at load.
+  assert.throws(
+    () => validateBalanceFile({ economy: { transmogCostByRarity: { common: -5 } } }, "test"),
+    /transmogCostByRarity\.common/,
+    "a negative transmog price is refused",
+  );
+
+  const fresh = () => {
+    const c = structuredClone(engine.roster.get(VIEWER)!);
+    c.inventory = [];
+    c.equipment = {};
+    c.gold = 10_000;
+    const target = grantGear(c, keep!.id);
+    const donor = grantGear(c, lookA!.id);
+    const spare = grantGear(c, lookB!.id);
+    const foreign = grantGear(c, other.id);
+    const twin = grantGear(c, keep!.id);
+    return { c, target, donor, spare, foreign, twin };
+  };
+  const tm = (e: GameEngine, targetInstanceId: string, lookInstanceId: string) =>
+    e.dispatch({ type: "transmog_gear", requestedBy: VIEWER, targetInstanceId, lookInstanceId });
+
+  // The happy path: look applied, stats untouched, donor gone, gold charged.
+  {
+    const { c, target, donor } = fresh();
+    const e = seed(c);
+    const statsBefore = e.getCharacterView(VIEWER)!.stats;
+    const economy: unknown[] = [];
+    e.on("economy", (d) => economy.push(d));
+    const r = tm(e, target.instanceId, donor.instanceId);
+    assert.ok(r.ok, `transmog: ${r.message}`);
+    const me = e.roster.get(VIEWER)!;
+    const item = me.inventory.find((i) => i.instanceId === target.instanceId)!;
+    assert.equal(item.look, lookA!.id, "the target now looks like the donor");
+    assert.equal(item.gearId, keep!.id, "and is still itself");
+    assert.equal(me.inventory.some((i) => i.instanceId === donor.instanceId), false, "the donor is destroyed");
+    assert.equal(me.gold, 10_000 - cost, "the price is charged");
+    assert.deepEqual(e.getCharacterView(VIEWER)!.stats, statsBefore, "stats do not move");
+    assert.equal(economy.length, 1, "one economy event");
+    assert.deepEqual(
+      { kind: (economy[0] as any).kind, goldDelta: (economy[0] as any).goldDelta, gearId: (economy[0] as any).gearId },
+      { kind: "transmog_gear", goldDelta: -cost, gearId: keep!.id },
+      "the event is about the kept item and the gold it cost",
+    );
+
+    // Worn: the stats of the WORN item are what the character fights with.
+    assert.ok(e.dispatch({ type: "equip_gear", requestedBy: VIEWER, instanceId: target.instanceId }).ok);
+    const wornStats = e.getCharacterView(VIEWER)!.stats;
+    const spareId = me.inventory.find((i) => i.gearId === lookB!.id)!.instanceId;
+    assert.ok(tm(e, target.instanceId, spareId).ok, "re-transmog a worn item");
+    assert.equal(e.roster.get(VIEWER)!.equipment[slot as keyof Character["equipment"]]?.look, lookB!.id, "the new look replaces the old");
+    assert.equal(e.roster.get(VIEWER)!.gold, 10_000 - 2 * cost, "and charges again");
+    assert.deepEqual(e.getCharacterView(VIEWER)!.stats, wornStats, "a worn transmog leaves fighting stats alone");
+    const party = e.getCharacterView(VIEWER)!.equipment[slot as keyof Character["equipment"]];
+    assert.equal(party?.look, lookB!.id, "the view the loadout draws from carries the look");
+
+    // Revert: free, and the consumed item does not come back.
+    const goldBefore = e.roster.get(VIEWER)!.gold;
+    const bag = e.roster.get(VIEWER)!.inventory.length;
+    assert.ok(e.dispatch({ type: "revert_transmog", requestedBy: VIEWER, instanceId: target.instanceId }).ok, "revert");
+    assert.equal(e.roster.get(VIEWER)!.equipment[slot as keyof Character["equipment"]]?.look, undefined, "revert clears the look");
+    assert.equal(e.roster.get(VIEWER)!.gold, goldBefore, "revert is free");
+    assert.equal(e.roster.get(VIEWER)!.inventory.length, bag, "and returns nothing");
+    assert.equal(
+      e.dispatch({ type: "revert_transmog", requestedBy: VIEWER, instanceId: target.instanceId }).ok,
+      false,
+      "reverting an item with no look is refused",
+    );
+  }
+
+  // Refusals: each one changes nothing.
+  const refused = (label: string, setup: (f: ReturnType<typeof fresh>) => [string, string]) => {
+    const f = fresh();
+    const [t, l] = setup(f);
+    const e = seed(f.c);
+    const before = JSON.stringify(e.roster.get(VIEWER));
+    const r = tm(e, t, l);
+    assert.equal(r.ok, false, `${label} must be refused`);
+    assert.equal(JSON.stringify(e.roster.get(VIEWER)), before, `${label}: a refusal changes nothing`);
+    return r.message;
+  };
+  refused("an equipped donor", (f) => {
+    f.c.inventory = f.c.inventory.filter((i) => i.instanceId !== f.donor.instanceId);
+    f.c.equipment[slot as keyof Character["equipment"]] = f.donor;
+    return [f.target.instanceId, f.donor.instanceId];
+  });
+  refused("a donor from another slot", (f) => [f.target.instanceId, f.foreign.instanceId]);
+  refused("the item itself", (f) => [f.target.instanceId, f.target.instanceId]);
+  refused("a copy of the item itself", (f) => [f.target.instanceId, f.twin.instanceId]);
+  refused("a donor nobody owns", (f) => [f.target.instanceId, "nope#1"]);
+  const broke = refused("an unaffordable transmog", (f) => {
+    f.c.gold = cost - 1;
+    return [f.target.instanceId, f.donor.instanceId];
+  });
+  console.log(`transmog: ${keep!.id} looks like ${lookA!.id} for ${cost}g, keeps its stats; refusals change nothing ("${broke}")`);
 }
 
 // --- one engine per request, and it must not leak ---------------------------

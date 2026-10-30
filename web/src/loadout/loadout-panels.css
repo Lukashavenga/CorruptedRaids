@@ -364,9 +364,20 @@
   border-left: 3px solid #4d4a4f;
 }
 
-/* What is in the slot now, marked as such and always first. */
+/* What is in the slot now, marked as such and always first.
+   Its actions get a line of their own: with Transmog and Restore beside Hide
+   and Unequip there are four, and sharing the line with the name squeezed the
+   name and stats into a one-word column on a phone. */
 .slot-row.is-worn {
   background: #201a2c;
+  flex-wrap: wrap;
+}
+
+.slot-row.is-worn .slot-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 0 100%;
 }
 
 .loadout .slot-row.rarity-common { border-left-color: rgba(122, 133, 148, 0.6); }
@@ -1011,6 +1022,38 @@
   border-left-color: #b4515f;
 }
 
+.inv-detail.is-transmog-bar {
+  border-left-color: #8a6bd0;
+}
+
+/* The look candidates: same-slot bag cells, wrapping rather than scrolling. */
+.transmog-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A fixed box for the preview figure, so the strip does not reflow as the
+   sprite's images arrive. */
+.transmog-preview {
+  flex: none;
+  width: 128px;
+  height: 128px;
+}
+
+/* The price turns red BEFORE the tap, not after a refusal. */
+.transmog-cost.is-short {
+  color: #e48a8a;
+}
+
+/* The loss, in the warm colour the recycle bar uses for "this destroys". */
+.transmog-warn {
+  color: #e8c9a8;
+}
+
 /* The detail strip for whichever cell is selected — where equip and recycle
    live, since a grid cell has no room for them. */
 /*
@@ -1045,8 +1088,11 @@
   min-width: 0;
 }
 
+/* Wraps: with Transmog and Restore beside Equip and Scrap, four buttons do
+   not fit one line on a phone, and squeezing them truncates the price. */
 .inv-detail-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   flex: none;
 }
