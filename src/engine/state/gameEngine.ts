@@ -55,6 +55,7 @@ import { xpToNextLevel } from "../stats.js";
 import { runCombat } from "../combat/resolver.js";
 import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
+import { dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
 import { text, format } from "../../text/index.js";
 
 export interface DispatchResult {
@@ -197,6 +198,17 @@ export interface StateSnapshot {
   rosterSize: number;
   /** The raid in progress, if this run is a raid. */
   raid: RaidView | null;
+  /**
+   * Whoever has survived the most runs today (src/engine/dungeoneer.ts), in
+   * the party or not, or null before anyone real has survived one.
+   */
+  dungeoneerOfTheDay: Dungeoneer | null;
+  /**
+   * Set when the run that just ended moved the title, for the results screen
+   * to announce; null otherwise, and cleared when the next run opens. `from`
+   * is null when nobody held it yet today.
+   */
+  dungeoneerChange: { from: Dungeoneer | null; to: Dungeoneer } | null;
 }
 
 /**
@@ -273,6 +285,14 @@ export class GameEngine extends EventEmitter {
   /** Viewer ids that have joined the open run, in join order. */
   partyIds: string[] = [];
   lastCombat: CombatResult | null = null;
+  /** See StateSnapshot.dungeoneerChange. */
+  dungeoneerChange: StateSnapshot["dungeoneerChange"] = null;
+  /**
+   * The engine's clock, for the one rule that depends on the time of day.
+   * A field so a test can put a run either side of the 11:00 reset without
+   * waiting for it.
+   */
+  now: () => number = () => Date.now();
 
   constructor(content: ContentRegistry, rng: Rng) {
     super();
@@ -357,6 +377,25 @@ export class GameEngine extends EventEmitter {
     };
   }
 
+  /**
+   * Counts a run that has just ended toward the Dungeoneer of the day, and
+   * notes whether that moved the title. A lost run counts for nobody - the
+   * survivor list of a defeat is whoever the timer caught still standing.
+   */
+  private countSurvivors(combat: CombatResult): void {
+    const cfg = this.content.balance.dungeoneer;
+    const at = this.now();
+    const before = dungeoneerOf(this.roster.list(), at, cfg);
+    if (combat.outcome === "victory") {
+      const survivors = combat.survivorIds
+        .map((id) => this.roster.get(id))
+        .filter((c): c is Character => c !== undefined);
+      recordSurvivals(survivors, at, cfg);
+    }
+    const after = dungeoneerOf(this.roster.list(), at, cfg);
+    this.dungeoneerChange = after && after.id !== before?.id ? { from: before, to: after } : null;
+  }
+
   /** Identifies a run across its fights; assigned when one is opened. */
   runId = "";
   private runSeq = 0;
@@ -394,6 +433,7 @@ export class GameEngine extends EventEmitter {
         this.runId = this.newRunId();
         this.partyIds = [];
         this.lastCombat = null;
+        this.dungeoneerChange = null;
         return { ok: true, message: format(text.dungeon.opened, { name: def.name }) };
       }
 
@@ -490,6 +530,7 @@ export class GameEngine extends EventEmitter {
             }
           }
         }
+        this.countSurvivors(combat);
 
         this.recordFight(
           {
@@ -515,6 +556,7 @@ export class GameEngine extends EventEmitter {
         this.raidRun = null;
         this.partyIds = [];
         this.lastCombat = null;
+        this.dungeoneerChange = null;
         return { ok: true, message: text.dungeon.reset };
       }
 
@@ -528,6 +570,7 @@ export class GameEngine extends EventEmitter {
         this.runId = this.newRunId();
         this.partyIds = [];
         this.lastCombat = null;
+        this.dungeoneerChange = null;
         return { ok: true, message: format(text.dungeon.opened, { name: def.name }) };
       }
 
@@ -660,6 +703,9 @@ export class GameEngine extends EventEmitter {
             }
           }
         }
+        // Here and not at the doors: a raid is one run, and it is survived
+        // only by whoever is standing when its boss falls.
+        this.countSurvivors(combat);
 
         this.recordFight(
           {
@@ -892,6 +938,7 @@ export class GameEngine extends EventEmitter {
         this.openDungeon = null;
         this.partyIds = [];
         this.lastCombat = null;
+        this.dungeoneerChange = null;
         return { ok: true, message: text.dungeon.rosterReset };
       }
 
@@ -995,6 +1042,8 @@ export class GameEngine extends EventEmitter {
       lastCombat: this.lastCombat,
       rosterSize: this.roster.size,
       raid,
+      dungeoneerOfTheDay: dungeoneerOf(this.roster.list(), this.now(), this.content.balance.dungeoneer),
+      dungeoneerChange: this.dungeoneerChange,
     };
   }
 

@@ -124,6 +124,11 @@ DUNGEON = _longest_dungeon_name()
 # check instead of being discovered mid-raid.
 ROOM, ROOM_LINE = _longest_room_copy()
 
+# A viewer name at the 14 characters StateBanner clamps the Dungeoneer line
+# to, all of them the face's widest glyph - a real worst case, since the line
+# is a viewer's name and nothing bounds what they typed but its length.
+DUNGEONEER = "W" * 14
+
 # (label, rendered size in px, string)
 CASES = [
     # The headline, at the size it will actually land on. A name too long for
@@ -137,6 +142,10 @@ CASES = [
     ("banner.idle",       32, "Awaiting the next run..."),
     ("banner.cooldown",   32, "Catching a breath..."),
     ("banner.sub",        16, "!join 12s"),
+    # Under the results banner. A viewer's name, clamped by StateBanner to
+    # DUNGEONEER_NAME_MAX (14) - measured at its widest.
+    ("dungeoneer.holder", 16, f"Dungeoneer of the day: {DUNGEONEER} • 99 survived"),
+    ("dungeoneer.taken",  16, f"New Dungeoneer of the day: {DUNGEONEER}!"),
     # Party name left, enemy right, always — both orders are the same
     # characters, so both measure the same. Two-digit damage is the documented
     # ceiling (see combatLog in en.ts); a third digit is 16px past the stage

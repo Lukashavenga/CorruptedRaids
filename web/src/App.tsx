@@ -233,6 +233,18 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
 
   const showArena = snapshot.state !== "idle" && !choosing;
 
+  /**
+   * Who wears the Dungeoneer of the day crown on screen right now.
+   *
+   * The engine counts a run the moment it resolves it, which is before the
+   * audience has watched it: moving the crown then would announce who
+   * survived while the fight is still being replayed. Until the replay
+   * reaches its outcome, the crown stays with whoever had it going in.
+   */
+  const { dungeoneerOfTheDay, dungeoneerChange } = snapshot.engine;
+  const replayUnresolved = showFight && playback.outcome === null;
+  const crowned = replayUnresolved && dungeoneerChange ? dungeoneerChange.from : dungeoneerOfTheDay;
+
   /** Names for the roster grid — every viewer in the party, not just the
       figures that fit on the stage. */
   const rosterEntries = partyCards.map((c) => ({
@@ -242,6 +254,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
     hp: c.hp,
     maxHp: c.maxHp,
     downed: showFight ? (playback.downed[c.id] ?? false) : false,
+    dungeoneer: c.id === crowned?.id,
   }));
 
   /**
@@ -452,6 +465,11 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
         joinSecondsLeft={joinSecondsLeft}
         encounterLevel={run?.encounterLevel ?? null}
         raidName={raid?.name ?? null}
+        dungeoneer={
+          dungeoneerOfTheDay
+            ? { name: dungeoneerOfTheDay.name, survived: dungeoneerOfTheDay.survived, isNew: dungeoneerChange !== null }
+            : null
+        }
         // While a room is open the headline IS the room. It used to fall
         // through to the raid's name for a fight door, so the one beat that
         // needed naming was the one beat that had no name on it.

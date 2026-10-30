@@ -408,6 +408,26 @@ and heals plus death rate; average point allocation against the reference
 party; drops and gold per viewer per run and night. It asserts nothing, like
 `simulate:progression`.
 
+### The Dungeoneer of the day
+
+Whoever has survived the most runs today wears a crown on their roster chip,
+and the results screen names them (and announces it when the title moves).
+Survived = the run was WON and they were standing at its end; a raid is one
+run, judged at the boss; `sim:` characters never count. "Today" runs from
+11:00 to 11:00 Europe/Amsterdam (`balance.dungeoneer`), not midnight, because
+a stream runs past twelve and a calendar day would split one night in two.
+The zone is IANA and read through `Intl`, so the reset follows daylight
+saving.
+
+The count lives ON the character (`daily: { day, survived, reachedAt }`), so
+the roster store keeps it through a restart with no table of its own, and the
+holder is derived from the roster every snapshot rather than stored - the
+same reason Corruption is never stored. A tie stays with whoever reached the
+count first (`reachedAt`). The overlay holds the crown where it was until a
+replay reaches its outcome, because the engine has already counted the fight
+the audience is still watching. `npm run simulate` asserts the reset either
+side of a clock change, the casualty, sim and tie rules, and the raid rule.
+
 ### Content is data
 
 `content/` holds JSON, validated at load by `src/engine/content/schemas.ts`:

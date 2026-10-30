@@ -78,6 +78,18 @@ export const en = {
     emptyParty: "Nobody has joined yet.",
   },
 
+  /**
+   * Whoever has survived the most runs today (src/engine/dungeoneer.ts).
+   * Shown at 16px under the results banner, so about fifty characters with a
+   * name in them - the overlay clamps the name to fit, and
+   * scripts/check-text-fits.py measures both lines.
+   */
+  dungeoneer: {
+    title: "Dungeoneer of the day",
+    holder: "Dungeoneer of the day: {name} • {count} survived",
+    taken: "New Dungeoneer of the day: {name}!",
+  },
+
   /** The five overlay phases — see src/state/dungeonStates.config.ts. */
   state: {
     idle: {

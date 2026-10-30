@@ -465,6 +465,21 @@ export interface BalanceConfig {
     /** How often the queue is drained in the background. */
     flushIntervalMs: number;
   };
+
+  /**
+   * When "today" turns over for the Dungeoneer of the day (src/engine/dungeoneer.ts).
+   *
+   * A reset HOUR in the streamer's own zone rather than midnight, because a
+   * stream runs past midnight and a calendar day would split one night in
+   * two, handing the title to whoever fought after twelve. 11:00 sits in the
+   * gap between streams. An IANA zone rather than an offset so it moves with
+   * daylight saving instead of drifting an hour twice a year.
+   */
+  dungeoneer: {
+    timeZone: string;
+    /** Whole hour, 0-23, local to `timeZone`. */
+    resetHour: number;
+  };
 }
 
 /**
@@ -559,6 +574,10 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     rawEventsOneIn: 0,
     maxQueued: 2000,
     flushIntervalMs: 2000,
+  },
+  dungeoneer: {
+    timeZone: "Europe/Amsterdam",
+    resetHour: 11,
   },
 };
 

@@ -258,7 +258,19 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
     // The same trap, closed the day the field was added: anything left off
     // this list is wiped by the server's next save of the character.
     ...hiddenSlotsOf(raw.hiddenSlots),
+    // And again: without this a restart mid-stream would zero everyone's
+    // count for the day and hand the Dungeoneer title to whoever survived
+    // the next run.
+    ...dailyOf(raw.daily),
   };
+}
+
+function dailyOf(v: unknown): { daily?: Character["daily"] } {
+  if (!isRecord(v) || typeof v.day !== "string") return {};
+  const { survived, reachedAt } = v;
+  if (typeof survived !== "number" || !Number.isInteger(survived) || survived < 0) return {};
+  if (typeof reachedAt !== "number" || !Number.isFinite(reachedAt)) return {};
+  return { daily: { day: v.day, survived, reachedAt } };
 }
 
 function hiddenSlotsOf(v: unknown): { hiddenSlots?: GearSlot[] } {

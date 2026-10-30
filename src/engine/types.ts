@@ -1046,6 +1046,25 @@ export interface Character {
    * resolver reads depends on it. Absent means nothing is hidden.
    */
   hiddenSlots?: GearSlot[];
+  /**
+   * Runs survived today, for the Dungeoneer of the day (src/engine/dungeoneer.ts).
+   *
+   * On the character rather than in a tally beside the roster so that it is
+   * saved wherever the character is - file or Supabase - and a restart
+   * mid-stream cannot hand the title to someone else. `day` is the day the
+   * count belongs to; a count from an earlier day is simply not today's, so
+   * nothing has to reset it at 11:00. `reachedAt` (epoch ms) is when the
+   * count was last raised, which is what breaks a tie. Absent means no run
+   * survived since the field existed.
+   */
+  daily?: DailyTally;
+}
+
+export interface DailyTally {
+  /** "YYYY-MM-DD": the local date on which this day began. */
+  day: string;
+  survived: number;
+  reachedAt: number;
 }
 
 export type Side = "party" | "enemy";

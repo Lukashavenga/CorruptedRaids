@@ -10,6 +10,8 @@ export interface RosterEntry {
   hp: number;
   maxHp: number;
   downed: boolean;
+  /** Holds today's Dungeoneer title: the chip gets a gold rim and a crown. */
+  dungeoneer?: boolean;
 }
 
 /**
@@ -67,8 +69,8 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
         return (
           <li
             key={e.id}
-            className={`roster-chip ${e.role ? `role-${e.role}` : ""} ${e.downed ? "is-down" : ""}`}
-            title={e.name}
+            className={`roster-chip ${e.role ? `role-${e.role}` : ""} ${e.downed ? "is-down" : ""} ${e.dungeoneer ? "is-dungeoneer" : ""}`}
+            title={e.dungeoneer ? `${e.name} - ${text.dungeoneer.title}` : e.name}
           >
             {/* The fill is a sibling behind the text rather than a background
                 gradient on the chip, so it can animate its width smoothly
@@ -84,6 +86,14 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
                 size={ROLE_BADGE}
                 className="roster-role"
               />
+            )}
+            {/* Drawn rather than sliced: the UI sheet has no crown, and at 9px
+                a crown is five pixels of gold - nothing to wait on an artist
+                for. Before the name, so it is never the part that ellipsises. */}
+            {e.dungeoneer && (
+              <svg className="roster-crown" width="9" height="6" viewBox="0 0 9 6" aria-hidden="true">
+                <path d="M0 0h1v1h1v1h1V1h1V0h1v1h1v1h1V1h1V0h1v6H0z" />
+              </svg>
             )}
             <span className="roster-name">{e.name}</span>
           </li>

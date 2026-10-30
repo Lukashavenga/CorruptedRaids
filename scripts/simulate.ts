@@ -20,6 +20,8 @@ import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
 import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
+import { dayKey, dungeoneerOf, recordSurvivals } from "../src/engine/dungeoneer.js";
+import { validateBalanceFile } from "../src/engine/content/schemas.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -252,6 +254,175 @@ for (const [size, left] of [[5, smallParty], [25, bigParty]] as const) {
     left < 0.995,
     `a party of ${size} finished at ${(left * 100).toFixed(1)}% HP — that band is untouchable`,
   );
+}
+
+// --- the Dungeoneer of the day -----------------------------------------------
+//
+// The title is the one rule in the game that reads the clock, so its edges are
+// asserted by setting the clock rather than by waiting: the 11:00 reset either
+// side of a daylight-saving change, a casualty in a won run, a sim viewer, and
+// a tie. Placed before the band calibration below so it runs even while that
+// section is red.
+{
+  const cfg = content.balance.dungeoneer;
+  assert.equal(cfg.timeZone, "Europe/Amsterdam");
+  assert.equal(cfg.resetHour, 11);
+  // A bad zone must stop the boot, not the first payout of the night.
+  assert.throws(() => validateBalanceFile({ dungeoneer: { timeZone: "Europe/Amsterdm" } }, "t"), /timeZone/);
+  assert.throws(() => validateBalanceFile({ dungeoneer: { resetHour: 24 } }, "t"), /resetHour/);
+  validateBalanceFile({ dungeoneer: { timeZone: "America/New_York", resetHour: 0 } }, "t");
+
+  // 11:00 Amsterdam is 10:00 UTC in winter and 09:00 UTC in summer. A fixed
+  // offset gets one of these wrong for half the year.
+  const at = (iso: string) => Date.parse(iso);
+  assert.equal(dayKey(at("2026-01-15T09:59:59Z"), cfg), "2026-01-14", "10:59 CET is still yesterday");
+  assert.equal(dayKey(at("2026-01-15T10:00:00Z"), cfg), "2026-01-15", "11:00 CET starts the day");
+  assert.equal(dayKey(at("2026-07-15T08:59:59Z"), cfg), "2026-07-14", "10:59 CEST is still yesterday");
+  assert.equal(dayKey(at("2026-07-15T09:00:00Z"), cfg), "2026-07-15", "11:00 CEST starts the day");
+  // The two days the clocks change, where "the instant minus eleven hours"
+  // lands an hour off. 2026-03-29 and 2026-10-25 are those Sundays.
+  assert.equal(dayKey(at("2026-03-29T08:59:59Z"), cfg), "2026-03-28", "spring forward: 10:59 CEST is still Saturday's day");
+  assert.equal(dayKey(at("2026-03-29T09:00:00Z"), cfg), "2026-03-29", "spring forward: 11:00 CEST is Sunday's");
+  assert.equal(dayKey(at("2026-10-25T09:59:59Z"), cfg), "2026-10-24", "fall back: 10:59 CET is still Saturday's day");
+  assert.equal(dayKey(at("2026-10-25T10:00:00Z"), cfg), "2026-10-25", "fall back: 11:00 CET is Sunday's");
+  // A stream past midnight stays one night, and the first of the month rolls
+  // back across the month boundary.
+  assert.equal(dayKey(at("2026-03-01T00:30:00Z"), cfg), "2026-02-28", "01:30 on the 1st belongs to the night of the 28th");
+
+  // The pure rules first, on hand-made characters.
+  const viewer = (id: string) => createCharacter({ id, name: id, role: "dps" });
+  const t0 = at("2026-01-15T19:00:00Z");
+  const alice = viewer("twitch:1");
+  const bob = viewer("twitch:2");
+  const sim = viewer("sim:grunkzor");
+  recordSurvivals([alice, sim], t0, cfg);
+  assert.equal(sim.daily, undefined, "a sim viewer is never counted");
+  assert.deepEqual(dungeoneerOf([alice, bob, sim], t0, cfg), { id: "twitch:1", name: "twitch:1", survived: 1 });
+  sim.daily = { day: dayKey(t0, cfg), survived: 99, reachedAt: 0 };
+  assert.equal(dungeoneerOf([alice, sim], t0, cfg)?.id, "twitch:1", "a sim viewer cannot hold the title, even with a count");
+  // Bob draws level later: Alice got there first and keeps it.
+  recordSurvivals([bob], t0 + 60_000, cfg);
+  assert.equal(dungeoneerOf([alice, bob], t0 + 60_000, cfg)?.id, "twitch:1", "a tie keeps the earlier holder");
+  assert.equal(dungeoneerOf([bob, alice], t0 + 60_000, cfg)?.id, "twitch:1", "...whatever order the roster is in");
+  // Both survive the same run: level again, and the one who led still leads.
+  recordSurvivals([bob, alice], t0 + 120_000, cfg);
+  assert.equal(dungeoneerOf([alice, bob], t0 + 120_000, cfg)?.id, "twitch:1", "a tie reached in the same run keeps the earlier holder");
+  // Bob pulls ahead outright.
+  recordSurvivals([bob], t0 + 180_000, cfg);
+  assert.deepEqual(dungeoneerOf([alice, bob], t0 + 180_000, cfg), { id: "twitch:2", name: "twitch:2", survived: 3 });
+  // Past 11:00 the next morning nobody holds it, and a new count starts at one.
+  const tomorrow = at("2026-01-16T10:00:00Z");
+  assert.equal(dungeoneerOf([alice, bob], tomorrow, cfg), null, "the title lapses at the reset");
+  recordSurvivals([alice], tomorrow, cfg);
+  assert.equal(alice.daily?.survived, 1, "yesterday's count does not carry into today");
+
+  // Then through the engine: every fight's change in the counts must be
+  // exactly "won, standing at the end, and not a sim".
+  const daily = new GameEngine(content, mulberry32(3));
+  let clock = at("2026-01-15T19:00:00Z");
+  daily.now = () => clock;
+  const countOf = (id: string) => daily.roster.get(id)?.daily?.survived ?? 0;
+  let wonWithCasualty = 0;
+  let lost = 0;
+  for (let i = 0; i < 40; i += 1) {
+    clock += 5 * 60_000;
+    daily.dispatch({ type: "open_dungeon", dungeonId: i % 3 === 2 ? MID : STARTER });
+    for (let v = 1; v <= 4; v += 1) {
+      daily.dispatch({ type: "join_dungeon", requestedBy: `twitch:${v}`, displayName: `Viewer${v}` });
+    }
+    daily.dispatch({ type: "sim_join", count: 4, dress: true });
+    const before = new Map(daily.party.map((c) => [c.id, countOf(c.id)]));
+    const holderBefore = daily.getStateSnapshot().dungeoneerOfTheDay;
+    const fought = daily.dispatch({ type: "start_dungeon" }).combat!;
+    const won = fought.outcome === "victory";
+    if (won && fought.survivorIds.length < daily.party.length) wonWithCasualty += 1;
+    if (!won) lost += 1;
+    for (const [id, was] of before) {
+      const counts = won && fought.survivorIds.includes(id) && !id.startsWith("sim:");
+      assert.equal(
+        countOf(id),
+        was + (counts ? 1 : 0),
+        `run ${i + 1}: ${id} ${won ? "won" : "lost"}, standing=${fought.survivorIds.includes(id)}`,
+      );
+    }
+    const snap = daily.getStateSnapshot();
+    const holderAfter = snap.dungeoneerOfTheDay;
+    assert.ok(!holderAfter?.id.startsWith("sim:"), "a sim viewer never holds the title");
+    assert.deepEqual(
+      snap.dungeoneerChange,
+      holderAfter && holderAfter.id !== holderBefore?.id ? { from: holderBefore, to: holderAfter } : null,
+      "the change is announced exactly when the holder moves",
+    );
+  }
+  assert.ok(wonWithCasualty > 0, "expected a won run with a casualty, or the casualty rule went unchecked");
+  console.log(
+    `Dungeoneer: 40 runs, ${wonWithCasualty} won with a casualty, ${lost} lost; ` +
+      `holder ${daily.getStateSnapshot().dungeoneerOfTheDay?.name ?? "none"}.`,
+  );
+
+  // A new run clears the announcement; the title itself stays.
+  daily.dispatch({ type: "open_dungeon", dungeonId: STARTER });
+  assert.equal(daily.getStateSnapshot().dungeoneerChange, null, "opening a run clears the last announcement");
+  assert.ok(daily.getStateSnapshot().dungeoneerOfTheDay, "...and leaves the holder where they were");
+
+  // A raid counts once, at the boss: door fights move nothing. Built here
+  // rather than read from content/raids, because the shipped raid's boss room
+  // is empty and its doors hold no fight, so it could test neither half.
+  const raidContent = new ContentRegistry();
+  raidContent.loadGearDir(join(CONTENT_DIR, "gear"));
+  raidContent.loadBalance(join(CONTENT_DIR, "balance.json"));
+  const shipped = new ContentRegistry();
+  shipped.loadGearDir(join(CONTENT_DIR, "gear"));
+  shipped.loadRaidsDir(join(CONTENT_DIR, "raids"));
+  const fightOf = (name: string) => ({
+    ...shipped.listRaids()[0]!.boss.fight,
+    formations: { weak: [{ id: name, name, x: 0.5, y: 0.8, sprite: "villagers/villagers-01" }] },
+  });
+  raidContent.loadObjects({
+    raids: [
+      {
+        ...shipped.listRaids()[0]!,
+        id: "dungeoneer-test",
+        rooms: [{ id: "ambush", name: "Ambush", description: "One of them.", kind: "fight", fight: fightOf("Lurker") }],
+        path: Array.from({ length: 2 }, () => ({ left: "ambush", up: "ambush", right: "ambush" })),
+        boss: { ...shipped.listRaids()[0]!.boss, fight: fightOf("Brute"), hpMultiplier: 1, atkMultiplier: 1 },
+      },
+    ],
+  });
+  const raidDef = raidContent.getRaid("dungeoneer-test")!;
+  let bossWins = 0;
+  for (let i = 0; i < 8; i += 1) {
+    const raidEngine = new GameEngine(raidContent, mulberry32(100 + i));
+    raidEngine.now = () => t0;
+    const controller = new DungeonController(raidEngine);
+    controller.dispatch({ type: "open_raid", raidId: raidDef.id });
+    for (let v = 1; v <= 12; v += 1) controller.dispatch({ type: "join_dungeon", requestedBy: `twitch:${v}` });
+    for (const character of raidEngine.party) grantXp(character, 2200, raidContent.balance);
+    controller.dispatch({ type: "start_dungeon" });
+    // The last fight before the boss became due. Anything after it is the boss.
+    let beforeBoss: unknown;
+    for (let step = 0; step < 60; step += 1) {
+      if (controller.state === "results" || controller.state === "idle") break;
+      if (beforeBoss === undefined) {
+        const total = raidEngine.roster.list().reduce((n, c) => n + (c.daily?.survived ?? 0), 0);
+        assert.equal(total, 0, "nothing is counted before the boss");
+        if (raidEngine.raidRun?.bossPending) beforeBoss = raidEngine.lastCombat;
+      }
+      if (controller.state !== "choosing") {
+        if (controller.forceTimerElapsed()) continue;
+        break;
+      }
+      controller.dispatch({ type: "choose_path", direction: "up" });
+    }
+    const last = raidEngine.lastCombat;
+    const bossWon = beforeBoss !== undefined && last !== null && last !== beforeBoss && last.outcome === "victory";
+    if (bossWon) bossWins += 1;
+    for (const c of raidEngine.roster.list()) {
+      const expected = bossWon && last!.survivorIds.includes(c.id) ? 1 : 0;
+      assert.equal(c.daily?.survived ?? 0, expected, `raid ${i + 1}: ${c.id}`);
+    }
+  }
+  console.log(`Dungeoneer: 8 raids, ${bossWins} won at the boss, each survivor counted once.`);
 }
 
 // --- party strength stays calibrated ----------------------------------------
