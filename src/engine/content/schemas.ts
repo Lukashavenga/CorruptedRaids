@@ -722,6 +722,27 @@ export function validateBalanceFile(raw: unknown, file: string): Record<string, 
       fail(file, `loot chances must run survivorLootChance > casualtyLootChance > defeatLootChance`);
     }
   }
+  // Checked here rather than left to Intl, because Intl only objects when the
+  // zone is first USED - which is the moment a fight pays out, mid-stream.
+  const dungeoneer = (raw as any).dungeoneer;
+  if (dungeoneer !== undefined) {
+    if (typeof dungeoneer !== "object" || dungeoneer === null || Array.isArray(dungeoneer)) {
+      fail(file, `"dungeoneer" must be an object`);
+    }
+    if (dungeoneer.timeZone !== undefined) {
+      let known = typeof dungeoneer.timeZone === "string";
+      try {
+        if (known) new Intl.DateTimeFormat("en-GB", { timeZone: dungeoneer.timeZone });
+      } catch {
+        known = false;
+      }
+      if (!known) fail(file, `"dungeoneer.timeZone" must be an IANA time zone such as "Europe/Amsterdam"`);
+    }
+    const hour = dungeoneer.resetHour;
+    if (hour !== undefined && !(Number.isInteger(hour) && hour >= 0 && hour <= 23)) {
+      fail(file, `"dungeoneer.resetHour" must be a whole hour from 0 to 23`);
+    }
+  }
   const transmog = (raw as any).economy?.transmogCostByRarity;
   if (transmog !== undefined) {
     // Merged per key over the defaults, so a partial table is fine; what is not

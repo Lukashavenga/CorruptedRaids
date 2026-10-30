@@ -824,6 +824,18 @@ body {
   display: none;
 }
 
+/* The results screen's one extra line: who holds Dungeoneer of the day. At
+   the 16px data size, like the countdown, so it fits under the 32px outcome. */
+.banner-dungeoneer {
+  font-family: var(--font-data);
+  font-size: var(--fs);
+  line-height: 16px;
+  color: var(--gold-pale);
+}
+.banner-dungeoneer.is-new {
+  color: var(--gold);
+}
+
 /* Sim controls — the streamer-facing testing strip (SimControls.tsx).
    Not part of the spectator overlay; hidden with ?sim=0. */
 .sim-controls {
@@ -1151,6 +1163,28 @@ body {
 
 .roster-more .roster-name {
   color: var(--ink-muted);
+}
+
+/* Today's Dungeoneer. Gold is the palette's legendary rarity, which is the
+   right company: the one chip on the grid worth finding first. The rim is an
+   inset shadow on top of the border so a downed holder keeps both - the red
+   border says down, the gold says who. */
+.roster-chip.is-dungeoneer {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(226, 181, 112, 0.55);
+}
+.roster-chip.is-dungeoneer.is-down {
+  border-color: var(--danger);
+}
+.roster-chip.is-dungeoneer .roster-name {
+  color: var(--gold-pale);
+}
+.roster-crown {
+  position: relative;
+  flex: none;
+  margin-left: 2px;
+  fill: var(--gold);
+  shape-rendering: crispEdges;
 }
 
 /* --- pooled enemy health ---------------------------------------------------

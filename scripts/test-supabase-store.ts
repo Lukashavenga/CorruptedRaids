@@ -20,6 +20,7 @@ import { createServer } from "node:http";
 import { join } from "node:path";
 import type { Character } from "../src/engine/types.js";
 import { SupabaseRosterStore } from "../src/engine/persistence/supabaseRosterStore.js";
+import { parseRoster } from "../src/engine/persistence/rosterStore.js";
 import { ContentRegistry } from "../src/engine/content/loader.js";
 import { buyGear, equipGear, gearUsableBy, grantGear, recycleGear, revertTransmog, transmogGear, unequipGear } from "../src/engine/character.js";
 
@@ -231,16 +232,41 @@ console.log("key order alone did not count as an edit");
 // that has been through character creation, which must survive the trip.
 table.set("twitch:333", {
   id: "twitch:333", twitch_id: "333",
-  data: { ...character("twitch:333", 3), appearanceChosen: true, hiddenSlots: ["head"] },
+  data: {
+    ...character("twitch:333", 3),
+    appearanceChosen: true,
+    hiddenSlots: ["head"],
+    daily: { day: "2026-01-15", survived: 7, reachedAt: 1_768_500_000_000 },
+  },
   updated_at: later(new Date().toISOString()),
 });
 pulled = await store.pull(["twitch:333"], live, installing);
 assert.deepEqual(pulled.installed, ["twitch:333"], "a character only the loadout knows is pulled in");
 assert.equal(memory.get("twitch:333")!.appearanceChosen, true, "a pull keeps appearanceChosen");
 assert.deepEqual(memory.get("twitch:333")!.hiddenSlots, ["head"], "a pull keeps hiddenSlots");
+assert.deepEqual(
+  memory.get("twitch:333")!.daily,
+  { day: "2026-01-15", survived: 7, reachedAt: 1_768_500_000_000 },
+  "a pull keeps the daily tally",
+);
 const reloaded = (await store.load()).find((c) => c.id === "twitch:333");
 assert.equal(reloaded?.appearanceChosen, true, "a load keeps appearanceChosen - without it the loadout re-offers character creation");
 assert.deepEqual(reloaded?.hiddenSlots, ["head"], "a load keeps hiddenSlots - without it a hidden helmet reappears on stream");
+// Today's survived count, which decides the Dungeoneer of the day. Dropped
+// here, a restart mid-stream would hand the title to whoever won next; and a
+// malformed tally is dropped rather than trusted, without costing the row.
+assert.deepEqual(
+  reloaded?.daily,
+  { day: "2026-01-15", survived: 7, reachedAt: 1_768_500_000_000 },
+  "a load keeps the daily tally - without it a restart hands the Dungeoneer title to someone else",
+);
+{
+  const [bad] = parseRoster(
+    { version: 1, characters: [{ ...character("twitch:555", 1), daily: { day: "2026-01-15", survived: "7" } }] },
+    () => {},
+  );
+  assert.ok(bad && bad.daily === undefined, "a malformed tally is dropped and the character kept");
+}
 table.delete("twitch:333");
 table.delete("twitch:444");
 console.log("a loadout-only character was pulled in");

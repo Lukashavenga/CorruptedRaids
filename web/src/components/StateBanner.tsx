@@ -24,7 +24,20 @@ export interface StateBannerProps {
    * "THE POORS - LEVEL 2" tells the chat what their kit just bought them.
    */
   encounterLevel?: number | null;
+  /**
+   * Today's Dungeoneer, for the results screen. `isNew` when the run just
+   * shown is the one that handed them the title, which is announced rather
+   * than merely stated.
+   */
+  dungeoneer?: { name: string; survived: number; isNew: boolean } | null;
 }
+
+/**
+ * A viewer name is the one unbounded thing on the results line. Fourteen
+ * characters keeps the worst case inside the stage at 16px (check-text-fits.py);
+ * Twitch allows twenty-five.
+ */
+const DUNGEONEER_NAME_MAX = 14;
 
 /**
  * The crisp sizes the display font has, biggest first.
@@ -45,6 +58,7 @@ export function StateBanner({
   encounterLevel = null,
   raidName = null,
   revealDetail = null,
+  dungeoneer = null,
 }: StateBannerProps): JSX.Element {
   // A raid has no dungeon, so it falls back to its own name. Without this its
   // join window announced nothing at all — the headline resolved to the empty
@@ -101,6 +115,14 @@ export function StateBanner({
       {state === "gathering" && joinSecondsLeft !== null && (
         <span className="banner-sub">
           {text.dungeon.joinPrompt} {format(text.dungeon.joinCountdown, { seconds: joinSecondsLeft })}
+        </span>
+      )}
+      {state === "results" && dungeoneer && (
+        <span className={`banner-dungeoneer ${dungeoneer.isNew ? "is-new" : ""}`}>
+          {format(dungeoneer.isNew ? text.dungeoneer.taken : text.dungeoneer.holder, {
+            name: dungeoneer.name.slice(0, DUNGEONEER_NAME_MAX).trimEnd(),
+            count: dungeoneer.survived,
+          })}
         </span>
       )}
     </div>
