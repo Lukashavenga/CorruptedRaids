@@ -424,8 +424,10 @@ export function runCombat(
     actor.actions += 1;
     const actorStats = currentStats(actor);
 
-    // 1. Healers heal before anything else, if anyone needs it.
-    if (actor.role === "healer") {
+    // 1. Healers heal before anything else, if anyone needs it. Enemy healers
+    //    only while roles.healer.enemiesHeal is on; otherwise they fall
+    //    through and attack (see the field in balance.ts for why).
+    if (actor.role === "healer" && (actor.side === "party" || balance.roles.healer.enemiesHeal)) {
       const target = pickHealTarget(actor, actingSide, balance);
       if (target) {
         const { tankHealMultiplier, selfHealMultiplier } = balance.roles.healer;
