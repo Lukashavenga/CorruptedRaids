@@ -406,6 +406,16 @@ export interface BalanceConfig {
      */
     casualtyXpMultiplier: number;
     /**
+     * Share of a survivor's gold that a casualty of a WON fight still takes.
+     *
+     * Gold used to go to survivors only, so the players who die most (newcomers)
+     * earned least: live, 58g a fight for characters in their first three fights
+     * against 185g for veterans. 0.4 matches `casualtyXpMultiplier`. A LOST
+     * fight still pays no gold - there are no bodies to loot - and the simulator
+     * asserts survived > died in a win > lost.
+     */
+    casualtyGoldMultiplier: number;
+    /**
      * Chance a casualty of a won fight still gets a loot roll. Small,
      * deliberately, and under `survivorLootChance`.
      */
@@ -450,6 +460,34 @@ export interface BalanceConfig {
   };
 
   /**
+   * Rally: a member far below the party's power fights stronger, for that
+   * fight only. Sidekicking in City of Heroes, Party Sync in WoW.
+   *
+   * Measured on the live log (parties of 3+): under 25% of the party's rating
+   * 57% died and dealt about 1% of a fair share of damage, while the party won
+   * 93%. The average protects the room at its weakest member's expense
+   * (AGENTS.md section 5); this is the other half of that bargain. The numbers
+   * are a starting value, to be measured with `report:balance` section 5.
+   *
+   * Nothing is written to the character: real stats, Corruption and the party
+   * rating are untouched, so the band a party fights is picked as before.
+   */
+  rally: {
+    enabled: boolean;
+    /** A member whose power is under this fraction of the party's rating is Rallied. */
+    belowFraction: number;
+    /** The power they fight at, as a fraction of the party's rating. */
+    toFraction: number;
+    /** Smallest party Rally applies to; below it the "party" is the member. */
+    minPartySize: number;
+    /**
+     * The most Hp, Attack and Skill are multiplied by. A naked newcomer in a
+     * strong room would otherwise be scaled into a different character.
+     */
+    maxMultiplier: number;
+  };
+
+  /**
    * The balance log (AGENTS.md "Balance log"). Read by the game server's sink
    * only; the engine builds a record per fight either way and has no opinion
    * about where it goes.
@@ -486,6 +524,14 @@ export interface BalanceConfig {
     timeZone: string;
     /** Whole hour, 0-23, local to `timeZone`. */
     resetHour: number;
+  };
+  /**
+   * The one nightly nudge to open the loadout (src/engine/loadoutPrompt.ts).
+   * "Night" is the `dungeoneer` day, so the two reset together. `enabled`
+   * false means the bot is never handed a prompt; nothing else changes.
+   */
+  loadoutPrompt: {
+    enabled: boolean;
   };
 }
 
@@ -572,10 +618,18 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     mobDropChance: 0.6,
     survivorLootChance: 0.375,
     casualtyXpMultiplier: 0.4,
+    casualtyGoldMultiplier: 0.4,
     casualtyLootChance: 0.075,
     defeatXpMultiplier: 0.15,
     defeatLootChance: 0.0375,
     compositionBonusMax: 0.25,
+  },
+  rally: {
+    enabled: true,
+    belowFraction: 0.5,
+    toFraction: 0.5,
+    minPartySize: 3,
+    maxMultiplier: 8,
   },
   balanceLog: {
     enabled: true,
@@ -587,6 +641,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     timeZone: "Europe/Amsterdam",
     resetHour: 11,
   },
+  loadoutPrompt: { enabled: true },
 };
 
 /**

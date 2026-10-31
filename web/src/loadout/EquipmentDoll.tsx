@@ -116,27 +116,6 @@ export function EquipmentDoll({
       );
   }, [picking, character.inventory, catalog.gearById]);
 
-  /**
-   * Why an item cannot be worn, or null.
-   *
-   * Mirrors gearUsableBy in the engine, which remains the authority and
-   * refuses the equip regardless of what this shows. Gates read POINTS SPENT,
-   * not the stat's displayed value — see AGENTS.md §10.
-   */
-  const lockReason = (def: GearDefinition): string | null => {
-    const missing = Object.entries(def.requires ?? {}).filter(
-      ([stat, need]) => (character.allocated[stat as keyof typeof character.allocated] ?? 0) < (need as number),
-    );
-    if (missing.length === 0) return null;
-    // text.stat, not the raw key: the engine's shorthand is hp/atk/armour and
-    // a player has never seen those words (AGENTS.md §8).
-    return missing
-      .map(([stat, need]) =>
-        format(text.gear.needsStat, { amount: need as number, stat: text.stat[stat as keyof typeof text.stat] ?? stat }),
-      )
-      .join(", ");
-  };
-
   const socket = (slot: GearSlot) => {
     const item = character.equipment[slot];
     const def = item ? catalog.gearById.get(item.gearId) : undefined;
@@ -338,7 +317,6 @@ export function EquipmentDoll({
           ) : (
             <ul className="slot-list">
               {candidates.map(({ item, def }) => {
-                const locked = lockReason(def);
                 return (
                   <li key={item.instanceId} className={`slot-row rarity-${def.rarity}`}>
                     <ItemIcon def={def} look={item.look ? catalog.gearById.get(item.look) : undefined} slot={def.slot} bodyType={character.appearance.bodyType} size={34} />
@@ -350,14 +328,13 @@ export function EquipmentDoll({
                     <button
                       type="button"
                       className="small"
-                      disabled={busy || locked !== null}
-                      title={locked ?? undefined}
+                      disabled={busy}
                       onClick={() => {
                         onEquip(item.instanceId);
                         setPicking(null);
                       }}
                     >
-                      {locked ?? text.gear.equip}
+                      {text.gear.equip}
                     </button>
                   </li>
                 );

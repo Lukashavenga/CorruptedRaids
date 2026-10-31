@@ -1611,7 +1611,10 @@ const server = createServer((req, res) => {
       }
 
       // The joiner's latest loadout edits, before they are in the party.
-      if (parsed.command.type === "join_dungeon") await refreshFromStore([parsed.command.requestedBy]);
+      // A switch reads the same edits: the build it applies was saved there.
+      if (parsed.command.type === "join_dungeon" || parsed.command.type === "switch_role") {
+        await refreshFromStore([parsed.command.requestedBy]);
+      }
       const result = raid.dispatch(parsed.command);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ...result, handled: true }));
@@ -1701,6 +1704,56 @@ const server = createServer((req, res) => {
         }),
       );
     });
+    return;
+  }
+
+  /**
+   * The nightly "something is waiting in your loadout" prompts, for the bot to
+   * say in chat. Behind CHAT_SECRET like /chat and /redeem.
+   *
+   * POLLED, because Streamer.bot can only act on what it triggers or asks for,
+   * and a fight ending is not a trigger it has. Each call drains the queue the
+   * engine filled when fights ended, and each entry goes through the
+   * `prompt_loadout` command, which is what refuses a second prompt in a night
+   * and a viewer with nothing waiting - so a bot that polls twice, or a server
+   * that restarted, cannot message anyone twice. At most once: a reply the bot
+   * fails to deliver is not resent, which is the right way round for a nudge.
+   *
+   * LOADOUT_URL is required: a prompt with no link is a tease. Unset, nothing
+   * is drained or stamped, so fixing the env loses no one their prompt.
+   * `?format=text` answers one chat line per row for a bot that would rather
+   * not parse JSON.
+   */
+  if (req.method === "POST" && url.pathname === "/prompts") {
+    const bot = checkChatBot(req);
+    if (!bot.ok) {
+      res.writeHead(bot.status, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: false, message: bot.message }));
+      return;
+    }
+    const loadoutUrl = (process.env.LOADOUT_URL ?? "").trim();
+    if (!loadoutUrl) {
+      res.writeHead(503, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: false, message: "LOADOUT_URL is not set - loadout prompts are held" }));
+      return;
+    }
+    const prompts: { userId: string; userName: string; message: string }[] = [];
+    for (const id of [...engine.promptQueue]) {
+      const result = raid.dispatch({ type: "prompt_loadout", requestedBy: id, url: loadoutUrl });
+      if (!result.ok) continue;
+      prompts.push({
+        userId: id.slice("twitch:".length),
+        userName: engine.roster.get(id)?.name ?? id,
+        message: result.message,
+      });
+    }
+    if (url.searchParams.get("format") === "text") {
+      res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end(prompts.map((p) => p.message.replace(/[\r\n]+/g, " ")).join("\n"));
+      return;
+    }
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true, prompts }));
     return;
   }
 

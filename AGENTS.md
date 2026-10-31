@@ -70,10 +70,21 @@ The six levels, shown to players as `POORS - LEVEL 2`:
   derived - a stored copy is a copy that drifts.
 - **Level** = what you earn by playing. It grants **2 attribute points** and
   nothing else. It is a progress bar, not a gate.
-- **Gear gates on attributes, not level.** `GearDefinition.requires` is a
-  `Partial<Record<AllocatableStat, number>>`. A level-80 player who dumped
-  everything into Speed cannot wear the heavy plate, and that is the point:
-  where the points went is the build, so that is what gear should ask about.
+- **Gear has no gate. If you own it, you can wear it.** (Changed 2026-10-31,
+  #22, deliberately; this used to read "gear gates on attributes, not level"
+  via `GearDefinition.requires`.) `gearUsableBy` checks only `enabled` and
+  `bodyTypes`: no attribute requirement and no level requirement in its place.
+  Why it changed: the owner's decision on #22 was "if you have it, you can wear
+  it", the simplest rule for players, taken against the research guide's
+  advice to keep the gates. What it costs: a strong drop is an instant upgrade, so drops
+  and the shop ARE the progression, and a build is now what you spend points
+  on, not what you are allowed to wear. The old gates were also load-bearing
+  in combat (dropping the 33 hp gates alone moved the balanced party's
+  survival from 13% to 47%), so every number measured through them is stale
+  until #59 re-sets `BAND_THRESHOLDS`, `ENTRY_RATING` and the dungeon curves.
+  The `requires` key is gone from `GearDefinition`; the loader ignores it if a
+  file or the store still carries one, so no content was migrated. "Level" of
+  a piece of gear, where #15 and #23 need one, means its RARITY.
 
 ### 4. A dungeon IS a fight. There is no encounter.
 
@@ -320,6 +331,25 @@ receive - so `composeCharacter.ts` needed no change, because it is handed
 sprite ids rather than gear. `parseRoster` rebuilds instances field by field,
 so `look` is named there; `npm run test:store` proves it survives a save.
 
+### A saved build per role
+
+`Character.builds` holds, per role, a spread of points and the INSTANCE ids worn.
+The live `allocated`/`equipment` are the active role's build; `switchRole`
+(`character.ts`) saves them under the role being left and applies the entered
+role's. A role with no saved build keeps what is worn and spent, so clicking an
+unused role strips nobody. The earned total (`spent + unspent`) never changes:
+the entered build is spent out of it and the rest is unspent. Gear that is gone,
+the wrong slot, or fails `gearUsableBy` against the build's own allocation leaves
+its slot empty rather than failing the switch.
+
+`set_role` (loadout) and `switch_role` (gathering party, chat) share it, and
+`join_dungeon` with a role switches an existing character too. `!jTank/!jHeal/!jDPS`
+and `!sTank/!sHeal/!sDPS` are shortcuts for those. **A switch before joining is
+answered "join first", it does not join** - a stray `!sTank` should not put a
+viewer in a fight. `switch_role` is refused outside `gathering` (controller) and
+is a viewer command, so it is in the `character` allowlist and not in
+`OPERATOR_COMMANDS`; the function never has a party, so there it is always refused.
+
 ### The standalone overlay
 
 `npm run build:sim` (`vite build --mode standalone`, into `.pages/`) is the
@@ -447,6 +477,34 @@ count first (`reachedAt`). The overlay holds the crown where it was until a
 replay reaches its outcome, because the engine has already counted the fight
 the audience is still watching. `npm run simulate` asserts the reset either
 side of a clock change, the casualty, sim and tie rules, and the raid rule.
+
+### The nightly loadout prompt
+
+Each viewer is told once a night, in chat, that a sealed chest, unspent points
+or an unworn starter kit is waiting, with the loadout's link. Nothing is
+opened, spent or equipped for them - new viewers staying naked is deliberate
+and this only makes sure they know the page exists.
+
+- **Trigger**: the end of a fight (dungeon, or a raid's boss) queues each party
+  member who has something waiting and no stamp for tonight
+  (`GameEngine.queuePrompts`). "Tonight" is the `balance.dungeoneer` day.
+- **Once a night is the engine's rule, not the caller's.** The bot polls
+  `POST /prompts` (CHAT_SECRET, `?format=text` for plain lines); each queued
+  viewer goes through the `prompt_loadout` command, which refuses a second
+  prompt in a night, a viewer with nothing waiting, a `sim:` viewer, and
+  everything when `balance.loadoutPrompt.enabled` is false. The stamp is
+  `Character.promptedOn`, saved with the character, so a restart does not
+  reset it. The queue itself is memory only: a restart before the bot polls
+  loses the delay, not the prompt, because the stamp is set on claim.
+- **At most once, not at least once.** A line the bot fails to send is not
+  resent. The right way round for a nudge.
+- `LOADOUT_URL` must be set or `/prompts` answers 503 and holds everything.
+- Copy is `text.loadoutPrompt`; the bot side is
+  `docs/streamerbot/loadout-prompts.cs` (a 30s timed action; the existing
+  scripts show the reply path: `CPH.SendMessage`).
+- `npm run report:balance` section 4 ends with low-level (1-9) viewers who
+  fought against those who opened a chest, per UTC night. The prompt itself is
+  not logged, so read it as a trend across the ship date.
 
 ### Content is data
 
@@ -663,6 +721,18 @@ attack) left the timer rate at 25% and win 74%; `focusBreakChance` 0.12 trimmed
 DPS deaths by a point and took healer hits from 11% to 8%. Neither earned its
 place, so the knobs exist and the defaults are unchanged. `report:threat
 --set path=value` measures a change without editing balance.json.
+
+**Rally: the far-below fight at half power, for that fight (#53).** A member
+whose Corruption is under `rally.belowFraction` of the party's rating has Hp,
+Attack and Skill scaled (one factor, capped at `rally.maxMultiplier`) until
+their power reaches `rally.toFraction` of it. `src/engine/rally.ts` is the one
+rule: the resolver applies it to its own copy of the fight stats and the
+roster chip asks the same function, so badge and fight agree. Nothing is
+written to the Character, and Corruption and the party rating are computed from
+real stats, so the level a party meets is unchanged. The log records
+`rallied` per member (`sql/008_balance_log_rallied.sql` must be run before the
+server that writes it); `report:balance` section 5 splits its buckets by it and
+`report:rally` measures it on mixed-level parties. The 0.5s are starting values.
 
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
 `casualtyLootChance: 0.05`. A party that LOSES earns too: `defeatXpMultiplier:
@@ -916,6 +986,14 @@ Each threshold is what a reference party of ten actually rates
 (`BAND_SAMPLE_PARTY`): level 1 naked, level 10 in typical gear, then level 25,
 50, 100 and 200 in the best gear they can wear. Ten in all of them, so the
 levels differ by how EQUIPPED a party is and not by turnout.
+
+**Stale since #22 (gear gates removed, 2026-10-31).** "The best gear they can
+wear" used to be filtered by the gates, so a level-25 party wore less than a
+level-200 one. Now every one of those parties wears the same best-in-slot kit
+and the samples differ only by points spent, and "typical" gear is a random
+pick from the whole catalogue. The thresholds below were deliberately NOT
+re-measured in that change; #59 re-sets them. `npm run simulate` shows the
+four sample-party `known(#59)` failures until then.
 
 **These numbers were wrong here for a long time** - this section listed
 165 and 0/400/1200/2000/3400/6000 after every number had been re-scaled to
@@ -1175,10 +1253,8 @@ many it kept. That guard is not decoration - the script began life as a
 bootstrap that wiped `content/gear/` on every run, and one regeneration
 silently overwrote ten hand-tuned items. Delete a file if you want it rebuilt.
 
-It gates new items on their dominant stat, which is the convention the whole
-catalogue follows without exception. The gate is `4 × the item's tier depth`,
-and the weakest tier of each slot stays ungated so a new player has something
-to put on.
+It no longer writes a gate: gear has none (§2.3, #22). Existing files keep
+whatever `requires` they were generated with; the loader ignores it.
 
 ### UI chrome
 
@@ -1543,9 +1619,8 @@ the originals were not recoverable from disk. What was restored, and how:
 - **Rarity** - recovered from a `statGuide` dump in an earlier session
   transcript (Strapped Harness common, Chainmail Rig rare, Knight's Cuirass
   epic) and confirmed as the positional spread. Correct.
-- **`requires`** - reconstructed as `4 × tier depth`, the rule the rest of the
-  catalogue follows; verified because it reproduces the catalogue-wide gate
-  distribution exactly (59 ungated / 33 hp / 26 atk / 1 armour).
+- **`requires`** - reconstructed as `4 × tier depth` at the time. Moot since
+  #22: gear has no gate and the key is ignored.
 - **`statMods`** - the same transcript gave original power scores for three
   items, and those three are restored exactly (9 / 19 / 22). The other seven
   are the generator's formula values and run slightly strong; the recovered
@@ -1555,13 +1630,13 @@ The visible symptom: the simulator's balanced-party survivor rate reads 13%
 where it historically read 8%, because the top-end chest and pants pieces the
 level-4 reference party equips are a little stronger than they used to be.
 
-**Gear gates compare POINTS SPENT, not the stat value.** `gearUsableBy()` in
-`src/engine/character.ts` reads `character.allocated[stat]`, so `requires:
-{hp: 36}` means "has put 36 points into hp" - roughly level 18 at 2 points a
-level - not "has 36 hp". Every gate in the catalogue is therefore real and
-load-bearing: dropping the 33 hp gates alone moved the simulator's balanced
-party from 13% survival to 47%. Do not reason about a gate from a character's
-displayed stats.
+**Gear gates are gone (#22).** This entry used to explain that they compared
+POINTS SPENT and were load-bearing (the 33 hp gates alone were worth 13% ->
+47% balanced-party survival). Removing them changed which gear every sample
+party wears, so the 13%/8% survivor figures above, the band thresholds and the
+dungeon curves all describe a game that no longer exists. Measured on removal,
+`content/` on disk: balanced party 70% win / 66% survive -> 58% / 58%. #59
+owns re-measuring the rest.
 
 **`retier:gear` reports 45 of 119 items mis-rarified.** Pre-existing drift: an
 item's rarity and its stats were derived independently, so they parted company.

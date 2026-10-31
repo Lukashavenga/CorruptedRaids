@@ -164,6 +164,7 @@ async function readSupabase(): Promise<{ fights: FightRecord[]; economy: Economy
         healsGiven: m.heals_given,
         healsReceived: m.heals_received,
         taunts: m.taunts,
+        rallied: m.rallied ?? false,
         survived: m.survived,
         deathTick: m.death_tick,
         xp: m.xp,
@@ -393,6 +394,46 @@ const lootScrapped = recycled.filter((e) => e.gearSource !== "shop").length;
 console.log(`Found items scrapped against chests opened: ${lootScrapped} of ${opened.length} (${pct(lootScrapped, opened.length)}).`);
 console.log("Economy events are not filtered by --dungeon; they belong to the viewer, not to a place.");
 
+// 4b. do low-level viewers open chests? -----------------------------------------
+// The nightly loadout prompt (src/engine/loadoutPrompt.ts) exists because 22 of
+// the 23 level 1-9 characters in the log had never opened a chest. This is the
+// reading that says whether it worked: by night, how many of the low-level
+// viewers who fought opened one. It cannot see the prompt itself (the bot's
+// message is not logged), so read it as a trend across the date the prompt
+// shipped, not as an effect size.
+const LOW_LEVEL = 9;
+console.log(`\nLow-level viewers (level 1-${LOW_LEVEL}) and chests, by UTC night. A viewer is low-level on a night if they fought at that level.`);
+console.log(`${pad("night", 12)}${lpad("fought", 8)}${lpad("opened", 8)}${lpad("share", 8)}${lpad("chests", 8)}`);
+const lowFought = new Map<string, Set<string>>();
+for (const f of fights) {
+  for (const m of f.members) {
+    if (m.level > LOW_LEVEL || m.characterId.startsWith("sim:")) continue;
+    const night = f.at.slice(0, 10);
+    if (!lowFought.has(night)) lowFought.set(night, new Set());
+    lowFought.get(night)!.add(m.characterId);
+  }
+}
+const openedBy = new Map<string, Map<string, number>>();
+for (const e of opened) {
+  const night = e.at.slice(0, 10);
+  if (!openedBy.has(night)) openedBy.set(night, new Map());
+  const tally = openedBy.get(night)!;
+  tally.set(e.characterId, (tally.get(e.characterId) ?? 0) + 1);
+}
+const everLow = new Set<string>();
+const everOpened = new Set<string>();
+for (const night of [...lowFought.keys()].sort()) {
+  const fought = lowFought.get(night)!;
+  const tally = openedBy.get(night) ?? new Map<string, number>();
+  const openers = [...fought].filter((id) => tally.has(id));
+  const chests = openers.reduce((s, id) => s + (tally.get(id) ?? 0), 0);
+  for (const id of fought) everLow.add(id);
+  for (const id of openers) everOpened.add(id);
+  console.log(`${pad(night, 12)}${lpad(fought.size, 8)}${lpad(openers.length, 8)}${lpad(pct(openers.length, fought.size), 8)}${lpad(chests, 8)}`);
+}
+if (everLow.size === 0) console.log("(no level 1-9 viewers in this range)");
+else console.log(`Ever, in this range: ${everOpened.size} of ${everLow.size} low-level viewers opened a chest (${pct(everOpened.size, everLow.size)}).`);
+
 // 5. the weakest in the room ---------------------------------------------------
 head("5. The weakest in the room: power against the party's rating");
 console.log(
@@ -426,4 +467,23 @@ for (const [label, lo, hi] of RATIOS) {
       `${lpad(mean(rows.map((x) => x.fair)).toFixed(2), 10)}${lpad(Math.round(mean(rows.map((x) => x.m.gold))), 7)}` +
       `${lpad(Math.round(mean(rows.map((x) => x.m.xp))), 6)}`,
   );
+}
+
+// Rally (balance.rally) changes who is in the buckets above only through what
+// they do in the fight: the ratio is still the real Corruption over the real
+// rating. Rows from before Rally have rallied=false, so "no Rally" is both the
+// old log and any fight where it did not apply. Compare a date range before
+// the deploy with one after (--from/--to), or read the split below.
+console.log("\nRally: the same buckets, split by whether the member fought Rallied\n");
+console.log(`${pad("power vs party", 16)}${pad("fought", 11)}${lpad("rows", 7)}${lpad("death%", 8)}${lpad("dmg/fair", 10)}`);
+for (const [label, lo, hi] of RATIOS) {
+  for (const flag of [false, true]) {
+    const rows = measured.filter((x) => x.ratio >= lo && x.ratio < hi && (x.m.rallied ?? false) === flag);
+    if (rows.length === 0) continue;
+    console.log(
+      `${pad(label, 16)}${pad(flag ? "Rallied" : "as is", 11)}${lpad(rows.length, 7)}` +
+        `${lpad(pct(rows.filter((x) => !x.m.survived).length, rows.length), 8)}` +
+        `${lpad(mean(rows.map((x) => x.fair)).toFixed(2), 10)}`,
+    );
+  }
 }

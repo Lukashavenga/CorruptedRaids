@@ -18,6 +18,8 @@ import { pickWeighted, randomInt } from "../rng.js";
 import { deriveCharacterStats, grantChest, grantXp } from "../character.js";
 import { ROLE_PRIMARY_STAT } from "../stats.js";
 import { rollAttack, rollHeal } from "./formulas.js";
+import { partyRating } from "../partyStrength.js";
+import { rallied, rallyStats } from "../rally.js";
 
 interface ActiveBuff {
   stat: StatKey;
@@ -270,6 +272,16 @@ export function runCombat(
 
   // --- build the party side -------------------------------------------------
   const partyStats = party.map((c) => ({ role: c.role, stats: deriveCharacterStats(c, content) }));
+  // Rally: a member far under the party's power fights at a fraction of it, for
+  // this fight only. It replaces the entry in `partyStats` (a copy deriveCharacterStats
+  // just made), never the Character, so saved stats and Corruption are untouched.
+  const rallyIds = rallied(party, content);
+  if (rallyIds.size > 0) {
+    const rating = partyRating(party, content);
+    party.forEach((c, i) => {
+      if (rallyIds.has(c.id)) partyStats[i]!.stats = rallyStats(partyStats[i]!.stats, rating, balance);
+    });
+  }
   applyRoleRarity(partyStats, balance);
 
   const buffs = options.partyBuffs ?? {};
@@ -364,6 +376,7 @@ export function runCombat(
       side: "party" as const,
       role: rt.role,
       level: party[i]!.level,
+      rallied: rallyIds.has(party[i]!.id),
       maxHp: rt.maxHp,
       stats: rt.base,
       appearance: party[i]!.appearance,
@@ -607,10 +620,15 @@ export function runCombat(
       const share = won ? (isSurvivor ? 1 : balance.rewards.casualtyXpMultiplier) : balance.rewards.defeatXpMultiplier;
       // xpRate: see balance.ts. Levels outran gear by an order of magnitude.
       const xp = Math.round(totalXp * share * balance.progression.xpRate);
-      // Gold is looting the bodies. There are no bodies if you lost.
+      // Gold is looting the bodies. There are no bodies if you lost. The fallen
+      // of a WON fight take `casualtyGoldMultiplier` of a survivor's share, so
+      // the players who die most are not the ones paid least.
+      // Casualties now draw the same rolls, so a seeded fight's random sequence
+      // after the first death differs from before this existed.
+      const goldShare = won ? (isSurvivor ? 1 : balance.rewards.casualtyGoldMultiplier) : 0;
       const gold =
-        won && isSurvivor
-          ? enemies.reduce((sum, def) => sum + randomInt(def.goldReward[0], def.goldReward[1], rng), 0)
+        goldShare > 0
+          ? Math.round(enemies.reduce((sum, def) => sum + randomInt(def.goldReward[0], def.goldReward[1], rng), 0) * goldShare)
           : 0;
 
       character.gold += gold;
@@ -630,6 +648,7 @@ export function runCombat(
     ticks: tick,
     tickCeiling,
     endReason,
+    rallied: party.filter((c) => rallyIds.has(c.id)).map((c) => c.id),
   };
 }
 

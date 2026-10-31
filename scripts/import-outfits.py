@@ -395,7 +395,6 @@ def write_gear(outfit: str, title: str) -> list:
             "description": f"Part of the {title} outfit.",
             "tags": [f"outfit:{outfit}"],
             "spriteByBody": {body: f"{outfit}-{body}" for body in BODIES},
-            "requires": {},
         }
         path.write_text(json.dumps(item, indent=2) + "\n", encoding="utf-8")
         written.append(gid)

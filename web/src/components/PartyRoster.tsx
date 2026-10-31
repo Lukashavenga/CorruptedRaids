@@ -12,6 +12,8 @@ export interface RosterEntry {
   downed: boolean;
   /** Holds today's Dungeoneer title: the chip gets a gold rim and a crown. */
   dungeoneer?: boolean;
+  /** Fights stronger than their real power this fight (balance.rally): the chip carries a small mark. */
+  rallied?: boolean;
 }
 
 /**
@@ -69,8 +71,8 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
         return (
           <li
             key={e.id}
-            className={`roster-chip ${e.role ? `role-${e.role}` : ""} ${e.downed ? "is-down" : ""} ${e.dungeoneer ? "is-dungeoneer" : ""}`}
-            title={e.dungeoneer ? `${e.name} - ${text.dungeoneer.title}` : e.name}
+            className={`roster-chip ${e.role ? `role-${e.role}` : ""} ${e.downed ? "is-down" : ""} ${e.dungeoneer ? "is-dungeoneer" : ""} ${e.rallied ? "is-rallied" : ""}`}
+            title={[e.name, e.dungeoneer ? text.dungeoneer.title : "", e.rallied ? text.rally.title : ""].filter(Boolean).join(" - ")}
           >
             {/* The fill is a sibling behind the text rather than a background
                 gradient on the chip, so it can animate its width smoothly
@@ -96,6 +98,7 @@ export function PartyRoster({ entries }: { entries: RosterEntry[] }): JSX.Elemen
               </svg>
             )}
             <span className="roster-name">{e.name}</span>
+            {e.rallied && <span className="roster-rally">{text.rally.badge}</span>}
           </li>
         );
       })}

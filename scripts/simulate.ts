@@ -5,8 +5,13 @@
  *   npm run simulate
  */
 import assert from "node:assert/strict";
-import { partyRating } from "../src/engine/partyStrength.js";
-import { bandFor, BAND_SAMPLE_PARTY, ENTRY_RATING } from "../src/engine/squad.js";
+import { memberPower, partyRating } from "../src/engine/partyStrength.js";
+import { bandFor, BAND_SAMPLE_PARTY, effectiveRating, ENTRY_RATING, expandFight } from "../src/engine/squad.js";
+import { runCombat } from "../src/engine/combat/resolver.js";
+import { rallied } from "../src/engine/rally.js";
+import { dress, spendPoints } from "../src/engine/difficulty.js";
+import { deriveCharacterStats } from "../src/engine/character.js";
+import { xpToNextLevel } from "../src/engine/stats.js";
 import { PARTY_BANDS } from "../src/engine/types.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,12 +21,14 @@ import { mulberry32 } from "../src/engine/rng.js";
 import { SIM_VIEWERS } from "../src/engine/sim.js";
 import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
+import { text } from "../src/text/index.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
-import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
+import { buyGear, createCharacter, grantGear, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 import { dayKey, dungeoneerOf, recordSurvivals } from "../src/engine/dungeoneer.js";
 import { validateBalanceFile } from "../src/engine/content/schemas.js";
+import { parseRoster, ROSTER_FILE_VERSION } from "../src/engine/persistence/rosterStore.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -277,6 +284,84 @@ for (const [size, left] of [[5, smallParty], [25, bigParty]] as const) {
     left < 0.995,
     `a party of ${size} finished at ${(left * 100).toFixed(1)}% HP — that band is untouchable`,
   );
+}
+
+// --- the nightly loadout prompt ----------------------------------------------
+//
+// One prompt per viewer per night, only when something is waiting, and the
+// "once" has to survive a restart: the stamp lives on the character and goes
+// through the same save/load the roster store uses. Clock set, not waited on.
+{
+  assert.throws(() => validateBalanceFile({ loadoutPrompt: { enabled: "yes" } }, "t"), /loadoutPrompt/);
+  const url = "https://example.test/loadout";
+  const at = (iso: string) => Date.parse(iso);
+  const night = new GameEngine(content, mulberry32(11));
+  let clock = at("2026-01-15T19:00:00Z");
+  night.now = () => clock;
+  const fightOnce = (ids: string[]) => {
+    night.dispatch({ type: "open_dungeon", dungeonId: STARTER });
+    for (const id of ids) night.dispatch({ type: "join_dungeon", requestedBy: id, displayName: id });
+    night.dispatch({ type: "start_dungeon" });
+  };
+
+  fightOnce(["twitch:1", "twitch:2"]);
+  // A fresh character carries the starter kit unworn, so there is something to say.
+  assert.ok(night.promptQueue.has("twitch:1"), "end of a first fight queues a viewer with the kit waiting");
+
+  const first = night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url });
+  assert.ok(first.ok && first.message.includes(url) && /starter kit/.test(first.message), `prompt names the link and the kit: ${first.message}`);
+  assert.ok(!night.promptQueue.has("twitch:1"), "claiming takes the viewer off the queue");
+  assert.equal(night.roster.get("twitch:1")!.inventory.length, 5, "a prompt never touches the bag");
+
+  // A second fight the same night: queued neither by the fight nor by hand.
+  clock += 30 * 60_000;
+  fightOnce(["twitch:1"]);
+  assert.ok(!night.promptQueue.has("twitch:1"), "no second prompt in a night");
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "...and the command refuses one");
+
+  // Across a restart: the same roster, saved and reloaded the way the store does.
+  const saved = JSON.parse(JSON.stringify({ version: ROSTER_FILE_VERSION, characters: night.roster.snapshot() }));
+  const reborn = new GameEngine(content, mulberry32(12));
+  reborn.now = () => clock;
+  reborn.roster.hydrate(parseRoster(saved, () => {}));
+  assert.equal(reborn.roster.get("twitch:1")!.promptedOn, night.roster.get("twitch:1")!.promptedOn, "the stamp survives a save and load");
+  assert.equal(reborn.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "a restart does not reset the night");
+  assert.equal(reborn.dispatch({ type: "prompt_loadout", requestedBy: "twitch:2", url }).ok, true, "...but still prompts someone who was not told");
+
+  // The next night, with a chest and points as well, the message names all three.
+  clock = at("2026-01-16T19:00:00Z");
+  const alice = night.roster.get("twitch:1")!;
+  alice.unspentPoints = 3;
+  const chestGear = night.roster.get("twitch:1")!.inventory[0]!.gearId;
+  alice.chests = [{ id: "chest:t1", gearId: chestGear, at: clock }];
+  const next = night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url });
+  assert.ok(next.ok && /chest/.test(next.message) && /3 points/.test(next.message), `next night prompts again: ${next.message}`);
+  assert.equal(alice.chests.length, 1, "the chest is still sealed");
+  assert.equal(alice.unspentPoints, 3, "the points are still unspent");
+
+  // Nothing waiting, nothing said; and sim viewers are never told.
+  const bare = night.roster.ensure("twitch:9", "Bare", "dps");
+  bare.inventory = [];
+  bare.unspentPoints = 0;
+  bare.chests = [];
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:9", url }).ok, false, "nothing waiting, no prompt");
+  assert.equal(bare.promptedOn, undefined, "...and no stamp, so a chest tomorrow still counts");
+  night.roster.ensure("sim:grunkzor", "Grunk", "dps");
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "sim:grunkzor", url }).ok, false, "a sim viewer is never prompted");
+
+  // Dressed in the kit's own slots is "found the page": nothing waiting.
+  const dressed = night.roster.ensure("twitch:10", "Dressed", "dps");
+  for (const item of [...dressed.inventory]) night.dispatch({ type: "equip_gear", requestedBy: "twitch:10", instanceId: item.instanceId });
+  dressed.unspentPoints = 0;
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:10", url }).ok, false, "a viewer who wore the kit is not nagged");
+
+  // The switch.
+  const off = new GameEngine(content, mulberry32(13));
+  off.content.balance.loadoutPrompt.enabled = false;
+  off.roster.ensure("twitch:1", "A", "dps");
+  assert.equal(off.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "disabled means no prompt");
+  off.content.balance.loadoutPrompt.enabled = true;
+  console.log("Loadout prompt: once a night, survives a restart, silent when nothing is waiting.");
 }
 
 // --- the Dungeoneer of the day -----------------------------------------------
@@ -692,10 +777,30 @@ console.log(
   const directions = ["left", "up", "right"] as const;
   let finished = 0;
   let bossesFought = 0;
+  let bossFights = 0;
+  let wonWithCasualties = 0;
   const RUNS = 25;
 
   for (let i = 0; i < RUNS; i += 1) {
     const raidEngine = new GameEngine(raidContent, Math.random);
+    // The boss pays completion gold by the dungeon rule: survivors in full, the
+    // fallen of a WON fight at casualtyGoldMultiplier, a lost fight nothing.
+    // The run is random, so this checks every boss fight that happens to occur.
+    raidEngine.on("fight", (rec: { kind: string; outcome: string; members: { survived: boolean; gold: number }[] }) => {
+      if (rec.kind !== "raid_boss") return;
+      bossFights += 1;
+      const alive = rec.members.filter((m) => m.survived);
+      const dead = rec.members.filter((m) => !m.survived);
+      if (rec.outcome !== "victory") {
+        assert.ok(rec.members.every((m) => m.gold === 0), "a lost raid boss fight paid gold");
+        return;
+      }
+      if (alive.length === 0 || dead.length === 0) return;
+      wonWithCasualties += 1;
+      const mostDead = Math.max(...dead.map((m) => m.gold));
+      assert.ok(dead.every((m) => m.gold > 0), "the fallen of a won raid boss fight were paid no gold");
+      assert.ok(mostDead <= Math.max(...alive.map((m) => m.gold)), "a casualty out-earned every survivor at the raid boss");
+    });
     const controller = new DungeonController(raidEngine);
     controller.dispatch({ type: "open_raid", raidId: raidDef.id });
     controller.dispatch({ type: "sim_join", count: 12 });
@@ -736,6 +841,7 @@ console.log(
     ),
   );
   console.log(`Raids: ${finished}/${RUNS} runs terminated, ${bossesFought} reached the boss.`);
+  console.log(`Raid boss gold: ${bossFights} boss fights seen, ${wonWithCasualties} won with casualties (all paid by the casualty rule). Vacuous while #69 keeps the sim from the boss.`);
 
   // --- chat's vote opens the door ---------------------------------------------
   //
@@ -936,9 +1042,9 @@ console.log(
 {
   const rewardRng = mulberry32(2026);
   const paid = {
-    survivor: { n: 0, xp: 0, loot: 0 },
-    casualty: { n: 0, xp: 0, loot: 0 },
-    loser: { n: 0, xp: 0, loot: 0 },
+    survivor: { n: 0, xp: 0, gold: 0, loot: 0 },
+    casualty: { n: 0, xp: 0, gold: 0, loot: 0 },
+    loser: { n: 0, xp: 0, gold: 0, loot: 0 },
   };
   let mixedWins = 0;
 
@@ -956,6 +1062,7 @@ console.log(
       const won = combat.outcome === "victory";
       const looted = new Set(combat.events.flatMap((e) => (e.type === "loot" ? [e.characterId] : [])));
       const xpOf = new Map(combat.events.flatMap((e) => (e.type === "reward" ? [[e.characterId, e.xp] as const] : [])));
+      const goldOf = new Map(combat.events.flatMap((e) => (e.type === "reward" ? [[e.characterId, e.gold] as const] : [])));
       const members = combat.combatants.filter((c) => c.side === "party");
 
       for (const member of members) {
@@ -965,6 +1072,7 @@ console.log(
         const bucket = !won ? paid.loser : survived ? paid.survivor : paid.casualty;
         bucket.n += 1;
         bucket.xp += xp;
+        bucket.gold += goldOf.get(member.id) ?? 0;
         if (looted.has(member.id)) bucket.loot += 1;
       }
 
@@ -974,6 +1082,10 @@ console.log(
         const alive = xpOf.get(combat.survivorIds[0]!)!;
         const dead = xpOf.get(members.find((m) => !combat.survivorIds.includes(m.id))!.id)!;
         assert.ok(alive > dead, `surviving ${dungeon.id} paid ${alive} xp and dying paid ${dead}`);
+        const goldAlive = goldOf.get(combat.survivorIds[0]!)!;
+        const goldDead = goldOf.get(members.find((m) => !combat.survivorIds.includes(m.id))!.id)!;
+        assert.ok(goldDead > 0, `dying in a won ${dungeon.id} paid no gold - casualtyGoldMultiplier is not reaching the fallen`);
+        assert.ok(goldDead < goldAlive * 1.5, `dying in ${dungeon.id} paid ${goldDead}g against ${goldAlive}g for surviving`);
       }
     }
   }
@@ -1002,12 +1114,22 @@ console.log(
     "losing pays gear too readily against winning",
   );
 
+  // Gold, like XP, is ordered on the average per head: survived > died in a
+  // win > lost, and a lost fight pays none at all. (Per-fight rolls are random,
+  // so the per-fight check above only guards against a missing payout.)
+  const goldAvg = (b: { n: number; gold: number }) => (b.n ? b.gold / b.n : 0);
+  assert.equal(paid.loser.gold, 0, "a lost fight paid gold");
+  assert.ok(
+    goldAvg(paid.survivor) > goldAvg(paid.casualty) && goldAvg(paid.casualty) > goldAvg(paid.loser),
+    `gold must run survived (${goldAvg(paid.survivor)}) > died in a win (${goldAvg(paid.casualty)}) > lost (${goldAvg(paid.loser)})`,
+  );
+
   const pct = (b: { n: number; loot: number }) => (b.n ? `${Math.round((b.loot / b.n) * 100)}%` : "n/a");
   const avg = (b: { n: number; xp: number }) => (b.n ? Math.round(b.xp / b.n) : 0);
   console.log(
-    `Rewards: survived ${avg(paid.survivor)} xp / ${pct(paid.survivor)} gear, ` +
-      `died in a win ${avg(paid.casualty)} xp / ${pct(paid.casualty)} gear, ` +
-      `lost ${avg(paid.loser)} xp / ${pct(paid.loser)} gear.`,
+    `Rewards: survived ${avg(paid.survivor)} xp / ${Math.round(goldAvg(paid.survivor))}g / ${pct(paid.survivor)} gear, ` +
+      `died in a win ${avg(paid.casualty)} xp / ${Math.round(goldAvg(paid.casualty))}g / ${pct(paid.casualty)} gear, ` +
+      `lost ${avg(paid.loser)} xp / ${Math.round(goldAvg(paid.loser))}g / ${pct(paid.loser)} gear.`,
   );
 }
 
@@ -1074,6 +1196,172 @@ console.log(
   const fractional = spend.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 1, atk: 0.5 } });
   assert.ok(!fractional.ok && snap() === before, "a non-integer amount is refused and changes nothing");
   console.log("allocate_many: a valid batch applies; over-budget, bad-stat and fractional batches change nothing.");
+}
+
+// --- a saved build per role --------------------------------------------------
+{
+  const e = new GameEngine(content, mulberry32(11));
+  const id = "twitch:builds";
+  e.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  assert.ok(!e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok, "a switch before joining is refused, not a join");
+  assert.ok(!e.roster.has(id) && e.partyIds.length === 0, "...and does not put anyone in the party");
+  e.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Builds", role: "dps" });
+  const c = e.roster.get(id)!;
+  c.unspentPoints = 10;
+
+  // DPS build: 6 atk, a helmet on.
+  e.dispatch({ type: "allocate_many", requestedBy: id, points: { atk: 6 } });
+  const helm = c.inventory.find((g) => content.getGear(g.gearId).slot === "head" && content.getGear(g.gearId).enabled !== false)!;
+  assert.ok(e.dispatch({ type: "equip_gear", requestedBy: id, instanceId: helm.instanceId }).ok, "the check needs a helmet on");
+
+  // Tank: nothing saved yet, so it inherits what is worn and spent.
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok);
+  assert.equal(c.role, "tank");
+  assert.equal(c.allocated.atk, 6, "a role with no saved build keeps what was spent");
+  assert.equal(c.equipment.head?.instanceId, helm.instanceId, "...and what is worn");
+
+  // Rebuild the tank: respec, 4 into hp, helmet off.
+  e.dispatch({ type: "respec", requestedBy: id });
+  e.dispatch({ type: "allocate_many", requestedBy: id, points: { hp: 4 } });
+  e.dispatch({ type: "unequip_gear", requestedBy: id, slot: "head" });
+  const total = c.unspentPoints + 4;
+  assert.equal(total, 10);
+
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" }).ok);
+  assert.deepEqual(c.allocated, { hp: 0, atk: 6, skill: 0, spd: 0 }, "DPS gets its own spread back");
+  assert.equal(c.unspentPoints, 4, "the earned total is unchanged: unspent is whatever the build leaves");
+  assert.equal(c.equipment.head?.instanceId, helm.instanceId, "DPS gets its helmet back");
+
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" }).ok);
+  assert.deepEqual(c.allocated, { hp: 4, atk: 0, skill: 0, spd: 0 });
+  assert.equal(c.equipment.head, undefined, "the tank build had no helmet");
+  assert.ok(c.inventory.some((g) => g.instanceId === helm.instanceId), "...and the helmet is in the bag");
+
+  // A recycled item leaves its slot empty rather than failing the switch.
+  e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" });
+  e.dispatch({ type: "unequip_gear", requestedBy: id, slot: "head" });
+  e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+  c.builds!.dps!.equipment.head = helm.instanceId;
+  e.dispatch({ type: "recycle_gear", requestedBy: id, instanceId: helm.instanceId });
+  assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" }).ok, "a build naming a recycled item still applies");
+  assert.equal(c.equipment.head, undefined, "...with that slot empty");
+
+  // Usability (enabled, body type) is re-checked when a build is applied; there
+  // is no stat gate any more (#22).
+  const disabled = content.listGear().find((g) => g.enabled === false);
+  if (disabled) {
+    const gi = grantGear(c, disabled.id);
+    c.builds!.tank!.equipment[disabled.slot] = gi.instanceId;
+    e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+    assert.notEqual(c.equipment[disabled.slot]?.instanceId, gi.instanceId, "gear the build cannot wear is left in the bag");
+  }
+
+  // Joining as a role switches an existing character and applies its build.
+  e.dispatch({ type: "reset_dungeon" });
+  e.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  c.role = "dps";
+  assert.ok(e.dispatch({ type: "join_dungeon", requestedBy: id, role: "healer" }).ok);
+  assert.equal(c.role, "healer", "joining as a role switches an existing character to it");
+  console.log("Role builds: saved per role, restored on switch, missing gear empties its slot, a pre-join switch is refused.");
+}
+
+// --- chat shortcuts ------------------------------------------------------------
+{
+  for (const [word, role] of [["jTank", "tank"], ["JHEAL", "healer"], ["jDPS", "dps"]] as const) {
+    const p = parseChatLine({ userId: "9", userName: "Z", message: `!${word}` });
+    assert.ok(p?.kind === "join" && p.command.type === "join_dungeon" && p.command.role === role, `!${word} joins as ${role}`);
+  }
+  for (const [word, role] of [["sTank", "tank"], ["SHEAL", "healer"], ["sdps", "dps"]] as const) {
+    const p = parseChatLine({ userId: "9", message: `!${word}` });
+    assert.ok(p?.kind === "switch" && p.command.type === "switch_role" && p.command.role === role, `!${word} switches to ${role}`);
+    assert.equal(p.command.requestedBy, "twitch:9");
+  }
+  console.log("Chat: !jTank/!jHeal/!jDPS join and !sTank/!sHeal/!sDPS switch, case-insensitively.");
+}
+
+// --- switch_role is a gathering-window command, driven through the controller --
+{
+  const e = new GameEngine(content, mulberry32(12));
+  const controller = new DungeonController(e);
+  const id = "twitch:locked";
+  controller.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  assert.equal(controller.state, "gathering");
+  controller.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Locked", role: "dps" });
+  controller.dispatch({ type: "sim_join", count: 6 });
+
+  const open = controller.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+  assert.ok(open.ok, "a switch while gathering is allowed");
+  assert.equal(e.roster.get(id)!.role, "tank");
+
+  controller.dispatch({ type: "start_dungeon" });
+  assert.notEqual(controller.state, "gathering", "the run has left the gathering window");
+  const locked = controller.dispatch({ type: "switch_role", requestedBy: id, role: "healer" });
+  assert.ok(!locked.ok, "a switch after the fight starts is refused");
+  assert.equal(locked.message, text.errors.switchLocked);
+  assert.equal(e.roster.get(id)!.role, "tank", "...and the role did not change");
+  controller.dispose();
+  console.log("switch_role: allowed while gathering, refused with the locked message once the fight starts.");
+}
+
+// --- Rally: the weak fight stronger, and nothing is saved --------------------
+{
+  const mk = (id: string, role: "tank" | "healer" | "dps", level: number, dressed: boolean) => {
+    const c = createCharacter({ id, name: id, role });
+    for (let l = 1; l < level; l += 1) grantXp(c, xpToNextLevel(l), content.balance);
+    if (dressed) {
+      spendPoints(c, role, content.balance);
+      dress(c, content, "best", mulberry32(7));
+    }
+    return c;
+  };
+  const build = () => [
+    mk("rally:vet-t", "tank", 40, true),
+    mk("rally:vet-h", "healer", 40, true),
+    mk("rally:vet-d", "dps", 40, true),
+    mk("rally:new-1", "dps", 1, false),
+    mk("rally:new-2", "dps", 1, false),
+  ];
+  const dungeon = content.listDungeons()[0]!;
+  const fightOf = (party: ReturnType<typeof build>) =>
+    runCombat(
+      party,
+      expandFight(dungeon, dungeon.id, dungeon.name, effectiveRating(partyRating(party, content), party.length), content.balance.bandStatScale),
+      content,
+      content.balance,
+      mulberry32(11),
+    );
+
+  const party = build();
+  const before = party.map((c) => ({
+    stats: JSON.stringify(deriveCharacterStats(c, content)),
+    power: memberPower(c, content),
+    allocated: JSON.stringify(c.allocated),
+    equipment: JSON.stringify(c.equipment),
+  }));
+  const ratingBefore = partyRating(party, content);
+  const result = fightOf(party);
+  assert.deepEqual(result.rallied, ["rally:new-1", "rally:new-2"], "exactly the two naked newcomers are Rallied");
+  party.forEach((c, i) => {
+    assert.equal(JSON.stringify(deriveCharacterStats(c, content)), before[i]!.stats, `${c.id}: saved stats unchanged by a Rallied fight`);
+    assert.equal(memberPower(c, content), before[i]!.power, `${c.id}: Corruption unchanged by a Rallied fight`);
+    assert.equal(JSON.stringify(c.allocated), before[i]!.allocated, `${c.id}: allocation unchanged`);
+    assert.equal(JSON.stringify(c.equipment), before[i]!.equipment, `${c.id}: equipment unchanged`);
+  });
+  assert.equal(partyRating(party, content), ratingBefore, "the party rating is unchanged by Rally");
+
+  const newcomer = result.combatants.find((c) => c.id === "rally:new-1")!;
+  const real = deriveCharacterStats(party[3]!, content);
+  assert.equal(newcomer.rallied, true, "the combatant is marked Rallied");
+  assert.ok(newcomer.stats.hp > real.hp && newcomer.stats.atk > real.atk, "a Rallied member's FIGHT stats are raised");
+  assert.ok(!result.combatants.find((c) => c.id === "rally:vet-t")!.rallied, "a veteran is not Rallied");
+
+  content.balance.rally.enabled = false;
+  assert.deepEqual(fightOf(build()).rallied, [], "Rally off: nobody is Rallied");
+  content.balance.rally.enabled = true;
+  const pair = build().slice(0, 2).concat(build().slice(3, 4));
+  assert.equal(pair.length, 3);
+  assert.ok(rallied(build().slice(2, 4), content).size === 0, "a party under minPartySize is not Rallied");
+  console.log(`Rally: ${result.rallied!.length} Rallied; saved stats, Corruption, allocation, gear and party rating unchanged.`);
 }
 
 // --- reset returns to idle ---------------------------------------------------

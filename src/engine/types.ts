@@ -369,20 +369,6 @@ export interface GearDefinition {
   name: string;
   slot: GearSlot;
   rarity: Rarity;
-  /**
-   * What a character must have SPENT to wear this, per attribute.
-   *
-   * Attributes, not level. A level is now just a count of how many points you
-   * have been handed; where they went is the actual decision, and it is the one
-   * gear should care about. Plate that needs 40 Armour is a statement about the
-   * character who wears it — someone who committed to soaking — in a way that
-   * "Corruption 8" never was, because at level 8 everybody is identical apart
-   * from a choice this requirement can now read.
-   *
-   * Checked against `allocated`, so gear cannot lift you into more gear: only
-   * points you spent yourself count, never points other items granted.
-   */
-  requires: Partial<Record<AllocatableStat, number>>;
   statMods: Partial<Stats>;
   description: string;
   tags?: string[];
@@ -1065,6 +1051,36 @@ export interface Character {
    * survived since the field existed.
    */
   daily?: DailyTally;
+  /**
+   * A saved build per role. See RoleBuild and `switchRole` in character.ts.
+   *
+   * The LIVE `allocated` and `equipment` are always the active role's build;
+   * an entry here is written when a role is LEFT, so `builds[role]` for the
+   * current role is stale and nothing reads it. Absent means no role has been
+   * left yet, and a role with no entry inherits what is worn when entered.
+   */
+  builds?: Partial<Record<Role, RoleBuild>>;
+  /**
+   * The day (same key as `daily.day`) this viewer was last sent the "something
+   * is waiting in your loadout" prompt, so they get at most one a night.
+   *
+   * On the character for the reason `daily` is: it is saved wherever the
+   * character is, so a restart mid-stream cannot make the bot ask again.
+   * Compared, never reset - a stamp from an earlier day is simply not tonight's.
+   */
+  promptedOn?: string;
+}
+
+/**
+ * One role's saved spread of points and worn gear.
+ *
+ * Gear is named by INSTANCE id, not copied: one item may sit in several roles'
+ * builds, and an id that no longer resolves (recycled, consumed by transmog)
+ * simply leaves its slot empty when the build is applied.
+ */
+export interface RoleBuild {
+  allocated: Record<AllocatableStat, number>;
+  equipment: Partial<Record<GearSlot, string>>;
 }
 
 export interface DailyTally {
@@ -1089,6 +1105,8 @@ export interface CombatantSnapshot {
   role?: Role;
   /** Party members only. */
   level?: number;
+  /** Party members only: fought Rallied (balance.rally). `stats` are then the raised fight stats. */
+  rallied?: boolean;
   /** Enemies only. */
   kind?: EncounterKind;
   maxHp: number;
@@ -1150,6 +1168,8 @@ export interface CombatResult {
   ticks: number;
   tickCeiling: number;
   endReason: FightEndReason;
+  /** Party members who fought Rallied (balance.rally). Absent on results from before Rally. */
+  rallied?: string[];
 }
 
 /** `timer`: both sides were still standing when the tick ceiling hit. */

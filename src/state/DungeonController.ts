@@ -445,6 +445,8 @@ export class DungeonController extends EventEmitter {
         return this.fsm.state === "choosing" || this.fsm.state === "reveal"
           ? null
           : { ok: false, message: text.errors.notChoosing };
+      case "switch_role":
+        return this.fsm.state === "gathering" ? null : { ok: false, message: text.errors.switchLocked };
       case "start_dungeon":
         return this.fsm.state === "gathering" ? null : { ok: false, message: text.errors.notGathering };
       default:

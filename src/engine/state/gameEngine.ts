@@ -50,14 +50,16 @@ import {
   respec,
   setAppearance,
   setHiddenSlots,
-  setRole,
+  switchRole,
   unequipGear,
 } from "../character.js";
 import { xpToNextLevel } from "../stats.js";
 import { runCombat } from "../combat/resolver.js";
 import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
-import { dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
+import { rallied } from "../rally.js";
+import { dayKey, dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
+import { promptRefusal, promptText, waitingFor } from "../loadoutPrompt.js";
 import { text, format } from "../../text/index.js";
 
 export interface DispatchResult {
@@ -102,6 +104,8 @@ export interface PartyMemberView {
    * factor of three.
    */
   corruption: number;
+  /** Would fight Rallied if the fight started now (balance.rally); the roster chip shows it. */
+  rallied: boolean;
   level: number;
   xp: number;
   xpToNext: number;
@@ -297,6 +301,14 @@ export class GameEngine extends EventEmitter {
   /** Viewer ids that have joined the open run, in join order. */
   partyIds: string[] = [];
   lastCombat: CombatResult | null = null;
+  /**
+   * Viewers whose fight just ended with something waiting in their loadout,
+   * for the bot to collect through POST /prompts. Memory only, on purpose: the
+   * stamp that makes it "once a night" is `promptedOn` on the character, set
+   * when the prompt is CLAIMED, so a restart between queueing and claiming
+   * loses nothing but the delay - the next fight queues them again.
+   */
+  promptQueue = new Set<string>();
   /** See StateSnapshot.dungeoneerChange. */
   dungeoneerChange: StateSnapshot["dungeoneerChange"] = null;
   /**
@@ -408,6 +420,30 @@ export class GameEngine extends EventEmitter {
     this.dungeoneerChange = after && after.id !== before?.id ? { from: before, to: after } : null;
   }
 
+  /**
+   * Queues whoever has just fought, has something to open and has not been
+   * prompted tonight - which is the end of a viewer's first fight of the
+   * night, since after that they carry tonight's stamp. Claiming re-checks
+   * everything, so this only has to be cheap.
+   */
+  private queuePrompts(): void {
+    const at = this.now();
+    for (const id of this.partyIds) {
+      const character = this.roster.get(id);
+      if (!character) continue;
+      const waiting = waitingFor(character, (gearId) => this.slotOf(gearId));
+      if (promptRefusal(character, waiting, at, this.content.balance) === null) this.promptQueue.add(id);
+    }
+  }
+
+  private slotOf(gearId: string) {
+    try {
+      return this.content.getGear(gearId).slot;
+    } catch {
+      return null;
+    }
+  }
+
   /** Identifies a run across its fights; assigned when one is opened. */
   runId = "";
   private runSeq = 0;
@@ -461,6 +497,10 @@ export class GameEngine extends EventEmitter {
           command.role ?? "dps",
           this.content.balance.economy.startingGold,
         );
+        // A role named on the way in is the role they fight as, wearing that
+        // role's saved build. `ensure` only reads it for a NEW character, so
+        // someone who already exists is switched here.
+        if (command.role && character.role !== command.role) switchRole(character, command.role, this.content);
         this.partyIds.push(character.id);
         return { ok: true, message: format(text.dungeon.joined, { name: character.name }) };
       }
@@ -520,7 +560,7 @@ export class GameEngine extends EventEmitter {
         // between a chat that fills those roles and a chat that resents them.
         if (combat.outcome === "victory") {
           const dungeon = this.openDungeon;
-          const { casualtyXpMultiplier, compositionBonusMax } = this.content.balance.rewards;
+          const { casualtyXpMultiplier, casualtyGoldMultiplier, compositionBonusMax } = this.content.balance.rewards;
           const cover = compositionFactor(party.map((c) => c.role));
           // compositionFactor floors at 0.45 for a party with no support at
           // all, so it is rescaled here to 0..1 before paying out.
@@ -529,11 +569,12 @@ export class GameEngine extends EventEmitter {
           for (const character of party) {
             const survived = combat.survivorIds.includes(character.id);
             const share = survived ? 1 : casualtyXpMultiplier;
-            let gold = 0;
-            if (survived) {
-              gold = randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng);
-              character.gold += gold;
-            }
+            // The fallen take a share of the completion gold too; see
+            // `casualtyGoldMultiplier`.
+            const gold = Math.round(
+              randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng) * (survived ? 1 : casualtyGoldMultiplier),
+            );
+            character.gold += gold;
             // xpRate: see balance.ts.
             const xp = Math.round(dungeon.completionXp * share * bonus * this.content.balance.progression.xpRate);
             extras.set(character.id, { xp, gold });
@@ -543,6 +584,7 @@ export class GameEngine extends EventEmitter {
           }
         }
         this.countSurvivors(combat);
+        this.queuePrompts();
 
         this.recordFight(
           {
@@ -704,11 +746,21 @@ export class GameEngine extends EventEmitter {
         });
 
         if (combat.outcome === "victory") {
-          for (const id of combat.survivorIds) {
-            const character = this.roster.get(id);
-            if (!character) continue;
-            const gold = randomInt(def.completionGold[0], def.completionGold[1], this.rng);
+          // Completion GOLD follows the dungeon rule (`casualtyGoldMultiplier`):
+          // someone who fell in a fight that was WON still gets a share, so the
+          // boss is not the one fight where dying costs the whole payout.
+          // Completion XP is unchanged and stays with the survivors.
+          const { casualtyGoldMultiplier } = this.content.balance.rewards;
+          for (const character of this.party) {
+            const survived = combat.survivorIds.includes(character.id);
+            const gold = Math.round(
+              randomInt(def.completionGold[0], def.completionGold[1], this.rng) * (survived ? 1 : casualtyGoldMultiplier),
+            );
             character.gold += gold;
+            if (!survived) {
+              bossExtras.set(character.id, { xp: 0, gold });
+              continue;
+            }
             bossExtras.set(character.id, { xp: def.completionXp, gold });
             for (const level of grantXp(character, def.completionXp, this.content.balance)) {
               combat.events.push({ type: "levelUp", characterId: character.id, newLevel: level });
@@ -718,6 +770,7 @@ export class GameEngine extends EventEmitter {
         // Here and not at the doors: a raid is one run, and it is survived
         // only by whoever is standing when its boss falls.
         this.countSurvivors(combat);
+        this.queuePrompts();
 
         this.recordFight(
           {
@@ -777,8 +830,23 @@ export class GameEngine extends EventEmitter {
       case "set_role": {
         const character = this.roster.get(command.requestedBy);
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
-        const result = setRole(character, command.role);
+        const result = switchRole(character, command.role, this.content);
         return { ok: result.ok, message: result.ok ? format(text.loadout.roleSet, { role: text.role[command.role] }) : result.reason ?? "" };
+      }
+
+      case "switch_role": {
+        // Not gated on the phase here: the controller refuses it outside the
+        // gathering window, and this only has to know the viewer is in the
+        // queued party. Joining them instead was considered and rejected - a
+        // stray `!sTank` should not put a viewer into a fight they did not ask for.
+        if (!this.hasOpenRun) return { ok: false, message: text.errors.noOpenRun };
+        const character = this.roster.get(command.requestedBy);
+        if (!character || !this.partyIds.includes(character.id)) return { ok: false, message: text.errors.joinFirst };
+        if (character.role === command.role) {
+          return { ok: false, message: format(text.errors.alreadyRole, { role: text.role[command.role] }) };
+        }
+        switchRole(character, command.role, this.content);
+        return { ok: true, message: format(text.dungeon.switched, { name: character.name, role: text.role[command.role] }) };
       }
 
       case "set_appearance": {
@@ -856,6 +924,22 @@ export class GameEngine extends EventEmitter {
           chest: { instanceId: opened.instance.instanceId, gearId: opened.gearId },
           economy: this.economyDraft(character.id, "open_chest", { gearId: opened.gearId, gearSource: "loot" }),
         };
+      }
+
+      case "prompt_loadout": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        const at = this.now();
+        const waiting = waitingFor(character, (gearId) => this.slotOf(gearId));
+        const refusal = promptRefusal(character, waiting, at, this.content.balance);
+        this.promptQueue.delete(character.id);
+        if (refusal) {
+          const t = text.loadoutPrompt;
+          const reasons = { disabled: t.refusedDisabled, sim: t.refusedSim, already: t.refusedAlready, nothing: t.refusedNothing };
+          return { ok: false, message: reasons[refusal] };
+        }
+        character.promptedOn = dayKey(at, this.content.balance.dungeoneer);
+        return { ok: true, message: promptText(character, waiting, command.url) };
       }
 
       case "recycle_gear": {
@@ -1005,7 +1089,7 @@ export class GameEngine extends EventEmitter {
     }
   }
 
-  private viewOf(character: Character): PartyMemberView {
+  private viewOf(character: Character, rallyIds: ReadonlySet<string> = new Set()): PartyMemberView {
     const equipment: PartyMemberView["equipment"] = {};
     for (const [slot, instance] of Object.entries(character.equipment)) {
       equipment[slot] = instance
@@ -1021,6 +1105,7 @@ export class GameEngine extends EventEmitter {
       id: character.id,
       name: character.name,
       corruption: memberPower(character, this.content),
+      rallied: rallyIds.has(character.id),
       level: character.level,
       xp: character.xp,
       xpToNext: xpToNextLevel(character.level),
@@ -1082,9 +1167,10 @@ export class GameEngine extends EventEmitter {
         }
       : null;
 
+    const rallyIds = rallied(this.party, this.content);
     return {
       run,
-      party: this.party.map((c) => this.viewOf(c)),
+      party: this.party.map((c) => this.viewOf(c, rallyIds)),
       partyStrength: effectiveRating(partyRating(this.party, this.content), this.party.length),
       lastCombat: this.lastCombat,
       rosterSize: this.roster.size,

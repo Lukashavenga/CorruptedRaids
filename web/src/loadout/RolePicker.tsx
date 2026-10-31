@@ -17,8 +17,8 @@ export interface RolePickerProps {
  * Role selection. Per AGENTS.md §2.6 this belongs here and not on the
  * overlay — it's a personal choice, not a spectator control.
  *
- * Switching role keeps whatever points the player has already spent; only
- * the role's base spread swaps beneath them (see setRole in character.ts).
+ * Each role keeps its own saved points and worn gear (see switchRole in
+ * character.ts): leaving a role saves its build, entering one restores it.
  * That's why this is a plain toggle with no confirmation: nothing is lost.
  *
  * The three cards are the sheet's own role plates — teal, violet, green — so
@@ -67,6 +67,8 @@ export function RolePicker({ current, onPick, busy, balance }: RolePickerProps):
           "Tanks draw attacks" - which is true, unfalsifiable and no use to
           anyone deciding where to put a point. */}
       <RoleGuide role={reading} balance={balance} />
+
+      <p className="role-build-note">{text.loadout.roleBuildNote}</p>
 
       {reading !== current && (
         <button

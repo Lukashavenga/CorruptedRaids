@@ -176,33 +176,6 @@ export function GearTuner({ gear, onSaved, setStatus, placements, savePlacements
           </select>
         </label>
 
-        <h3 className="sub-heading">Requires</h3>
-        <p className="admin-hint">
-          Points the wearer must have SPENT. Gear cannot lift you into more gear - only your own
-          allocation counts. At 2 points a level, 40 here is a level-20 specialist.
-        </p>
-        {ALLOCATABLE_STATS.map((stat) => {
-          const value = draft.requires?.[stat] ?? 0;
-          return (
-            <label key={stat}>
-              {stat} {value}
-              <input
-                type="range"
-                min={0}
-                max={200}
-                step={2}
-                value={value}
-                onChange={(e) => {
-                  const next = { ...draft.requires };
-                  if (Number(e.target.value) === 0) delete next[stat];
-                  else next[stat] = Number(e.target.value);
-                  patch({ requires: next });
-                }}
-              />
-            </label>
-          );
-        })}
-
         <button type="button" className={dirty ? "admin-danger" : "admin-revert"} onClick={save} disabled={!dirty}>
           {dirty ? "Save to JSON" : "No changes"}
         </button>

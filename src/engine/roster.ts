@@ -23,7 +23,7 @@ const STARTER_HAIR = [
  * equipping, hiding, or the placement art without hand-granting gear over HTTP
  * first. Delete this constant to ship an empty-handed start.
  */
-const STARTER_KIT = [
+export const STARTER_KIT = [
   "crusader-helm",
   "strapped-harness",
   "worn-breeches",

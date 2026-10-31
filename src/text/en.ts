@@ -60,6 +60,7 @@ export const en = {
   dungeon: {
     opened: "{name} - the doors are open!",
     joined: "{name} joined the party.",
+    switched: "{name} switched to {role}.",
     simJoined: "{count} viewers joined.",
     cleared: "{name} has fallen!",
     wiped: "Driven out of {name}.",
@@ -88,6 +89,15 @@ export const en = {
     title: "Dungeoneer of the day",
     holder: "Dungeoneer of the day: {name} • {count} survived",
     taken: "New Dungeoneer of the day: {name}!",
+  },
+
+  /**
+   * Rally (balance.rally): a member far under the party fights stronger for
+   * that fight. `badge` sits at the end of a roster chip, so it is short.
+   */
+  rally: {
+    badge: "R",
+    title: "Rallied: fights stronger this fight",
   },
 
   /** The five overlay phases — see src/state/dungeonStates.config.ts. */
@@ -179,11 +189,6 @@ export const en = {
     unequipped: "Unequipped.",
     empty: "Empty",
     granted: "Granted {gearId} to {name}.",
-    requiresLevel: "Needs {level}",
-    /* Gates read POINTS SPENT in a stat, not the stat's displayed value —
-       AGENTS.md §10. The wording says "spent" for that reason. */
-    needsStat: "Needs {amount} spent in {stat}",
-    noRequirement: "no requirement",
   },
 
   /**
@@ -248,6 +253,14 @@ export const en = {
     inRunNotice: "You are in a run - changes are locked until it ends.",
 
     statsHeading: "Stats",
+    /* The role's two stats, marked on the cards (#56). One line on why; no
+       button spends for the player. Keyed by role so a spec switch swaps it. */
+    roleStatsMark: "Key",
+    roleStatsLine: {
+      tank: "Tank wants Health and Skill: soak the hits and shrug off the rest.",
+      healer: "Healer wants Skill and Speed: heal for more, and act more often.",
+      dps: "DPS wants Damage and Speed: hit hard and go first.",
+    } satisfies Record<Role, string>,
     // format() is deliberately not a plural-aware i18n library (see
     // format.ts), so a singular variant is its own key rather than a rule.
     pointsAvailable: "{count} points to spend",
@@ -285,6 +298,7 @@ export const en = {
     roleHeading: "Role",
     roleSet: "Role set to {role}.",
     becomeRole: "Become a {role}",
+    roleBuildNote: "Each role keeps its own points and gear.",
     roleHint: "Tanks draw attacks. Healers keep the party up. DPS end fights faster.",
     roleBlurb: {
       tank: "Draws enemy attention",
@@ -660,8 +674,6 @@ export const en = {
     priceHint: "Shelf price only. Recycling pays from the item's own value, not this.",
     usePrice: "Default {gold}g",
     resetPrice: "Use default",
-    gate: "Needs {requires}",
-    ungated: "No gate",
     noMods: "No stat changes",
     disabled: "Item is switched off, so viewers do not see it",
     nothingToAdd: "Nothing left in the catalogue matches.",
@@ -735,6 +747,24 @@ export const en = {
     cannotSave: "Cannot save: {reason}",
   },
 
+  /**
+   * The bot's one nightly nudge (src/engine/loadoutPrompt.ts). Sent to chat,
+   * so it is a single line: Twitch cuts a message at 500 characters.
+   * {waiting} is the comma-joined list below; {url} is the loadout.
+   */
+  loadoutPrompt: {
+    message: "@{name} you have {waiting} waiting on your character: {url}",
+    chestOne: "a sealed chest",
+    chestMany: "{count} sealed chests",
+    pointOne: "1 point to spend",
+    pointMany: "{count} points to spend",
+    kit: "a starter kit still in your bag",
+    refusedDisabled: "Loadout prompts are switched off.",
+    refusedSim: "Simulated viewers are not prompted.",
+    refusedAlready: "That viewer has already been prompted tonight.",
+    refusedNothing: "Nothing is waiting for that viewer.",
+  },
+
   errors: {
     // Named, not generic, because the caller that hits this is a bot with a
     // typo in it and the only useful thing to hand back is the string it sent.
@@ -759,6 +789,9 @@ export const en = {
     alreadyJoined: "You're already in the party.",
     emptyParty: "Nobody has joined yet.",
     joinWindowClosed: "The join window has closed.",
+    switchLocked: "Roles are locked once the fight starts.",
+    joinFirst: "Join first - !jTank, !jHeal or !jDPS.",
+    alreadyRole: "You're already a {role}.",
     notGathering: "No party is forming right now.",
     notChoosing: "There is no path to choose right now.",
     runInProgress: "A run is already in progress.",

@@ -7,6 +7,7 @@ import type {
   GearSource,
   GearSlot,
   Role,
+  RoleBuild,
   SealedChest,
   Stats,
 } from "./types.js";
@@ -208,7 +209,7 @@ export interface MutationResult {
  * Whether an item is usable by this character at all.
  *
  * One function rather than checks scattered across equip, the shop and loot,
- * because "usable" has three independent reasons to be false and they must
+ * because "usable" has independent reasons to be false and they must
  * agree everywhere — an item the shop sells but equip refuses is worse than
  * one that simply is not for sale.
  */
@@ -217,12 +218,7 @@ export function gearUsableBy(def: GearDefinition, character: Character): Mutatio
   if (def.bodyTypes && !def.bodyTypes.includes(character.appearance.bodyType)) {
     return { ok: false, reason: `${def.name} is not cut for that body.` };
   }
-  for (const [stat, needed] of Object.entries(def.requires) as [AllocatableStat, number][]) {
-    const has = character.allocated[stat] ?? 0;
-    if (has < needed) {
-      return { ok: false, reason: `${def.name} needs ${needed} ${stat} (${character.name} has spent ${has})` };
-    }
-  }
+  // No stat or level gate: if you own it, you can wear it (#22, AGENTS.md §2.3).
   return { ok: true };
 }
 
@@ -311,14 +307,75 @@ export function respec(character: Character): MutationResult {
   return { ok: true };
 }
 
+/** Every point a character has spent, across all four stats. */
+function spentPoints(allocated: Record<AllocatableStat, number>): number {
+  return ALLOCATABLE_STATS.reduce((sum, stat) => sum + (allocated[stat] ?? 0), 0);
+}
+
 /**
- * Switches role. Allocated points are deliberately kept: they're the
- * player's own investment, and only the role's base spread swaps underneath
- * them. A tank who respecs to healer keeps the Health they bought.
+ * Switches role, swapping to that role's saved build.
+ *
+ * The build being left is saved first; the one being entered is applied if it
+ * exists. A role with NO saved build keeps what is worn and spent, which is
+ * what this did before builds existed - nobody is stripped by clicking a role
+ * they have not used.
+ *
+ * POINTS. The earned total is `spent + unspent` and never changes here: the
+ * entered build's spread is spent out of that same total and the remainder is
+ * unspent, so a role cannot be given points that another role is holding.
+ * Every saved spread was at most the total when it was saved and the total only
+ * grows, so the refusal below is a guard against a damaged row, not a case.
+ *
+ * GEAR. Everything worn goes to the bag, then each slot of the build is filled
+ * from it IF the instance is still owned, still fits that slot, and passes
+ * `gearUsableBy` against the build's own allocation. Anything else leaves the
+ * slot empty - a recycled or consumed item is not an error.
  */
-export function setRole(character: Character, role: Role): MutationResult {
+export function switchRole(character: Character, role: Role, content: ContentRegistry): MutationResult {
   if (character.role === role) return { ok: false, reason: `Already a ${role}` };
+
+  const leaving: RoleBuild = {
+    allocated: { ...character.allocated },
+    equipment: {},
+  };
+  for (const slot of GEAR_SLOTS) {
+    const worn = character.equipment[slot];
+    if (worn) leaving.equipment[slot] = worn.instanceId;
+  }
+  (character.builds ??= {})[character.role] = leaving;
   character.role = role;
+
+  const entering = character.builds[role];
+  if (!entering) return { ok: true };
+
+  const total = spentPoints(character.allocated) + character.unspentPoints;
+  const spread = spentPoints(entering.allocated);
+  if (spread > total) return { ok: true };
+
+  for (const slot of GEAR_SLOTS) {
+    const worn = character.equipment[slot];
+    if (worn) character.inventory.push(worn);
+    delete character.equipment[slot];
+  }
+  for (const stat of ALLOCATABLE_STATS) character.allocated[stat] = entering.allocated[stat] ?? 0;
+  character.unspentPoints = total - spread;
+
+  for (const slot of GEAR_SLOTS) {
+    const id = entering.equipment[slot];
+    if (!id) continue;
+    const idx = character.inventory.findIndex((i) => i.instanceId === id);
+    if (idx === -1) continue;
+    const instance = character.inventory[idx]!;
+    let def: GearDefinition;
+    try {
+      def = content.getGear(instance.gearId);
+    } catch {
+      continue;
+    }
+    if (def.slot !== slot || !gearUsableBy(def, character).ok) continue;
+    character.equipment[slot] = instance;
+    character.inventory.splice(idx, 1);
+  }
   return { ok: true };
 }
 

@@ -236,6 +236,7 @@ table.set("twitch:333", {
     ...character("twitch:333", 3),
     appearanceChosen: true,
     hiddenSlots: ["head"],
+    builds: { tank: { allocated: { hp: 4, atk: 0, skill: 2, spd: 0 }, equipment: { head: "helm#1" } } },
     daily: { day: "2026-01-15", survived: 7, reachedAt: 1_768_500_000_000 },
   },
   updated_at: later(new Date().toISOString()),
@@ -252,6 +253,11 @@ assert.deepEqual(
 const reloaded = (await store.load()).find((c) => c.id === "twitch:333");
 assert.equal(reloaded?.appearanceChosen, true, "a load keeps appearanceChosen - without it the loadout re-offers character creation");
 assert.deepEqual(reloaded?.hiddenSlots, ["head"], "a load keeps hiddenSlots - without it a hidden helmet reappears on stream");
+assert.deepEqual(
+  reloaded?.builds,
+  { tank: { allocated: { hp: 4, atk: 0, skill: 2, spd: 0 }, equipment: { head: "helm#1" } } },
+  "a load keeps the saved role builds - without them a switch forgets the other roles",
+);
 // Today's survived count, which decides the Dungeoneer of the day. Dropped
 // here, a restart mid-stream would hand the title to whoever won next; and a
 // malformed tally is dropped rather than trusted, without costing the row.

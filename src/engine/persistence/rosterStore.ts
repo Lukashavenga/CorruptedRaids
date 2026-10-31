@@ -265,7 +265,33 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
     // count for the day and hand the Dungeoneer title to whoever survived
     // the next run.
     ...dailyOf(raw.daily),
+    // And again: a build that did not survive a save would be a role switch
+    // that quietly forgot the other roles.
+    ...buildsOf(raw.builds),
+    // And once more: without it a restart would forget who was already
+    // prompted tonight and the bot would ask them a second time.
+    ...(typeof raw.promptedOn === "string" && raw.promptedOn ? { promptedOn: raw.promptedOn } : {}),
   };
+}
+
+function buildsOf(v: unknown): { builds?: Character["builds"] } {
+  if (!isRecord(v)) return {};
+  const builds: NonNullable<Character["builds"]> = {};
+  for (const role of ["tank", "healer", "dps"] as const) {
+    const b = v[role];
+    if (!isRecord(b)) continue;
+    const a = isRecord(b.allocated) ? b.allocated : {};
+    const pts = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? Math.max(0, Math.floor(x)) : 0);
+    const equipment: Partial<Record<GearSlot, string>> = {};
+    if (isRecord(b.equipment)) {
+      for (const slot of GEAR_SLOTS) {
+        const id = b.equipment[slot];
+        if (typeof id === "string" && id !== "") equipment[slot] = id;
+      }
+    }
+    builds[role] = { allocated: { hp: pts(a.hp), atk: pts(a.atk), skill: pts(a.skill), spd: pts(a.spd) }, equipment };
+  }
+  return Object.keys(builds).length > 0 ? { builds } : {};
 }
 
 function dailyOf(v: unknown): { daily?: Character["daily"] } {

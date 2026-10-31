@@ -117,7 +117,7 @@ export function ratingFor(winRate: number): DifficultyRating {
 export type GearAssumption = "none" | "typical" | "best";
 
 /** Equips `character` under a gear assumption, using only what it may wear. */
-function dress(character: Character, content: ContentRegistry, gear: GearAssumption, rng: Rng): void {
+export function dress(character: Character, content: ContentRegistry, gear: GearAssumption, rng: Rng): void {
   if (gear === "none") return;
   for (const slot of GEAR_SLOTS) {
     const usable = content.listGear().filter((g) => g.slot === slot && gearUsableBy(g, character).ok);

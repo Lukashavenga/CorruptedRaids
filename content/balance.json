@@ -64,7 +64,8 @@
     "defeatXpMultiplier": 0.15,
     "survivorLootChance": 0.886,
     "compositionBonusMax": 0.25,
-    "casualtyXpMultiplier": 0.4
+    "casualtyXpMultiplier": 0.4,
+    "casualtyGoldMultiplier": 0.4
   },
   "_comment": "Every balance knob in the game. See src/engine/balance.ts for what each field does and why. RESCALED when Armour was removed and Skill took over mitigation: a level-1 character now opens at 9-14 health rather than 40-70, so every stat-scale number here came down with it (skillCurveK, perPoint, healing). Rewards and prices did not — they are not on the stat scale. Re-measure with `npm run simulate:progression` after touching any of it. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
   "roleRarity": {
@@ -82,6 +83,18 @@
       "skill": 1
     },
     "pointsPerLevel": 2
+  },
+  "rally": {
+    "_comment": "Anyone under belowFraction of the party's rating fights at toFraction of it, for that fight only (Hp, Attack and Skill scaled together, capped at maxMultiplier). Nothing is saved: Corruption and the party rating are unchanged. 0.5 is a starting value; compare `report:balance` section 5 before and after. enabled:false switches it off.",
+    "enabled": true,
+    "belowFraction": 0.5,
+    "toFraction": 0.5,
+    "minPartySize": 3,
+    "maxMultiplier": 8
+  },
+  "loadoutPrompt": {
+    "_comment": "The bot's one nudge per viewer per night to open the loadout (chest, unspent points or starter kit waiting). 'Night' is the dungeoneer day. false stops the bot being handed any prompt.",
+    "enabled": true
   },
   "partyScaling": {
     "_comment": "Enemy ATTACK is SUB-LINEAR in headcount (atkPerDoubling = per DOUBLING of the party, not per head); HP stays linear (hpPerExtraMember). The old per-head atkPerExtraMember is gone, not deprecated - it is what made the top of the ladder unreachable: at 0.24 a party of 25 met 5.8x attack while their own HP had not moved, so Woop Woop read 0-7% at EVERY headcount from 5 to 30 and Ladies of The Knight never won. Measured sweep (7 curves x 3 dungeons x 10 headcounts): 0.65 gives the top of the ladder a real turnout curve without flattening it to a guaranteed win, which 0.45 did. 0.65 per doubling is ~2.9x at forty players; do not read it as a per-head number. Re-measure with `npm run simulate:progression` section 11 after touching any of it.",
