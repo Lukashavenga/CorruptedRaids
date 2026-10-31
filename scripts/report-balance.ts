@@ -5,7 +5,7 @@
  *                             [--dungeon=<dungeon or raid id>]
  *                             [--source=live|sim|sandbox|all]   (default live)
  *                             [--store=file|supabase] [--dir=<DATA_DIR>/logs]
- *                             [--no-sim]
+ *                             [--no-sim] [--disk]
  *
  * `npm run simulate` asks whether the ENGINE is correct, with a reference party
  * that spends its points exactly as designed. This reads the balance log
@@ -24,7 +24,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ContentRegistry } from "../src/engine/content/loader.js";
+import { loadStudyContent } from "./studyContent.js";
 import { DEFAULT_TARGET_WIN, measureBand } from "../src/engine/bandSolver.js";
 import type { EconomyRecord, FightMemberRecord, FightRecord } from "../src/engine/balanceLog.js";
 import { PARTY_BANDS, type AllocatableStat, type Rarity, type Role } from "../src/engine/types.js";
@@ -213,10 +213,9 @@ const placeOf = (f: FightRecord): string =>
 
 // --- main -------------------------------------------------------------------
 
-const content = new ContentRegistry();
-content.loadGearDir(join(ROOT, "content", "gear"));
-content.loadDungeonsDir(join(ROOT, "content", "dungeons"));
-content.loadBalance(join(ROOT, "content", "balance.json"));
+// Targets and the sim column are read off the live store when there is one: a
+// real win rate beside a target the game is not using is worse than no target.
+const content = await loadStudyContent(ROOT);
 
 const data =
   store === "supabase"
@@ -310,10 +309,11 @@ console.log("seats% is each role's share of member rows: compare it with the oth
 head("3. Per role: where the points actually went (average) vs the reference party");
 console.log(
   "reference = the same points split evenly across the role's two designed stats, which is how the\n" +
-    "simulator's party spends them (difficulty.ts spendPoints). 'on-role' = share of points in those two.\n",
+    "simulator's party spends them (difficulty.ts spendPoints). 'on-role' = share of SPENT points in those two;\n" +
+    "'none spent' = characters with points earned and not one spent, who are not counted in on-role.\n",
 );
 console.log(
-  `${pad("role", 8)}${lpad("n", 6)}${lpad("points", 8)}  ${STATS.map((s) => pad(`${s} real/ref`, 15)).join("")}${lpad("on-role%", 10)}`,
+  `${pad("role", 8)}${lpad("n", 6)}${lpad("points", 8)}  ${STATS.map((s) => pad(`${s} real/ref`, 15)).join("")}${lpad("on-role%", 10)}${lpad("none spent", 12)}`,
 );
 // One row per character per role, from their latest appearance in range: a
 // build is a thing a person has, and counting it once per fight would weight
@@ -332,8 +332,12 @@ for (const role of ROLES) {
     const ref = idx === -1 ? 0 : mean(builds.map((m) => (idx === 0 ? Math.ceil(spent(m) / 2) : Math.floor(spent(m) / 2))));
     return pad(`${real.toFixed(1)}/${ref.toFixed(1)}`, 15);
   });
-  const onRole = mean(builds.map((m) => (spent(m) === 0 ? 0 : WANTED[role].reduce((s, k) => s + (m.allocated[k] ?? 0), 0) / spent(m))));
-  console.log(`${pad(role, 8)}${lpad(builds.length, 6)}${lpad(avgSpent.toFixed(1), 8)}  ${cells.join("")}${lpad(`${(onRole * 100).toFixed(0)}%`, 10)}`);
+  // Spenders only. A character with nothing spent has no build to be off-role,
+  // and counting them as 0% made the column read far below where points went.
+  const spenders = builds.filter((m) => spent(m) > 0);
+  const onRole = mean(spenders.map((m) => WANTED[role].reduce((s, k) => s + (m.allocated[k] ?? 0), 0) / spent(m)));
+  const noneSpent = builds.filter((m) => spent(m) === 0 && m.level > 1).length;
+  console.log(`${pad(role, 8)}${lpad(builds.length, 6)}${lpad(avgSpent.toFixed(1), 8)}  ${cells.join("")}${lpad(`${(onRole * 100).toFixed(0)}%`, 10)}${lpad(noneSpent, 12)}`);
 }
 
 // 4. drops and gold ------------------------------------------------------------
@@ -385,4 +389,41 @@ console.log(
   `\n${bought.length} purchases, ${recycled.length} recycles (${shopRecycled.length} of shop-bought gear, refunded in full), ` +
     `${opened.length} chests opened, ${economy.filter((e) => e.kind === "level_up").length} level-ups.`,
 );
+const lootScrapped = recycled.filter((e) => e.gearSource !== "shop").length;
+console.log(`Found items scrapped against chests opened: ${lootScrapped} of ${opened.length} (${pct(lootScrapped, opened.length)}).`);
 console.log("Economy events are not filtered by --dungeon; they belong to the viewer, not to a place.");
+
+// 5. the weakest in the room ---------------------------------------------------
+head("5. The weakest in the room: power against the party's rating");
+console.log(
+  "The average protects the party, and this is who pays for it (AGENTS.md section 5). Parties of 3+;\n" +
+    "'dmg/fair' is the member's share of the party's damage against an even split, so 1.00 is pulling their weight.\n",
+);
+console.log(
+  `${pad("power vs party", 16)}${lpad("rows", 7)}${lpad("viewers", 9)}${lpad("death%", 8)}${lpad("party won%", 12)}` +
+    `${lpad("dmg/fair", 10)}${lpad("gold", 7)}${lpad("xp", 6)}`,
+);
+const RATIOS: [string, number, number][] = [
+  ["under 25%", 0, 0.25],
+  ["25-50%", 0.25, 0.5],
+  ["50-100%", 0.5, 1],
+  ["100-150%", 1, 1.5],
+  ["over 150%", 1.5, Infinity],
+];
+const measured = fights
+  .filter((f) => f.headcount >= 3 && f.partyRating > 0)
+  .flatMap((f) => {
+    const dealt = f.members.reduce((s, m) => s + m.damageDealt, 0);
+    return f.members.map((m) => ({ f, m, ratio: m.corruption / f.partyRating, fair: dealt > 0 ? (m.damageDealt / dealt) * f.headcount : 0 }));
+  });
+for (const [label, lo, hi] of RATIOS) {
+  const rows = measured.filter((x) => x.ratio >= lo && x.ratio < hi);
+  if (rows.length === 0) continue;
+  console.log(
+    `${pad(label, 16)}${lpad(rows.length, 7)}${lpad(new Set(rows.map((x) => x.m.characterId)).size, 9)}` +
+      `${lpad(pct(rows.filter((x) => !x.m.survived).length, rows.length), 8)}` +
+      `${lpad(pct(rows.filter((x) => x.f.outcome === "victory").length, rows.length), 12)}` +
+      `${lpad(mean(rows.map((x) => x.fair)).toFixed(2), 10)}${lpad(Math.round(mean(rows.map((x) => x.m.gold))), 7)}` +
+      `${lpad(Math.round(mean(rows.map((x) => x.m.xp))), 6)}`,
+  );
+}
