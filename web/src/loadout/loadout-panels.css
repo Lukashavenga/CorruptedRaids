@@ -2252,3 +2252,29 @@
   color: var(--rail-lit);
   border-color: var(--rail-lit);
 }
+
+/* The role's two stats (#56). A gold edge and a small text tag, so the mark
+   survives colour-blindness; the tag wraps with the name rather than widening
+   the card, which matters at phone width. */
+.role-stats-line {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+
+.stat-card.is-key {
+  border-color: rgba(244, 201, 93, 0.55);
+}
+
+.stat-card-key {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--points-gold, #f4c95d);
+  border: 1px solid currentColor;
+  vertical-align: middle;
+}
