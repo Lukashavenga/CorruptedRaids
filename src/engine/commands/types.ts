@@ -118,6 +118,17 @@ export type GameCommand =
    * loses whichever side wrote second.
    */
   | { type: "grant_chest"; requestedBy: string; gearId: string; from?: string }
+  /**
+   * Stamps a viewer as prompted tonight and answers with the prompt's words.
+   *
+   * OPERATOR ONLY, though the chat bot reaches it through `POST /prompts`
+   * rather than holding the key. It changes state (`promptedOn`) so it is a
+   * command; it refuses when the viewer was already prompted today or has
+   * nothing waiting, which makes "one a night" a property of the engine
+   * rather than a promise from the caller. `url` is the loadout's address,
+   * which only the server knows.
+   */
+  | { type: "prompt_loadout"; requestedBy: string; url: string }
   | { type: "buy_gear"; requestedBy: string; gearId: string }
   | { type: "buy_consumable"; requestedBy: string; consumableId: string }
   | { type: "use_consumable"; requestedBy: string; consumableId: string }

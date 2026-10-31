@@ -92,6 +92,10 @@
     "minPartySize": 3,
     "maxMultiplier": 8
   },
+  "loadoutPrompt": {
+    "_comment": "The bot's one nudge per viewer per night to open the loadout (chest, unspent points or starter kit waiting). 'Night' is the dungeoneer day. false stops the bot being handed any prompt.",
+    "enabled": true
+  },
   "partyScaling": {
     "_comment": "Enemy ATTACK is SUB-LINEAR in headcount (atkPerDoubling = per DOUBLING of the party, not per head); HP stays linear (hpPerExtraMember). The old per-head atkPerExtraMember is gone, not deprecated - it is what made the top of the ladder unreachable: at 0.24 a party of 25 met 5.8x attack while their own HP had not moved, so Woop Woop read 0-7% at EVERY headcount from 5 to 30 and Ladies of The Knight never won. Measured sweep (7 curves x 3 dungeons x 10 headcounts): 0.65 gives the top of the ladder a real turnout curve without flattening it to a guaranteed win, which 0.45 did. 0.65 per doubling is ~2.9x at forty players; do not read it as a per-head number. Re-measure with `npm run simulate:progression` section 11 after touching any of it.",
     "maxMultiplier": 6,

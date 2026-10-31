@@ -1060,6 +1060,15 @@ export interface Character {
    * left yet, and a role with no entry inherits what is worn when entered.
    */
   builds?: Partial<Record<Role, RoleBuild>>;
+  /**
+   * The day (same key as `daily.day`) this viewer was last sent the "something
+   * is waiting in your loadout" prompt, so they get at most one a night.
+   *
+   * On the character for the reason `daily` is: it is saved wherever the
+   * character is, so a restart mid-stream cannot make the bot ask again.
+   * Compared, never reset - a stamp from an earlier day is simply not tonight's.
+   */
+  promptedOn?: string;
 }
 
 /**

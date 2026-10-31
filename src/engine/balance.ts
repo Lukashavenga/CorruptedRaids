@@ -525,6 +525,14 @@ export interface BalanceConfig {
     /** Whole hour, 0-23, local to `timeZone`. */
     resetHour: number;
   };
+  /**
+   * The one nightly nudge to open the loadout (src/engine/loadoutPrompt.ts).
+   * "Night" is the `dungeoneer` day, so the two reset together. `enabled`
+   * false means the bot is never handed a prompt; nothing else changes.
+   */
+  loadoutPrompt: {
+    enabled: boolean;
+  };
 }
 
 /**
@@ -633,6 +641,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     timeZone: "Europe/Amsterdam",
     resetHour: 11,
   },
+  loadoutPrompt: { enabled: true },
 };
 
 /**
