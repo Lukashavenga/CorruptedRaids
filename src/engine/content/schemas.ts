@@ -709,6 +709,10 @@ export function validateBalanceFile(raw: unknown, file: string): Record<string, 
     if (problem?.code === "order") {
       fail(file, `loot chances must run survivorLootChance > casualtyLootChance > defeatLootChance`);
     }
+    const goldShare = rewards.casualtyGoldMultiplier;
+    if (goldShare !== undefined && !(typeof goldShare === "number" && goldShare >= 0 && goldShare <= 1)) {
+      fail(file, `"rewards.casualtyGoldMultiplier" must be a number from 0 to 1`);
+    }
   }
   // Checked here rather than left to Intl, because Intl only objects when the
   // zone is first USED - which is the moment a fight pays out, mid-stream.

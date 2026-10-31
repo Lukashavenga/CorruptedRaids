@@ -406,6 +406,16 @@ export interface BalanceConfig {
      */
     casualtyXpMultiplier: number;
     /**
+     * Share of a survivor's gold that a casualty of a WON fight still takes.
+     *
+     * Gold used to go to survivors only, so the players who die most (newcomers)
+     * earned least: live, 58g a fight for characters in their first three fights
+     * against 185g for veterans. 0.4 matches `casualtyXpMultiplier`. A LOST
+     * fight still pays no gold - there are no bodies to loot - and the simulator
+     * asserts survived > died in a win > lost.
+     */
+    casualtyGoldMultiplier: number;
+    /**
      * Chance a casualty of a won fight still gets a loot roll. Small,
      * deliberately, and under `survivorLootChance`.
      */
@@ -600,6 +610,7 @@ export const DEFAULT_BALANCE: BalanceConfig = {
     mobDropChance: 0.6,
     survivorLootChance: 0.375,
     casualtyXpMultiplier: 0.4,
+    casualtyGoldMultiplier: 0.4,
     casualtyLootChance: 0.075,
     defeatXpMultiplier: 0.15,
     defeatLootChance: 0.0375,
