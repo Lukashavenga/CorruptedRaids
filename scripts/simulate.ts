@@ -16,6 +16,7 @@ import { mulberry32 } from "../src/engine/rng.js";
 import { SIM_VIEWERS } from "../src/engine/sim.js";
 import type { CombatResult } from "../src/engine/types.js";
 import { DungeonController } from "../src/state/DungeonController.js";
+import { text } from "../src/text/index.js";
 import { PathVote } from "../src/state/pathVote.js";
 import { inRotation, parseChatLine, pickRun, redeemKind } from "../src/server/chat.js";
 import { buyGear, createCharacter, grantGear, grantXp } from "../src/engine/character.js";
@@ -1154,6 +1155,30 @@ console.log(
     assert.equal(p.command.requestedBy, "twitch:9");
   }
   console.log("Chat: !jTank/!jHeal/!jDPS join and !sTank/!sHeal/!sDPS switch, case-insensitively.");
+}
+
+// --- switch_role is a gathering-window command, driven through the controller --
+{
+  const e = new GameEngine(content, mulberry32(12));
+  const controller = new DungeonController(e);
+  const id = "twitch:locked";
+  controller.dispatch({ type: "open_dungeon", dungeonId: content.listDungeons()[0]!.id });
+  assert.equal(controller.state, "gathering");
+  controller.dispatch({ type: "join_dungeon", requestedBy: id, displayName: "Locked", role: "dps" });
+  controller.dispatch({ type: "sim_join", count: 6 });
+
+  const open = controller.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+  assert.ok(open.ok, "a switch while gathering is allowed");
+  assert.equal(e.roster.get(id)!.role, "tank");
+
+  controller.dispatch({ type: "start_dungeon" });
+  assert.notEqual(controller.state, "gathering", "the run has left the gathering window");
+  const locked = controller.dispatch({ type: "switch_role", requestedBy: id, role: "healer" });
+  assert.ok(!locked.ok, "a switch after the fight starts is refused");
+  assert.equal(locked.message, text.errors.switchLocked);
+  assert.equal(e.roster.get(id)!.role, "tank", "...and the role did not change");
+  controller.dispose();
+  console.log("switch_role: allowed while gathering, refused with the locked message once the fight starts.");
 }
 
 // --- reset returns to idle ---------------------------------------------------

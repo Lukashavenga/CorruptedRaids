@@ -286,6 +286,7 @@ export const en = {
     roleHeading: "Role",
     roleSet: "Role set to {role}.",
     becomeRole: "Become a {role}",
+    roleBuildNote: "Each role keeps its own points and gear.",
     roleHint: "Tanks draw attacks. Healers keep the party up. DPS end fights faster.",
     roleBlurb: {
       tank: "Draws enemy attention",
