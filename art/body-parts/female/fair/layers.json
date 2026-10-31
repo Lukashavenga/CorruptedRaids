@@ -1,0 +1,7 @@
+{
+  "body": "female",
+  "tone": "fair",
+  "canvas": [228, 393],
+  "source": "web/public/art/sprites/body/female-fair.png",
+  "order": ["rear-arm", "rear-leg", "torso", "front-leg", "underwear", "head", "front-arm"]
+}
