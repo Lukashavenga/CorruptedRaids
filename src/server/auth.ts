@@ -56,6 +56,8 @@ const OPERATOR_COMMANDS = new Set<GameCommand["type"]>([
   "grant_gear",
   // Mints a drop from nothing, exactly like grant_gear. See the union.
   "grant_chest",
+  // Stamps a viewer as prompted. The bot reaches it through POST /prompts only.
+  "prompt_loadout",
 ]);
 
 /** Commands a viewer may run against their own character. Everything else is operator-only. */

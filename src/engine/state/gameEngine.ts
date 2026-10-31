@@ -57,7 +57,8 @@ import { xpToNextLevel } from "../stats.js";
 import { runCombat } from "../combat/resolver.js";
 import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
-import { dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
+import { dayKey, dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
+import { promptRefusal, promptText, waitingFor } from "../loadoutPrompt.js";
 import { text, format } from "../../text/index.js";
 
 export interface DispatchResult {
@@ -297,6 +298,14 @@ export class GameEngine extends EventEmitter {
   /** Viewer ids that have joined the open run, in join order. */
   partyIds: string[] = [];
   lastCombat: CombatResult | null = null;
+  /**
+   * Viewers whose fight just ended with something waiting in their loadout,
+   * for the bot to collect through POST /prompts. Memory only, on purpose: the
+   * stamp that makes it "once a night" is `promptedOn` on the character, set
+   * when the prompt is CLAIMED, so a restart between queueing and claiming
+   * loses nothing but the delay - the next fight queues them again.
+   */
+  promptQueue = new Set<string>();
   /** See StateSnapshot.dungeoneerChange. */
   dungeoneerChange: StateSnapshot["dungeoneerChange"] = null;
   /**
@@ -406,6 +415,30 @@ export class GameEngine extends EventEmitter {
     }
     const after = dungeoneerOf(this.roster.list(), at, cfg);
     this.dungeoneerChange = after && after.id !== before?.id ? { from: before, to: after } : null;
+  }
+
+  /**
+   * Queues whoever has just fought, has something to open and has not been
+   * prompted tonight - which is the end of a viewer's first fight of the
+   * night, since after that they carry tonight's stamp. Claiming re-checks
+   * everything, so this only has to be cheap.
+   */
+  private queuePrompts(): void {
+    const at = this.now();
+    for (const id of this.partyIds) {
+      const character = this.roster.get(id);
+      if (!character) continue;
+      const waiting = waitingFor(character, (gearId) => this.slotOf(gearId));
+      if (promptRefusal(character, waiting, at, this.content.balance) === null) this.promptQueue.add(id);
+    }
+  }
+
+  private slotOf(gearId: string) {
+    try {
+      return this.content.getGear(gearId).slot;
+    } catch {
+      return null;
+    }
   }
 
   /** Identifies a run across its fights; assigned when one is opened. */
@@ -543,6 +576,7 @@ export class GameEngine extends EventEmitter {
           }
         }
         this.countSurvivors(combat);
+        this.queuePrompts();
 
         this.recordFight(
           {
@@ -718,6 +752,7 @@ export class GameEngine extends EventEmitter {
         // Here and not at the doors: a raid is one run, and it is survived
         // only by whoever is standing when its boss falls.
         this.countSurvivors(combat);
+        this.queuePrompts();
 
         this.recordFight(
           {
@@ -856,6 +891,22 @@ export class GameEngine extends EventEmitter {
           chest: { instanceId: opened.instance.instanceId, gearId: opened.gearId },
           economy: this.economyDraft(character.id, "open_chest", { gearId: opened.gearId, gearSource: "loot" }),
         };
+      }
+
+      case "prompt_loadout": {
+        const character = this.roster.get(command.requestedBy);
+        if (!character) return { ok: false, message: text.errors.unknownCharacter };
+        const at = this.now();
+        const waiting = waitingFor(character, (gearId) => this.slotOf(gearId));
+        const refusal = promptRefusal(character, waiting, at, this.content.balance);
+        this.promptQueue.delete(character.id);
+        if (refusal) {
+          const t = text.loadoutPrompt;
+          const reasons = { disabled: t.refusedDisabled, sim: t.refusedSim, already: t.refusedAlready, nothing: t.refusedNothing };
+          return { ok: false, message: reasons[refusal] };
+        }
+        character.promptedOn = dayKey(at, this.content.balance.dungeoneer);
+        return { ok: true, message: promptText(character, waiting, command.url) };
       }
 
       case "recycle_gear": {

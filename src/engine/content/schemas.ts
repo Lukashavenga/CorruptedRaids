@@ -743,6 +743,15 @@ export function validateBalanceFile(raw: unknown, file: string): Record<string, 
       fail(file, `"dungeoneer.resetHour" must be a whole hour from 0 to 23`);
     }
   }
+  const loadoutPrompt = (raw as any).loadoutPrompt;
+  if (loadoutPrompt !== undefined) {
+    if (typeof loadoutPrompt !== "object" || loadoutPrompt === null || Array.isArray(loadoutPrompt)) {
+      fail(file, `"loadoutPrompt" must be an object`);
+    }
+    if (loadoutPrompt.enabled !== undefined && typeof loadoutPrompt.enabled !== "boolean") {
+      fail(file, `"loadoutPrompt.enabled" must be true or false`);
+    }
+  }
   const transmog = (raw as any).economy?.transmogCostByRarity;
   if (transmog !== undefined) {
     // Merged per key over the defaults, so a partial table is fine; what is not

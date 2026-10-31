@@ -735,6 +735,24 @@ export const en = {
     cannotSave: "Cannot save: {reason}",
   },
 
+  /**
+   * The bot's one nightly nudge (src/engine/loadoutPrompt.ts). Sent to chat,
+   * so it is a single line: Twitch cuts a message at 500 characters.
+   * {waiting} is the comma-joined list below; {url} is the loadout.
+   */
+  loadoutPrompt: {
+    message: "@{name} you have {waiting} waiting on your character: {url}",
+    chestOne: "a sealed chest",
+    chestMany: "{count} sealed chests",
+    pointOne: "1 point to spend",
+    pointMany: "{count} points to spend",
+    kit: "a starter kit still in your bag",
+    refusedDisabled: "Loadout prompts are switched off.",
+    refusedSim: "Simulated viewers are not prompted.",
+    refusedAlready: "That viewer has already been prompted tonight.",
+    refusedNothing: "Nothing is waiting for that viewer.",
+  },
+
   errors: {
     // Named, not generic, because the caller that hits this is a bot with a
     // typo in it and the only useful thing to hand back is the string it sent.

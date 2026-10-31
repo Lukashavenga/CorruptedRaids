@@ -448,6 +448,34 @@ replay reaches its outcome, because the engine has already counted the fight
 the audience is still watching. `npm run simulate` asserts the reset either
 side of a clock change, the casualty, sim and tie rules, and the raid rule.
 
+### The nightly loadout prompt
+
+Each viewer is told once a night, in chat, that a sealed chest, unspent points
+or an unworn starter kit is waiting, with the loadout's link. Nothing is
+opened, spent or equipped for them - new viewers staying naked is deliberate
+and this only makes sure they know the page exists.
+
+- **Trigger**: the end of a fight (dungeon, or a raid's boss) queues each party
+  member who has something waiting and no stamp for tonight
+  (`GameEngine.queuePrompts`). "Tonight" is the `balance.dungeoneer` day.
+- **Once a night is the engine's rule, not the caller's.** The bot polls
+  `POST /prompts` (CHAT_SECRET, `?format=text` for plain lines); each queued
+  viewer goes through the `prompt_loadout` command, which refuses a second
+  prompt in a night, a viewer with nothing waiting, a `sim:` viewer, and
+  everything when `balance.loadoutPrompt.enabled` is false. The stamp is
+  `Character.promptedOn`, saved with the character, so a restart does not
+  reset it. The queue itself is memory only: a restart before the bot polls
+  loses the delay, not the prompt, because the stamp is set on claim.
+- **At most once, not at least once.** A line the bot fails to send is not
+  resent. The right way round for a nudge.
+- `LOADOUT_URL` must be set or `/prompts` answers 503 and holds everything.
+- Copy is `text.loadoutPrompt`; the bot side is
+  `docs/streamerbot/loadout-prompts.cs` (a 30s timed action; the existing
+  scripts show the reply path: `CPH.SendMessage`).
+- `npm run report:balance` section 4 ends with low-level (1-9) viewers who
+  fought against those who opened a chest, per UTC night. The prompt itself is
+  not logged, so read it as a trend across the ship date.
+
 ### Content is data
 
 `content/` holds JSON, validated at load by `src/engine/content/schemas.ts`:

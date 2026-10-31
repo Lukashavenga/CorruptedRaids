@@ -265,6 +265,9 @@ function asCharacter(raw: unknown, index: number, onWarn: (m: string) => void): 
     // count for the day and hand the Dungeoneer title to whoever survived
     // the next run.
     ...dailyOf(raw.daily),
+    // And once more: without it a restart would forget who was already
+    // prompted tonight and the bot would ask them a second time.
+    ...(typeof raw.promptedOn === "string" && raw.promptedOn ? { promptedOn: raw.promptedOn } : {}),
   };
 }
 

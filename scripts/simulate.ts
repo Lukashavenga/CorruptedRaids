@@ -22,6 +22,7 @@ import { buyGear, createCharacter, grantXp } from "../src/engine/character.js";
 import { estimateDifficulty, referencePartyStrength } from "../src/engine/difficulty.js";
 import { dayKey, dungeoneerOf, recordSurvivals } from "../src/engine/dungeoneer.js";
 import { validateBalanceFile } from "../src/engine/content/schemas.js";
+import { parseRoster, ROSTER_FILE_VERSION } from "../src/engine/persistence/rosterStore.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -277,6 +278,84 @@ for (const [size, left] of [[5, smallParty], [25, bigParty]] as const) {
     left < 0.995,
     `a party of ${size} finished at ${(left * 100).toFixed(1)}% HP — that band is untouchable`,
   );
+}
+
+// --- the nightly loadout prompt ----------------------------------------------
+//
+// One prompt per viewer per night, only when something is waiting, and the
+// "once" has to survive a restart: the stamp lives on the character and goes
+// through the same save/load the roster store uses. Clock set, not waited on.
+{
+  assert.throws(() => validateBalanceFile({ loadoutPrompt: { enabled: "yes" } }, "t"), /loadoutPrompt/);
+  const url = "https://example.test/loadout";
+  const at = (iso: string) => Date.parse(iso);
+  const night = new GameEngine(content, mulberry32(11));
+  let clock = at("2026-01-15T19:00:00Z");
+  night.now = () => clock;
+  const fightOnce = (ids: string[]) => {
+    night.dispatch({ type: "open_dungeon", dungeonId: STARTER });
+    for (const id of ids) night.dispatch({ type: "join_dungeon", requestedBy: id, displayName: id });
+    night.dispatch({ type: "start_dungeon" });
+  };
+
+  fightOnce(["twitch:1", "twitch:2"]);
+  // A fresh character carries the starter kit unworn, so there is something to say.
+  assert.ok(night.promptQueue.has("twitch:1"), "end of a first fight queues a viewer with the kit waiting");
+
+  const first = night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url });
+  assert.ok(first.ok && first.message.includes(url) && /starter kit/.test(first.message), `prompt names the link and the kit: ${first.message}`);
+  assert.ok(!night.promptQueue.has("twitch:1"), "claiming takes the viewer off the queue");
+  assert.equal(night.roster.get("twitch:1")!.inventory.length, 5, "a prompt never touches the bag");
+
+  // A second fight the same night: queued neither by the fight nor by hand.
+  clock += 30 * 60_000;
+  fightOnce(["twitch:1"]);
+  assert.ok(!night.promptQueue.has("twitch:1"), "no second prompt in a night");
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "...and the command refuses one");
+
+  // Across a restart: the same roster, saved and reloaded the way the store does.
+  const saved = JSON.parse(JSON.stringify({ version: ROSTER_FILE_VERSION, characters: night.roster.snapshot() }));
+  const reborn = new GameEngine(content, mulberry32(12));
+  reborn.now = () => clock;
+  reborn.roster.hydrate(parseRoster(saved, () => {}));
+  assert.equal(reborn.roster.get("twitch:1")!.promptedOn, night.roster.get("twitch:1")!.promptedOn, "the stamp survives a save and load");
+  assert.equal(reborn.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "a restart does not reset the night");
+  assert.equal(reborn.dispatch({ type: "prompt_loadout", requestedBy: "twitch:2", url }).ok, true, "...but still prompts someone who was not told");
+
+  // The next night, with a chest and points as well, the message names all three.
+  clock = at("2026-01-16T19:00:00Z");
+  const alice = night.roster.get("twitch:1")!;
+  alice.unspentPoints = 3;
+  const chestGear = night.roster.get("twitch:1")!.inventory[0]!.gearId;
+  alice.chests = [{ id: "chest:t1", gearId: chestGear, at: clock }];
+  const next = night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url });
+  assert.ok(next.ok && /chest/.test(next.message) && /3 points/.test(next.message), `next night prompts again: ${next.message}`);
+  assert.equal(alice.chests.length, 1, "the chest is still sealed");
+  assert.equal(alice.unspentPoints, 3, "the points are still unspent");
+
+  // Nothing waiting, nothing said; and sim viewers are never told.
+  const bare = night.roster.ensure("twitch:9", "Bare", "dps");
+  bare.inventory = [];
+  bare.unspentPoints = 0;
+  bare.chests = [];
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:9", url }).ok, false, "nothing waiting, no prompt");
+  assert.equal(bare.promptedOn, undefined, "...and no stamp, so a chest tomorrow still counts");
+  night.roster.ensure("sim:grunkzor", "Grunk", "dps");
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "sim:grunkzor", url }).ok, false, "a sim viewer is never prompted");
+
+  // Dressed in the kit's own slots is "found the page": nothing waiting.
+  const dressed = night.roster.ensure("twitch:10", "Dressed", "dps");
+  for (const item of [...dressed.inventory]) night.dispatch({ type: "equip_gear", requestedBy: "twitch:10", instanceId: item.instanceId });
+  dressed.unspentPoints = 0;
+  assert.equal(night.dispatch({ type: "prompt_loadout", requestedBy: "twitch:10", url }).ok, false, "a viewer who wore the kit is not nagged");
+
+  // The switch.
+  const off = new GameEngine(content, mulberry32(13));
+  off.content.balance.loadoutPrompt.enabled = false;
+  off.roster.ensure("twitch:1", "A", "dps");
+  assert.equal(off.dispatch({ type: "prompt_loadout", requestedBy: "twitch:1", url }).ok, false, "disabled means no prompt");
+  off.content.balance.loadoutPrompt.enabled = true;
+  console.log("Loadout prompt: once a night, survives a restart, silent when nothing is waiting.");
 }
 
 // --- the Dungeoneer of the day -----------------------------------------------
