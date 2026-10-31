@@ -520,7 +520,7 @@ export class GameEngine extends EventEmitter {
         // between a chat that fills those roles and a chat that resents them.
         if (combat.outcome === "victory") {
           const dungeon = this.openDungeon;
-          const { casualtyXpMultiplier, compositionBonusMax } = this.content.balance.rewards;
+          const { casualtyXpMultiplier, casualtyGoldMultiplier, compositionBonusMax } = this.content.balance.rewards;
           const cover = compositionFactor(party.map((c) => c.role));
           // compositionFactor floors at 0.45 for a party with no support at
           // all, so it is rescaled here to 0..1 before paying out.
@@ -529,11 +529,12 @@ export class GameEngine extends EventEmitter {
           for (const character of party) {
             const survived = combat.survivorIds.includes(character.id);
             const share = survived ? 1 : casualtyXpMultiplier;
-            let gold = 0;
-            if (survived) {
-              gold = randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng);
-              character.gold += gold;
-            }
+            // The fallen take a share of the completion gold too; see
+            // `casualtyGoldMultiplier`.
+            const gold = Math.round(
+              randomInt(dungeon.completionGold[0], dungeon.completionGold[1], this.rng) * (survived ? 1 : casualtyGoldMultiplier),
+            );
+            character.gold += gold;
             // xpRate: see balance.ts.
             const xp = Math.round(dungeon.completionXp * share * bonus * this.content.balance.progression.xpRate);
             extras.set(character.id, { xp, gold });

@@ -936,9 +936,9 @@ console.log(
 {
   const rewardRng = mulberry32(2026);
   const paid = {
-    survivor: { n: 0, xp: 0, loot: 0 },
-    casualty: { n: 0, xp: 0, loot: 0 },
-    loser: { n: 0, xp: 0, loot: 0 },
+    survivor: { n: 0, xp: 0, gold: 0, loot: 0 },
+    casualty: { n: 0, xp: 0, gold: 0, loot: 0 },
+    loser: { n: 0, xp: 0, gold: 0, loot: 0 },
   };
   let mixedWins = 0;
 
@@ -956,6 +956,7 @@ console.log(
       const won = combat.outcome === "victory";
       const looted = new Set(combat.events.flatMap((e) => (e.type === "loot" ? [e.characterId] : [])));
       const xpOf = new Map(combat.events.flatMap((e) => (e.type === "reward" ? [[e.characterId, e.xp] as const] : [])));
+      const goldOf = new Map(combat.events.flatMap((e) => (e.type === "reward" ? [[e.characterId, e.gold] as const] : [])));
       const members = combat.combatants.filter((c) => c.side === "party");
 
       for (const member of members) {
@@ -965,6 +966,7 @@ console.log(
         const bucket = !won ? paid.loser : survived ? paid.survivor : paid.casualty;
         bucket.n += 1;
         bucket.xp += xp;
+        bucket.gold += goldOf.get(member.id) ?? 0;
         if (looted.has(member.id)) bucket.loot += 1;
       }
 
@@ -974,6 +976,10 @@ console.log(
         const alive = xpOf.get(combat.survivorIds[0]!)!;
         const dead = xpOf.get(members.find((m) => !combat.survivorIds.includes(m.id))!.id)!;
         assert.ok(alive > dead, `surviving ${dungeon.id} paid ${alive} xp and dying paid ${dead}`);
+        const goldAlive = goldOf.get(combat.survivorIds[0]!)!;
+        const goldDead = goldOf.get(members.find((m) => !combat.survivorIds.includes(m.id))!.id)!;
+        assert.ok(goldDead > 0, `dying in a won ${dungeon.id} paid no gold - casualtyGoldMultiplier is not reaching the fallen`);
+        assert.ok(goldDead < goldAlive * 1.5, `dying in ${dungeon.id} paid ${goldDead}g against ${goldAlive}g for surviving`);
       }
     }
   }
@@ -1002,12 +1008,22 @@ console.log(
     "losing pays gear too readily against winning",
   );
 
+  // Gold, like XP, is ordered on the average per head: survived > died in a
+  // win > lost, and a lost fight pays none at all. (Per-fight rolls are random,
+  // so the per-fight check above only guards against a missing payout.)
+  const goldAvg = (b: { n: number; gold: number }) => (b.n ? b.gold / b.n : 0);
+  assert.equal(paid.loser.gold, 0, "a lost fight paid gold");
+  assert.ok(
+    goldAvg(paid.survivor) > goldAvg(paid.casualty) && goldAvg(paid.casualty) > goldAvg(paid.loser),
+    `gold must run survived (${goldAvg(paid.survivor)}) > died in a win (${goldAvg(paid.casualty)}) > lost (${goldAvg(paid.loser)})`,
+  );
+
   const pct = (b: { n: number; loot: number }) => (b.n ? `${Math.round((b.loot / b.n) * 100)}%` : "n/a");
   const avg = (b: { n: number; xp: number }) => (b.n ? Math.round(b.xp / b.n) : 0);
   console.log(
-    `Rewards: survived ${avg(paid.survivor)} xp / ${pct(paid.survivor)} gear, ` +
-      `died in a win ${avg(paid.casualty)} xp / ${pct(paid.casualty)} gear, ` +
-      `lost ${avg(paid.loser)} xp / ${pct(paid.loser)} gear.`,
+    `Rewards: survived ${avg(paid.survivor)} xp / ${Math.round(goldAvg(paid.survivor))}g / ${pct(paid.survivor)} gear, ` +
+      `died in a win ${avg(paid.casualty)} xp / ${Math.round(goldAvg(paid.casualty))}g / ${pct(paid.casualty)} gear, ` +
+      `lost ${avg(paid.loser)} xp / ${Math.round(goldAvg(paid.loser))}g / ${pct(paid.loser)} gear.`,
   );
 }
 

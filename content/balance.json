@@ -64,7 +64,8 @@
     "defeatXpMultiplier": 0.15,
     "survivorLootChance": 0.886,
     "compositionBonusMax": 0.25,
-    "casualtyXpMultiplier": 0.4
+    "casualtyXpMultiplier": 0.4,
+    "casualtyGoldMultiplier": 0.4
   },
   "_comment": "Every balance knob in the game. See src/engine/balance.ts for what each field does and why. RESCALED when Armour was removed and Skill took over mitigation: a level-1 character now opens at 9-14 health rather than 40-70, so every stat-scale number here came down with it (skillCurveK, perPoint, healing). Rewards and prices did not — they are not on the stat scale. Re-measure with `npm run simulate:progression` after touching any of it. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
   "roleRarity": {
