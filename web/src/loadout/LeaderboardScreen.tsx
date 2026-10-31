@@ -11,6 +11,13 @@ interface Standing {
   role: Role;
   corruption: number;
   gold: number;
+  /** Runs survived since today's reset; absent from a function deployed before it. */
+  survivedToday?: number;
+}
+
+interface Dungeoneer {
+  name: string;
+  survived: number;
 }
 
 /**
@@ -22,13 +29,16 @@ interface Standing {
  * one figure. Level alone would put a naked level 40 above a geared level 30
  * who beats them; gold ranks whoever spends the least.
  *
- * There is no wins column, and that is not an oversight: nothing persists a
- * win. Adding a fake one would be worse than leaving it out.
+ * "Today" is the one win-like number, and it is real: runs SURVIVED since
+ * the 11:00 Amsterdam reset, the tally that crowns the Dungeoneer of the day
+ * on stream. Its holder heads the board, because the overlay only shows the
+ * crown to whoever is watching the right run at the right moment.
  */
 export function LeaderboardScreen({ viewerName }: { viewerName: string }): JSX.Element {
   const [standings, setStandings] = useState<Standing[] | null>(null);
   const [total, setTotal] = useState(0);
   const [failed, setFailed] = useState(false);
+  const [dungeoneer, setDungeoneer] = useState<Dungeoneer | null>(null);
   const t = text.loadout.leaderboard;
 
   const load = useCallback(async () => {
@@ -41,6 +51,7 @@ export function LeaderboardScreen({ viewerName }: { viewerName: string }): JSX.E
     }
     setStandings((body.standings as Standing[]) ?? []);
     setTotal((body.rosterSize as number) ?? 0);
+    setDungeoneer((body.dungeoneer as Dungeoneer | null) ?? null);
     setFailed(false);
   }, []);
 
@@ -64,6 +75,25 @@ export function LeaderboardScreen({ viewerName }: { viewerName: string }): JSX.E
 
       {standings && standings.length > 0 && (
         <>
+          <div className={`board-dungeoneer${dungeoneer ? "" : " is-empty"}`}>
+            <svg className="board-crown" width="27" height="18" viewBox="0 0 9 6" aria-hidden="true">
+              <path d="M0 0h1v1h1v1h1V1h1V0h1v1h1v1h1V1h1V0h1v6H0z" />
+            </svg>
+            <div>
+              <p className="board-dungeoneer-label">{t.dungeoneerTitle}</p>
+              {dungeoneer ? (
+                <p className="board-dungeoneer-name">
+                  {dungeoneer.name}
+                  {dungeoneer.name === viewerName && <em className="board-you">{t.you}</em>}
+                  <span className="board-dungeoneer-count">
+                    {format(t.dungeoneerSurvived, { n: dungeoneer.survived })}
+                  </span>
+                </p>
+              ) : (
+                <p className="board-dungeoneer-name">{t.dungeoneerNone}</p>
+              )}
+            </div>
+          </div>
           <table className="board">
             <thead>
               <tr>
@@ -72,6 +102,7 @@ export function LeaderboardScreen({ viewerName }: { viewerName: string }): JSX.E
                 <th className="board-num">{t.level}</th>
                 <th className="board-num">{t.corruption}</th>
                 <th className="board-num">{t.gold}</th>
+                <th className="board-num" title={t.todayHint}>{t.today}</th>
               </tr>
             </thead>
             <tbody>
@@ -89,6 +120,7 @@ export function LeaderboardScreen({ viewerName }: { viewerName: string }): JSX.E
                   <td className="board-num">{row.level}</td>
                   <td className="board-num board-corruption">{row.corruption}</td>
                   <td className="board-num">{row.gold}</td>
+                  <td className="board-num">{row.survivedToday ?? 0}</td>
                 </tr>
               ))}
             </tbody>

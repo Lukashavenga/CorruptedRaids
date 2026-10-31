@@ -435,6 +435,11 @@ export const en = {
       failed: "Could not reach the standings.",
       counted: "{shown} of {total}",
       refresh: "Refresh",
+      today: "Today",
+      todayHint: "Runs survived since today's reset at 11:00 Amsterdam time",
+      dungeoneerTitle: "Dungeoneer of the day",
+      dungeoneerSurvived: "{n} survived",
+      dungeoneerNone: "Nobody yet - survive a run to take it.",
     },
 
     /*

@@ -122,6 +122,7 @@ export function ShopPanel({ character, catalog, onBuyGear, onBuyConsumable, busy
                     <span className="shop-card-kind">
                       <span className="shop-rarity">{text.gear.rarity[def.rarity]}</span> · {text.gear.slot[def.slot]}
                     </span>
+                    {def.description && <span className="shop-card-desc">{def.description}</span>}
                     <StatChips def={def} />
                   </span>
                   <PriceButton
