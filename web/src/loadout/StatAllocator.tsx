@@ -3,6 +3,7 @@ import { haptic } from "./haptics.js";
 import { ALLOCATABLE_STATS, type AllocatableStat } from "../../../src/engine/types.js";
 import type { CharacterView } from "../../../src/engine/state/gameEngine.js";
 import { StatIcon } from "./StatIcon.js";
+import type { Role } from "../../../src/engine/types.js";
 import type { BalanceConfig } from "../../../src/engine/balance.js";
 import { text, format } from "../../../src/text/index.js";
 
@@ -30,6 +31,17 @@ export interface StatAllocatorProps {
 export function draftTotal(draft: StatDraft): number {
   return ALLOCATABLE_STATS.reduce((sum, stat) => sum + (draft[stat] ?? 0), 0);
 }
+
+/**
+ * The two stats each role wants (AGENTS.md section 6): every stat is wanted by
+ * two roles and ignored by one. Read from the character's CURRENT role, so a
+ * `set_role` re-marks the cards with no state of its own to go stale.
+ */
+const ROLE_STATS: Record<Role, readonly AllocatableStat[]> = {
+  tank: ["hp", "skill"],
+  healer: ["skill", "spd"],
+  dps: ["atk", "spd"],
+};
 
 /** Press-and-hold timing: slow first so a tap is one point, then fast. */
 const REPEAT_SLOW_MS = 150;
@@ -188,6 +200,8 @@ export function StatAllocator({
         </span>
       </header>
 
+      <p className="role-stats-line">{text.loadout.roleStatsLine[character.role]}</p>
+
       <ul className="stat-grid">
         {ALLOCATABLE_STATS.map((stat) => {
           const base = character.baseStats[stat];
@@ -211,8 +225,9 @@ export function StatAllocator({
           const after = total + gain * pending;
           const stepLabel = (n: number) => `${text.stat[stat]} ${format(text.loadout.stageAria, { count: n })}`;
           const five = Math.min(5, left);
+          const key = ROLE_STATS[character.role].includes(stat);
           return (
-            <li key={stat} className={`stat-card ${open === stat ? "is-open" : ""} ${pending > 0 ? "has-pending" : ""}`}>
+            <li key={stat} className={`stat-card ${key ? "is-key" : ""} ${open === stat ? "is-open" : ""} ${pending > 0 ? "has-pending" : ""}`}>
               <button
                 type="button"
                 className="stat-card-about"
@@ -227,6 +242,7 @@ export function StatAllocator({
                 <span className="stat-card-body">
                   <span className="stat-card-name">
                     {text.stat[stat]}
+                    {key && <span className="stat-card-key">{text.loadout.roleStatsMark}</span>}
                     <span className="stat-card-more" aria-hidden="true">
                       ?
                     </span>

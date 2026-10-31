@@ -248,6 +248,14 @@ export const en = {
     inRunNotice: "You are in a run - changes are locked until it ends.",
 
     statsHeading: "Stats",
+    /* The role's two stats, marked on the cards (#56). One line on why; no
+       button spends for the player. Keyed by role so a spec switch swaps it. */
+    roleStatsMark: "Key",
+    roleStatsLine: {
+      tank: "Tank wants Health and Skill: soak the hits and shrug off the rest.",
+      healer: "Healer wants Skill and Speed: heal for more, and act more often.",
+      dps: "DPS wants Damage and Speed: hit hard and go first.",
+    } satisfies Record<Role, string>,
     // format() is deliberately not a plural-aware i18n library (see
     // format.ts), so a singular variant is its own key rather than a rule.
     pointsAvailable: "{count} points to spend",
