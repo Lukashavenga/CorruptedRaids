@@ -2,13 +2,13 @@
   "id": "tyrant-s-crown",
   "name": "Tyrant's Crown",
   "slot": "head",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 5,
-    "skill": 2
-  },
-  "description": "Tyrant's Crown. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "head17",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 8,
+    "skill": 12
+  },
+  "description": "King of the Castle, King of the castle!"
 }

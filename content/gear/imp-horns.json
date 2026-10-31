@@ -2,13 +2,14 @@
   "id": "imp-horns",
   "name": "Imp Horns",
   "slot": "head",
+  "tags": [],
   "rarity": "uncommon",
+  "sprite": "head19",
   "requires": {},
   "statMods": {
     "hp": 6,
-    "skill": 2
+    "spd": 1,
+    "skill": 8
   },
-  "description": "Imp Horns. Taken, not given.",
-  "tags": [],
-  "sprite": "head19"
+  "description": "Horny"
 }

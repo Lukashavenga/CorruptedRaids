@@ -1,8 +1,11 @@
 {
   "id": "tome-of-insight",
-  "name": "Tome of Insight",
-  "rarity": "uncommon",
+  "name": "XP PINT",
   "price": 190,
-  "description": "Dense, annotated, and faintly singed at the edges.",
-  "effect": { "type": "grantXp", "amount": 200 }
+  "effect": {
+    "type": "grantXp",
+    "amount": 200
+  },
+  "rarity": "uncommon",
+  "description": "CREEEEEEAMAMYYYY FOOOOKKINN PIINTTSS"
 }

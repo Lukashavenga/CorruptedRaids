@@ -2,13 +2,15 @@
   "id": "party-hat",
   "name": "Party Hat",
   "slot": "head",
+  "tags": [],
   "rarity": "uncommon",
+  "sprite": "head18",
   "requires": {},
   "statMods": {
     "hp": 5,
-    "skill": 2
+    "atk": -1,
+    "spd": 5,
+    "skill": 6
   },
-  "description": "Party Hat. Taken, not given.",
-  "tags": [],
-  "sprite": "head18"
+  "description": "Come prepared"
 }

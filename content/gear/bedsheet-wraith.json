@@ -1,14 +1,16 @@
 {
   "id": "bedsheet-wraith",
-  "name": "Bedsheet Wraith",
+  "name": "Pillowcase of Spooky",
   "slot": "head",
-  "rarity": "common",
+  "tags": [],
+  "rarity": "uncommon",
+  "sprite": "head03",
   "requires": {},
   "statMods": {
     "hp": 1,
-    "skill": 1
+    "atk": 5,
+    "spd": 2,
+    "skill": 2
   },
-  "description": "Bedsheet Wraith. Taken, not given.",
-  "tags": [],
-  "sprite": "head03"
+  "description": "BoOoOooOOoOO"
 }

@@ -2,13 +2,14 @@
   "id": "crusader-helm",
   "name": "Crusader Helm",
   "slot": "head",
+  "tags": [],
   "rarity": "common",
+  "sprite": "head01",
   "requires": {},
   "statMods": {
-    "hp": 1,
-    "skill": 1
+    "hp": 10,
+    "spd": -1,
+    "skill": 2
   },
-  "description": "Crusader Helm. Taken, not given.",
-  "tags": [],
-  "sprite": "head01"
+  "description": "Can't see anything but sits nice"
 }

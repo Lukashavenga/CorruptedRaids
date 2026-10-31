@@ -2,13 +2,13 @@
   "id": "miner-s-lamp-helm",
   "name": "Miner's Lamp Helm",
   "slot": "head",
+  "tags": [],
   "rarity": "uncommon",
+  "sprite": "head10",
+  "requires": {},
   "statMods": {
     "hp": 3,
-    "skill": 1
+    "skill": 6
   },
-  "description": "Miner's Lamp Helm. Taken, not given.",
-  "tags": [],
-  "sprite": "head10",
-  "requires": {}
+  "description": "I can see clearly now the dust has gone."
 }

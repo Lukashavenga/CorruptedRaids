@@ -2,16 +2,17 @@
   "id": "patched-leggings",
   "name": "Patched Leggings",
   "slot": "bottom",
-  "rarity": "rare",
+  "tags": [],
+  "rarity": "uncommon",
+  "requires": {},
   "statMods": {
     "hp": 3,
-    "skill": 1
+    "spd": 1,
+    "skill": 5
   },
-  "description": "Patched Leggings. Taken, not given.",
-  "tags": [],
+  "description": "Ewww it looks Poor",
   "spriteByBody": {
     "male": "male-t3",
     "female": "female-t3"
-  },
-  "requires": {}
+  }
 }
