@@ -1339,11 +1339,15 @@ fetches or any import under `src/engine` or `src/state`: it is the only build
 in which that code has to survive a browser. `npm run dev:sim` serves it with
 hot reload on port 5174.
 
-**Green.** `simulate` used to fail one assertion - *"a balanced party should
-bring meaningfully more people home (8% vs 0%)"* - from `cops.json` in the
-seasoned band. That was authored tuning rather than a code fault and it has
-been adjusted, so the suite passes end to end and a red run now means
-something broke.
+**`simulate` is not green, and it no longer hides behind its first failure
+(2026-10-31).** It used to stop at the first failed assertion, so everything
+after it went unchecked. Assertions about content or level thresholds that are
+red on purpose are now wrapped in `known(ticket, ...)` in `scripts/simulate.ts`:
+they print `KNOWN FAILURE (<ticket>)`, the run continues, and it ends with a
+count. They are wrapped, not loosened - unwrap one when its ticket lands. Any
+other failure (and any non-assertion throw) still kills the run, so exit 0
+means "every engine check passed", not "everything is fine". Read the known
+count at the bottom every time. The current list is in the PR for #75.
 
 ---
 
