@@ -75,6 +75,12 @@ export type GameCommand =
   /** Refunds every spent point back to the pool. */
   | { type: "respec"; requestedBy: string }
   | { type: "set_role"; requestedBy: string; role: Role }
+  /**
+   * Changes the role (and so the saved build) of a viewer already in the
+   * gathering party. A VIEWER command: it touches only the caller's own
+   * character. Refused outside the gathering window and for anyone not joined.
+   */
+  | { type: "switch_role"; requestedBy: string; role: Role }
   | { type: "set_appearance"; requestedBy: string; appearance: CharacterAppearance }
   /** Which equipped slots are not drawn - on the loadout and on stream. Cosmetic; stats are unchanged. */
   | { type: "set_hidden_slots"; requestedBy: string; slots: GearSlot[] }

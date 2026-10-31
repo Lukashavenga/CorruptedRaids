@@ -1065,6 +1065,27 @@ export interface Character {
    * survived since the field existed.
    */
   daily?: DailyTally;
+  /**
+   * A saved build per role. See RoleBuild and `switchRole` in character.ts.
+   *
+   * The LIVE `allocated` and `equipment` are always the active role's build;
+   * an entry here is written when a role is LEFT, so `builds[role]` for the
+   * current role is stale and nothing reads it. Absent means no role has been
+   * left yet, and a role with no entry inherits what is worn when entered.
+   */
+  builds?: Partial<Record<Role, RoleBuild>>;
+}
+
+/**
+ * One role's saved spread of points and worn gear.
+ *
+ * Gear is named by INSTANCE id, not copied: one item may sit in several roles'
+ * builds, and an id that no longer resolves (recycled, consumed by transmog)
+ * simply leaves its slot empty when the build is applied.
+ */
+export interface RoleBuild {
+  allocated: Record<AllocatableStat, number>;
+  equipment: Partial<Record<GearSlot, string>>;
 }
 
 export interface DailyTally {

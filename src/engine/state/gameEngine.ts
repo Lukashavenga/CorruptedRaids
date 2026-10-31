@@ -50,7 +50,7 @@ import {
   respec,
   setAppearance,
   setHiddenSlots,
-  setRole,
+  switchRole,
   unequipGear,
 } from "../character.js";
 import { xpToNextLevel } from "../stats.js";
@@ -461,6 +461,10 @@ export class GameEngine extends EventEmitter {
           command.role ?? "dps",
           this.content.balance.economy.startingGold,
         );
+        // A role named on the way in is the role they fight as, wearing that
+        // role's saved build. `ensure` only reads it for a NEW character, so
+        // someone who already exists is switched here.
+        if (command.role && character.role !== command.role) switchRole(character, command.role, this.content);
         this.partyIds.push(character.id);
         return { ok: true, message: format(text.dungeon.joined, { name: character.name }) };
       }
@@ -777,8 +781,23 @@ export class GameEngine extends EventEmitter {
       case "set_role": {
         const character = this.roster.get(command.requestedBy);
         if (!character) return { ok: false, message: text.errors.unknownCharacter };
-        const result = setRole(character, command.role);
+        const result = switchRole(character, command.role, this.content);
         return { ok: result.ok, message: result.ok ? format(text.loadout.roleSet, { role: text.role[command.role] }) : result.reason ?? "" };
+      }
+
+      case "switch_role": {
+        // Not gated on the phase here: the controller refuses it outside the
+        // gathering window, and this only has to know the viewer is in the
+        // queued party. Joining them instead was considered and rejected - a
+        // stray `!sTank` should not put a viewer into a fight they did not ask for.
+        if (!this.hasOpenRun) return { ok: false, message: text.errors.noOpenRun };
+        const character = this.roster.get(command.requestedBy);
+        if (!character || !this.partyIds.includes(character.id)) return { ok: false, message: text.errors.joinFirst };
+        if (character.role === command.role) {
+          return { ok: false, message: format(text.errors.alreadyRole, { role: text.role[command.role] }) };
+        }
+        switchRole(character, command.role, this.content);
+        return { ok: true, message: format(text.dungeon.switched, { name: character.name, role: text.role[command.role] }) };
       }
 
       case "set_appearance": {

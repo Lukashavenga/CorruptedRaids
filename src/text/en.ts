@@ -60,6 +60,7 @@ export const en = {
   dungeon: {
     opened: "{name} - the doors are open!",
     joined: "{name} joined the party.",
+    switched: "{name} switched to {role}.",
     simJoined: "{count} viewers joined.",
     cleared: "{name} has fallen!",
     wiped: "Driven out of {name}.",
@@ -285,6 +286,7 @@ export const en = {
     roleHeading: "Role",
     roleSet: "Role set to {role}.",
     becomeRole: "Become a {role}",
+    roleBuildNote: "Each role keeps its own points and gear.",
     roleHint: "Tanks draw attacks. Healers keep the party up. DPS end fights faster.",
     roleBlurb: {
       tank: "Draws enemy attention",
@@ -759,6 +761,9 @@ export const en = {
     alreadyJoined: "You're already in the party.",
     emptyParty: "Nobody has joined yet.",
     joinWindowClosed: "The join window has closed.",
+    switchLocked: "Roles are locked once the fight starts.",
+    joinFirst: "Join first - !jTank, !jHeal or !jDPS.",
+    alreadyRole: "You're already a {role}.",
     notGathering: "No party is forming right now.",
     notChoosing: "There is no path to choose right now.",
     runInProgress: "A run is already in progress.",

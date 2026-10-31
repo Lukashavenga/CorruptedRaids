@@ -1611,7 +1611,10 @@ const server = createServer((req, res) => {
       }
 
       // The joiner's latest loadout edits, before they are in the party.
-      if (parsed.command.type === "join_dungeon") await refreshFromStore([parsed.command.requestedBy]);
+      // A switch reads the same edits: the build it applies was saved there.
+      if (parsed.command.type === "join_dungeon" || parsed.command.type === "switch_role") {
+        await refreshFromStore([parsed.command.requestedBy]);
+      }
       const result = raid.dispatch(parsed.command);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ ...result, handled: true }));
