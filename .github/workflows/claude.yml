@@ -62,6 +62,12 @@ jobs:
             web/package-lock.json
       - run: npm ci --ignore-scripts
       - run: npm ci --prefix web
+      # check:text is in the section 9 chain and needs Pillow. Without it every
+      # run reported the check as "could not run", on the tickets that added copy.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
 
       - uses: anthropics/claude-code-action@v1
         id: claude
@@ -73,7 +79,7 @@ jobs:
             --model claude-sonnet-5-5
             --max-turns 120
             --allowedTools "Bash(npm run *),Bash(npm ci*),Bash(npx tsc *),Bash(npx tsx *),Bash(node *),Bash(git diff*),Bash(git status*),Bash(git log*)"
-            --append-system-prompt "Read AGENTS.md before changing anything; it records why the code is the way it is, and several of its rules exist because breaking them already cost a stream. This runner is Linux: use npm/npx, not npm.cmd. Before calling a ticket done, run the section 9 chain: npm run typecheck && npx tsc --noEmit -p web/tsconfig.json && npm run build:web && npm run check:text && npm run simulate && npm run check:formations - and say in the PR which passed and which did not, with output. If you touch content/balance.json, formations or loot, also run npm run simulate:progression and quote the numbers that moved. Every new tunable number goes in content/balance.json and its schema, every new player-facing string in src/text/en.ts. Every state change goes through a GameCommand. If a ticket asks for a design decision it does not make, ask in the issue rather than guessing."
+            --append-system-prompt "Read AGENTS.md before changing anything; it records why the code is the way it is, and several of its rules exist because breaking them already cost a stream. This runner is Linux: use npm/npx, not npm.cmd. Before calling a ticket done, run the section 9 chain: npm run typecheck && npx tsc --noEmit -p web/tsconfig.json && npm run build:web && npm run check:text && npm run simulate && npm run check:formations - and say in the PR which passed and which did not, with output. If you touch content/balance.json, formations or loot, also run npm run simulate:progression and quote the numbers that moved. Every new tunable number goes in content/balance.json and its schema, every new player-facing string in src/text/en.ts. Every state change goes through a GameCommand. If a ticket asks for a design decision it does not make, ask in the issue rather than guessing. This runner has no Supabase key, so studies read content/ on disk and the balance log cannot be read: say so beside any number you quote, and do not claim a result about live play."
 
       # The action hides Claude's output, and should: this repo is public and
       # the full transcript is readable by anyone. But a run that dies on its
