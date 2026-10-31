@@ -70,10 +70,21 @@ The six levels, shown to players as `POORS - LEVEL 2`:
   derived - a stored copy is a copy that drifts.
 - **Level** = what you earn by playing. It grants **2 attribute points** and
   nothing else. It is a progress bar, not a gate.
-- **Gear gates on attributes, not level.** `GearDefinition.requires` is a
-  `Partial<Record<AllocatableStat, number>>`. A level-80 player who dumped
-  everything into Speed cannot wear the heavy plate, and that is the point:
-  where the points went is the build, so that is what gear should ask about.
+- **Gear has no gate. If you own it, you can wear it.** (Changed 2026-10-31,
+  #22, deliberately; this used to read "gear gates on attributes, not level"
+  via `GearDefinition.requires`.) `gearUsableBy` checks only `enabled` and
+  `bodyTypes`: no attribute requirement and no level requirement in its place.
+  Why it changed: the owner's decision on #22 was "if you have it, you can wear
+  it", the simplest rule for players, taken against the research guide's
+  advice to keep the gates. What it costs: a strong drop is an instant upgrade, so drops
+  and the shop ARE the progression, and a build is now what you spend points
+  on, not what you are allowed to wear. The old gates were also load-bearing
+  in combat (dropping the 33 hp gates alone moved the balanced party's
+  survival from 13% to 47%), so every number measured through them is stale
+  until #59 re-sets `BAND_THRESHOLDS`, `ENTRY_RATING` and the dungeon curves.
+  The `requires` key is gone from `GearDefinition`; the loader ignores it if a
+  file or the store still carries one, so no content was migrated. "Level" of
+  a piece of gear, where #15 and #23 need one, means its RARITY.
 
 ### 4. A dungeon IS a fight. There is no encounter.
 
@@ -917,6 +928,14 @@ Each threshold is what a reference party of ten actually rates
 50, 100 and 200 in the best gear they can wear. Ten in all of them, so the
 levels differ by how EQUIPPED a party is and not by turnout.
 
+**Stale since #22 (gear gates removed, 2026-10-31).** "The best gear they can
+wear" used to be filtered by the gates, so a level-25 party wore less than a
+level-200 one. Now every one of those parties wears the same best-in-slot kit
+and the samples differ only by points spent, and "typical" gear is a random
+pick from the whole catalogue. The thresholds below were deliberately NOT
+re-measured in that change; #59 re-sets them. `npm run simulate` shows the
+four sample-party `known(#59)` failures until then.
+
 **These numbers were wrong here for a long time** - this section listed
 165 and 0/400/1200/2000/3400/6000 after every number had been re-scaled to
 level 1 (§2.6) and the code had moved. `src/engine/squad.ts` is the source; if
@@ -1175,10 +1194,8 @@ many it kept. That guard is not decoration - the script began life as a
 bootstrap that wiped `content/gear/` on every run, and one regeneration
 silently overwrote ten hand-tuned items. Delete a file if you want it rebuilt.
 
-It gates new items on their dominant stat, which is the convention the whole
-catalogue follows without exception. The gate is `4 × the item's tier depth`,
-and the weakest tier of each slot stays ungated so a new player has something
-to put on.
+It no longer writes a gate: gear has none (§2.3, #22). Existing files keep
+whatever `requires` they were generated with; the loader ignores it.
 
 ### UI chrome
 
@@ -1543,9 +1560,8 @@ the originals were not recoverable from disk. What was restored, and how:
 - **Rarity** - recovered from a `statGuide` dump in an earlier session
   transcript (Strapped Harness common, Chainmail Rig rare, Knight's Cuirass
   epic) and confirmed as the positional spread. Correct.
-- **`requires`** - reconstructed as `4 × tier depth`, the rule the rest of the
-  catalogue follows; verified because it reproduces the catalogue-wide gate
-  distribution exactly (59 ungated / 33 hp / 26 atk / 1 armour).
+- **`requires`** - reconstructed as `4 × tier depth` at the time. Moot since
+  #22: gear has no gate and the key is ignored.
 - **`statMods`** - the same transcript gave original power scores for three
   items, and those three are restored exactly (9 / 19 / 22). The other seven
   are the generator's formula values and run slightly strong; the recovered
@@ -1555,13 +1571,13 @@ The visible symptom: the simulator's balanced-party survivor rate reads 13%
 where it historically read 8%, because the top-end chest and pants pieces the
 level-4 reference party equips are a little stronger than they used to be.
 
-**Gear gates compare POINTS SPENT, not the stat value.** `gearUsableBy()` in
-`src/engine/character.ts` reads `character.allocated[stat]`, so `requires:
-{hp: 36}` means "has put 36 points into hp" - roughly level 18 at 2 points a
-level - not "has 36 hp". Every gate in the catalogue is therefore real and
-load-bearing: dropping the 33 hp gates alone moved the simulator's balanced
-party from 13% survival to 47%. Do not reason about a gate from a character's
-displayed stats.
+**Gear gates are gone (#22).** This entry used to explain that they compared
+POINTS SPENT and were load-bearing (the 33 hp gates alone were worth 13% ->
+47% balanced-party survival). Removing them changed which gear every sample
+party wears, so the 13%/8% survivor figures above, the band thresholds and the
+dungeon curves all describe a game that no longer exists. Measured on removal,
+`content/` on disk: balanced party 70% win / 66% survive -> 58% / 58%. #59
+owns re-measuring the rest.
 
 **`retier:gear` reports 45 of 119 items mis-rarified.** Pre-existing drift: an
 item's rarity and its stats were derived independently, so they parted company.

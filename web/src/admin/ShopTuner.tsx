@@ -56,13 +56,6 @@ function statLine(def: GearDefinition): string {
   return parts.length ? parts.join(", ") : text.adminShop.noMods;
 }
 
-function gateLine(def: GearDefinition): string {
-  const parts = Object.entries(def.requires ?? {})
-    .filter(([, n]) => (n ?? 0) > 0)
-    .map(([key, n]) => `${n} ${text.stat[key as keyof typeof text.stat]}`);
-  return parts.length ? format(text.adminShop.gate, { requires: parts.join(", ") }) : text.adminShop.ungated;
-}
-
 /** Move one entry by `by` places, staying inside the list. */
 function moved<T>(list: T[], index: number, by: number): T[] {
   const to = index + by;
@@ -314,7 +307,7 @@ export function ShopTuner({ gear, consumables, shop, onSaved, setStatus }: ShopT
                 <span className="shop-info">
                   <span className="shop-name">{def.name}</span>
                   <span className="shop-sub">
-                    {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]} · {statLine(def)} · {gateLine(def)}
+                    {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]} · {statLine(def)}
                   </span>
                   {def.enabled === false && <span className="shop-sub is-warn">{text.adminShop.disabled}</span>}
                   {loop && (
@@ -533,7 +526,7 @@ export function ShopTuner({ gear, consumables, shop, onSaved, setStatus }: ShopT
                 <span className="shop-info">
                   <span className="shop-name">{def.name}</span>
                   <span className="shop-sub">
-                    {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]} · {statLine(def)} · {gateLine(def)} ·{" "}
+                    {text.gear.slot[def.slot]} · {text.gear.rarity[def.rarity]} · {statLine(def)} ·{" "}
                     {format(text.adminShop.suggested, { gold: suggest(def) })}
                   </span>
                 </span>

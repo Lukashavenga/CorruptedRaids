@@ -105,19 +105,8 @@ export function validateGearDefinition(raw: unknown, file: string): GearDefiniti
   if (!GEAR_SLOTS.includes(slot as any)) fail(file, `"slot" must be one of ${GEAR_SLOTS.join(", ")}, got "${slot}"`);
   const rarity = requireString(obj, "rarity", file);
   if (!RARITIES.includes(rarity as any)) fail(file, `"rarity" must be one of ${RARITIES.join(", ")}, got "${rarity}"`);
-  const requires: Record<string, number> = {};
-  if (obj.requires !== undefined) {
-    if (typeof obj.requires !== "object" || obj.requires === null || Array.isArray(obj.requires)) {
-      fail(file, `"requires" must be an object of attribute -> points`);
-    }
-    for (const [stat, value] of Object.entries(obj.requires as Record<string, unknown>)) {
-      if (!ALLOCATABLE_STATS.includes(stat as never)) {
-        fail(file, `"requires" names "${stat}", which is not an attribute a player can spend on`);
-      }
-      if (typeof value !== "number" || value < 0) fail(file, `"requires.${stat}" must be a number of points`);
-      if ((value as number) > 0) requires[stat] = value as number;
-    }
-  }
+  // A leftover `requires` key is ignored, not rejected: gear was gated on
+  // points spent until #22, and the files and the store still carry it.
   const statMods = optionalPartialStats(obj, "statMods", file);
   // Gear may only grant what a player can also allocate — see GEAR_STAT_KEYS.
   // Failing loudly here rather than silently ignoring the field: an item that
@@ -169,7 +158,6 @@ export function validateGearDefinition(raw: unknown, file: string): GearDefiniti
     name,
     slot: slot as any,
     rarity: rarity as any,
-    requires,
     statMods,
     description,
     tags,

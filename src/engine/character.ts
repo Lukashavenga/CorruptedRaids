@@ -208,7 +208,7 @@ export interface MutationResult {
  * Whether an item is usable by this character at all.
  *
  * One function rather than checks scattered across equip, the shop and loot,
- * because "usable" has three independent reasons to be false and they must
+ * because "usable" has independent reasons to be false and they must
  * agree everywhere — an item the shop sells but equip refuses is worse than
  * one that simply is not for sale.
  */
@@ -217,12 +217,7 @@ export function gearUsableBy(def: GearDefinition, character: Character): Mutatio
   if (def.bodyTypes && !def.bodyTypes.includes(character.appearance.bodyType)) {
     return { ok: false, reason: `${def.name} is not cut for that body.` };
   }
-  for (const [stat, needed] of Object.entries(def.requires) as [AllocatableStat, number][]) {
-    const has = character.allocated[stat] ?? 0;
-    if (has < needed) {
-      return { ok: false, reason: `${def.name} needs ${needed} ${stat} (${character.name} has spent ${has})` };
-    }
-  }
+  // No stat or level gate: if you own it, you can wear it (#22, AGENTS.md §2.3).
   return { ok: true };
 }
 

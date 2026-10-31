@@ -369,20 +369,6 @@ export interface GearDefinition {
   name: string;
   slot: GearSlot;
   rarity: Rarity;
-  /**
-   * What a character must have SPENT to wear this, per attribute.
-   *
-   * Attributes, not level. A level is now just a count of how many points you
-   * have been handed; where they went is the actual decision, and it is the one
-   * gear should care about. Plate that needs 40 Armour is a statement about the
-   * character who wears it — someone who committed to soaking — in a way that
-   * "Corruption 8" never was, because at level 8 everybody is identical apart
-   * from a choice this requirement can now read.
-   *
-   * Checked against `allocated`, so gear cannot lift you into more gear: only
-   * points you spent yourself count, never points other items granted.
-   */
-  requires: Partial<Record<AllocatableStat, number>>;
   statMods: Partial<Stats>;
   description: string;
   tags?: string[];
