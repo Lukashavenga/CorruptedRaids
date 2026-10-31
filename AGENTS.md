@@ -423,7 +423,9 @@ way. No pruning: every table has a `created_at` index for when there is one.
 --source --store`). Win and timer rates per place and level next to the
 solver's target and a fresh simulated reading; per-role share of hits, damage
 and heals plus death rate; average point allocation against the reference
-party; drops and gold per viewer per run and night. It asserts nothing, like
+party; drops and gold per viewer per run and night; how many found items get
+scrapped; and who dies by power against the party's rating, because the average
+protects the room at the weakest member's expense (§5). It asserts nothing, like
 `simulate:progression`.
 
 ### The Dungeoneer of the day
@@ -816,8 +818,7 @@ earned, not a different fight. Attack is sub-linear on purpose - see the
 `_comment` on that block for the sweep that set it.
 
 `crowdFactor` is still exported and still the right shape for anything that
-wants to weigh turnout (the progression report prints it). It no longer
-decides which room the party walks into.
+wants to weigh turnout. It no longer decides which room the party walks into.
 
 ### How a level is picked, end to end
 
@@ -1096,6 +1097,18 @@ that fails when a designer changes their mind is a test nobody keeps.
 Run the second one after touching `content/balance.json`, a dungeon's
 formations, or any loot table. It is the only thing that will tell you a change
 made the game worse to play rather than merely different.
+
+**The studies read the live store; the checks read the disk.**
+`simulate:progression`, `report:threat` and `report:balance` load content
+through `scripts/studyContent.ts`: Supabase when `.env` configures it, and they
+print which copy they used on their first line. `--disk` measures `content/`
+instead, which is how to try an edit before saving it. They used to read the
+disk, and on 2026-10-31 that meant a survivor loot chance of 0.375 in the
+reports against 0.886 on stream, and a shop "topping out at 260g" with
+legendaries on the shelf at 11,600g. `simulate` and `check:formations` stay on
+the disk because they fail the build and have to be offline and deterministic.
+So a finding from a study is about the game as played on the day it ran, and
+the numbers in §10 older than that date are about whatever the disk then held.
 
 ---
 

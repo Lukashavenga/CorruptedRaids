@@ -1,7 +1,8 @@
 /**
  * What a viewer's evening actually feels like.
  *
- *   npx tsx scripts/simulate-progression.ts
+ *   npm run simulate:progression            (the live store; see studyContent.ts)
+ *   npm run simulate:progression -- --disk  (content/ as committed)
  *
  * `npm run simulate` asserts the ENGINE is correct: aggro pulls, healers heal,
  * a bigger party is not a free win. This asks a different question, and one no
@@ -17,25 +18,18 @@
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ContentRegistry } from "../src/engine/content/loader.js";
+import { loadStudyContent } from "./studyContent.js";
 import { GameEngine } from "../src/engine/state/gameEngine.js";
 import { mulberry32 } from "../src/engine/rng.js";
 import { partyRating } from "../src/engine/partyStrength.js";
-import { bandFor, crowdFactor, effectiveRating, BAND_THRESHOLDS, CROWD_FLOOR } from "../src/engine/squad.js";
+import { bandFor, effectiveRating, BAND_THRESHOLDS } from "../src/engine/squad.js";
 import { spendPoints } from "../src/engine/difficulty.js";
 import { xpToNextLevel } from "../src/engine/stats.js";
 import { equipGear, gearUsableBy } from "../src/engine/character.js";
 import { PARTY_BANDS, type Character, type PartyBand, type Rarity } from "../src/engine/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CONTENT_DIR = join(__dirname, "..", "content");
-
-const content = new ContentRegistry();
-content.loadGearDir(join(CONTENT_DIR, "gear"));
-content.loadDungeonsDir(join(CONTENT_DIR, "dungeons"));
-content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
-content.loadBalance(join(CONTENT_DIR, "balance.json"));
-content.loadShop(join(CONTENT_DIR, "shop.json"));
+const content = await loadStudyContent(join(__dirname, ".."));
 
 /**
  * The two rungs this report keeps returning to, resolved by recommendedLevel.
@@ -234,7 +228,7 @@ head("3. THE XP CURVE — runs to reach a level, at each dungeon's rate");
 // 4. What actually drops
 // ---------------------------------------------------------------------------
 
-head("4. LOOT — 40 runs of Tillage Hamlet, 12 viewers");
+head(`4. LOOT — 40 runs of ${STARTER.name}, 12 viewers`);
 {
   const n = night(STARTER.id, 12, 40, 3);
   const perViewerPerRun = n.drops / Math.max(1, n.runs) / 12;
@@ -295,7 +289,7 @@ head("4c. THE ECONOMY — gold earned against what it buys");
   const n = night(STARTER.id, 12, 20, 5);
   const goldPerRun = n.gold.reduce((a, b) => a + b, 0) / Math.max(1, n.gold.length) / Math.max(1, n.runs);
   const shop = content.shopView();
-  console.log(`\nA viewer earns about ${goldPerRun.toFixed(0)}g per run at Tillage Hamlet.`);
+  console.log(`\nA viewer earns about ${goldPerRun.toFixed(0)}g per run at ${STARTER.name}.`);
   console.log(`\n${"stock".padEnd(26)}${"rarity".padEnd(12)}${"price".padEnd(8)}runs to afford`);
   for (const entry of shop.gear) {
     const def = content.getGear(entry.id);
@@ -361,20 +355,35 @@ head("5. THE NEWCOMER — a fresh level 1 in a party that has been playing");
 // the dead in a fight the party WON. This measures the other case, which is the
 // one a chat meets on the night a streamer picks the wrong dungeon.
 
-head("6. WHAT A LOSS PAYS — 20 viewers wiped at Marketgate");
+head("6. WHAT A LOSS PAYS — the first small party that actually wipes");
 {
-  const engine = new GameEngine(content, mulberry32(77));
-  engine.dispatch({ type: "open_dungeon", dungeonId: MID.id });
-  engine.dispatch({ type: "sim_join", count: 20 });
-  const before = engine.party.map((c) => ({ id: c.id, xp: c.xp, gold: c.gold, items: c.inventory.length }));
-  const combat = engine.dispatch({ type: "start_dungeon" }).combat!;
-  const after = engine.party;
-  const xp = after.reduce((a, c, i) => a + (c.xp - before[i]!.xp), 0);
-  const gold = after.reduce((a, c, i) => a + (c.gold - before[i]!.gold), 0);
-  const items = after.reduce((a, c, i) => a + (c.inventory.length - before[i]!.items), 0);
-  const ticks = combat.events.reduce((n, e) => (e.type === "tick" ? e.n : n), 0);
-  console.log(`\nOutcome: ${combat.outcome}, ${combat.survivorIds.length}/20 survived, ${ticks} ticks.`);
-  console.log(`Across all 20 viewers the run paid: ${xp} xp, ${gold} gold, ${items} items.`);
+  // This used to send twenty viewers to one dungeon and print whatever came
+  // back, under a heading saying they wiped. Sim viewers won, so it was reading
+  // out a victory's pay as the price of a loss. Three viewers lose somewhere on
+  // the ladder; look for that rather than assuming it.
+  let paid: { place: string; xp: number; gold: number; items: number; ticks: number } | undefined;
+  for (let seed = 77; seed < 137 && !paid; seed += 1) {
+    const place = ladder[seed % ladder.length]!;
+    const engine = new GameEngine(content, mulberry32(seed));
+    engine.dispatch({ type: "open_dungeon", dungeonId: place.id });
+    engine.dispatch({ type: "sim_join", count: 3 });
+    const before = engine.party.map((c) => ({ xp: c.xp, gold: c.gold, items: c.inventory.length }));
+    const combat = engine.dispatch({ type: "start_dungeon" }).combat!;
+    if (combat.outcome !== "defeat") continue;
+    const after = engine.party;
+    paid = {
+      place: place.name,
+      xp: after.reduce((a, c, i) => a + (c.xp - before[i]!.xp), 0),
+      gold: after.reduce((a, c, i) => a + (c.gold - before[i]!.gold), 0),
+      items: after.reduce((a, c, i) => a + (c.inventory.length - before[i]!.items), 0),
+      ticks: combat.events.reduce((n, e) => (e.type === "tick" ? e.n : n), 0),
+    };
+  }
+  if (!paid) console.log("\nNo party of three lost in 60 tries, at any dungeon. Nothing to read here.");
+  else {
+    console.log(`\nThree viewers lost at ${paid.place} in ${paid.ticks} ticks.`);
+    console.log(`Across all three the run paid: ${paid.xp} xp, ${paid.gold} gold, ${paid.items} items.`);
+  }
   console.log(
     `\nThat is \`rewards.defeatXpMultiplier\` (${content.balance.rewards.defeatXpMultiplier}) of the` +
       `\nfight's XP, and nothing else — no gold, no loot. Before that knob existed` +
@@ -389,25 +398,14 @@ head("6. WHAT A LOSS PAYS — 20 viewers wiped at Marketgate");
 // ---------------------------------------------------------------------------
 
 head("7. TURNOUT — the same dungeon at different headcounts");
-console.log(`\ncrowdFactor multiplies a party's rating by how many turned up (pivot 10):`);
-console.log(
-  `  ${[1, 2, 3, 5, 8, 10, 15, 20, 30, 40]
-    .map((n) => `${n}:${crowdFactor(n).toFixed(2)}`)
-    .join("  ")}`,
-);
-console.log(
-  `  Floored at ${CROWD_FLOOR} — the raw log curve went NEGATIVE below four players,` +
-    `\n  so effectiveRating clamped to zero and any small group was rated as` +
-    `\n  though it owned nothing at all.`,
-);
-console.log(`\n${"size".padEnd(7)}${"rating".padEnd(9)}${"effective".padEnd(11)}${"band".padEnd(13)}${"win".padEnd(6)}${"survive".padEnd(9)}enemies`);
+console.log(`\nHeadcount does not pick the level (AGENTS.md §5); it scales the enemy through partyScaling.`);
+console.log(`\n${"size".padEnd(7)}${"rating".padEnd(9)}${"band".padEnd(13)}${"win".padEnd(6)}${"survive".padEnd(9)}enemies`);
 for (const size of [1, 3, 5, 10, 15, 25, 40]) {
   let wins = 0;
   let survivals = 0;
   let participations = 0;
   let enemies = 0;
   let rating = 0;
-  let effective = 0;
   let band: PartyBand = "weak";
   const trials = 12;
   for (let t = 0; t < trials; t += 1) {
@@ -415,8 +413,7 @@ for (const size of [1, 3, 5, 10, 15, 25, 40]) {
     engine.dispatch({ type: "open_dungeon", dungeonId: MID.id });
     engine.dispatch({ type: "sim_join", count: size, dress: true });
     rating = partyRating(engine.party, content);
-    effective = effectiveRating(rating, engine.party.length);
-    band = bandFor(effective);
+    band = bandFor(effectiveRating(rating, engine.party.length));
     const combat = engine.dispatch({ type: "start_dungeon" }).combat!;
     if (combat.outcome === "victory") wins += 1;
     survivals += combat.survivorIds.length;
@@ -424,7 +421,7 @@ for (const size of [1, 3, 5, 10, 15, 25, 40]) {
     enemies = combat.combatants.filter((c) => c.side === "enemy").length;
   }
   console.log(
-    `${String(size).padEnd(7)}${String(rating).padEnd(9)}${String(effective).padEnd(11)}${band.padEnd(13)}` +
+    `${String(size).padEnd(7)}${String(rating).padEnd(9)}${band.padEnd(13)}` +
       `${pct(wins, trials).padEnd(6)}${pct(survivals, participations).padEnd(9)}${enemies}`,
   );
 }
