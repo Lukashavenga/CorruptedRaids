@@ -777,10 +777,30 @@ console.log(
   const directions = ["left", "up", "right"] as const;
   let finished = 0;
   let bossesFought = 0;
+  let bossFights = 0;
+  let wonWithCasualties = 0;
   const RUNS = 25;
 
   for (let i = 0; i < RUNS; i += 1) {
     const raidEngine = new GameEngine(raidContent, Math.random);
+    // The boss pays completion gold by the dungeon rule: survivors in full, the
+    // fallen of a WON fight at casualtyGoldMultiplier, a lost fight nothing.
+    // The run is random, so this checks every boss fight that happens to occur.
+    raidEngine.on("fight", (rec: { kind: string; outcome: string; members: { survived: boolean; gold: number }[] }) => {
+      if (rec.kind !== "raid_boss") return;
+      bossFights += 1;
+      const alive = rec.members.filter((m) => m.survived);
+      const dead = rec.members.filter((m) => !m.survived);
+      if (rec.outcome !== "victory") {
+        assert.ok(rec.members.every((m) => m.gold === 0), "a lost raid boss fight paid gold");
+        return;
+      }
+      if (alive.length === 0 || dead.length === 0) return;
+      wonWithCasualties += 1;
+      const mostDead = Math.max(...dead.map((m) => m.gold));
+      assert.ok(dead.every((m) => m.gold > 0), "the fallen of a won raid boss fight were paid no gold");
+      assert.ok(mostDead <= Math.max(...alive.map((m) => m.gold)), "a casualty out-earned every survivor at the raid boss");
+    });
     const controller = new DungeonController(raidEngine);
     controller.dispatch({ type: "open_raid", raidId: raidDef.id });
     controller.dispatch({ type: "sim_join", count: 12 });
@@ -821,6 +841,7 @@ console.log(
     ),
   );
   console.log(`Raids: ${finished}/${RUNS} runs terminated, ${bossesFought} reached the boss.`);
+  console.log(`Raid boss gold: ${bossFights} boss fights seen, ${wonWithCasualties} won with casualties (all paid by the casualty rule). Vacuous while #69 keeps the sim from the boss.`);
 
   // --- chat's vote opens the door ---------------------------------------------
   //
@@ -1190,7 +1211,7 @@ console.log(
 
   // DPS build: 6 atk, a helmet on.
   e.dispatch({ type: "allocate_many", requestedBy: id, points: { atk: 6 } });
-  const helm = c.inventory.find((g) => content.getGear(g.gearId).slot === "head" && Object.keys(content.getGear(g.gearId).requires).length === 0)!;
+  const helm = c.inventory.find((g) => content.getGear(g.gearId).slot === "head" && content.getGear(g.gearId).enabled !== false)!;
   assert.ok(e.dispatch({ type: "equip_gear", requestedBy: id, instanceId: helm.instanceId }).ok, "the check needs a helmet on");
 
   // Tank: nothing saved yet, so it inherits what is worn and spent.
@@ -1225,14 +1246,15 @@ console.log(
   assert.ok(e.dispatch({ type: "switch_role", requestedBy: id, role: "dps" }).ok, "a build naming a recycled item still applies");
   assert.equal(c.equipment.head, undefined, "...with that slot empty");
 
-  // Gates are re-checked against the build's own allocation.
-  const gated = content.listGear().find((g) => Object.keys(g.requires).length > 0 && g.enabled !== false)!;
-  const [stat, needed] = Object.entries(gated.requires)[0] as [keyof typeof c.allocated, number];
-  const gi = grantGear(c, gated.id);
-  c.builds!.tank!.equipment[gated.slot] = gi.instanceId;
-  c.allocated[stat] = 0;
-  e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
-  assert.ok(c.allocated[stat] < needed ? c.equipment[gated.slot]?.instanceId !== gi.instanceId : true, "gear the build cannot wear is left in the bag");
+  // Usability (enabled, body type) is re-checked when a build is applied; there
+  // is no stat gate any more (#22).
+  const disabled = content.listGear().find((g) => g.enabled === false);
+  if (disabled) {
+    const gi = grantGear(c, disabled.id);
+    c.builds!.tank!.equipment[disabled.slot] = gi.instanceId;
+    e.dispatch({ type: "switch_role", requestedBy: id, role: "tank" });
+    assert.notEqual(c.equipment[disabled.slot]?.instanceId, gi.instanceId, "gear the build cannot wear is left in the bag");
+  }
 
   // Joining as a role switches an existing character and applies its build.
   e.dispatch({ type: "reset_dungeon" });

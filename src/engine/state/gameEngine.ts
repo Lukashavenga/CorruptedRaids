@@ -746,11 +746,21 @@ export class GameEngine extends EventEmitter {
         });
 
         if (combat.outcome === "victory") {
-          for (const id of combat.survivorIds) {
-            const character = this.roster.get(id);
-            if (!character) continue;
-            const gold = randomInt(def.completionGold[0], def.completionGold[1], this.rng);
+          // Completion GOLD follows the dungeon rule (`casualtyGoldMultiplier`):
+          // someone who fell in a fight that was WON still gets a share, so the
+          // boss is not the one fight where dying costs the whole payout.
+          // Completion XP is unchanged and stays with the survivors.
+          const { casualtyGoldMultiplier } = this.content.balance.rewards;
+          for (const character of this.party) {
+            const survived = combat.survivorIds.includes(character.id);
+            const gold = Math.round(
+              randomInt(def.completionGold[0], def.completionGold[1], this.rng) * (survived ? 1 : casualtyGoldMultiplier),
+            );
             character.gold += gold;
+            if (!survived) {
+              bossExtras.set(character.id, { xp: 0, gold });
+              continue;
+            }
             bossExtras.set(character.id, { xp: def.completionXp, gold });
             for (const level of grantXp(character, def.completionXp, this.content.balance)) {
               combat.events.push({ type: "levelUp", characterId: character.id, newLevel: level });
