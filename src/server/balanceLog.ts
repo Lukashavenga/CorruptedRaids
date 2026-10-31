@@ -140,6 +140,7 @@ export function memberRow(f: FightRecord, m: FightRecord["members"][number]): Re
     heals_given: m.healsGiven,
     heals_received: m.healsReceived,
     taunts: m.taunts,
+    rallied: m.rallied ?? false,
     survived: m.survived,
     death_tick: m.deathTick,
     xp: m.xp,

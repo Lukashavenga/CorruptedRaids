@@ -1179,6 +1179,19 @@ body {
 .roster-chip.is-dungeoneer .roster-name {
   color: var(--gold-pale);
 }
+/* Rally: fighting above their real power this fight. A small mark after the
+   name, never replacing it. */
+.roster-rally {
+  position: relative;
+  flex: none;
+  margin-left: 3px;
+  padding: 0 3px;
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  color: var(--gold-pale);
+  font-size: 0.7em;
+  line-height: 1.1;
+}
 .roster-crown {
   position: relative;
   flex: none;

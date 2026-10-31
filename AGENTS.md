@@ -694,6 +694,18 @@ DPS deaths by a point and took healer hits from 11% to 8%. Neither earned its
 place, so the knobs exist and the defaults are unchanged. `report:threat
 --set path=value` measures a change without editing balance.json.
 
+**Rally: the far-below fight at half power, for that fight (#53).** A member
+whose Corruption is under `rally.belowFraction` of the party's rating has Hp,
+Attack and Skill scaled (one factor, capped at `rally.maxMultiplier`) until
+their power reaches `rally.toFraction` of it. `src/engine/rally.ts` is the one
+rule: the resolver applies it to its own copy of the fight stats and the
+roster chip asks the same function, so badge and fight agree. Nothing is
+written to the Character, and Corruption and the party rating are computed from
+real stats, so the level a party meets is unchanged. The log records
+`rallied` per member (`sql/008_balance_log_rallied.sql` must be run before the
+server that writes it); `report:balance` section 5 splits its buckets by it and
+`report:rally` measures it on mixed-level parties. The 0.5s are starting values.
+
 **Everyone gets paid.** The dead still earn: `casualtyXpMultiplier: 0.4` and
 `casualtyLootChance: 0.05`. A party that LOSES earns too: `defeatXpMultiplier:
 0.15` and `defeatLootChance: 0.025`, no gold. The three loot chances must stay

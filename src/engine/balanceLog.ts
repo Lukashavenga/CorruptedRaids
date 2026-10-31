@@ -67,6 +67,8 @@ export interface FightMemberRecord {
   healsGiven: number;
   healsReceived: number;
   taunts: number;
+  /** Fought Rallied (balance.rally); `corruption` is still the real number. Absent in rows from before Rally. */
+  rallied?: boolean;
   survived: boolean;
   /** Tick the member went down, or null if they never did. */
   deathTick: number | null;
@@ -279,6 +281,7 @@ export function buildFightRecord(
       healsGiven: 0,
       healsReceived: 0,
       taunts: 0,
+      rallied: (combat.rallied ?? []).includes(m.characterId),
       survived: combat.survivorIds.includes(m.characterId),
       deathTick: null,
       xp: 0,

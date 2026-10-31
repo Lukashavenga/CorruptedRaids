@@ -164,6 +164,7 @@ async function readSupabase(): Promise<{ fights: FightRecord[]; economy: Economy
         healsGiven: m.heals_given,
         healsReceived: m.heals_received,
         taunts: m.taunts,
+        rallied: m.rallied ?? false,
         survived: m.survived,
         deathTick: m.death_tick,
         xp: m.xp,
@@ -426,4 +427,23 @@ for (const [label, lo, hi] of RATIOS) {
       `${lpad(mean(rows.map((x) => x.fair)).toFixed(2), 10)}${lpad(Math.round(mean(rows.map((x) => x.m.gold))), 7)}` +
       `${lpad(Math.round(mean(rows.map((x) => x.m.xp))), 6)}`,
   );
+}
+
+// Rally (balance.rally) changes who is in the buckets above only through what
+// they do in the fight: the ratio is still the real Corruption over the real
+// rating. Rows from before Rally have rallied=false, so "no Rally" is both the
+// old log and any fight where it did not apply. Compare a date range before
+// the deploy with one after (--from/--to), or read the split below.
+console.log("\nRally: the same buckets, split by whether the member fought Rallied\n");
+console.log(`${pad("power vs party", 16)}${pad("fought", 11)}${lpad("rows", 7)}${lpad("death%", 8)}${lpad("dmg/fair", 10)}`);
+for (const [label, lo, hi] of RATIOS) {
+  for (const flag of [false, true]) {
+    const rows = measured.filter((x) => x.ratio >= lo && x.ratio < hi && (x.m.rallied ?? false) === flag);
+    if (rows.length === 0) continue;
+    console.log(
+      `${pad(label, 16)}${pad(flag ? "Rallied" : "as is", 11)}${lpad(rows.length, 7)}` +
+        `${lpad(pct(rows.filter((x) => !x.m.survived).length, rows.length), 8)}` +
+        `${lpad(mean(rows.map((x) => x.fair)).toFixed(2), 10)}`,
+    );
+  }
 }

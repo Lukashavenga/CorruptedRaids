@@ -91,6 +91,15 @@ export const en = {
     taken: "New Dungeoneer of the day: {name}!",
   },
 
+  /**
+   * Rally (balance.rally): a member far under the party fights stronger for
+   * that fight. `badge` sits at the end of a roster chip, so it is short.
+   */
+  rally: {
+    badge: "R",
+    title: "Rallied: fights stronger this fight",
+  },
+
   /** The five overlay phases — see src/state/dungeonStates.config.ts. */
   state: {
     idle: {

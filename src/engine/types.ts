@@ -1096,6 +1096,8 @@ export interface CombatantSnapshot {
   role?: Role;
   /** Party members only. */
   level?: number;
+  /** Party members only: fought Rallied (balance.rally). `stats` are then the raised fight stats. */
+  rallied?: boolean;
   /** Enemies only. */
   kind?: EncounterKind;
   maxHp: number;
@@ -1157,6 +1159,8 @@ export interface CombatResult {
   ticks: number;
   tickCeiling: number;
   endReason: FightEndReason;
+  /** Party members who fought Rallied (balance.rally). Absent on results from before Rally. */
+  rallied?: string[];
 }
 
 /** `timer`: both sides were still standing when the tick ceiling hit. */

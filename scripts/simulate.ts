@@ -5,8 +5,13 @@
  *   npm run simulate
  */
 import assert from "node:assert/strict";
-import { partyRating } from "../src/engine/partyStrength.js";
-import { bandFor, BAND_SAMPLE_PARTY, ENTRY_RATING } from "../src/engine/squad.js";
+import { memberPower, partyRating } from "../src/engine/partyStrength.js";
+import { bandFor, BAND_SAMPLE_PARTY, effectiveRating, ENTRY_RATING, expandFight } from "../src/engine/squad.js";
+import { runCombat } from "../src/engine/combat/resolver.js";
+import { rallied } from "../src/engine/rally.js";
+import { dress, spendPoints } from "../src/engine/difficulty.js";
+import { deriveCharacterStats } from "../src/engine/character.js";
+import { xpToNextLevel } from "../src/engine/stats.js";
 import { PARTY_BANDS } from "../src/engine/types.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1179,6 +1184,67 @@ console.log(
   assert.equal(e.roster.get(id)!.role, "tank", "...and the role did not change");
   controller.dispose();
   console.log("switch_role: allowed while gathering, refused with the locked message once the fight starts.");
+}
+
+// --- Rally: the weak fight stronger, and nothing is saved --------------------
+{
+  const mk = (id: string, role: "tank" | "healer" | "dps", level: number, dressed: boolean) => {
+    const c = createCharacter({ id, name: id, role });
+    for (let l = 1; l < level; l += 1) grantXp(c, xpToNextLevel(l), content.balance);
+    if (dressed) {
+      spendPoints(c, role, content.balance);
+      dress(c, content, "best", mulberry32(7));
+    }
+    return c;
+  };
+  const build = () => [
+    mk("rally:vet-t", "tank", 40, true),
+    mk("rally:vet-h", "healer", 40, true),
+    mk("rally:vet-d", "dps", 40, true),
+    mk("rally:new-1", "dps", 1, false),
+    mk("rally:new-2", "dps", 1, false),
+  ];
+  const dungeon = content.listDungeons()[0]!;
+  const fightOf = (party: ReturnType<typeof build>) =>
+    runCombat(
+      party,
+      expandFight(dungeon, dungeon.id, dungeon.name, effectiveRating(partyRating(party, content), party.length), content.balance.bandStatScale),
+      content,
+      content.balance,
+      mulberry32(11),
+    );
+
+  const party = build();
+  const before = party.map((c) => ({
+    stats: JSON.stringify(deriveCharacterStats(c, content)),
+    power: memberPower(c, content),
+    allocated: JSON.stringify(c.allocated),
+    equipment: JSON.stringify(c.equipment),
+  }));
+  const ratingBefore = partyRating(party, content);
+  const result = fightOf(party);
+  assert.deepEqual(result.rallied, ["rally:new-1", "rally:new-2"], "exactly the two naked newcomers are Rallied");
+  party.forEach((c, i) => {
+    assert.equal(JSON.stringify(deriveCharacterStats(c, content)), before[i]!.stats, `${c.id}: saved stats unchanged by a Rallied fight`);
+    assert.equal(memberPower(c, content), before[i]!.power, `${c.id}: Corruption unchanged by a Rallied fight`);
+    assert.equal(JSON.stringify(c.allocated), before[i]!.allocated, `${c.id}: allocation unchanged`);
+    assert.equal(JSON.stringify(c.equipment), before[i]!.equipment, `${c.id}: equipment unchanged`);
+  });
+  assert.equal(partyRating(party, content), ratingBefore, "the party rating is unchanged by Rally");
+
+  const newcomer = result.combatants.find((c) => c.id === "rally:new-1")!;
+  const real = deriveCharacterStats(party[3]!, content);
+  assert.equal(newcomer.rallied, true, "the combatant is marked Rallied");
+  assert.ok(newcomer.stats.hp > real.hp && newcomer.stats.atk > real.atk, "a Rallied member's FIGHT stats are raised");
+  assert.ok(!result.combatants.find((c) => c.id === "rally:vet-t")!.rallied, "a veteran is not Rallied");
+
+  content.balance.rally.enabled = false;
+  assert.deepEqual(fightOf(build()).rallied, [], "Rally off: nobody is Rallied");
+  content.balance.rally.enabled = true;
+  const pair = build().slice(0, 2).concat(build().slice(3, 4));
+  assert.equal(pair.length, 3);
+  assert.ok(rallied(build().slice(2, 4), content).size === 0, "a party under minPartySize is not Rallied");
+  console.log(`Rally: ${result.rallied!.length} Rallied; saved stats, Corruption, allocation, gear and party rating unchanged.`);
 }
 
 // --- reset returns to idle ---------------------------------------------------
