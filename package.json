@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "simulate": "tsx scripts/simulate.ts",
-    "simulate:progression": "tsx scripts/simulate-progression.ts",
-    "report:threat": "tsx scripts/report-threat.ts",
+    "simulate:progression": "tsx --env-file-if-exists=.env scripts/simulate-progression.ts",
+    "report:threat": "tsx --env-file-if-exists=.env scripts/report-threat.ts",
     "test:balance-log": "tsx scripts/test-balance-log.ts",
     "report:balance": "tsx --env-file-if-exists=.env scripts/report-balance.ts",
     "serve": "tsx --env-file-if-exists=.env src/server/index.ts",

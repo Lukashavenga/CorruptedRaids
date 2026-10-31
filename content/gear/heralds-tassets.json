@@ -2,16 +2,18 @@
   "id": "heralds-tassets",
   "name": "Heralds Tassets",
   "slot": "bottom",
-  "rarity": "legendary",
-  "statMods": {
-    "hp": 4,
-    "skill": 2
-  },
-  "description": "Heralds Tassets. Taken, not given.",
   "tags": [],
+  "rarity": "legendary",
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "atk": 8,
+    "spd": 6,
+    "skill": 10
+  },
+  "description": "Just well rounded, stretchy, warm nice Pants. that's it. just believe it. stop asking questions.",
   "spriteByBody": {
     "male": "male-t5",
     "female": "female-t5"
-  },
-  "requires": {}
+  }
 }

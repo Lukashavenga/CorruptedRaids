@@ -1,8 +1,11 @@
 {
   "id": "greater-tome-of-insight",
-  "name": "Greater Tome of Insight",
-  "rarity": "rare",
+  "name": "Double XP and Coke",
   "price": 520,
-  "description": "The margins argue with the text. Both are usually right.",
-  "effect": { "type": "grantXp", "amount": 600 }
+  "effect": {
+    "type": "grantXp",
+    "amount": 600
+  },
+  "rarity": "rare",
+  "description": "Time to go NEXT LEVEL"
 }

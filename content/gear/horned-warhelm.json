@@ -2,12 +2,14 @@
   "id": "horned-warhelm",
   "name": "Horned Warhelm",
   "slot": "head",
+  "tags": [],
   "rarity": "common",
+  "sprite": "head05",
   "requires": {},
   "statMods": {
-    "skill": 2
+    "hp": 2,
+    "atk": 3,
+    "spd": 1
   },
-  "description": "Horned Warhelm. Taken, not given.",
-  "tags": [],
-  "sprite": "head05"
+  "description": "TO VALHALLA!"
 }

@@ -322,27 +322,11 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
       const event = beat.event;
       switch (event.type) {
         case "attack": {
-          // Party name left, enemy name right, whoever swung — the sides they
-          // are standing on. Which of them is being hit is carried by the
-          // template, which puts the damage next to the one losing it.
-          const incoming =
-            byId.get(event.actorId)?.side === "enemy" && byId.get(event.targetId)?.side === "party";
-          // Same-side hits (nothing does this today) fall through to the
-          // outgoing form with the actor on the left, which is the old
-          // behaviour and still reads correctly.
-          const party = nameOf(incoming ? event.targetId : event.actorId);
-          const enemy = nameOf(incoming ? event.actorId : event.targetId);
+          // No log line: a hit is a float on the body. With a party of twenty
+          // the swings come faster than a ledger can be read.
           announce(when, { kind: "attack", actorId: event.actorId, targetId: event.targetId, crit: event.crit });
           const seq = (hitSeq += 1);
           at(when, () => {
-            pushLine(
-              format(incoming ? text.combatLog.attackIn : text.combatLog.attackOut, {
-                party,
-                enemy,
-                damage: event.damage,
-              }),
-              event.crit ? "crit" : undefined,
-            );
             setPlayback((p) => ({
               ...p,
               hp: { ...p.hp, [event.targetId]: event.targetHpAfter },
@@ -357,18 +341,8 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "heal": {
-          const actor = nameOf(event.actorId);
           announce(when, { kind: "heal", actorId: event.actorId, targetId: event.targetId, crit: false });
           at(when, () => {
-            const isSelf = event.actorId === event.targetId;
-            pushLine(
-              format(isSelf ? text.combatLog.healSelf : text.combatLog.heal, {
-                actor,
-                target: nameOf(event.targetId),
-                amount: event.amount,
-              }),
-              "heal",
-            );
             setPlayback((p) => ({ ...p, hp: { ...p.hp, [event.targetId]: event.targetHpAfter } }));
             floatNumber(event.targetId, `+${event.amount}`, "heal");
             pulse(event.targetId, "heal");
@@ -377,9 +351,7 @@ export function useCombatPlayback(result: DispatchResult | null, updateSeq: numb
         }
 
         case "ability": {
-          const actor = nameOf(event.actorId);
           announce(when, { kind: "ability", actorId: event.actorId, targetId: event.actorId, crit: false });
-          at(when, () => pushLine(format(text.combatLog.ability, { actor, detail: event.detail })));
           break;
         }
 

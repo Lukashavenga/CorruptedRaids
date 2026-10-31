@@ -2,13 +2,13 @@
   "id": "rusted-bucket",
   "name": "Rusted Bucket",
   "slot": "head",
+  "tags": [],
   "rarity": "common",
+  "sprite": "head02",
   "requires": {},
   "statMods": {
-    "hp": 1,
+    "hp": 4,
     "skill": 1
   },
-  "description": "Rusted Bucket. Taken, not given.",
-  "tags": [],
-  "sprite": "head02"
+  "description": "Rusted Bucket. Taken, not given."
 }

@@ -7,7 +7,7 @@
  *
  * Asserts nothing: like simulate:progression, every number is a design call.
  * `--set path=value` overrides a balance knob for this run only, so a change
- * can be measured before it is written to content/balance.json.
+ * can be measured before it is saved. Reads the live store; see studyContent.ts.
  *
  * The party is 2 tank / 2 healer / 8 DPS, built and spent as estimateDifficulty
  * builds its reference party, and each fight is expanded at that party's own
@@ -15,7 +15,7 @@
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ContentRegistry } from "../src/engine/content/loader.js";
+import { loadStudyContent } from "./studyContent.js";
 import { mulberry32 } from "../src/engine/rng.js";
 import { runCombat } from "../src/engine/combat/resolver.js";
 import { referenceParty, referencePartyStrength, type GearAssumption } from "../src/engine/difficulty.js";
@@ -23,14 +23,7 @@ import { expandFight } from "../src/engine/squad.js";
 import type { Role } from "../src/engine/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const CONTENT_DIR = join(__dirname, "..", "content");
-
-const content = new ContentRegistry();
-content.loadGearDir(join(CONTENT_DIR, "gear"));
-content.loadDungeonsDir(join(CONTENT_DIR, "dungeons"));
-content.loadConsumablesDir(join(CONTENT_DIR, "consumables"));
-content.loadBalance(join(CONTENT_DIR, "balance.json"));
-content.loadShop(join(CONTENT_DIR, "shop.json"));
+const content = await loadStudyContent(join(__dirname, ".."));
 
 const args = process.argv.slice(2);
 let samples = 60;

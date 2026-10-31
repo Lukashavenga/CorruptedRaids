@@ -2,13 +2,15 @@
   "id": "legionary-helm",
   "name": "Legionary Helm",
   "slot": "head",
-  "rarity": "common",
-  "statMods": {
-    "hp": 2,
-    "skill": 1
-  },
-  "description": "Legionary Helm. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "head06",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 5,
+    "atk": 5,
+    "spd": 2,
+    "skill": 3
+  },
+  "description": "Legionary Helm. Taken, not given."
 }

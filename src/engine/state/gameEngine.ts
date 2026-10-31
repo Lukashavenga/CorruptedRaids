@@ -969,7 +969,7 @@ export class GameEngine extends EventEmitter {
           ok: result.ok,
           message: result.ok ? format(text.shop.bought, { name, gold: result.cost ?? 0 }) : result.reason ?? text.errors.cannotBuy,
           ...(result.ok
-            ? { economy: this.economyDraft(character.id, "buy_consumable", { goldDelta: -(result.cost ?? 0) }) }
+            ? { economy: this.economyDraft(character.id, "buy_consumable", { goldDelta: -(result.cost ?? 0), gearId: command.consumableId }) }
             : {}),
         };
       }

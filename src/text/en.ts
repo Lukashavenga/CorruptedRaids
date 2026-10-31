@@ -131,38 +131,6 @@ export const en = {
    * the rest. scripts/check-text-fits.py enforces the width.
    */
   combatLog: {
-    /*
-     * A swing, with the PARTY NAME ALWAYS LEFT and the ENEMY ALWAYS RIGHT —
-     * the side of the stage each of them is standing on.
-     *
-     * It used to be "{actor} • {target}", so the order flipped with whoever
-     * happened to be swinging and the same two names swapped places twice a
-     * second. Reading it meant working out which side you were looking at
-     * before you could read what happened.
-     *
-     * Direction is carried by WHERE THE DAMAGE SITS: next to whoever lost the
-     * health. No arrow, because the bitmap font has no ">" or "<" glyph (see
-     * CHARSET in scripts/build-font.py) and an aliased dash would read as part
-     * of the damage number.
-     *
-     * No "!" on a crit: it pushed the longest line 8px past the stage, and the
-     * .crit colour class already marks it. The absorbed amount is dropped for
-     * the same reason — the least useful number on screen for the most width.
-     * That is why a crit, a mitigated hit and a plain one share these two.
-     *
-     * THE CEILING IS TWO-DIGIT DAMAGE. Ten-character names either side of a
-     * spaced bullet leave 436 of 438px, so a three-digit hit runs 16px past
-     * the stage. That is not new — the old "{actor} • {target} -{damage}" is
-     * the same characters in a different order and overflowed identically —
-     * and closing it costs both spaces around the bullet, which is worth more
-     * on stream than a hit nobody has landed yet. Revisit when damage does
-     * reach three figures: drop NAME_MAX to 9, or close up the bullet.
-     */
-    attackOut: "{party} • {enemy} -{damage}",
-    attackIn: "{party} -{damage} • {enemy}",
-    ability: "{actor}: {detail}",
-    heal: "{actor} • {target} +{amount}",
-    healSelf: "{actor} • self +{amount}",
     down: "{who} is down!",
     loot: "{who} loots {gearName}!",
     reward: "{who} +{xp}xp +{gold}g",
@@ -436,6 +404,11 @@ export const en = {
       failed: "Could not reach the standings.",
       counted: "{shown} of {total}",
       refresh: "Refresh",
+      today: "Today",
+      todayHint: "Runs survived since today's reset at 11:00 Amsterdam time",
+      dungeoneerTitle: "Dungeoneer of the day",
+      dungeoneerSurvived: "{n} survived",
+      dungeoneerNone: "Nobody yet - survive a run to take it.",
     },
 
     /*

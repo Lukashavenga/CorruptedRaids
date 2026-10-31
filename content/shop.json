@@ -1,32 +1,71 @@
 {
   "gear": [
-    "bedsheet-wraith",
-    "witch-s-hat",
-    "green-draught",
-    "plated-greaves",
+    "iron-shortsword",
     "pitch-torch",
+    "bedsheet-wraith",
+    "green-draught",
+    "siege-hammer",
+    "twin-bladed-axe",
     "coin-purse",
     "shinobi-wrap",
     "straw-hat",
-    "bounty-hunter-helm",
+    "crimson-tower-shield",
+    "fisher-s-trident",
+    "iron-flail",
+    "legionary-helm",
+    "plated-greaves",
     "frost-sceptre",
+    "lion-heater",
+    "bounty-hunter-helm",
     "shardspire-staff",
-    "lion-heater"
+    "emberbrand"
   ],
+  "pricing": {
+    "goldPerRun": 116,
+    "runsByRarity": {
+      "epic": 20,
+      "rare": 8,
+      "common": 1,
+      "uncommon": 3,
+      "legendary": 50
+    }
+  },
   "_comment": "What the shop stocks, in the order viewers see it. OWNED BY THE ADMIN PANEL (Shop tab): it writes this file, so a hand edit is overwritten by the next save. It began as the four cheapest items per slot from scripts/generate-gear-content.py, a testing default; the streamer curates it now. gearPrices / consumablePrices override the SHELF price only - an item otherwise sells at its value (consumables: their own price) - and recycling still pays from the item's value. NOTE: never stock a grantGold consumable whose payout exceeds its price; that is an infinite-gold loop.",
+  "gearAdjust": {
+    "coin-purse": 10,
+    "shinobi-wrap": 45,
+    "legionary-helm": -5,
+    "bedsheet-wraith": -10,
+    "iron-shortsword": -5,
+    "bounty-hunter-helm": 100
+  },
   "gearPrices": {
-    "straw-hat": 8741,
-    "lion-heater": 6600,
-    "pitch-torch": 75,
-    "shinobi-wrap": 8745,
-    "frost-sceptre": 3210,
-    "plated-greaves": 452,
-    "shardspire-staff": 2574,
-    "bounty-hunter-helm": 4200
+    "straw-hat": 560,
+    "coin-purse": 930,
+    "emberbrand": 6200,
+    "iron-flail": 920,
+    "lion-heater": 2650,
+    "pitch-torch": 190,
+    "shinobi-wrap": 990,
+    "siege-hammer": 550,
+    "frost-sceptre": 3700,
+    "green-draught": 560,
+    "legionary-helm": 1100,
+    "plated-greaves": 1400,
+    "bedsheet-wraith": 560,
+    "iron-shortsword": 190,
+    "twin-bladed-axe": 560,
+    "fisher-s-trident": 1100,
+    "shardspire-staff": 5750,
+    "bounty-hunter-helm": 5800,
+    "crimson-tower-shield": 1050
   },
   "consumables": [
     "lesser-tome-of-insight",
     "tome-of-insight",
     "greater-tome-of-insight"
-  ]
+  ],
+  "consumableAdjust": {
+    "greater-tome-of-insight": 5
+  }
 }

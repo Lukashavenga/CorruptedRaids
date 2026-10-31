@@ -2,13 +2,15 @@
   "id": "bounty-hunter-helm",
   "name": "Bounty Hunter Helm",
   "slot": "head",
-  "rarity": "epic",
+  "tags": [],
+  "rarity": "legendary",
+  "sprite": "head07",
   "requires": {},
   "statMods": {
-    "hp": 2,
-    "skill": 1
+    "hp": 22,
+    "atk": 9,
+    "spd": 6,
+    "skill": 7
   },
-  "description": "Bounty Hunter Helm. Taken, not given.",
-  "tags": [],
-  "sprite": "head07"
+  "description": "THIS IS THE WAY"
 }
