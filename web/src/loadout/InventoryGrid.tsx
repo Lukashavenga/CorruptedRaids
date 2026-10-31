@@ -91,21 +91,6 @@ export function InventoryGrid({
   const cells = Math.max(MIN_ROWS, Math.ceil(items.length / CELLS_PER_ROW)) * CELLS_PER_ROW;
   const emptyCells = Math.max(0, cells - items.length);
 
-  // Locked when the wearer has not spent enough on what the item asks for.
-  // Mirrors gearUsableBy in the engine, which remains the authority and refuses
-  // the equip regardless of what this shows.
-  const missing: [string, number][] = selected
-    ? (Object.entries(selected.def.requires ?? {}).filter(
-        ([stat, need]) => (character.allocated[stat as keyof typeof character.allocated] ?? 0) < (need as number),
-      ) as [string, number][])
-    : [];
-  const locked = missing.length > 0;
-  const lockReason = missing
-    .map(([stat, need]) =>
-      format(text.gear.needsStat, { amount: need, stat: text.stat[stat as keyof typeof text.stat] ?? stat }),
-    )
-    .join(", ");
-
   const leaveTransmog = () => setTransmogging(null);
   const tmTarget = transmogging ? items.find((row) => row.item.instanceId === transmogging) ?? null : null;
 
@@ -281,11 +266,10 @@ export function InventoryGrid({
             <button
               type="button"
               className="small"
-              disabled={busy || locked}
+              disabled={busy}
               onClick={() => onEquip(selected.item.instanceId)}
-              title={locked ? lockReason : undefined}
             >
-              {locked ? lockReason : text.gear.equip}
+              {text.gear.equip}
             </button>
             <button
               type="button"
