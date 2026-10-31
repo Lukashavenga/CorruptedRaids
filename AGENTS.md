@@ -1339,11 +1339,16 @@ fetches or any import under `src/engine` or `src/state`: it is the only build
 in which that code has to survive a browser. `npm run dev:sim` serves it with
 hot reload on port 5174.
 
-**Green.** `simulate` used to fail one assertion - *"a balanced party should
-bring meaningfully more people home (8% vs 0%)"* - from `cops.json` in the
-seasoned band. That was authored tuning rather than a code fault and it has
-been adjusted, so the suite passes end to end and a red run now means
-something broke.
+**`simulate` is not green, and exit 0 does not mean "nothing is wrong".**
+Assertions that fail because of content or thresholds, not the engine, are
+wrapped in `known(ticket, fn)` in `scripts/simulate.ts`: they print
+`KNOWN FAILURE (<ticket>)`, are counted, and the run continues, so one content
+problem no longer hides the combat, loot, shop and role checks after it. The run
+ends with `Known failures: N`. Exit 0 means every ENGINE assertion passed. As
+of this writing there are 5: four sample-party band scores (#59, thresholds) and
+the raid-boss reach rate (#69). When a ticket lands, unwrap its `known(...)`
+calls so they are hard failures again - the assertions are unchanged, only
+wrapped. Only `AssertionError` is swallowed; any other throw still ends the run.
 
 ---
 
