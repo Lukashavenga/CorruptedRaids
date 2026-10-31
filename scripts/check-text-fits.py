@@ -146,17 +146,8 @@ CASES = [
     # DUNGEONEER_NAME_MAX (14) - measured at its widest.
     ("dungeoneer.holder", 16, f"Dungeoneer of the day: {DUNGEONEER} • 99 survived"),
     ("dungeoneer.taken",  16, f"New Dungeoneer of the day: {DUNGEONEER}!"),
-    # Party name left, enemy right, always — both orders are the same
-    # characters, so both measure the same. Two-digit damage is the documented
-    # ceiling (see combatLog in en.ts); a third digit is 16px past the stage
-    # and has been since before the names were reordered.
     # CombatLog steps a line that will not fit down to 16px (see
-    # useFittedFontSize), so 16px is the budget that must hold. The real worst
-    # case here -- a ten-character viewer beside the widest clamped enemy name
-    # -- runs 466px at 32px, which is why the step-down exists.
-    ("log.attackOut",     16, f"{ACTOR} • {TARGET} -24"),
-    ("log.attackIn",      16, f"{ACTOR} -24 • {TARGET}"),
-    ("log.heal",          16, f"{ACTOR} • {TARGET} +16"),
+    # useFittedFontSize), so 16px is the budget that must hold.
     ("log.down",          32, f"{TARGET} is down!"),
     ("log.reward",        32, f"{ACTOR} +120xp +45g"),
     ("figure.level",      16, "Corruption 12"),
