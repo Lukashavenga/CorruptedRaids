@@ -176,6 +176,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
             skinTone: c.appearance?.skinTone ?? "sand",
             layers: member ? layersFor(member) : {},
             hair: c.appearance?.hair ?? null,
+            rallied: c.rallied ?? false,
           };
         })
     : party.map((m) => ({
@@ -189,6 +190,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
         skinTone: m.appearance.skinTone,
         layers: layersFor(m),
         hair: m.appearance.hair ?? null,
+        rallied: m.rallied,
       }));
 
   /**
@@ -288,6 +290,7 @@ export function App({ Arena }: AppProps = {}): JSX.Element {
     maxHp: c.maxHp,
     downed: showFight ? (playback.downed[c.id] ?? false) : false,
     dungeoneer: c.id === crowned?.id,
+    rallied: c.rallied,
   }));
   if (showFight) {
     // Array.prototype.sort is stable, so equal ranks keep join order.

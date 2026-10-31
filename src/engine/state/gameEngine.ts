@@ -57,6 +57,7 @@ import { xpToNextLevel } from "../stats.js";
 import { runCombat } from "../combat/resolver.js";
 import { advanceRound, boonGranted, buffTotals, enterRoom, openDoor, roomFor, startRaid, type RaidRun } from "../raid.js";
 import { dressSimViewer, kitForIndex, simViewers } from "../sim.js";
+import { rallied } from "../rally.js";
 import { dungeoneerOf, recordSurvivals, type Dungeoneer } from "../dungeoneer.js";
 import { text, format } from "../../text/index.js";
 
@@ -102,6 +103,8 @@ export interface PartyMemberView {
    * factor of three.
    */
   corruption: number;
+  /** Would fight Rallied if the fight started now (balance.rally); the roster chip shows it. */
+  rallied: boolean;
   level: number;
   xp: number;
   xpToNext: number;
@@ -1005,7 +1008,7 @@ export class GameEngine extends EventEmitter {
     }
   }
 
-  private viewOf(character: Character): PartyMemberView {
+  private viewOf(character: Character, rallyIds: ReadonlySet<string> = new Set()): PartyMemberView {
     const equipment: PartyMemberView["equipment"] = {};
     for (const [slot, instance] of Object.entries(character.equipment)) {
       equipment[slot] = instance
@@ -1021,6 +1024,7 @@ export class GameEngine extends EventEmitter {
       id: character.id,
       name: character.name,
       corruption: memberPower(character, this.content),
+      rallied: rallyIds.has(character.id),
       level: character.level,
       xp: character.xp,
       xpToNext: xpToNextLevel(character.level),
@@ -1082,9 +1086,10 @@ export class GameEngine extends EventEmitter {
         }
       : null;
 
+    const rallyIds = rallied(this.party, this.content);
     return {
       run,
-      party: this.party.map((c) => this.viewOf(c)),
+      party: this.party.map((c) => this.viewOf(c, rallyIds)),
       partyStrength: effectiveRating(partyRating(this.party, this.content), this.party.length),
       lastCombat: this.lastCombat,
       rosterSize: this.roster.size,

@@ -743,6 +743,22 @@ export function validateBalanceFile(raw: unknown, file: string): Record<string, 
       fail(file, `"dungeoneer.resetHour" must be a whole hour from 0 to 23`);
     }
   }
+  const rally = (raw as any).rally;
+  if (rally !== undefined) {
+    if (typeof rally !== "object" || rally === null || Array.isArray(rally)) fail(file, `"rally" must be an object`);
+    const merged = { ...DEFAULT_BALANCE.rally, ...rally };
+    if (typeof merged.enabled !== "boolean") fail(file, `"rally.enabled" must be true or false`);
+    for (const key of ["belowFraction", "toFraction"] as const) {
+      const v = merged[key];
+      if (!(typeof v === "number" && v > 0 && v <= 1)) fail(file, `"rally.${key}" must be a number above 0 and at most 1`);
+    }
+    if (!(Number.isInteger(merged.minPartySize) && merged.minPartySize >= 1)) {
+      fail(file, `"rally.minPartySize" must be a whole number, 1 or more`);
+    }
+    if (!(typeof merged.maxMultiplier === "number" && merged.maxMultiplier >= 1)) {
+      fail(file, `"rally.maxMultiplier" must be a number, 1 or more`);
+    }
+  }
   const transmog = (raw as any).economy?.transmogCostByRarity;
   if (transmog !== undefined) {
     // Merged per key over the defaults, so a partial table is fine; what is not
