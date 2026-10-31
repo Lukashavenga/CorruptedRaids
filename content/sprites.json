@@ -280,6 +280,12 @@
     "file": "chest/female-t5/2026-09-23T05-13-11-763Z.png",
     "original": "chest/female-t5/original.png"
   },
+  "chest/pink-male": {
+    "file": "chest/pink-male/2026-10-31T14-24-32-999Z.png"
+  },
+  "chest/punk-male": {
+    "file": "chest/punk-male/2026-10-31T14-21-42-230Z.png"
+  },
   "hair/s04-blonde": {
     "file": "hair/s04-blonde/2026-09-24T05-18-30-543Z.png",
     "original": "hair/s04-blonde/original.png"
@@ -331,8 +337,23 @@
     "file": "pants/female-t3/migrated.png",
     "original": "pants/female-t3/original.png"
   },
+  "chest/pink-female": {
+    "file": "chest/pink-female/2026-10-31T14-23-32-204Z.png"
+  },
+  "chest/sailor-male": {
+    "file": "chest/sailor-male/2026-10-31T14-37-32-483Z.png"
+  },
+  "chest/sailor-female": {
+    "file": "chest/sailor-female/2026-10-31T14-19-12-010Z.png"
+  },
   "enemies/cops/cops-08": {
     "file": "enemies/cops/cops-08/migrated.png",
     "original": "enemies/cops/cops-08/original.png"
+  },
+  "chest/stormtrooper-male": {
+    "file": "chest/stormtrooper-male/2026-10-31T14-39-09-230Z.png"
+  },
+  "chest/stormtrooper-female": {
+    "file": "chest/stormtrooper-female/2026-10-31T14-20-41-168Z.png"
   }
 }

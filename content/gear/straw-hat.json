@@ -2,13 +2,13 @@
   "id": "straw-hat",
   "name": "Straw Hat",
   "slot": "head",
+  "tags": [],
   "rarity": "rare",
+  "sprite": "head20",
+  "requires": {},
   "statMods": {
     "hp": 6,
     "skill": 2
   },
-  "description": "Straw Hat. Taken, not given.",
-  "tags": [],
-  "sprite": "head20",
-  "requires": {}
+  "description": "confucius say - man with hole in pocket, feel holy all day"
 }

@@ -2,13 +2,13 @@
   "id": "gentleman-s-topper",
   "name": "Gentleman's Topper",
   "slot": "head",
+  "tags": [],
   "rarity": "uncommon",
+  "sprite": "head15",
   "requires": {},
   "statMods": {
     "hp": 4,
-    "skill": 1
+    "skill": 12
   },
-  "description": "Gentleman's Topper. Taken, not given.",
-  "tags": [],
-  "sprite": "head15"
+  "description": "Ahhh Yes'th"
 }

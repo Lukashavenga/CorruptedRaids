@@ -2,13 +2,13 @@
   "id": "cycling-helmet",
   "name": "Cycling Helmet",
   "slot": "head",
+  "tags": [],
   "rarity": "common",
+  "sprite": "head09",
   "requires": {},
   "statMods": {
     "hp": 3,
     "skill": 1
   },
-  "description": "Cycling Helmet. Taken, not given.",
-  "tags": [],
-  "sprite": "head09"
+  "description": "Dutch lives matter"
 }

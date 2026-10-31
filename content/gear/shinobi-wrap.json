@@ -2,13 +2,13 @@
   "id": "shinobi-wrap",
   "name": "Shinobi Wrap",
   "slot": "head",
-  "rarity": "rare",
-  "statMods": {
-    "hp": 6,
-    "skill": 2
-  },
-  "description": "Shinobi Wrap. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "head21",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "spd": 6,
+    "skill": 10
+  },
+  "description": "Move like the shadows"
 }

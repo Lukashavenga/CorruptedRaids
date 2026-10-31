@@ -2,13 +2,14 @@
   "id": "shark-head",
   "name": "Shark Head",
   "slot": "head",
+  "tags": [],
   "rarity": "rare",
+  "sprite": "head24",
   "requires": {},
   "statMods": {
-    "hp": 7,
+    "hp": 3,
+    "atk": 7,
     "skill": 2
   },
-  "description": "Shark Head. Taken, not given.",
-  "tags": [],
-  "sprite": "head24"
+  "description": "CHOMP CHOMP"
 }

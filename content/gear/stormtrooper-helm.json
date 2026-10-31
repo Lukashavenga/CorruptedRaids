@@ -2,13 +2,14 @@
   "id": "stormtrooper-helm",
   "name": "Stormtrooper Helm",
   "slot": "head",
-  "rarity": "uncommon",
-  "statMods": {
-    "hp": 3,
-    "skill": 1
-  },
-  "description": "Stormtrooper Helm. Taken, not given.",
   "tags": [],
+  "rarity": "rare",
   "sprite": "head08",
-  "requires": {}
+  "requires": {},
+  "statMods": {
+    "hp": 30,
+    "atk": -1,
+    "skill": 12
+  },
+  "description": "Aim small - miss."
 }
